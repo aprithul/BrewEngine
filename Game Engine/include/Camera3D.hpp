@@ -40,6 +40,7 @@ namespace PrEngine
             float right;
             float bottom;
             float top;
+            float zoom;
 
             Matrix4x4<float> view_matrix;
             Matrix4x4<float> projection_matrix;

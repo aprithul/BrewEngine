@@ -106,6 +106,7 @@ namespace PrEngine {
             void map_mb_to_mb(int from, int to);
             void map_mb_to_kb(int from, SDL_Keycode to);
             Vector2<int> delta;
+            int scroll;
     };
 
     class Keyboard

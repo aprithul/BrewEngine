@@ -27,6 +27,7 @@ namespace PrEngine
         this->top = top;
         this->near_ = near_;
         this->far_ = far_;
+        this->zoom = 1;
         this->projection_type = ORTHOGRAPHIC;
 
     }
@@ -74,6 +75,12 @@ namespace PrEngine
         }
         transform.set_position(pos);
 
+        if(input_manager->mouse.scroll!=0)
+        {
+        	float speed = 4.f;
+        	zoom += input_manager->mouse.scroll*Time::Frame_time*speed;
+        }
+
         // set view matrix based on camera
 
         view_matrix = Matrix4x4<float>::identity();
@@ -86,7 +93,7 @@ namespace PrEngine
         if(projection_type==PERSPECTIVE)
             projection_matrix = Matrix4x4<float>::perspective(near_, far_,width, height, fov);
         else
-            projection_matrix = Matrix4x4<float>::ortho(left, right, bottom, top, near_, far_);
+            projection_matrix = Matrix4x4<float>::ortho(left*zoom, right*zoom, bottom*zoom, top*zoom, near_, far_);
             //projection_matrix = Matrix4x4<float>::ortho(0, width,0, height, near_, far_);
         
 

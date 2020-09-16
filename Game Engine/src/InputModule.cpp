@@ -79,6 +79,8 @@ namespace PrEngine {
             mouse.kb_up[ mouse.mb_to_kb_binding[i]] = false;
             mouse.kb_down[ mouse.mb_to_kb_binding[i]] = false;
         }
+
+        mouse.scroll = 0;
     
         for (std::unordered_map<SDL_Keycode,bool>::iterator it=keyboard.key_pressed_flags.begin(); it!=keyboard.key_pressed_flags.end(); ++it)
             keyboard.key_pressed_flags[it->first] = false;
@@ -218,6 +220,10 @@ namespace PrEngine {
                 break;
             
             // keyboard gamecontroller end
+
+            case SDL_MOUSEWHEEL:
+            	mouse.scroll = event.wheel.y;
+            	break;
 
             case SDL_MOUSEMOTION:
                 mouse.position.x = event.motion.x;
