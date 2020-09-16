@@ -29,7 +29,6 @@ namespace PrEngine
             }
             else // successfully created texture, store in library and assign that
             {
-                texture_library[diffuse_tex_path] = _tex;
                 diffuse_texture = _tex;
 
             }
@@ -80,7 +79,6 @@ namespace PrEngine
             }
             else // successfully created texture, store in library and assign that
             {
-                texture_library[diffuse_tex_path] = _tex;
                 diffuse_texture = _tex;
 
             }
@@ -128,7 +126,6 @@ namespace PrEngine
             }
             else // successfully created texture, store in library and assign that
             {
-                texture_library[cubemap_file_name] = _tex;
                 diffuse_texture = _tex;
 
             }

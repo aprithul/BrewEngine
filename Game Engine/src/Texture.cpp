@@ -61,6 +61,7 @@ namespace PrEngine
             GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, type, GL_UNSIGNED_BYTE, data))
             GL_CALL(glBindTexture(GL_TEXTURE_2D, 0))
             texture_create_status = 1;
+            texture_library[std::string(path)] = this;
         }
     }
 

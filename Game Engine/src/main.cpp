@@ -27,6 +27,7 @@
 #include "Camera3D.hpp"
 #include "DirectionalLight.hpp"-
 #include "Game.hpp"
+#include "EntityGenerator.hpp"
 //#include "ImGuiModule.hpp"
 
 using namespace PrEngine;
@@ -35,10 +36,12 @@ void main_loop(void* game_engine);
 
 bool is_running = true;
 
+
+
+
 int main(int argc, char * argv[]) 
 {        
         
-
         // create a new game engine instance
         PrEngine::Engine* game_engine = new PrEngine::Engine();
         // add the components
@@ -92,39 +95,14 @@ int main(int argc, char * argv[])
         LOG(LOGTYPE_GENERAL, std::string( (const char*)(glGetString(GL_VERSION))));//,",  ",std::string( (const char*)(glGetString(GL_EXTENSIONS)) ));
 
 
-        Entity* light_ent = new Entity();
-        Transform3D* light_tr = new Transform3D();
-        light_tr->set_rotation(Vector3<float>(0,0,90));
-        DirectionalLight* light = new DirectionalLight(0.5f, 0.3f);
-        light_ent->add_componenet(light);
-        light_ent->add_componenet(light_tr);
-        entity_management_system->assign_id_and_store_entity(*light_ent);
 
+        PrEngine::EntityGenerator* engity_generator = new EntityGenerator(renderer);
+        engity_generator->make_sprite_entity("braid"+PATH_SEP+"tim0.png");
+        engity_generator->make_sprite_entity("braid"+PATH_SEP+"tim1.png");
+        engity_generator->make_sprite_entity("braid"+PATH_SEP+"tim2.png");
+        engity_generator->make_sprite_entity("braid"+PATH_SEP+"tim3.png");
 
-        Transform3D* tim_transform = new Transform3D();
-        tim_transform->set_position(0,0,0);
-        tim_transform->set_scale(1,1,1);
-        Graphics* tim_graphics= renderer->generate_graphics_sprite(get_resource_path("Braid"+PATH_SEP+"tim0.png"), "sprite_mat");
-        tim_graphics->model = &(tim_transform->get_transformation());
-        tim_graphics->normal = &(tim_transform->get_rotation_transformation());
-        Entity* tim_entity = new Entity();
-        tim_entity->add_componenet(tim_transform);
-        tim_entity->add_componenet(tim_graphics);
-        entity_management_system->assign_id_and_store_entity(*tim_entity);
-
-
-
-        //graphics_plane->elements[0].material->environment_map_texture = (TextureCubeMap*)cube_map_grpahics->elements[0].material->diffuse_texture;
-
-        //TextureCubeMap* cube_map = new TextureCubeMap(paths);
-        //std::cout<<graphics->normal->data[0]<<std::endl;
-        /*PrEngine::Player* player = new PrEngine::Player(gc);
-        player->keyboard = kb;
-        player->mouse = mouse;
-        player->main_camera = camera;
-        entity_management_system->assign_id_and_store_entity(*player);
-        */
-        //std::cout<<sprite->graphics.layer<<","<<sprite_cube->graphics.layer<<","<<sprite_cube_2->graphics.layer<<std::endl;
+        engity_generator->make_light_entity();
         game_engine->start();
         
         //PrEngine::show_file_structure( PrEngine::get_resource_path(""),"");
