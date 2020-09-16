@@ -88,8 +88,8 @@ namespace PrEngine {
         n_x = nx;
         n_y = ny;
         n_z = nz;
-        u = u;
-        v = v;
+        this->u = u;
+        this->v = v;
     }
 
 

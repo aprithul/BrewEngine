@@ -91,8 +91,8 @@ namespace PrEngine {
 
         while (SDL_PollEvent(&event)) {
             
-            //ImGuiIO& io = ImGui::GetIO();
-            //ImGui_ImplSDL2_ProcessEvent(&event);            
+            ImGuiIO& io = ImGui::GetIO();
+            ImGui_ImplSDL2_ProcessEvent(&event);
             
             switch (event.type)
             {
@@ -469,6 +469,10 @@ namespace PrEngine {
         key_binding[SDLK_1] = SDLK_1;
         key_binding[SDLK_2] = SDLK_2;
         
+        key_binding[SDLK_LSHIFT] = SDLK_LSHIFT;
+        key_binding[SDLK_SPACE] = SDLK_SPACE;
+        key_binding[SDLK_LCTRL] = SDLK_LCTRL;
+
     }
 
     Keyboard::~Keyboard()

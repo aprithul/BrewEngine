@@ -71,7 +71,9 @@ namespace PrEngine {
         }
         Vector2 normalize(){
         double len = length();
-        x /= len;
+        if(len<=0.000001)
+        	return (*this);
+		x /= len;
         y /= len;
         return (*this);
         }

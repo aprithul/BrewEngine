@@ -126,7 +126,6 @@ namespace PrEngine {
     {
         SDL_GL_SetSwapInterval(value);
     }
-    GLuint fbo;
     void RendererOpenGL::start()
     {
         //projection = Matrix4x4<float>::ortho(-1.f, 1.f, -0.75f, 0.75f,-1.f,1.f);
@@ -159,8 +158,6 @@ namespace PrEngine {
 */
 
     }
-
-    bool my_tool_active = true;
 
     void RendererOpenGL::update()
     {

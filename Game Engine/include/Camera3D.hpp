@@ -19,6 +19,7 @@ namespace PrEngine
     {
         public:
             Camera(float width, float height, float near, float far, float fov, Transform3D& _transform);
+            Camera(float left, float right, float bottom, float top, float near_, float far_, Transform3D& _transform);
             ~Camera();
             Transform3D& transform;
 
@@ -34,6 +35,11 @@ namespace PrEngine
             float far_; 
             float width;
             float height;
+
+            float left;
+            float right;
+            float bottom;
+            float top;
 
             Matrix4x4<float> view_matrix;
             Matrix4x4<float> projection_matrix;

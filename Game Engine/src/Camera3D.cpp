@@ -12,6 +12,23 @@ namespace PrEngine
         this->near_ = near_;
         this->far_ = far_;
         this->fov = fov;
+        this->projection_type = PERSPECTIVE;
+
+    }
+
+    Camera::Camera(float left, float right, float bottom, float top, float near_, float far_, Transform3D& _transform):transform(_transform),Component(COMP_CAMERA)
+    {
+        //fov = 45.f;
+        //near_ = 0.1f;
+        //far_ = -1.f;
+        this->left = left;
+        this->right = right;
+        this->bottom = bottom;
+        this->top = top;
+        this->near_ = near_;
+        this->far_ = far_;
+        this->projection_type = ORTHOGRAPHIC;
+
     }
 
     Camera::~Camera()
@@ -31,23 +48,31 @@ namespace PrEngine
 
     void Camera::update()
     {
+    	float cam_pan_min_speed = 2.f;
+    	float cam_pan_max_speed = 7.f;
+    	float cam_pan_speed = cam_pan_min_speed;
+    	if(input_manager->keyboard.get_key(SDLK_LSHIFT))
+    		cam_pan_speed = cam_pan_max_speed;
 
         Vector3<float> pos = transform.get_position();
-        if(input_manager->keyboard.get_key(SDLK_z))
-            pos.y = pos.y+(Time::Frame_time*1.f);
-        if(input_manager->keyboard.get_key(SDLK_c))
-            pos.y = pos.y-(Time::Frame_time*1.f);
-        if(input_manager->keyboard.get_key(SDLK_d))
-            pos = pos + (transform.get_right()*(float)(Time::Frame_time*5.f));
-        if(input_manager->keyboard.get_key(SDLK_a))
-            pos = pos - (transform.get_right()*(float)(Time::Frame_time*5.f));
-        if(input_manager->keyboard.get_key(SDLK_s))
-            pos = pos - (transform.get_forward()*(float)(Time::Frame_time*5.f));
         if(input_manager->keyboard.get_key(SDLK_w))
-            pos = pos + (transform.get_forward()*(float)(Time::Frame_time*5.f));
+            pos.y = pos.y+(Time::Frame_time*cam_pan_speed);
+        if(input_manager->keyboard.get_key(SDLK_s))
+            pos.y = pos.y-(Time::Frame_time*cam_pan_speed);
+        if(input_manager->keyboard.get_key(SDLK_d))
+            pos.x = pos.x +(Time::Frame_time*cam_pan_speed);
+        if(input_manager->keyboard.get_key(SDLK_a))
+            pos.x = pos.x -(Time::Frame_time*cam_pan_speed);
+
+        if(input_manager->mouse.get_mouse_button(1))
+        {
+        	Vector2<float> _delta(input_manager->mouse.delta.x,-input_manager->mouse.delta.y);
+        	Vector2<float> _delta_f = (_delta.normalize())*(float)(cam_pan_speed*2*Time::Frame_time);
+        	Vector3<float> _delta3d(_delta_f.x, _delta_f.y, 0);
+        	pos = pos + _delta3d;
+        	LOG(LOGTYPE_WARNING, "Mouse pressed");
+        }
         transform.set_position(pos);
-
-
 
         // set view matrix based on camera
 
@@ -61,7 +86,7 @@ namespace PrEngine
         if(projection_type==PERSPECTIVE)
             projection_matrix = Matrix4x4<float>::perspective(near_, far_,width, height, fov);
         else
-            projection_matrix = Matrix4x4<float>::ortho(-8, 8, -4.5f, 4.5f, -10, 10);
+            projection_matrix = Matrix4x4<float>::ortho(left, right, bottom, top, near_, far_);
             //projection_matrix = Matrix4x4<float>::ortho(0, width,0, height, near_, far_);
         
 
@@ -84,7 +109,7 @@ namespace PrEngine
         transform.set_rotation(rot);*/
 
         //std::cout<<"Mouse delta: "<<input_manager->mouse.delta.length()<<std::endl;
-
+        /*
         float rotation_factor = 15.f;
         Vector3<float> rot = transform.get_rotation();
         //if(input_manager->keyboard.get_key(SDLK_a))
@@ -92,7 +117,7 @@ namespace PrEngine
         rot.x = rot.x+(Time::Frame_time*rotation_factor*input_manager->mouse.delta.y);
         //if(input_manager->keyboard.get_key(SDLK_d))
         //    rot.y = rot.y-(Time::Frame_time*100.f);
-        transform.set_rotation(rot);
+        transform.set_rotation(rot);*/
 
     }
 
