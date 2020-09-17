@@ -95,14 +95,17 @@ int main(int argc, char * argv[])
         LOG(LOGTYPE_GENERAL, std::string( (const char*)(glGetString(GL_VERSION))));//,",  ",std::string( (const char*)(glGetString(GL_EXTENSIONS)) ));
 
 
+        std::vector<std::string> file_paths;
 
-        PrEngine::EntityGenerator* engity_generator = new EntityGenerator(renderer);
-        engity_generator->make_sprite_entity("braid"+PATH_SEP+"tim0.png");
-        engity_generator->make_sprite_entity("braid"+PATH_SEP+"tim1.png");
-        engity_generator->make_sprite_entity("braid"+PATH_SEP+"tim2.png");
-        engity_generator->make_sprite_entity("braid"+PATH_SEP+"tim3.png");
+        for(int i=0; i<27; i++)
+        {
+        	file_paths.push_back("braid"+PATH_SEP+"tim_run"+PATH_SEP+std::to_string(i)+".gif");
+        }
 
-        engity_generator->make_light_entity();
+        PrEngine::EntityGenerator* entity_generator = new EntityGenerator(renderer);
+        entity_generator->make_animated_sprite_entity(file_paths,27);
+        entity_generator->make_light_entity();
+
         game_engine->start();
         
         //PrEngine::show_file_structure( PrEngine::get_resource_path(""),"");

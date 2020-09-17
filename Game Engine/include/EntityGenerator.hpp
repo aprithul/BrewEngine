@@ -12,6 +12,7 @@
 #include "RendererOpenGL2D.hpp"
 #include "Graphics.hpp"
 #include "Transform3D.hpp"
+#include "Sprite.hpp"
 #include <stdlib.h>
 
 namespace PrEngine{
@@ -20,7 +21,7 @@ namespace PrEngine{
 	public:
 		EntityGenerator(RendererOpenGL2D* renderer);
 		~EntityGenerator();
-		Entity* make_sprite_entity(const std::string& image_file_path);
+		Entity* make_animated_sprite_entity(const std::vector<std::string>& image_file_paths,int fps);
 		Entity* make_light_entity();
 
 	private:

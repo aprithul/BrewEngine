@@ -152,7 +152,7 @@ namespace PrEngine {
             (*it)->end();
     }
 
-    Graphics* RendererOpenGL2D::generate_graphics_sprite(const std::string& texture_file_path, const std::string& mat_name)
+    Sprite* RendererOpenGL2D::generate_graphics_sprite(const std::string& texture_file_path,  const std::string& mat_name)
     {
 
         std::unordered_map<std::string, Material*>::iterator _mat_it = Material::material_library.find(mat_name);
@@ -166,6 +166,7 @@ namespace PrEngine {
         {
             mat = _mat_it->second;
         }
+
 
         // find the proer scale needed for the quad mesh
         Texture* tex = mat->diffuse_texture;
@@ -296,7 +297,7 @@ namespace PrEngine {
 		Sprite* _sprite = new Sprite(0, *graphics);
 		sprite_layer->sprite_list.push_back(_sprite);
 
-            return graphics;
+		return _sprite;
     }
 
 

@@ -74,7 +74,15 @@ namespace PrEngine
     void Texture::load_default_texture()
     {
     	Texture* _tex = new Texture(get_resource_path("default.jpg").c_str());
-    	Texture::texture_library[get_resource_path("default.jpg")] = _tex;
+    }
+
+    Texture* Texture::load_texture(const std::string& path)
+    {
+    	Texture* _tex = new Texture(get_resource_path(path).c_str());
+    	if(Texture::texture_create_status == 0)
+    		return nullptr;
+    	else
+    		return _tex;
     }
 
     void Texture::delete_all_texture_data()
@@ -94,6 +102,7 @@ namespace PrEngine
     	LOG(LOGTYPE_GENERAL, "Deleteing all textures");
     	for(std::unordered_map<std::string, Texture*>::iterator it = Texture::texture_library.begin(); it != Texture::texture_library.end(); it++)
     	{
+    		LOG(LOGTYPE_ERROR, "Deleting : ", std::to_string(it->second->id));
     		delete it->second;
     	}
     }
@@ -118,82 +127,6 @@ namespace PrEngine
     {
         GL_CALL(
             glBindTexture(GL_TEXTURE_2D, 0))
-    }
-
-
-    TextureCubeMap::TextureCubeMap( const std::vector<std::string>& paths)
-    {
-        GL_CALL(glGenTextures(1, &id))
-        GL_CALL(glActiveTexture(GL_TEXTURE0+1))
-        GL_CALL(glBindTexture(GL_TEXTURE_CUBE_MAP, id))
-        stbi_set_flip_vertically_on_load(false);
-
-        for(int i=0; i<paths.size(); i++)
-        {
-            std::string path = paths[i];
-            texture_create_status = 0;
-
-            if(texture_data_library.count(path) > 0)
-            {
-                TextureData td = texture_data_library[path];
-                data = td.data;
-                width = td.width;
-                height = td.height;
-                no_of_channels = td.no_of_channels;
-            }
-            else
-            {
-                data = stbi_load(path.c_str(),&width, &height, &no_of_channels, 0);
-                if(data!=nullptr)
-                {
-                    TextureData td;
-                    td.data = data;
-                    td.width = width;
-                    td.height = height;
-                    td.no_of_channels = no_of_channels;
-                    texture_data_library[path] = td;
-                }
-            }
-
-
-            if(data == NULL){
-                texture_create_status = 0;
-                LOG(LOGTYPE_ERROR, "Couldn't create texture : ", path);
-                return;
-            }
-            else
-            {
-                LOG(LOGTYPE_GENERAL, "Image ",std::string(path)," loaded");
-                GL_CALL(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X +i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data))
-                texture_create_status = 1;
-            }
-        }
-        GL_CALL(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR))
-        GL_CALL(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR))
-        GL_CALL(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE))
-        GL_CALL(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE))
-        GL_CALL(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE))
-
-        GL_CALL(glBindTexture(GL_TEXTURE_CUBE_MAP, 0))
-
-        LOG(LOGTYPE_GENERAL, "Cubemap texture created successfully");
-        texture_create_status = 1;
-        
-    }
-
-    void TextureCubeMap::Bind(int slot)
-    {
-        GL_CALL(glActiveTexture(GL_TEXTURE0+slot))
-        GL_CALL(glBindTexture(GL_TEXTURE_CUBE_MAP, id))
-    }
-
-    void TextureCubeMap::Unbind()
-    {
-        GL_CALL(glBindTexture(GL_TEXTURE_CUBE_MAP, 0))
-    }
-    TextureCubeMap::~TextureCubeMap()
-    {
-
     }
 
     void TextureData::Delete()

@@ -2,7 +2,6 @@
 #define ENTITY_HPP
 
 #include <string>
-#include "Transform.hpp"
 #include "Utils.hpp"
 #include "Component.hpp"
 

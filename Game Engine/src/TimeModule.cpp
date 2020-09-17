@@ -14,6 +14,7 @@ namespace PrEngine {
     double Time::Frame_time;
     double Time::current_frame_start_time;
     double Time::last_frame_start_time;
+    std::vector<Timer> Time::timers;
     
     Time::Time(std::string name, int priority):Module(name,priority)
     {
@@ -36,9 +37,34 @@ namespace PrEngine {
     {
         if(is_active)
         {
+
             last_frame_start_time = current_frame_start_time;
             current_frame_start_time = SDL_GetTicks()/1000.0;
             Frame_time = current_frame_start_time - last_frame_start_time;
+
+            // call callback, reset if recurring timer
+            // otherwise delete
+        	for(std::vector<Timer>::iterator it = timers.begin(); it != timers.end();)
+        	{
+        		it->current_duration += Frame_time;
+        		if(it->current_duration >= it->target_duration)
+        		{
+        			it->callback();
+
+            		if(it->recurring)
+            		{
+            			it->current_duration = 0;
+            			it++;
+            		}
+            		else
+            		{
+            			it = timers.erase(it);
+            		}
+        		}
+        		else
+        			it++;
+
+        	}
         }
         
     }
@@ -59,4 +85,20 @@ namespace PrEngine {
         
     }
     
+    Timer::Timer(double duration, std::function<void()> callback, bool recurring)
+    {
+    	this->current_duration = 0;
+    	this->target_duration = duration;
+    	this->callback = callback;
+    	this->recurring = recurring;
+    }
+
+    Timer* Time::make_timer(double duration, std::function<void()> callback, bool recurring)
+    {
+    	Timer t(duration, callback,recurring);
+    	timers.push_back(t);
+    	return &(timers.back());
+
+    }
+
 }

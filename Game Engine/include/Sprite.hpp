@@ -3,8 +3,9 @@
 #include "Entity.hpp"
 #include "TimeModule.hpp"
 #include "Transform3D.hpp"
-#include <string>
 #include "Graphics.hpp"
+#include "Animator.hpp"
+#include <string>
 
 namespace PrEngine
 {
@@ -18,6 +19,7 @@ namespace PrEngine
 
             int order;
             Graphics& graphics;
+            Animator animator;
     };
 
 }

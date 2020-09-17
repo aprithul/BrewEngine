@@ -15,6 +15,7 @@ namespace PrEngine
         COMP_GRAPHICS,
         COMP_LIGHT,
         COMP_CAMERA,
+		COMP_ANIMATOR,
         COMP_COUNT_MAX,
     };
 

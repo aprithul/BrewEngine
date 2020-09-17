@@ -33,7 +33,6 @@ namespace PrEngine
         static std::unordered_map<std::string, Material*> material_library;
         static void delete_all_materials();
         Material(const std::string& shader_path, const std::string& diffuse_tex_path,const std::string& name);
-        Material(const std::string& shader_path, const std::string& diffuse_tex_path, TextureCubeMap& env_map, const std::string& name);
         Material(const std::string& shader_path, const std::vector<std::string>& cubemap_tex_path,const std::string& name);
         //void Generate(const std::string& shader_path, const std::string& diffuse_tex_path, const std::string& name);
         void Delete();

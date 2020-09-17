@@ -28,6 +28,7 @@ namespace PrEngine
         static int texture_create_status;
 
         static void load_default_texture();
+        static Texture* load_texture(const std::string& path);
         static void delete_all_texture_data();
         static void delete_all_textures();
 
@@ -44,16 +45,6 @@ namespace PrEngine
         virtual void Bind(int slot);
         virtual void Unbind();
     };
-
-    struct TextureCubeMap:public Texture
-    {
-
-        TextureCubeMap( const std::vector<std::string>& paths);
-        ~TextureCubeMap();
-        void Bind(int slot) override;
-        void Unbind() override;
-    };
-
 
 }
 #endif

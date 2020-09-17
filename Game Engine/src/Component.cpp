@@ -11,6 +11,7 @@ namespace PrEngine
         "GRAPHICS",
         "LIGHT",
         "CAMERA"
+		"ANIMATOR"
     };
 
     Component::Component(ComponentType type):type(type)
