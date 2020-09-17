@@ -9,9 +9,9 @@
 
 namespace PrEngine {
 
-    InputManager* input_manager;
-    std::string textinput = "";
-    bool textinput_modified = false;
+    InputManager* InputManager::input_manager;
+    std::string InputManager::textinput = "";
+    bool InputManager::textinput_modified = false;
 
     InputManager::InputManager(std::string name, int priority):Module(name, priority)
     {
@@ -27,7 +27,7 @@ namespace PrEngine {
         else
             LOG(LOGTYPE_GENERAL, "Text input is not active");
 
-        PrEngine::input_manager = this;
+        input_manager = this;
     }
     
     InputManager::~InputManager()

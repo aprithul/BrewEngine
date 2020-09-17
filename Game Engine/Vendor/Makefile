@@ -3,7 +3,7 @@ SRC_DIR := ./src
 OBJ_DIR := ./Build
 
 CC       := g++
-CPPFLAGS := -I$(INC_DIR) -std=c++11 -g
+CPPFLAGS := -I$(INC_DIR) -std=c++11 -g -O
 
 SOURCES := $(wildcard $(SRC_DIR)/*.cpp)
 OBJECTS := $(patsubst $(SRC_DIR)%.cpp,$(OBJ_DIR)%.o,$(SOURCES))

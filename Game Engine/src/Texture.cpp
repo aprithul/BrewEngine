@@ -2,9 +2,10 @@
 
 namespace PrEngine
 {
-    int texture_create_status;
-    std::unordered_map<std::string, Texture*> texture_library;
-    std::unordered_map<std::string, TextureData> texture_data_library;
+    int Texture::texture_create_status;
+
+    std::unordered_map<std::string, TextureData> Texture::texture_data_library;
+    std::unordered_map<std::string, Texture*> Texture::texture_library;
 
     Texture::Texture(const char* path)
     {
@@ -61,7 +62,7 @@ namespace PrEngine
             GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, type, GL_UNSIGNED_BYTE, data))
             GL_CALL(glBindTexture(GL_TEXTURE_2D, 0))
             texture_create_status = 1;
-            texture_library[std::string(path)] = this;
+            Texture::texture_library[std::string(path)] = this;
         }
     }
 
@@ -70,13 +71,39 @@ namespace PrEngine
 
     }    
 
+    void Texture::load_default_texture()
+    {
+    	Texture* _tex = new Texture(get_resource_path("default.jpg").c_str());
+    	Texture::texture_library[get_resource_path("default.jpg")] = _tex;
+    }
+
+    void Texture::delete_all_texture_data()
+    {
+    	LOG(LOGTYPE_GENERAL, "Deleteing all texture data");
+    	for(std::unordered_map<std::string, TextureData>::iterator it = Texture::texture_data_library.begin(); it != Texture::texture_data_library.end(); it++)
+		{
+    		if(it->second.data!=NULL)
+    		{
+    			it->second.Delete();
+    		}
+		}
+    }
+
+    void Texture::delete_all_textures()
+    {
+    	LOG(LOGTYPE_GENERAL, "Deleteing all textures");
+    	for(std::unordered_map<std::string, Texture*>::iterator it = Texture::texture_library.begin(); it != Texture::texture_library.end(); it++)
+    	{
+    		delete it->second;
+    	}
+    }
+
     Texture::~Texture()
     {
         Unbind();
         GL_CALL(
             glDeleteTextures(1, &id))
-        if(data != NULL)
-            stbi_image_free(data);
+
     }
 
     void Texture::Bind(int slot)
@@ -169,8 +196,13 @@ namespace PrEngine
 
     }
 
-    void delete_texture_from_library()
+    void TextureData::Delete()
     {
-        
+        if(data != NULL)
+        {
+			LOG(LOGTYPE_GENERAL,"Deleting texture data");
+        	stbi_image_free(data);
+        }
     }
+
 }

@@ -1,8 +1,8 @@
 #ifndef CAMERA_3D_HPP
 #define CAMERA_3D_HPP
 
-#include "Entity.hpp"
-#include "Engine.hpp"
+//#include "Entity.hpp"
+#include "InputModule.hpp"
 #include "TimeModule.hpp"
 #include "Vector3.hpp"
 #include "Transform3D.hpp"

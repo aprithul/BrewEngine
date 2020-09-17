@@ -4,7 +4,7 @@ OBJ_DIR := ./Build
 VENDOR := ./Vendor/Build
 
 CC       := g++
-CPPFLAGS := -I$(INC_DIR) -I./Vendor/include -std=c++11 -g
+CPPFLAGS := -I$(INC_DIR) -I./Vendor/include -std=c++11 -g -Os
 ifeq ($(OS),Windows_NT)
 LDLIBS   := -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lglew32 -lOpenGL32
 else

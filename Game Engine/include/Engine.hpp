@@ -36,6 +36,8 @@ namespace PrEngine {
     class Engine
     {
     public:
+    	static Engine* engine;
+
         Engine();
         ~Engine();
         Module* add_module(Module* _module);
@@ -57,7 +59,7 @@ namespace PrEngine {
 
     };
 
-    extern Engine* engine;
+
 
 }
 

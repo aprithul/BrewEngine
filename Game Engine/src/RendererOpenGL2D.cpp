@@ -49,13 +49,13 @@ namespace PrEngine {
         std::cout<<"Vector3 size"<<sizeof(Vector3<float>)<<std::endl;
 
         std::cout<<"Loading default texture"<<std::endl;
-        Texture* _tex = new Texture(get_resource_path("default.jpg").c_str());
-        texture_library[get_resource_path("default.jpg")] = _tex;
+        Texture::load_default_texture();
+
         //data = stbi_load( get_resource_path("default.jpg").c_str() ,&width, &height, &no_of_channels, 0);
 
 
         /// create render layers
-        Entity* camera = entity_management_system->get_entity_with_component(COMP_CAMERA);
+        Entity* camera = EntityManagementSystem::entity_management_system->get_entity_with_component(COMP_CAMERA);
         long camera_handle = -1;
         if(camera == nullptr){
             LOG(LOGTYPE_ERROR, "No camera found");
@@ -80,6 +80,11 @@ namespace PrEngine {
     {
         for(std::vector<RenderLayer*>::iterator it = render_layers.begin(); it != render_layers.end(); it++)
             delete (*it);
+
+        Texture::delete_all_texture_data();
+        Texture::delete_all_textures();
+        Shader::delete_all_shaders();
+        Material::delete_all_materials();
 
         SDL_GL_DeleteContext(glContext);
         SDL_DestroyWindow(window);
@@ -150,12 +155,12 @@ namespace PrEngine {
     Graphics* RendererOpenGL2D::generate_graphics_sprite(const std::string& texture_file_path, const std::string& mat_name)
     {
 
-        std::unordered_map<std::string, Material*>::iterator _mat_it = material_library.find(mat_name);
+        std::unordered_map<std::string, Material*>::iterator _mat_it = Material::material_library.find(mat_name);
         Material* mat;
-        if(_mat_it == material_library.end())
+        if(_mat_it == Material::material_library.end())
         {
             mat = new Material("shaders"+PATH_SEP+"DiffuseUnlit2D.shader", std::string(texture_file_path), mat_name);
-            material_library[mat_name] = mat;
+            Material::material_library[mat_name] = mat;
         }
         else
         {

@@ -16,9 +16,9 @@ namespace PrEngine
     void SpriteLayer::update()
     {
         insertion_sort(sprite_list, sprite_list.size());
-        Entity* camera = entity_management_system->get_entity(camera_handle);
+        Entity* camera = EntityManagementSystem::entity_management_system->get_entity(camera_handle);
 
-        DirectionalLight* light = (DirectionalLight*)entity_management_system->get_entity_with_component(COMP_LIGHT);
+        DirectionalLight* light = (DirectionalLight*)EntityManagementSystem::entity_management_system->get_entity_with_component(COMP_LIGHT);
 
 
 
@@ -32,7 +32,7 @@ namespace PrEngine
             	grp.elements[i].material->Bind();
 				//std::cout<<"before: "<<grp.elements[i].material.uniform_locations["u_MVP"]  <<std::endl;
 
-				std::unordered_map<std::string, std::pair<std::string,GLuint>>& m = grp.elements[i].material->shader_program.uniform_locations;
+				std::unordered_map<std::string, std::pair<std::string,GLuint>>& m = grp.elements[i].material->shader->uniform_locations;
 
 
 				for( std::unordered_map<std::string, std::pair<std::string,GLuint>>::iterator it = m.begin(); it!=m.end(); it++)
@@ -59,7 +59,7 @@ namespace PrEngine
 					if(it->first == "u_Dir_Light")
 					{
 
-						Vector3<float> dir = ((Transform3D*)(entity_management_system->get_entity_with_component(COMP_LIGHT)->components[COMP_TRANSFORM_3D]))->get_forward(); // must change
+						Vector3<float> dir = ((Transform3D*)(EntityManagementSystem::entity_management_system->get_entity_with_component(COMP_LIGHT)->components[COMP_TRANSFORM_3D]))->get_forward(); // must change
 						GL_CALL(
 							glUniform3f(it->second.second, dir.x, dir.y, dir.z))
 					}

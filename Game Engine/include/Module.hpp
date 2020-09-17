@@ -10,7 +10,6 @@
 #define MODULE_HPP
 
 #include <string>
-#include "SDL2/SDL.h"
 
 #define IS_SERVER false
 

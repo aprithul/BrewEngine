@@ -25,8 +25,7 @@
 
 namespace PrEngine {
 
-    extern std::string textinput;
-    extern bool textinput_modified;
+
 
     class GameController
     {
@@ -131,6 +130,10 @@ namespace PrEngine {
     class InputManager : public Module
     {
         public:
+    		static InputManager* input_manager;
+    	    static std::string textinput;
+    	    static bool textinput_modified;
+
             InputManager(std::string name, int priority);
             ~InputManager();
             bool was_crossed;
@@ -151,7 +154,6 @@ namespace PrEngine {
             SDL_Event event;
     };
 
-    extern InputManager* input_manager;
 
 }
 

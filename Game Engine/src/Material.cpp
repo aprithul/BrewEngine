@@ -3,14 +3,14 @@
 namespace PrEngine
 {
 
-    std::unordered_map<std::string, Material*> material_library;
-    std::unordered_map<std::string, Shader> shader_library;
+    std::unordered_map<std::string, Material*> Material::material_library;
+    std::unordered_map<std::string, Shader> Shader::shader_library;
 
     /*Material::()
     {
 
     }*/
-
+    /*
     Material::Material(const std::string& shader_path, const std::string& diffuse_tex_path, TextureCubeMap& env_map, const std::string& name)
     {
         // only create new texture on gpu if texture doesn't exist already
@@ -19,13 +19,13 @@ namespace PrEngine
         
         environment_map_texture = &env_map;
 
-        std::unordered_map<std::string, Texture*>::iterator _tex_it = texture_library.find(diffuse_tex_path);
-        if(_tex_it == texture_library.end()) // texture not in library, so create
+        std::unordered_map<std::string, Texture*>::iterator _tex_it = Texture::texture_library.find(diffuse_tex_path);
+        if(_tex_it == Texture::texture_library.end()) // texture not in library, so create
         {
             Texture* _tex =  new Texture(diffuse_tex_path.c_str());
-            if(texture_create_status == 0){    // creating texture failed, so assign default
+            if(Texture::texture_create_status == 0){    // creating texture failed, so assign default
                 delete _tex;
-                diffuse_texture = texture_library[get_resource_path("default.jpg")];
+                diffuse_texture = Texture::texture_library[get_resource_path("default.jpg")];
             }
             else // successfully created texture, store in library and assign that
             {
@@ -34,48 +34,35 @@ namespace PrEngine
             }
         }
         else    // texture found in library, so assign that
-            diffuse_texture = texture_library[diffuse_tex_path];
+            diffuse_texture = Texture::texture_library[diffuse_tex_path];
 
-        std::unordered_map<std::string, Shader>::iterator _shader_it = shader_library.find(shader_path);
-        if(_shader_it == shader_library.end())
+        std::unordered_map<std::string, Shader>::iterator _shader_it = Shader::shader_library.find(shader_path);
+        if(_shader_it == Shader::shader_library.end())
         {
             // create shader, probably can be shared, will check later
-            this->source_file_path = std::string(shader_path);
+            //this->source_file_path = std::string(shader_path);
             make_shader_program(this->source_file_path);
             
-            shader_library[shader_path] = shader_program;
         }
         else
             shader_program = _shader_it->second;
-        
-        /*load_uniform_location("u_sampler2d");
-        load_uniform_location("u_env_map");
-        load_uniform_location("u_Model");
-        load_uniform_location("u_View");
-        load_uniform_location("u_Projection");
-        load_uniform_location("u_Camera_Position");
-        load_uniform_location("u_Normal_M");
-        load_uniform_location("u_Dir_Light");
-        load_uniform_location("u_Tiling");
-        load_uniform_location("u_Panning");*/
 
-    }
 
+    }*/
 
     Material::Material(const std::string& shader_path, const std::string& diffuse_tex_path,  const std::string& name)
     {
         // only create new texture on gpu if texture doesn't exist already
         tiling = Vector2<float>(1,1);
         panning = Vector2<float>(0,0);
-        environment_map_texture = nullptr;
 
-        std::unordered_map<std::string, Texture*>::iterator _tex_it = texture_library.find(diffuse_tex_path);
-        if(_tex_it == texture_library.end()) // texture not in library, so create
+        std::unordered_map<std::string, Texture*>::iterator _tex_it = Texture::texture_library.find(diffuse_tex_path);
+        if(_tex_it == Texture::texture_library.end()) // texture not in library, so create
         {
             Texture* _tex =  new Texture(diffuse_tex_path.c_str());
-            if(texture_create_status == 0){    // creating texture failed, so assign default
+            if(Texture::texture_create_status == 0){    // creating texture failed, so assign default
                 delete _tex;
-                diffuse_texture = texture_library[get_resource_path("default.jpg")];
+                diffuse_texture = Texture::texture_library[get_resource_path("default.jpg")];
             }
             else // successfully created texture, store in library and assign that
             {
@@ -84,23 +71,26 @@ namespace PrEngine
             }
         }
         else    // texture found in library, so assign that
-            diffuse_texture = texture_library[diffuse_tex_path];
+            diffuse_texture = Texture::texture_library[diffuse_tex_path];
 
-        std::unordered_map<std::string, Shader>::iterator _shader_it = shader_library.find(shader_path);
-        if(_shader_it == shader_library.end())
+        std::unordered_map<std::string, Shader>::iterator _shader_it = Shader::shader_library.find(shader_path);
+        if(_shader_it == Shader::shader_library.end())
         {
             // create shader, probably can be shared, will check later
-            this->source_file_path = std::string(shader_path);
-            make_shader_program(this->source_file_path);
+            //this->source_file_path = std::string(shader_path);
             
-            shader_library[shader_path] = shader_program;
+        	this->shader = Shader::make_shader_program(std::string(shader_path));
+        	if(this->shader == nullptr)
+        		LOG(LOGTYPE_ERROR, "Shader making failed");
+            //Shader::shader_library[shader_path] = shader_program;
         }
         else{
-            shader_program = _shader_it->second;
+            shader = &(_shader_it->second);
         }
 
     }
 
+    /*
     // will create a cubemap texture from the 6 cubemap texture paths
     Material::Material(const std::string& shader_path, const std::vector<std::string>& cubemap_tex_path,const std::string& name)
     {
@@ -116,11 +106,11 @@ namespace PrEngine
         }
         std::cout<<"concatanated file name: "<<cubemap_file_name<<std::endl;
 
-        std::unordered_map<std::string, Texture*>::iterator _tex_it = texture_library.find(cubemap_file_name);
-        if(_tex_it == texture_library.end()) // texture not in library, so create
+        std::unordered_map<std::string, Texture*>::iterator _tex_it = Texture::texture_library.find(cubemap_file_name);
+        if(_tex_it == Texture::texture_library.end()) // texture not in library, so create
         {
             Texture* _tex =  new TextureCubeMap(cubemap_tex_path);
-            if(texture_create_status == 0){    // creating texture failed, so assign default
+            if(Texture::texture_create_status == 0){    // creating texture failed, so assign default
                 delete _tex;
                 //diffuse_texture = texture_library[get_resource_path("default.jpg")];
             }
@@ -131,17 +121,17 @@ namespace PrEngine
             }
         }
         else    // texture found in library, so assign that
-            diffuse_texture = texture_library[cubemap_file_name];
+            diffuse_texture = Texture::texture_library[cubemap_file_name];
 
-        std::unordered_map<std::string, Shader>::iterator _shader_it = shader_library.find(shader_path);
-        if(_shader_it == shader_library.end())
+        std::unordered_map<std::string, Shader>::iterator _shader_it = Shader::shader_library.find(shader_path);
+        if(_shader_it == Shader::shader_library.end())
         {
             // create shader, probably can be shared, will check later
             this->source_file_path = std::string(shader_path);
             make_shader_program(this->source_file_path);
 
             
-            shader_library[shader_path] = shader_program;
+            Shader::shader_library[shader_path] = shader_program;
         }
         else
             shader_program = _shader_it->second;
@@ -151,14 +141,13 @@ namespace PrEngine
         
 
     }
+*/
 
     void Material::Bind()
     {
         GL_CALL(
-            glUseProgram(shader_program.id))
+            glUseProgram(shader->id))
         diffuse_texture->Bind(0);
-        if(environment_map_texture != nullptr)
-            environment_map_texture->Bind(1);
     }
 
     void Material::Unbind()
@@ -166,16 +155,15 @@ namespace PrEngine
         GL_CALL(
             glUseProgram(0))
         diffuse_texture->Unbind();
-        if(environment_map_texture != nullptr)
-            environment_map_texture->Unbind();
     }
 
     void Material::Delete()
     {
-        GL_CALL(
-            glDeleteProgram(shader_program.id))
+        //GL_CALL(
+        //    glDeleteProgram(shader->id))
 
-        for(std::unordered_map<std::string, Texture*>::iterator it=texture_library.begin(); it!=texture_library.end(); it++)
+		// you probably shouldn't delete texture when material is delete, so commenting for now
+        /*for(std::unordered_map<std::string, Texture*>::iterator it=texture_library.begin(); it!=texture_library.end(); it++)
         {
             if( it->second!=nullptr)
             {
@@ -187,7 +175,7 @@ namespace PrEngine
 
                 }
             }
-        }
+        }*/
         
         //delete diffuse_texture;
     }
@@ -197,7 +185,30 @@ namespace PrEngine
         
     }
 
-    void Material::load_uniform_location(const std::string& uniform, const std::string& type)
+    void Material::delete_all_materials()
+    {
+    	LOG(LOGTYPE_GENERAL, "Deleting all materials");
+        for(std::unordered_map<std::string, Material*>::iterator it = material_library.begin(); it != material_library.end(); it++)
+        {
+        	it->second->Delete();
+        	LOG(LOGTYPE_GENERAL, "Deleted : ", it->first);
+        }
+    }
+
+    Shader Shader::shader_program;
+
+    void Shader::delete_all_shaders()
+    {
+    	LOG(LOGTYPE_GENERAL, "Deleting all shaders");
+        for(std::unordered_map<std::string, Shader>::iterator it = shader_library.begin(); it != shader_library.end(); it++)
+        {
+        	GL_CALL(
+        			glDeleteProgram(it->second.id))
+			LOG(LOGTYPE_GENERAL, "Deleted : ", std::to_string(it->second.id ));
+
+        }
+    }
+    void Shader::load_uniform_location(const std::string& uniform, const std::string& type)
     {
         GLint loc = -1;
         GL_CALL(
@@ -208,7 +219,7 @@ namespace PrEngine
         shader_program.uniform_locations[uniform] = {type, loc};
     }
 
-    void Material::parse_shader(const std::string& source)
+    void Shader::parse_shader(const std::string& source)
     {
         int pos = 0;
         while((pos = source.find("uniform",pos)) != std::string::npos)
@@ -243,7 +254,7 @@ namespace PrEngine
         }
     }
 
-    bool Material::make_shader_program(const std::string& path)
+    Shader* Shader::make_shader_program(const std::string& path)
     {
         std::string _source = read_file(get_resource_path(path).c_str());
         std::stringstream shader_source;
@@ -273,10 +284,12 @@ namespace PrEngine
         }
 
         shader_program.id = glCreateProgram();
+        shader_program.uniform_locations.clear();
+
         if(shader_program.id == 0)
         {
             std::cout<<"Couldn't create shader program"<<std::endl;
-            return false;
+            return nullptr;
         }
 
         GLuint v = make_shader( GL_VERTEX_SHADER, vert);
@@ -310,13 +323,15 @@ namespace PrEngine
                 glDeleteShader(f);
                 parse_shader(_source);
 
-                return true;
+                Shader::shader_library[path] = shader_program;
+
+                return &(Shader::shader_library[path]);
             }
         }
-        return false;
+        return nullptr;
     }
 
-    GLuint Material::make_shader( GLenum type,  const std::string& source)
+    GLuint Shader::make_shader( GLenum type,  const std::string& source)
     {
         GLuint shader =  glCreateShader(type);
         if(shader == 0)

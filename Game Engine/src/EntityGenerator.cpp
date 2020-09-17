@@ -28,7 +28,7 @@ namespace PrEngine{
 		Entity* _entity = new Entity();
 		_entity->add_componenet(_transform);
 		_entity->add_componenet(_graphics);
-		return entity_management_system->assign_id_and_store_entity(*_entity);
+		return EntityManagementSystem::entity_management_system->assign_id_and_store_entity(*_entity);
 	}
 
 	Entity* EntityGenerator::make_light_entity()
@@ -39,6 +39,6 @@ namespace PrEngine{
         DirectionalLight* light = new DirectionalLight(0.5f, 0.3f);
         light_ent->add_componenet(light);
         light_ent->add_componenet(light_tr);
-        return entity_management_system->assign_id_and_store_entity(*light_ent);
+        return EntityManagementSystem::entity_management_system->assign_id_and_store_entity(*light_ent);
 	}
 }

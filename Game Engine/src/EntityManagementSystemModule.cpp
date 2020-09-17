@@ -2,7 +2,7 @@
 
 namespace PrEngine
 {
-    EntityManagementSystem* entity_management_system;    
+    EntityManagementSystem* EntityManagementSystem::entity_management_system;
     long EntityManagementSystem::next_entity_id = 0;
     int EntityManagementSystem::current_max_entity_pos = 0;
     
@@ -14,7 +14,7 @@ namespace PrEngine
         for(int i=0;i<MAX_ENTITY_COUNT;i++)
             entities[i] = nullptr;
         started = false;
-        PrEngine::entity_management_system = this;
+        EntityManagementSystem::entity_management_system = this;
     }
 
     EntityManagementSystem::~EntityManagementSystem()

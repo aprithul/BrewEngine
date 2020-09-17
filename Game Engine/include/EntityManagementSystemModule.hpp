@@ -16,6 +16,7 @@ namespace PrEngine
     class EntityManagementSystem : public Module
     {
         public:
+    		static EntityManagementSystem* entity_management_system;
             EntityManagementSystem(std::string name, int priority);
             ~EntityManagementSystem();
 
@@ -41,7 +42,6 @@ namespace PrEngine
             bool started;
     };
 
-    extern EntityManagementSystem* entity_management_system;
 
 }
 

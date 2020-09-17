@@ -11,11 +11,14 @@
 
 namespace PrEngine {
     
-    Engine* engine;
+    Engine* Engine::engine;
 
     Engine::Engine()
     {
         engine = this;
+        frame_rate = 0;
+        frame_delta = 0;
+        is_running = false;
     }
     
     Engine::~Engine()
@@ -67,7 +70,7 @@ namespace PrEngine {
         }
 
         // get the reference to the input module
-        input_manager = (InputManager*)this->get_module("Input");
+        //input_manager = (InputManager*)this->get_module("Input");
     }
     
     // called every frame
@@ -89,7 +92,7 @@ namespace PrEngine {
             }
             
             // check if window was crossed
-            if(input_manager->was_crossed)
+            if(InputManager::input_manager->was_crossed)
                 is_running = false;
             
             //if(input_handler->get_key_down(SDLK_q))
