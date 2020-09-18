@@ -49,37 +49,6 @@ namespace PrEngine
 
     void Camera::update()
     {
-    	float cam_pan_min_speed = 2.f;
-    	float cam_pan_max_speed = 7.f;
-    	float cam_pan_speed = cam_pan_min_speed;
-    	if(InputManager::input_manager->keyboard.get_key(SDLK_LSHIFT))
-    		cam_pan_speed = cam_pan_max_speed;
-
-        Vector3<float> pos = transform.get_position();
-        if(InputManager::input_manager->keyboard.get_key(SDLK_w))
-            pos.y = pos.y+(Time::Frame_time*cam_pan_speed);
-        if(InputManager::input_manager->keyboard.get_key(SDLK_s))
-            pos.y = pos.y-(Time::Frame_time*cam_pan_speed);
-        if(InputManager::input_manager->keyboard.get_key(SDLK_d))
-            pos.x = pos.x +(Time::Frame_time*cam_pan_speed);
-        if(InputManager::input_manager->keyboard.get_key(SDLK_a))
-            pos.x = pos.x -(Time::Frame_time*cam_pan_speed);
-
-        if(InputManager::input_manager->mouse.get_mouse_button(1))
-        {
-        	Vector2<float> _delta(InputManager::input_manager->mouse.delta.x,-InputManager::input_manager->mouse.delta.y);
-        	Vector2<float> _delta_f = (_delta.normalize())*(float)(cam_pan_speed*2*Time::Frame_time);
-        	Vector3<float> _delta3d(_delta_f.x, _delta_f.y, 0);
-        	pos = pos + _delta3d;
-        	LOG(LOGTYPE_WARNING, "Mouse pressed");
-        }
-        transform.set_position(pos);
-
-        if(InputManager::input_manager->mouse.scroll!=0)
-        {
-        	float speed = 4.f;
-        	zoom += InputManager::input_manager->mouse.scroll*Time::Frame_time*speed;
-        }
 
         // set view matrix based on camera
 

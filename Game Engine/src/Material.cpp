@@ -193,6 +193,7 @@ namespace PrEngine
         	it->second->Delete();
         	LOG(LOGTYPE_GENERAL, "Deleted : ", it->first);
         }
+        Material::material_library.clear();
     }
 
     Shader Shader::shader_program;
@@ -205,8 +206,8 @@ namespace PrEngine
         	GL_CALL(
         			glDeleteProgram(it->second.id))
 			LOG(LOGTYPE_GENERAL, "Deleted : ", std::to_string(it->second.id ));
-
         }
+        Shader::shader_library.clear();
     }
     void Shader::load_uniform_location(const std::string& uniform, const std::string& type)
     {

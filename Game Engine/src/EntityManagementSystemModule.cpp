@@ -10,6 +10,9 @@ namespace PrEngine
     
     EntityManagementSystem::EntityManagementSystem(std::string name, int priority) : Module(name, priority)
     {
+    	next_entity_id = 0;
+    	current_max_entity_pos = 0;
+    	entity_count = 0;
         //entities = new (*Entity)[MAX_ENTITY_COUNT];
         for(int i=0;i<MAX_ENTITY_COUNT;i++)
             entities[i] = nullptr;

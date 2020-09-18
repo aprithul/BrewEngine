@@ -30,8 +30,8 @@ namespace PrEngine {
         }
         // can safley clear now
         engine_modules.clear();
-        LOG(LOGTYPE_GENERAL, "Engine destroyed");
         SDL_Quit();
+        LOG(LOGTYPE_GENERAL, "Engine destroyed");
     }
     
     static bool priority_comparer(Module* a, Module* b)

@@ -22,7 +22,7 @@ namespace PrEngine {
     
     Time::~Time()
     {
-        
+        timers.clear();
     }
     
     void Time::start()

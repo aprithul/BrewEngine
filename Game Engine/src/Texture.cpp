@@ -95,6 +95,7 @@ namespace PrEngine
     			it->second.Delete();
     		}
 		}
+    	Texture::texture_data_library.clear();
     }
 
     void Texture::delete_all_textures()
@@ -102,9 +103,10 @@ namespace PrEngine
     	LOG(LOGTYPE_GENERAL, "Deleteing all textures");
     	for(std::unordered_map<std::string, Texture*>::iterator it = Texture::texture_library.begin(); it != Texture::texture_library.end(); it++)
     	{
-    		LOG(LOGTYPE_ERROR, "Deleting : ", std::to_string(it->second->id));
+    		LOG(LOGTYPE_GENERAL, "Deleting : ", std::to_string(it->second->id));
     		delete it->second;
     	}
+    	Texture::texture_library.clear();
     }
 
     Texture::~Texture()

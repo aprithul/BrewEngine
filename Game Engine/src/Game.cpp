@@ -5,6 +5,8 @@
 
 namespace PrEngine
 {
+
+
     Game::Game(std::string name, int priority):Module(name, priority)
     {
 
@@ -20,10 +22,11 @@ namespace PrEngine
 
     }
 
+
     void Game::update()
     {
         Entity* entity = EntityManagementSystem::entity_management_system->get_entity_with_component(COMP_LIGHT);
-        //Entity* _camear = EntityManagementSystem::entity_management_system->get_entity_with_component(COMP_CAMERA);
+        Entity* camera = EntityManagementSystem::entity_management_system->get_entity_with_component(COMP_CAMERA);
 
         if(entity != nullptr)        
         {
@@ -40,13 +43,13 @@ namespace PrEngine
         }
 
 
-        /*float cam_pan_min_speed = 2.f;
+        float cam_pan_min_speed = 2.f;
 		float cam_pan_max_speed = 7.f;
 		float cam_pan_speed = cam_pan_min_speed;
 		if(InputManager::input_manager->keyboard.get_key(SDLK_LSHIFT))
 			cam_pan_speed = cam_pan_max_speed;
 
-		Transform3D* transform = (Transform3D*)(_camear->components[COMP_TRANSFORM_3D]);
+		Transform3D* transform = (Transform3D*)(camera->components[COMP_TRANSFORM_3D]);
 		Vector3<float> pos = transform->get_position();
 		if(InputManager::input_manager->keyboard.get_key(SDLK_w))
 			pos.y = pos.y+(Time::Frame_time*cam_pan_speed);
@@ -70,8 +73,8 @@ namespace PrEngine
         if(InputManager::input_manager->mouse.scroll!=0)
         {
         	float speed = 4.f;
-        	((Camera*)(_camear->components[COMP_CAMERA]))->zoom += InputManager::input_manager->mouse.scroll*Time::Frame_time*speed;
-        }*/
+        	((Camera*)(camera->components[COMP_CAMERA]))->zoom += InputManager::input_manager->mouse.scroll*Time::Frame_time*speed;
+        }
 
 
     }
