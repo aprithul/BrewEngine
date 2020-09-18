@@ -10,7 +10,7 @@ namespace PrEngine
         "SPRITE",
         "GRAPHICS",
         "LIGHT",
-        "CAMERA"
+        "CAMERA",
 		"ANIMATOR"
     };
 

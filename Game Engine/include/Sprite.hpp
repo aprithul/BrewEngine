@@ -14,12 +14,12 @@ namespace PrEngine
     {
 
         public:
-            Sprite(int order, Graphics& graphics);
+            Sprite(int order, Graphics& graphics, Animator& animator);
             ~Sprite();
 
             int order;
             Graphics& graphics;
-            Animator animator;
+            Animator& animator;
     };
 
 }

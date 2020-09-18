@@ -294,7 +294,8 @@ namespace PrEngine {
 		auto height= graphics->elements.back().material->diffuse_texture->height;
 		std::cout<<width<<","<<height<<std::endl;
 		SpriteLayer* sprite_layer = (SpriteLayer*)get_layer("Sprite");
-		Sprite* _sprite = new Sprite(0, *graphics);
+		Animator* animator = new Animator(mat);
+		Sprite* _sprite = new Sprite(0, *graphics, *animator);
 		sprite_layer->sprite_list.push_back(_sprite);
 
 		return _sprite;

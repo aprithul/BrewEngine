@@ -33,6 +33,7 @@ namespace PrEngine{
 		_sprite->animator.set_frame_rate(fps);
 
 
+		Animator* _animator = &(_sprite->animator);
 		Graphics* _graphics = &(_sprite->graphics);
 		_graphics->model = &(_transform->get_transformation());
 		_graphics->normal = &(_transform->get_rotation_transformation());
@@ -41,6 +42,7 @@ namespace PrEngine{
 		_entity->add_componenet(_transform);
 		_entity->add_componenet(_graphics);
 		_entity->add_componenet(_sprite);
+		_entity->add_componenet(_animator);
 		return EntityManagementSystem::entity_management_system->assign_id_and_store_entity(*_entity);
 	}
 

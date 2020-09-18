@@ -6,6 +6,7 @@
 #include <string>
 #include "Transform3D.hpp"
 #include "Utils.hpp"
+#include "Camera3D.hpp"
 namespace PrEngine
 {
     class Game : public Module

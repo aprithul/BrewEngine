@@ -35,6 +35,8 @@ namespace PrEngine
             if(components[i] != nullptr){
                 LOG(LOGTYPE_GENERAL, "DELETING : ", CompName[components[i]->type]);
                 delete components[i];
+                LOG(LOGTYPE_GENERAL, "Deleted : ");
+
             }
         }
     }
