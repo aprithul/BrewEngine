@@ -162,4 +162,13 @@ namespace  PrEngine
         return rotation_transformation * up;
     }
 
+    std::string Transform3D::serialize()
+    {
+    	std::string text;
+    	text+=std::to_string(position.x)+","+std::to_string(position.y)+","+std::to_string(position.z)+",";
+		text+=std::to_string(scale.x)+","+std::to_string(scale.y)+","+std::to_string(scale.z)+",";
+		text+=std::to_string(rotation.x)+","+std::to_string(rotation.y)+","+std::to_string(rotation.z);
+		return text;
+
+    }
 }

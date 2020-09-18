@@ -43,7 +43,24 @@ namespace PrEngine{
 		_entity->add_componenet(_graphics);
 		_entity->add_componenet(_sprite);
 		_entity->add_componenet(_animator);
-		return EntityManagementSystem::entity_management_system->assign_id_and_store_entity(*_entity);
+		Entity* _ent =  EntityManagementSystem::entity_management_system->assign_id_and_store_entity(*_entity);
+		if(_ent != nullptr)
+		{
+			// serialize
+			FILE* fp;
+			std::string text = std::to_string(EntityTypes::ANIMATED_SPRITE)+",";
+			for(int i=0; i<image_file_paths.size(); i++)
+			{
+				text += (image_file_paths[i]+",");
+			}
+			text+=std::to_string(fps)+",";
+			text += _transform->serialize()+"\n";
+
+			fp = write_to_file(text.c_str(), "Scene.graph", fp);
+			close_file(fp);
+
+		}
+		return _ent;
 	}
 
 	Entity* EntityGenerator::make_light_entity()

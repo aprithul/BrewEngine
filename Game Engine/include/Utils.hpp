@@ -18,6 +18,7 @@
 namespace PrEngine
 {
     extern char* read_file(const char* file_name);
+    extern void close_file(FILE *fp);
     extern FILE* write_to_file(const char* text, const char* file_name, FILE *fp);
     extern std::string get_resource_path(const std::string &subDir); 
     extern std::string get_path(const std::string &subDir); 

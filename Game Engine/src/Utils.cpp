@@ -14,6 +14,12 @@ namespace PrEngine{
         return fp;
     }
 
+    void close_file(FILE* fp)
+    {
+    	if(fp)
+    		fclose(fp);
+    }
+
     // reads content of file_name, character by character
     // stores in buffer and returns
     // dynamically increases in size if needed

@@ -5,14 +5,16 @@
 #include "Logger.hpp"
 #include "Component.hpp"
 #include "Matrix4x4f.hpp"
+#include "Serializable.hpp"
 #include <cmath>
 #include <string>
+
 
 #define PI 3.14159265
 
 namespace PrEngine{
     
-    class Transform3D : public Component
+    class Transform3D : public Component, public Serializable
     {
         public:
             
@@ -36,9 +38,10 @@ namespace PrEngine{
 
             Transform3D();
             Transform3D(Vector3<float> position, Vector3<float> angle, Vector3<float> scale);
-            ~Transform3D();
+            ~Transform3D() override;
             void translate(const Vector3<float>& translation);
             void rotate(float _x, float _y, float _z);
+            std::string serialize() override;
 
             bool dirty;
 

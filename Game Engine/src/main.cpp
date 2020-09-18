@@ -41,10 +41,12 @@ bool is_running = true;
 
 int main(int argc, char * argv[]) 
 {
+	// helps us reload into editor or game mode
 	bool restart = true;
 	// create a new game engine instance
 	while(restart)
 	{
+		restart = true;
 		PrEngine::Engine* game_engine = new PrEngine::Engine();
 		//restart = false;
 		// add the components
