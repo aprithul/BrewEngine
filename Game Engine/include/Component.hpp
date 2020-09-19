@@ -33,7 +33,6 @@ namespace PrEngine
         virtual void start();
         virtual void update();
         virtual void end();
-
         const ComponentType type;
     };
 

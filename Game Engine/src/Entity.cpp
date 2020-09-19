@@ -89,4 +89,18 @@ namespace PrEngine
     }
 
     
+    std::string Entity::to_string()
+    {
+    	std::string text = "";
+    	for(int i=0; i<COMP_COUNT_MAX; i++)
+		{
+			if(has_component[i])
+			{
+				text += components[i]->to_string()+"\n";
+			}
+		}
+    	text+="~\n";
+    	return text;
+    }
+
 }

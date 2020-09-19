@@ -55,7 +55,9 @@ namespace PrEngine{
 		_entity->add_componenet(_sprite);
 		_entity->add_componenet(_animator);
 		_entity =  EntityManagementSystem::entity_management_system->assign_id_and_store_entity(*_entity);
-		if(_entity != nullptr)
+
+		_entity->to_string();
+		/*if(_entity != nullptr)
 		{
 			// serialize
 			FILE* fp;
@@ -70,7 +72,7 @@ namespace PrEngine{
 			fp = write_to_file(text.c_str(), "Scene.graph", fp);
 			close_file(fp);
 
-		}
+		}*/
 		return _entity;
 	}
 

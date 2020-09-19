@@ -124,7 +124,7 @@ namespace PrEngine
 
     std::string Graphics::to_string()
     {
-    	return "";
+    	return std::to_string(COMP_GRAPHICS);
     }
 
     void GraphicsElement::Delete()

@@ -53,7 +53,8 @@ namespace PrEngine
 
 	std::string Animator::to_string()
 	{
-		std::string text = std::to_string(COMP_ANIMATOR)+","+std::to_string(this->frame_rate);
+
+		std::string text = std::to_string(COMP_ANIMATOR)+","+std::to_string(COMP_ANIMATOR)+","+std::to_string(this->frame_rate);
 		return text;
 	}
 

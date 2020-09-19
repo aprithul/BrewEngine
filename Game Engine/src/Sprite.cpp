@@ -14,7 +14,7 @@ namespace PrEngine
 
     std::string Sprite::to_string()
     {
-    	return "";
+    	return std::to_string(COMP_SPRITE);
     }
 
 }
