@@ -14,12 +14,12 @@ namespace PrEngine
     {
 
         public:
-            Sprite(int order, Graphics& graphics, Animator& animator);
+            Sprite(int order, Graphics* graphics, Animator* animator);
             ~Sprite();
-
+            std::string to_string() override;
             int order;
-            Graphics& graphics;
-            Animator& animator;
+            Graphics* graphics;
+            Animator* animator;
     };
 
 }

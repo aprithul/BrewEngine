@@ -9,10 +9,24 @@
 
 namespace PrEngine{
 
-	EntityGenerator::EntityGenerator(RendererOpenGL2D* renderer)
+	EntityGenerator::EntityGenerator()
 	{
-		this->renderer = renderer;
+		this->renderer = (RendererOpenGL2D*)Engine::engine->get_module("Renderer");
+	}
 
+
+	Entity* EntityGenerator::make_camera()
+	{
+		Entity* camera_ent = new Entity();
+		Transform3D* camera_transform = new Transform3D();
+		//Camera* camera = new Camera(16, 9, 0.1f, 100.f, 45.f, *camera_transform);
+		Camera* camera = new Camera(-8, 8, -4.5f, 4.5f, -10, 10, *camera_transform);
+		//camera->projection_type = ORTHOGRAPHIC;
+		camera->transform.set_position(0.f, 1.f, -6.f);
+		camera_ent->add_componenet(camera_transform);
+		camera_ent->add_componenet(camera);
+		camera_ent = EntityManagementSystem::entity_management_system->assign_id_and_store_entity(*camera_ent);
+		return camera_ent;
 	}
 
 	Entity* EntityGenerator::make_animated_sprite_entity(const std::vector<std::string>& image_file_paths, int fps)
@@ -23,28 +37,25 @@ namespace PrEngine{
 		_transform->set_position(rand_x, rand_y, 0);
 		_transform->set_scale(1,1,1);
 
-		Sprite* _sprite = renderer->generate_graphics_sprite(get_resource_path(image_file_paths[0]), std::string("sprite_mat")+"_"+image_file_paths[0]);
+		Sprite* _sprite = renderer->generate_sprite_graphics(get_resource_path(image_file_paths[0]), std::string("sprite_mat")+"_"+image_file_paths[0],
+				_transform->get_transformation(),_transform->get_rotation_transformation());
+		Graphics* _graphics = _sprite->graphics;
+		Animator* _animator = _sprite->animator;
 		for(int i=0; i<image_file_paths.size(); i++)
 		{
 			Texture* _t = Texture::load_texture(image_file_paths[i]);
 			if(_t != nullptr)
-				_sprite->animator.add_frame(_t);
+				_sprite->animator->add_frame(_t);
 		}
-		_sprite->animator.set_frame_rate(fps);
-
-
-		Animator* _animator = &(_sprite->animator);
-		Graphics* _graphics = &(_sprite->graphics);
-		_graphics->model = &(_transform->get_transformation());
-		_graphics->normal = &(_transform->get_rotation_transformation());
+		_animator->set_frame_rate(fps);
 
 		Entity* _entity = new Entity();
 		_entity->add_componenet(_transform);
 		_entity->add_componenet(_graphics);
 		_entity->add_componenet(_sprite);
 		_entity->add_componenet(_animator);
-		Entity* _ent =  EntityManagementSystem::entity_management_system->assign_id_and_store_entity(*_entity);
-		if(_ent != nullptr)
+		_entity =  EntityManagementSystem::entity_management_system->assign_id_and_store_entity(*_entity);
+		if(_entity != nullptr)
 		{
 			// serialize
 			FILE* fp;
@@ -54,13 +65,13 @@ namespace PrEngine{
 				text += (image_file_paths[i]+",");
 			}
 			text+=std::to_string(fps)+",";
-			text += _transform->serialize()+"\n";
+			text += _transform->to_string()+"\n";
 
 			fp = write_to_file(text.c_str(), "Scene.graph", fp);
 			close_file(fp);
 
 		}
-		return _ent;
+		return _entity;
 	}
 
 	Entity* EntityGenerator::make_light_entity()

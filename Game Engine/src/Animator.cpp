@@ -51,6 +51,12 @@ namespace PrEngine
 		material->diffuse_texture = animation_frames[current_frame_index];
 	}
 
+	std::string Animator::to_string()
+	{
+		std::string text = std::to_string(COMP_ANIMATOR)+","+std::to_string(this->frame_rate);
+		return text;
+	}
+
 
 }
 

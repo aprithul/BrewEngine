@@ -13,7 +13,8 @@ namespace PrEngine{
             Vector2<float> position;
             float angle;
             Vector2<float> scale;
-            
+            std::string to_string() override;
+
             Transform();
             Transform(Vector2<float> position, float angle, Vector2<float> scale);
             ~Transform();

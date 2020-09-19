@@ -101,4 +101,9 @@ namespace PrEngine
     {
 
     }
+
+    std::string Camera::to_string()
+    {
+    	return "";
+    }
 }

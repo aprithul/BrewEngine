@@ -3,10 +3,11 @@
 namespace PrEngine
 {
 
-    SpriteLayer::SpriteLayer(long camera_handle)
+    SpriteLayer::SpriteLayer()
     {
-        this->camera_handle = camera_handle;
         this->name = "Sprite";
+        this->camera = nullptr;
+        this->light = nullptr;
     }
 
     void SpriteLayer::start()
@@ -16,23 +17,36 @@ namespace PrEngine
     void SpriteLayer::update()
     {
         insertion_sort(sprite_list, sprite_list.size());
-        Entity* camera = EntityManagementSystem::entity_management_system->get_entity(camera_handle);
-
-        DirectionalLight* light = (DirectionalLight*)EntityManagementSystem::entity_management_system->get_entity_with_component(COMP_LIGHT);
-
-
+        if(camera == nullptr)
+        {
+        	camera = EntityManagementSystem::entity_management_system->get_entity_with_component(COMP_CAMERA);
+        	if(camera==nullptr)
+        	{
+        		LOG(LOGTYPE_ERROR, "Camera not found");
+        		return;
+        	}
+        }
+        if(light == nullptr)
+        {
+        	light = EntityManagementSystem::entity_management_system->get_entity_with_component(COMP_LIGHT);
+        	if(light==nullptr)
+			{
+				LOG(LOGTYPE_ERROR, "light not found");
+				return;
+			}
+        }
 
         for(std::vector<Sprite*>::iterator it = sprite_list.begin(); it != sprite_list.end(); it++ )
         {
-            Graphics& grp = (*it)->graphics;
-            //Matrix4x4<float> mvp = (projection) * (*(grp.model)) ;
+            Graphics* grp = (*it)->graphics;
+            //Matrix4x4<float> mvp = (projection) * (*(grp->model)) ;
             
-            for(int i=0; i < grp.elements.size(); i++)
+            for(int i=0; i < grp->elements.size(); i++)
             {
-            	grp.elements[i].material->Bind();
-				//std::cout<<"before: "<<grp.elements[i].material.uniform_locations["u_MVP"]  <<std::endl;
+            	grp->elements[i].material->Bind();
+				//std::cout<<"before: "<<grp->elements[i].material.uniform_locations["u_MVP"]  <<std::endl;
 
-				std::unordered_map<std::string, std::pair<std::string,GLuint>>& m = grp.elements[i].material->shader->uniform_locations;
+				std::unordered_map<std::string, std::pair<std::string,GLuint>>& m = grp->elements[i].material->shader->uniform_locations;
 
 
 				for( std::unordered_map<std::string, std::pair<std::string,GLuint>>::iterator it = m.begin(); it!=m.end(); it++)
@@ -68,14 +82,14 @@ namespace PrEngine
 					{
 						//LOG(LOGTYPE_ERROR, "Dir: ", std::to_string(light->direction.x));
 						GL_CALL(
-							glUniform1f(it->second.second, light->ambient)
+							glUniform1f(it->second.second, ((DirectionalLight*)(light->components[COMP_LIGHT]))->ambient)
 						)
 					}
 
 					if(it->first == "u_Specular_Strength")
 					{
 						GL_CALL(
-							glUniform1f(it->second.second, light->specular)
+							glUniform1f(it->second.second, ((DirectionalLight*)(light->components[COMP_LIGHT]))->specular)
 						)
 					}
 					// models and normals should be same size
@@ -97,7 +111,7 @@ namespace PrEngine
 					{
 
 						GL_CALL(
-							glUniformMatrix4fv(it->second.second,1, GL_TRUE, ((grp.model))->data))
+							glUniformMatrix4fv(it->second.second,1, GL_TRUE, grp->model.data))
 					}
 
 					if(it->first == "u_View")
@@ -137,20 +151,20 @@ namespace PrEngine
 					if(it->first == "u_Normal_M")
 					{
 						GL_CALL(
-							glUniformMatrix4fv(it->second.second,1, GL_TRUE, grp.normal->data ))
+							glUniformMatrix4fv(it->second.second,1, GL_TRUE, grp->normal.data ))
 					}
 
 					if(it->first =="u_Panning")
 					{
 						GL_CALL(
-							glUniform2f(it->second.second,grp.elements[0].material->panning.x, grp.elements[0].material->panning.y);
+							glUniform2f(it->second.second,grp->elements[0].material->panning.x, grp->elements[0].material->panning.y);
 						)
 					}
 
 					if(it->first =="u_Tiling")
 					{
 						GL_CALL(
-							glUniform2f(it->second.second,grp.elements[0].material->tiling.x, grp.elements[0].material->tiling.y);
+							glUniform2f(it->second.second,grp->elements[0].material->tiling.x, grp->elements[0].material->tiling.y);
 						)
 					}
 
@@ -163,15 +177,15 @@ namespace PrEngine
 					//    glUniform1f((*it)->material.uniform_locations["u_red"], 1.f))
 				}
 
-				grp.elements[i].vao.Bind();
-				grp.elements[i].ibo.Bind();
+				grp->elements[i].vao.Bind();
+				grp->elements[i].ibo.Bind();
 				GL_CALL(
-					//glDrawArrays(GL_TRIANGLES,0, grp.elements[i].num_of_triangles*3))
-					glDrawElements(GL_TRIANGLES, grp.elements[i].ibo.count, GL_UNSIGNED_INT, nullptr));
-				grp.elements[i].vao.Unbind();
-				grp.elements[i].ibo.Unbind();
+					//glDrawArrays(GL_TRIANGLES,0, grp->elements[i].num_of_triangles*3))
+					glDrawElements(GL_TRIANGLES, grp->elements[i].ibo.count, GL_UNSIGNED_INT, nullptr));
+				grp->elements[i].vao.Unbind();
+				grp->elements[i].ibo.Unbind();
 
-				grp.elements[i].material->Unbind();
+				grp->elements[i].material->Unbind();
             }
         }
 

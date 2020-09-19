@@ -9,7 +9,7 @@
 
 namespace PrEngine {
 
-	RendererOpenGL2D::RendererOpenGL2D(int width, int height, std::string title):Module("Opengl Renderer", 20)
+	RendererOpenGL2D::RendererOpenGL2D(int width, int height, std::string title, std::string module_name, int priority):Module(module_name, priority)
     {
         this->width = width;
         this->height = height;
@@ -55,20 +55,10 @@ namespace PrEngine {
 
 
         /// create render layers
-        Entity* camera = EntityManagementSystem::entity_management_system->get_entity_with_component(COMP_CAMERA);
-        long camera_handle = -1;
-        if(camera == nullptr){
-            LOG(LOGTYPE_ERROR, "No camera found");
-            return;
-        }
-        else
-            camera_handle = camera->id;
-        std::cout<<"cam handle "<<camera_handle<<std::endl;
-
         //GeometryLayer* geometry_layer = new GeometryLayer(camera_handle);
         //render_layers.push_back(geometry_layer);
 
-        SpriteLayer* sprite_layer = new SpriteLayer(camera_handle);
+        SpriteLayer* sprite_layer = new SpriteLayer();
         render_layers.push_back(sprite_layer);
 
         GuiLayer* gui_layer = new GuiLayer(window, &glContext);
@@ -152,7 +142,7 @@ namespace PrEngine {
             (*it)->end();
     }
 
-    Sprite* RendererOpenGL2D::generate_graphics_sprite(const std::string& texture_file_path,  const std::string& mat_name)
+    Sprite* RendererOpenGL2D::generate_sprite_graphics(const std::string& texture_file_path,  const std::string& mat_name, const Matrix4x4<float>& model, const Matrix4x4<float>& normal)
     {
 
         std::unordered_map<std::string, Material*>::iterator _mat_it = Material::material_library.find(mat_name);
@@ -256,7 +246,7 @@ namespace PrEngine {
         indices.push_back(3);
         indices.push_back(0);
 
-        Graphics* graphics = new Graphics();
+        Graphics* graphics = new Graphics(model, normal);
         VertexLayout layout;
         VertexAttribute attribute_0(0,3,GL_FLOAT,GL_FALSE);
         VertexAttribute attribute_1(1,4,GL_FLOAT,GL_FALSE);
@@ -295,7 +285,7 @@ namespace PrEngine {
 		std::cout<<width<<","<<height<<std::endl;
 		SpriteLayer* sprite_layer = (SpriteLayer*)get_layer("Sprite");
 		Animator* animator = new Animator(mat);
-		Sprite* _sprite = new Sprite(0, *graphics, *animator);
+		Sprite* _sprite = new Sprite(0, graphics, animator);
 		sprite_layer->sprite_list.push_back(_sprite);
 
 		return _sprite;

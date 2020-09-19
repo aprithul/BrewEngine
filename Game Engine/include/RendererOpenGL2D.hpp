@@ -35,7 +35,7 @@ namespace PrEngine {
 			std::string title;
 
 			// constructor/ destructors
-			RendererOpenGL2D(int width, int height, std::string title);
+			RendererOpenGL2D(int width, int height, std::string title, std::string module_name,int priority);
 			~RendererOpenGL2D();
 			void init();
 			// clears the display with the color specified
@@ -45,7 +45,7 @@ namespace PrEngine {
 			void set_vsync(GLboolean value);
 			bool make_shader_program(const std::string& path, GLuint& shader_program);
 			GLuint make_shader( GLenum type, const std::string& source);
-			Sprite* generate_graphics_sprite(const std::string& texture_file_path, const std::string& mat_name);
+			Sprite* generate_sprite_graphics(const std::string& texture_file_path, const std::string& mat_name,const Matrix4x4<float>& model, const Matrix4x4<float>& normal);
 			RenderLayer* get_layer(const std::string& layer_name);
 			//Matrix4x4<float> view_matrix;
 			//Matrix4x4<float> projection;

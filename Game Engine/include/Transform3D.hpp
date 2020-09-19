@@ -41,7 +41,7 @@ namespace PrEngine{
             ~Transform3D() override;
             void translate(const Vector3<float>& translation);
             void rotate(float _x, float _y, float _z);
-            std::string serialize() override;
+            std::string to_string() override;
 
             bool dirty;
 

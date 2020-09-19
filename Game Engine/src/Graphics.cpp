@@ -109,24 +109,9 @@ namespace PrEngine
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
     }
 
-    Graphics::Graphics():Component(COMP_GRAPHICS)// (const Vertex* vertices, GLuint vertices_size, const GLuint* indices, 
-                                    //GLuint indices_size, GLsizei indices_count, Material material, 
-                                    //Texture texture, VertexLayout layout)
-                                //:vbo(vertices,vertices_size),ibo(indices,indices_size,indices_count),
-                                //    material(material),texture(texture),layout(layout),
+    Graphics::Graphics(const Matrix4x4<float>& model, const Matrix4x4<float>& normal):model(model),normal(normal),Component(COMP_GRAPHICS)
     {
-        //vao.Bind();
-        //vbo.Bind();
-        //for(std::vector<VertexAttribute>::iterator attr = layout.vertex_attributes.begin(); attr !=  layout.vertex_attributes.end(); attr++)
-        /*{
-            GL_CALL(
-                glEnableVertexAttribArray( attr->index))
-            GL_CALL(
-                glVertexAttribPointer(attr->index, attr->count, attr->type, attr->normalized, layout.stride, (void*)attr->offset))
-        //}
-        vbo.Unbind();
-        vao.Unbind();
-        */
+
     }
 
     Graphics::~Graphics()
@@ -135,6 +120,11 @@ namespace PrEngine
             it->Delete();
         
         //delete material;
+    }
+
+    std::string Graphics::to_string()
+    {
+    	return "";
     }
 
     void GraphicsElement::Delete()

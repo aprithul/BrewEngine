@@ -19,7 +19,7 @@ namespace PrEngine
     class SpriteLayer : public RenderLayer
     {
         public:
-            SpriteLayer(long camera_handle);
+            SpriteLayer();
             ~SpriteLayer() override;
 
             void start() override;
@@ -27,7 +27,10 @@ namespace PrEngine
             void end() override;
 
             std::vector<Sprite*> sprite_list;
-            long camera_handle;
+        private:
+            Entity* light;
+            Entity* camera;
+
     };
 } // namespace Pringin
 

@@ -12,6 +12,8 @@
 #include "Material.hpp"
 #include "Texture.hpp"
 #include "TimeModule.hpp"
+#include "Serializable.hpp"
+#include <string>
 #include <vector>
 namespace PrEngine{
 	class Animator : public Component
@@ -26,7 +28,7 @@ namespace PrEngine{
 		void set_frame_rate(int frame_rate);
 		void update() override;
 		void add_frame(Texture* frame);
-
+		std::string to_string() override;
 	private:
 		void on_next_frame();
 		std::vector<Texture*> animation_frames;

@@ -34,4 +34,8 @@ namespace PrEngine
 
     }
 
+    std::string DirectionalLight::to_string()
+    {
+    	return "";
+    }
 }

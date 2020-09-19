@@ -15,7 +15,7 @@ namespace PrEngine{
 	{
 	public:
 		virtual ~Serializable()=0;
-		virtual std::string serialize() = 0;
+		virtual std::string to_string() = 0;
 	};
 }
 

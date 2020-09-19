@@ -2,7 +2,7 @@
 #define COMPONENET_HPP
 
 #include <string>
-
+#include "Serializable.hpp"
 namespace PrEngine
 {
 
@@ -22,7 +22,7 @@ namespace PrEngine
     extern const std::string CompName[COMP_COUNT_MAX];
 
 
-    class Component
+    class Component : public Serializable
     {
     private:
         /* data */
@@ -33,7 +33,6 @@ namespace PrEngine
         virtual void start();
         virtual void update();
         virtual void end();
-
 
         const ComponentType type;
     };

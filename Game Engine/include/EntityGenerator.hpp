@@ -8,6 +8,7 @@
 #ifndef INCLUDE_ENTITYGENERATOR_HPP_
 #define INCLUDE_ENTITYGENERATOR_HPP_
 
+#include "Engine.hpp"
 #include "EntityManagementSystemModule.hpp"
 #include "RendererOpenGL2D.hpp"
 #include "Graphics.hpp"
@@ -26,10 +27,12 @@ namespace PrEngine{
 	class EntityGenerator
 	{
 	public:
-		EntityGenerator(RendererOpenGL2D* renderer);
+		EntityGenerator();
 		~EntityGenerator();
 		Entity* make_animated_sprite_entity(const std::vector<std::string>& image_file_paths,int fps);
 		Entity* make_light_entity();
+		Entity* make_camera();
+
 
 	private:
 		RendererOpenGL2D* renderer;

@@ -20,6 +20,12 @@ namespace  PrEngine
 
     }
 
+    std::string Transform::to_string()
+    {
+    	return "";
+    }
+
+
     Vector2<float> Transform::translate(const Vector2<float>& translation)
     {
         position = position + translation;

@@ -29,6 +29,7 @@ namespace PrEngine
             void start() override;
             void update() override;
             void end() override;     
+            std::string to_string() override;
 
             float fov;
             float near_;

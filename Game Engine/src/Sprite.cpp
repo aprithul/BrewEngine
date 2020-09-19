@@ -2,7 +2,7 @@
 
 namespace PrEngine
 {
-    Sprite::Sprite(int order, Graphics& graphics, Animator& animator):order(order),graphics(graphics),animator(animator),Component(COMP_SPRITE)
+    Sprite::Sprite(int order, Graphics* graphics, Animator* animator):order(order),graphics(graphics),animator(animator),Component(COMP_SPRITE)
     {
 
     }
@@ -12,6 +12,9 @@ namespace PrEngine
 
     }
 
-    
+    std::string Sprite::to_string()
+    {
+    	return "";
+    }
 
 }
