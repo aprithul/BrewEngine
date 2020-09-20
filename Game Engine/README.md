@@ -1,1 +1,1 @@
-This is the opengl 3d renderer test branch. This is for 3d rendering only. Engine development is on the main branch. 
+2D opengl game engien based on the 'other' 3d engien I'd been working on.

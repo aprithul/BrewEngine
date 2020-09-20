@@ -10,7 +10,11 @@
 
 #define DEBUG true
 
-#define Assert(x) if(!x) __builtin_trap();
+#ifdef _WIN64
+	#define Assert(x) if(!x) __debugbreak();
+#else
+	#define Assert(x) if(!x) __builtin_trap();
+#endif
 
 #ifdef DEBUG
     #define GL_CALL(x) gl_clear_error(); x; Assert(gl_get_error(#x, __FILE__, __LINE__))

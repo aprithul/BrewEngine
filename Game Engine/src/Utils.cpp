@@ -4,53 +4,25 @@ namespace PrEngine{
     // writes text to file in append mode
     // doesn't automaticlaly close file
     // file pointer needs to be provided so file can be closed when writing is finished
-    FILE* write_to_file(const char* text, const char* file_name, FILE *fp)
+	void write_to_file(const std::string& text, const std ::string& file_name)
     {
-        if(fp == NULL)
-        {
-            fp = fopen(file_name, "a");
-        }
-        fputs(text, fp); 
-        return fp;
-    }
-
-    void close_file(FILE* fp)
-    {
-    	if(fp)
-    		fclose(fp);
+		std::ofstream _file(file_name, std::ios::app);
+		if (_file.is_open())
+		{
+			_file << text;
+			_file.close();
+		}
     }
 
     // reads content of file_name, character by character
     // stores in buffer and returns
     // dynamically increases in size if needed
-    char* read_file(const char* file_name)
+    std::string read_file(const std::string& file_name)
     {
-        int n = 1024;
-        FILE *fp;
-        char* buffer = (char*)malloc(n*sizeof(char));
-        int read_char_count = 0;
-        fp = fopen(file_name, "r");
-        
-        if(fp!=NULL)
-        {
-            int ch;
-            while((ch = fgetc(fp)) != EOF)
-            {
-                read_char_count++;
-                if(read_char_count > n)
-                {
-                    n*=2;
-                    buffer = (char*)realloc(buffer, sizeof(char)*n);
-                }
-                *(buffer+read_char_count-1) = ch; 
-            }
-            fclose(fp); 
-        }
-        else
-            buffer = NULL;
-    
-        *(buffer+read_char_count) = '\0'; 
-        return buffer;
+		std::ifstream _file(file_name);
+		std::stringstream buffer;
+		buffer << _file.rdbuf();
+		return buffer.str();
     }
     
 

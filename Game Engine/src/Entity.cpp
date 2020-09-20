@@ -36,14 +36,12 @@ namespace PrEngine
                 LOG(LOGTYPE_GENERAL, "DELETING : ", CompName[components[i]->type]);
                 delete components[i];
                 LOG(LOGTYPE_GENERAL, "Deleted : ");
-
             }
         }
     }
 
     void Entity::awake()
     {
-
         for(int i=0; i<COMP_COUNT_MAX; i++)
         {
             if(has_component[i]){

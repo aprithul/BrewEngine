@@ -31,12 +31,12 @@ namespace PrEngine{
 
 	Entity* EntityGenerator::make_animated_sprite_entity(const std::vector<std::string>& image_file_paths, int fps)
 	{
+
 		Transform3D* _transform = new Transform3D();
 		auto rand_x = rand()%3 * (rand()%2==0?-1:1);
 		auto rand_y = rand()%3 * (rand()%2==0?-1:1);
 		_transform->set_position(rand_x, rand_y, 0);
 		_transform->set_scale(1,1,1);
-
 		Sprite* _sprite = renderer->generate_sprite_graphics(get_resource_path(image_file_paths[0]), std::string("sprite_mat")+"_"+image_file_paths[0],
 				_transform->get_transformation(),_transform->get_rotation_transformation());
 		Graphics* _graphics = _sprite->graphics;
@@ -55,8 +55,11 @@ namespace PrEngine{
 		_entity->add_componenet(_sprite);
 		_entity->add_componenet(_animator);
 		_entity =  EntityManagementSystem::entity_management_system->assign_id_and_store_entity(*_entity);
+		auto text = _entity->to_string();
 
-		_entity->to_string();
+		auto _graph_data = read_file("Scene.graph");
+		std::cout << _graph_data << std::endl;
+		
 		/*if(_entity != nullptr)
 		{
 			// serialize

@@ -3,8 +3,6 @@
 //
 //  Created by Aniruddha Prithul on 7/22/17.
 //  Copyright © 2017 Aniruddha Prithul. All rights reserved.
-
-
 #include <stdlib.h>
 #include <iostream>
 #include "Module.hpp"
@@ -18,7 +16,6 @@
 #include "TimeModule.hpp"
 #include "InputModule.hpp"
 #include "EntityManagementSystemModule.hpp"
-#include <SDL2/SDL.h>
 //#include "RendererModule.hpp"
 #include "RendererOpenGL2D.hpp"
 #include "FrameRateRegulatorModule.hpp"
@@ -103,6 +100,9 @@ void main_loop(void* game_engine);
 }
 int main(int argc, char * argv[])
 {
+	std::cout << "hello" << std::endl;
 	PrEngine::make_engine();
+	std::cout << "world" << std::endl;
+
 	return 0;
 }

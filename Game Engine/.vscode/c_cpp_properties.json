@@ -21,6 +21,8 @@
             "includePath": [
                 "${workspaceFolder}\\include",
                 "C:\\msys64\\mingw64\\include",
+                "C:\\msys64\\mingw64\\include\\",
+                "C:\\msys64\\mingw64\\include\\**",
                 "C:\\msys64\\mingw64\\include\\SDL2"
             ],
             "defines": [
@@ -29,7 +31,7 @@
                 "_UNICODE"
             ],
             "windowsSdkVersion": "10.0.18362.0",
-            "compilerPath": "C:/msys64/mingw64/bin/g++.exe",
+            "compilerPath": "C:\\msys64\\mingw64\\bin\\g++.exe",
             "cStandard": "c11",
             "cppStandard": "c++11",
             "intelliSenseMode": "gcc-x64"

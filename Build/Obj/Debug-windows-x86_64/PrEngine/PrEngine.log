@@ -1,0 +1,173 @@
+﻿  imgui.cpp
+  imgui_demo.cpp
+  imgui_draw.cpp
+  imgui_impl_opengl3.cpp
+  imgui_impl_sdl.cpp
+  imgui_widgets.cpp
+  imgui_stdlib.cpp
+  stb_image.cpp
+  tiny_obj_loader.cpp
+  Animator.cpp
+  AudioManager.cpp
+  Behaviour.cpp
+  Camera3D.cpp
+D:\PrEngine\PrEngine2D\Game Engine\include\Transform3D.hpp(17,32): warning C4584: 'PrEngine::Transform3D': base-class 'PrEngine::Serializable' is already a base-class of 'PrEngine::Component'
+D:\PrEngine\PrEngine2D\Game Engine\include\Serializable.hpp(14): message : see declaration of 'PrEngine::Serializable'
+D:\PrEngine\PrEngine2D\Game Engine\include\Component.hpp(25): message : see declaration of 'PrEngine::Component'
+D:\PrEngine\PrEngine2D\Game Engine\include\Matrix4x4f.hpp(137,15): warning C4101: '_temp': unreferenced local variable
+D:\PrEngine\PrEngine2D\Game Engine\include\Matrix4x4f.hpp(136): message : while compiling class template member function 'PrEngine::Matrix4x4<float> PrEngine::Matrix4x4<float>::transpose(void) const'
+D:\PrEngine\PrEngine2D\Game Engine\src\Camera3D.cpp(59): message : see reference to function template instantiation 'PrEngine::Matrix4x4<float> PrEngine::Matrix4x4<float>::transpose(void) const' being compiled
+  Component.cpp
+  DirectionalLight.cpp
+  Engine.cpp
+  Entity.cpp
+  EntityGenerator.cpp
+D:\PrEngine\PrEngine2D\Game Engine\include\Transform3D.hpp(58): message : see reference to class template instantiation 'PrEngine::Matrix4x4<float>' being compiled
+D:\PrEngine\PrEngine2D\Game Engine\include\Transform3D.hpp(17,32): warning C4584: 'PrEngine::Transform3D': base-class 'PrEngine::Serializable' is already a base-class of 'PrEngine::Component'
+D:\PrEngine\PrEngine2D\Game Engine\include\Serializable.hpp(14): message : see declaration of 'PrEngine::Serializable'
+D:\PrEngine\PrEngine2D\Game Engine\include\Component.hpp(25): message : see declaration of 'PrEngine::Component'
+D:\PrEngine\PrEngine2D\Game Engine\src\EntityGenerator.cpp(38,36): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+  EntityManagementSystemModule.cpp
+  FrameRateCounterModule.cpp
+  Generating Code...
+  Compiling...
+  FrameRateRegulatorModule.cpp
+D:\PrEngine\PrEngine2D\Game Engine\src\EntityGenerator.cpp(38,28): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+  Game.cpp
+D:\PrEngine\PrEngine2D\Game Engine\src\FrameRateRegulatorModule.cpp(36,27): warning C4244: 'argument': conversion from 'double' to 'Uint32', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\include\Transform3D.hpp(17,32): warning C4584: 'PrEngine::Transform3D': base-class 'PrEngine::Serializable' is already a base-class of 'PrEngine::Component'
+D:\PrEngine\PrEngine2D\Game Engine\include\Serializable.hpp(14): message : see declaration of 'PrEngine::Serializable'
+D:\PrEngine\PrEngine2D\Game Engine\include\Component.hpp(25): message : see declaration of 'PrEngine::Component'
+D:\PrEngine\PrEngine2D\Game Engine\src\Game.cpp(55,17): warning C4244: '=': conversion from 'double' to 'T', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\src\Game.cpp(55,17): warning C4244:         with
+D:\PrEngine\PrEngine2D\Game Engine\src\Game.cpp(55,17): warning C4244:         [
+D:\PrEngine\PrEngine2D\Game Engine\src\Game.cpp(55,17): warning C4244:             T=float
+D:\PrEngine\PrEngine2D\Game Engine\src\Game.cpp(55,17): warning C4244:         ]
+D:\PrEngine\PrEngine2D\Game Engine\src\Game.cpp(57,17): warning C4244: '=': conversion from 'double' to 'T', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\src\Game.cpp(57,17): warning C4244:         with
+D:\PrEngine\PrEngine2D\Game Engine\src\Game.cpp(57,17): warning C4244:         [
+D:\PrEngine\PrEngine2D\Game Engine\src\Game.cpp(57,17): warning C4244:             T=float
+D:\PrEngine\PrEngine2D\Game Engine\src\Game.cpp(57,17): warning C4244:         ]
+D:\PrEngine\PrEngine2D\Game Engine\src\Game.cpp(59,18): warning C4244: '=': conversion from 'double' to 'T', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\src\Game.cpp(59,18): warning C4244:         with
+D:\PrEngine\PrEngine2D\Game Engine\src\Game.cpp(59,18): warning C4244:         [
+D:\PrEngine\PrEngine2D\Game Engine\src\Game.cpp(59,18): warning C4244:             T=float
+D:\PrEngine\PrEngine2D\Game Engine\src\Game.cpp(59,18): warning C4244:         ]
+D:\PrEngine\PrEngine2D\Game Engine\src\Game.cpp(61,18): warning C4244: '=': conversion from 'double' to 'T', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\src\Game.cpp(61,18): warning C4244:         with
+D:\PrEngine\PrEngine2D\Game Engine\src\Game.cpp(61,18): warning C4244:         [
+D:\PrEngine\PrEngine2D\Game Engine\src\Game.cpp(61,18): warning C4244:             T=float
+D:\PrEngine\PrEngine2D\Game Engine\src\Game.cpp(61,18): warning C4244:         ]
+D:\PrEngine\PrEngine2D\Game Engine\src\Game.cpp(65,69): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\src\Game.cpp(65,69): warning C4244:         with
+D:\PrEngine\PrEngine2D\Game Engine\src\Game.cpp(65,69): warning C4244:         [
+D:\PrEngine\PrEngine2D\Game Engine\src\Game.cpp(65,69): warning C4244:             T=int
+D:\PrEngine\PrEngine2D\Game Engine\src\Game.cpp(65,69): warning C4244:         ]
+D:\PrEngine\PrEngine2D\Game Engine\src\Game.cpp(65,69): warning C4244:         and
+D:\PrEngine\PrEngine2D\Game Engine\src\Game.cpp(65,69): warning C4244:         [
+D:\PrEngine\PrEngine2D\Game Engine\src\Game.cpp(65,69): warning C4244:             T=float
+D:\PrEngine\PrEngine2D\Game Engine\src\Game.cpp(65,69): warning C4244:         ]
+D:\PrEngine\PrEngine2D\Game Engine\src\Game.cpp(65,66): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\src\Game.cpp(65,66): warning C4244:         with
+D:\PrEngine\PrEngine2D\Game Engine\src\Game.cpp(65,66): warning C4244:         [
+D:\PrEngine\PrEngine2D\Game Engine\src\Game.cpp(65,66): warning C4244:             T=int
+D:\PrEngine\PrEngine2D\Game Engine\src\Game.cpp(65,66): warning C4244:         ]
+D:\PrEngine\PrEngine2D\Game Engine\src\Game.cpp(65,66): warning C4244:         and
+D:\PrEngine\PrEngine2D\Game Engine\src\Game.cpp(65,66): warning C4244:         [
+D:\PrEngine\PrEngine2D\Game Engine\src\Game.cpp(65,66): warning C4244:             T=float
+D:\PrEngine\PrEngine2D\Game Engine\src\Game.cpp(65,66): warning C4244:         ]
+D:\PrEngine\PrEngine2D\Game Engine\src\Game.cpp(76,128): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\include\Vector2.hpp(76,1): warning C4244: '/=': conversion from 'double' to 'T', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\include\Vector2.hpp(76,1): warning C4244:         with
+D:\PrEngine\PrEngine2D\Game Engine\include\Vector2.hpp(76,1): warning C4244:         [
+D:\PrEngine\PrEngine2D\Game Engine\include\Vector2.hpp(76,1): warning C4244:             T=float
+D:\PrEngine\PrEngine2D\Game Engine\include\Vector2.hpp(76,1): warning C4244:         ]
+D:\PrEngine\PrEngine2D\Game Engine\include\Vector2.hpp(72): message : while compiling class template member function 'PrEngine::Vector2<float> PrEngine::Vector2<float>::normalize(void)'
+D:\PrEngine\PrEngine2D\Game Engine\src\Game.cpp(66): message : see reference to function template instantiation 'PrEngine::Vector2<float> PrEngine::Vector2<float>::normalize(void)' being compiled
+D:\PrEngine\PrEngine2D\Game Engine\src\Game.cpp(65): message : see reference to class template instantiation 'PrEngine::Vector2<float>' being compiled
+  GeometryLayer.cpp
+D:\PrEngine\PrEngine2D\Game Engine\include\Vector2.hpp(77,1): warning C4244: '/=': conversion from 'double' to 'T', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\include\Vector2.hpp(77,1): warning C4244:         with
+D:\PrEngine\PrEngine2D\Game Engine\include\Vector2.hpp(77,1): warning C4244:         [
+D:\PrEngine\PrEngine2D\Game Engine\include\Vector2.hpp(77,1): warning C4244:             T=float
+D:\PrEngine\PrEngine2D\Game Engine\include\Vector2.hpp(77,1): warning C4244:         ]
+D:\PrEngine\PrEngine2D\Game Engine\include\Transform3D.hpp(17,32): warning C4584: 'PrEngine::Transform3D': base-class 'PrEngine::Serializable' is already a base-class of 'PrEngine::Component'
+D:\PrEngine\PrEngine2D\Game Engine\include\Serializable.hpp(14): message : see declaration of 'PrEngine::Serializable'
+  GlAssert.cpp
+  Graphics.cpp
+  GuiLayer.cpp
+D:\PrEngine\PrEngine2D\Game Engine\include\Component.hpp(25): message : see declaration of 'PrEngine::Component'
+  InputModule.cpp
+  Logger.cpp
+  Material.cpp
+D:\PrEngine\PrEngine2D\Game Engine\src\GuiLayer.cpp(45,30): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+  Matrix3x3f.cpp
+  Mesh.cpp
+  Module.cpp
+  NetworkManager.cpp
+  RenderLayer.cpp
+  RendererOpenGL2D.cpp
+D:\PrEngine\PrEngine2D\Game Engine\src\Material.cpp(226,48): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\include\Transform3D.hpp(17,32): warning C4584: 'PrEngine::Transform3D': base-class 'PrEngine::Serializable' is already a base-class of 'PrEngine::Component'
+D:\PrEngine\PrEngine2D\Game Engine\include\Serializable.hpp(14): message : see declaration of 'PrEngine::Serializable'
+D:\PrEngine\PrEngine2D\Game Engine\include\Component.hpp(25): message : see declaration of 'PrEngine::Component'
+D:\PrEngine\PrEngine2D\Game Engine\src\RendererOpenGL2D.cpp(163,23): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\src\RendererOpenGL2D.cpp(164,23): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\src\RendererOpenGL2D.cpp(267,82): warning C4267: 'argument': conversion from 'size_t' to 'GLuint', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\src\RendererOpenGL2D.cpp(275,1): warning C4312: 'type cast': conversion from 'GLsizei' to 'void *' of greater size
+D:\PrEngine\PrEngine2D\Game Engine\src\RendererOpenGL2D.cpp(278,101): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\src\RendererOpenGL2D.cpp(278,101): warning C4267: 'argument': conversion from 'size_t' to 'GLuint', possible loss of data
+  Serializable.cpp
+  Sprite.cpp
+D:\PrEngine\PrEngine2D\Game Engine\src\RendererOpenGL2D.cpp(279,65): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\include\Transform3D.hpp(17,32): warning C4584: 'PrEngine::Transform3D': base-class 'PrEngine::Serializable' is already a base-class of 'PrEngine::Component'
+D:\PrEngine\PrEngine2D\Game Engine\include\Serializable.hpp(14): message : see declaration of 'PrEngine::Serializable'
+  SpriteLayer.cpp
+D:\PrEngine\PrEngine2D\Game Engine\include\Component.hpp(25): message : see declaration of 'PrEngine::Component'
+D:\PrEngine\PrEngine2D\Game Engine\include\Transform3D.hpp(17,32): warning C4584: 'PrEngine::Transform3D': base-class 'PrEngine::Serializable' is already a base-class of 'PrEngine::Component'
+D:\PrEngine\PrEngine2D\Game Engine\include\Serializable.hpp(14): message : see declaration of 'PrEngine::Serializable'
+D:\PrEngine\PrEngine2D\Game Engine\include\Component.hpp(25): message : see declaration of 'PrEngine::Component'
+  Texture.cpp
+  TimeModule.cpp
+  Generating Code...
+  Compiling...
+  Transform.cpp
+  Transform3D.cpp
+D:\PrEngine\PrEngine2D\Game Engine\src\SpriteLayer.cpp(19,55): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\include\Transform3D.hpp(17,32): warning C4584: 'PrEngine::Transform3D': base-class 'PrEngine::Serializable' is already a base-class of 'PrEngine::Component'
+D:\PrEngine\PrEngine2D\Game Engine\include\Serializable.hpp(14): message : see declaration of 'PrEngine::Serializable'
+D:\PrEngine\PrEngine2D\Game Engine\include\Component.hpp(25): message : see declaration of 'PrEngine::Component'
+D:\PrEngine\PrEngine2D\Game Engine\src\Transform3D.cpp(73,47): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\src\Transform3D.cpp(74,48): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\src\Transform3D.cpp(75,47): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\src\Transform3D.cpp(76,47): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\src\Transform3D.cpp(78,47): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\src\Transform3D.cpp(79,47): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\src\Transform3D.cpp(80,48): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\src\Transform3D.cpp(81,47): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\src\Transform3D.cpp(83,47): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\src\Transform3D.cpp(84,48): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\src\Transform3D.cpp(85,47): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\src\Transform3D.cpp(86,47): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\src\Transform3D.cpp(96,47): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\src\Transform3D.cpp(97,48): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\src\Transform3D.cpp(98,47): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\src\Transform3D.cpp(99,47): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\src\Transform3D.cpp(101,47): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\src\Transform3D.cpp(102,47): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\src\Transform3D.cpp(103,48): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\src\Transform3D.cpp(104,47): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\src\Transform3D.cpp(106,47): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\src\Transform3D.cpp(107,48): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\src\Transform3D.cpp(108,47): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  Utils.cpp
+  Vertex.cpp
+  main.cpp
+D:\PrEngine\PrEngine2D\Game Engine\src\Transform3D.cpp(109,47): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\include\Transform3D.hpp(17,32): warning C4584: 'PrEngine::Transform3D': base-class 'PrEngine::Serializable' is already a base-class of 'PrEngine::Component'
+D:\PrEngine\PrEngine2D\Game Engine\include\Serializable.hpp(14): message : see declaration of 'PrEngine::Serializable'
+D:\PrEngine\PrEngine2D\Game Engine\include\Component.hpp(25): message : see declaration of 'PrEngine::Component'
+  Generating Code...
+D:\PrEngine\PrEngine2D\Game Engine\src\main.cpp(25,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  LINK : ..\Build\Debug-windows-x86_64\PrEngine\PrEngine.exe not found or not built by the last incremental link; performing full link
+  PrEngine.vcxproj -> D:\PrEngine\PrEngine2D\Game Engine\..\Build\Debug-windows-x86_64\PrEngine\PrEngine.exe

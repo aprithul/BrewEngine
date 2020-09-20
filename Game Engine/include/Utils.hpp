@@ -6,6 +6,9 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <SDL2/SDL.h>
+#include <iostream>
+#include <fstream>
+#include <sstream>
 #include "Vector2.hpp"
 #include "Logger.hpp"
 
@@ -17,11 +20,9 @@
 
 namespace PrEngine
 {
-    extern char* read_file(const char* file_name);
-    extern void close_file(FILE *fp);
-    extern FILE* write_to_file(const char* text, const char* file_name, FILE *fp);
+	extern std::string read_file(const std::string& file_name);
+    extern void write_to_file(const std::string& text, const std::string& file_name);
     extern std::string get_resource_path(const std::string &subDir); 
-    extern std::string get_path(const std::string &subDir); 
     
     struct Rect
     {

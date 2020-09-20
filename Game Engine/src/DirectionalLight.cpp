@@ -6,7 +6,6 @@ namespace PrEngine
     {
         this->specular = _specular;
         this->ambient = _ambient;
-        
     }
 
     DirectionalLight::~DirectionalLight()
