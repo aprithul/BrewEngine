@@ -21,7 +21,7 @@
 namespace PrEngine
 {
 	extern std::string read_file(const std::string& file_name);
-    extern void write_to_file(const std::string& text, const std::string& file_name);
+    extern void write_to_file(const std::string& text, const std::string& file_name, bool binary);
     extern std::string get_resource_path(const std::string &subDir); 
     
     struct Rect

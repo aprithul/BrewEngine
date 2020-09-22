@@ -9,12 +9,16 @@ workspace "PrEngine"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 enginedir = "Game Engine/"
+gamedir = "Game/"
+
 project "PrEngine"
 	location "Game Engine"
-	kind "WindowedApp"
+	kind "StaticLib"
 	language "C++"
-	targetdir ("Build/" .. outputdir .. "/%{prj.name}")
-	objdir ("Build/Obj/" .. outputdir .. "/%{prj.name}")
+	cppdialect "C++11"
+	targetdir (enginedir .. "Build/" .. outputdir .. "/%{prj.name}")
+	objdir (enginedir .. "Build/Obj/" .. outputdir .. "/%{prj.name}")
+	staticruntime "on"
 
 	files
 	{
@@ -43,13 +47,40 @@ project "PrEngine"
 	}
 	libdirs {"vendor/libs" }
 
-	filter "system:windows"
-	links
+	filter "system:windows"		
+		links
+		{
+			"SDL2",
+			"SDL2main",
+			"SDL2_mixer",
+			"glew32",
+			"OpenGL32"
+		}
+
+project "Game"
+	location "Game"
+	kind "ConsoleApp"
+	language "C++"
+	cppdialect "C++11"
+	staticruntime "on"
+	targetdir (gamedir .. "Build/" .. outputdir .. "/%{prj.name}")
+	objdir (enginedir .. "Build/Obj/" .. outputdir .. "/%{prj.name}")
+
+	files
 	{
-		"SDL2",
-		"SDL2main",
-		"SDL2_mixer",
-		"glew32",
-		"OpenGL32"
+		gamedir .. "/src/**.cpp",
+		gamedir .. "/include/**.hpp"
 	}
+
+	includedirs { 
+		enginedir .. "/include",
+		enginedir .. "/Vendor",
+		enginedir .. "/Vendor/include",
+		enginedir .. "/Vendor/imgui-master"
+	}
+
+	links{
+		"PrEngine"
+	}
+
 

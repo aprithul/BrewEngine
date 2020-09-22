@@ -16,6 +16,8 @@ namespace PrEngine
 
     Component::Component(ComponentType type):type(type)
     {
+		this->entity_id = -1;
+		this->is_entity_id_set = false;
     }
     
     Component::~Component()
@@ -42,5 +44,13 @@ namespace PrEngine
 
     }
 
+	void Component::set_entity_id(int entity_id)
+	{
+		if(!is_entity_id_set)
+		{
+			this->entity_id = entity_id;
+			is_entity_id_set = !is_entity_id_set;
+		}
+	}
 
 }

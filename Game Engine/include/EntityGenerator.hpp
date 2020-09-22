@@ -15,6 +15,8 @@
 #include "Transform3D.hpp"
 #include "Sprite.hpp"
 #include <stdlib.h>
+#include <sstream>
+#include <string>
 
 namespace PrEngine{
 
@@ -32,6 +34,7 @@ namespace PrEngine{
 		Entity* make_animated_sprite_entity(const std::vector<std::string>& image_file_paths,int fps);
 		Entity* make_light_entity();
 		Entity* make_camera();
+		void load_scenegraph(std::string& scene_file_name);
 
 
 	private:

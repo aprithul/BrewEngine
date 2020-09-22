@@ -1,0 +1,6 @@
+﻿  main.cpp
+D:\PrEngine\PrEngine2D\Game Engine\include\Transform3D.hpp(17,32): warning C4584: 'PrEngine::Transform3D': base-class 'PrEngine::Serializable' is already a base-class of 'PrEngine::Component'
+D:\PrEngine\PrEngine2D\Game Engine\include\Serializable.hpp(14): message : see declaration of 'PrEngine::Serializable'
+D:\PrEngine\PrEngine2D\Game Engine\include\Component.hpp(25): message : see declaration of 'PrEngine::Component'
+D:\PrEngine\PrEngine2D\Game\src\main.cpp(25,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  Game.vcxproj -> D:\PrEngine\PrEngine2D\Game\..\Build\Debug-windows-x86_64\Game\Game.exe

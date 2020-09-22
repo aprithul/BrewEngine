@@ -9,17 +9,23 @@
 
 namespace PrEngine
 {
+	class RendererOpenGL2D;
 
     class Sprite : public Component
     {
 
         public:
-            Sprite(int order, Graphics* graphics, Animator* animator);
+            Sprite(int order);
             ~Sprite();
             std::string to_string() override;
+			void start() override;
+			void add_to_renderer(RendererOpenGL2D* renderer);
+
             int order;
             Graphics* graphics;
             Animator* animator;
+			std::vector<Texture*> loaded_textures;
+
     };
 
 }

@@ -84,6 +84,7 @@ namespace PrEngine
     {
         components[component->type] = component;
         has_component[component->type]=true;
+		component->set_entity_id(this->id);
     }
 
     

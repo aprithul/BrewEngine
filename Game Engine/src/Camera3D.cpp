@@ -56,7 +56,7 @@ namespace PrEngine
         view_matrix.set(0,3, -transform.get_position().x);
         view_matrix.set(1,3, -transform.get_position().y);
         view_matrix.set(2,3, -transform.get_position().z);
-        Matrix4x4<float> reverse_rot = transform.get_rotation_transformation().transpose();
+        Matrix4x4<float> reverse_rot = transform.get_rotation_transformation()->transpose();
         view_matrix = reverse_rot * view_matrix;
         
         if(projection_type==PERSPECTIVE)

@@ -37,6 +37,7 @@ namespace PrEngine
         int height;
         int no_of_channels;
         stbi_uc* data;
+		std::string path;
 
         Texture();
         Texture(const char* path);

@@ -24,7 +24,7 @@ namespace PrEngine
             Entity* get_entity(std::string name);
             Entity* get_entity_with_component(ComponentType type);
             bool delete_entity(long id);
-            Entity* assign_id_and_store_entity(Entity& entity);
+            Entity* generate_entity(std::string& name);
 
             Entity* entities[MAX_ENTITY_COUNT];
             static int current_max_entity_pos;

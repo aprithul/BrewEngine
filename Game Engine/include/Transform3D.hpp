@@ -25,9 +25,9 @@ namespace PrEngine{
             void set_rotation(const Vector3<float>& rotation);
             void set_rotation(float x, float y, float z);
             
-            const Matrix4x4<float>& get_transformation();
-            const Matrix4x4<float>& get_rotation_transformation();
-            const Matrix4x4<float>& get_translation_transformation();
+            const Matrix4x4<float>* const get_transformation();
+            const Matrix4x4<float>* const get_rotation_transformation();
+            const Matrix4x4<float>* const get_translation_transformation();
             const Vector3<float>& get_position();
             const Vector3<float>& get_scale();
             const Vector3<float>& get_rotation();

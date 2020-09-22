@@ -169,5 +169,7 @@ D:\PrEngine\PrEngine2D\Game Engine\include\Serializable.hpp(14): message : see d
 D:\PrEngine\PrEngine2D\Game Engine\include\Component.hpp(25): message : see declaration of 'PrEngine::Component'
   Generating Code...
 D:\PrEngine\PrEngine2D\Game Engine\src\main.cpp(25,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-  LINK : ..\Build\Debug-windows-x86_64\PrEngine\PrEngine.exe not found or not built by the last incremental link; performing full link
-  PrEngine.vcxproj -> D:\PrEngine\PrEngine2D\Game Engine\..\Build\Debug-windows-x86_64\PrEngine\PrEngine.exe
+SDL2_mixer.lib(SDL2_mixer.dll) : warning LNK4006: __NULL_IMPORT_DESCRIPTOR already defined in SDL2.lib(SDL2.dll); second definition ignored
+glew32.lib(glew32.dll) : warning LNK4006: __NULL_IMPORT_DESCRIPTOR already defined in SDL2.lib(SDL2.dll); second definition ignored
+OpenGL32.lib(OPENGL32.dll) : warning LNK4006: __NULL_IMPORT_DESCRIPTOR already defined in SDL2.lib(SDL2.dll); second definition ignored
+  PrEngine.vcxproj -> D:\PrEngine\PrEngine2D\Game Engine\..\Build\Debug-windows-x86_64\PrEngine\PrEngine.lib

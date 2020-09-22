@@ -26,6 +26,7 @@ namespace PrEngine
     {
     private:
         /* data */
+		bool is_entity_id_set;
     public:
         Component(ComponentType type);
         virtual ~Component();
@@ -33,7 +34,10 @@ namespace PrEngine
         virtual void start();
         virtual void update();
         virtual void end();
+		void set_entity_id(int entity_id);
         const ComponentType type;
+	protected:
+		int entity_id;
     };
 
 }

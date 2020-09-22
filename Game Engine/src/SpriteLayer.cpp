@@ -111,7 +111,7 @@ namespace PrEngine
 					{
 
 						GL_CALL(
-							glUniformMatrix4fv(it->second.second,1, GL_TRUE, grp->model.data))
+							glUniformMatrix4fv(it->second.second,1, GL_TRUE, grp->model->data))
 					}
 
 					if(it->first == "u_View")
@@ -151,7 +151,7 @@ namespace PrEngine
 					if(it->first == "u_Normal_M")
 					{
 						GL_CALL(
-							glUniformMatrix4fv(it->second.second,1, GL_TRUE, grp->normal.data ))
+							glUniformMatrix4fv(it->second.second,1, GL_TRUE, grp->normal->data ))
 					}
 
 					if(it->first =="u_Panning")

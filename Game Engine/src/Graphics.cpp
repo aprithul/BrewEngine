@@ -1,4 +1,6 @@
 #include "Graphics.hpp"
+#include "Transform3D.hpp"
+#include "EntityManagementSystemModule.hpp"
 
 namespace PrEngine
 {
@@ -109,10 +111,34 @@ namespace PrEngine
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
     }
 
-    Graphics::Graphics(const Matrix4x4<float>& model, const Matrix4x4<float>& normal):model(model),normal(normal),Component(COMP_GRAPHICS)
+    Graphics::Graphics():Component(COMP_GRAPHICS)
     {
 
     }
+
+	void Graphics::start()
+	{
+		auto _entity = EntityManagementSystem::entity_management_system->get_entity(this->entity_id);
+		if (_entity != nullptr)
+		{
+			if (_entity->has_component[COMP_TRANSFORM_3D])
+			{
+				auto transform = (Transform3D*)_entity->components[COMP_TRANSFORM_3D];
+				model = (transform->get_transformation());
+				normal = (transform->get_rotation_transformation());
+			}
+			else
+			{
+				LOG(LOGTYPE_ERROR, "Loading matrix failed");
+			}
+
+		}
+		else
+		{
+			LOG(LOGTYPE_ERROR, "Entity with id ", std::to_string(entity_id), " couldn't be found");
+		}
+
+	}
 
     Graphics::~Graphics()
     {

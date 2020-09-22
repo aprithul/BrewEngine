@@ -19,19 +19,19 @@ namespace PrEngine{
 	class Animator : public Component
 	{
 	public:
-		Animator(Material* material);
+		Animator();
 		~Animator();
 		int current_frame_index;
+		void start() override;
 		void play();
 		void pause();
 		void stop();
 		void set_frame_rate(int frame_rate);
 		void update() override;
-		void add_frame(Texture* frame);
 		std::string to_string() override;
 	private:
 		void on_next_frame();
-		std::vector<Texture*> animation_frames;
+		//const std::vector<Texture*>* const animation_frames;
 		double frame_delta;
 		int frame_rate;
 		Timer* on_frame_change_timer;

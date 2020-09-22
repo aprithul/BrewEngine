@@ -4,9 +4,9 @@ namespace PrEngine{
     // writes text to file in append mode
     // doesn't automaticlaly close file
     // file pointer needs to be provided so file can be closed when writing is finished
-	void write_to_file(const std::string& text, const std ::string& file_name)
+	void write_to_file(const std::string& text, const std ::string& file_name, bool binary)
     {
-		std::ofstream _file(file_name, std::ios::app);
+		std::ofstream _file(file_name, std::ios::app | (binary?std::ios::binary:0));
 		if (_file.is_open())
 		{
 			_file << text;

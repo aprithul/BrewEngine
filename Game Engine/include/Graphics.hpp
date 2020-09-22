@@ -82,12 +82,12 @@ namespace PrEngine
         //Material* material;
         //VertexLayout layout;  
 
-        const Matrix4x4<float>& model;
-        const Matrix4x4<float>& normal;
-
-        Graphics(const Matrix4x4<float>& model, const Matrix4x4<float>& normal);// const Vertex* vertices, GLuint vertices_size, const GLuint* indices, GLuint indices_size, GLsizei indices_count, Material material,Texture texture, VertexLayout layout);
+        Graphics();// const Vertex* vertices, GLuint vertices_size, const GLuint* indices, GLuint indices_size, GLsizei indices_count, Material material,Texture texture, VertexLayout layout);
         ~Graphics();
+		void start() override;
         std::string to_string() override;
+		const Matrix4x4<float>* model;
+		const Matrix4x4<float>* normal;
 
     };
 }

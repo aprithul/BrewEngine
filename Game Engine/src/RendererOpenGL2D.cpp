@@ -142,14 +142,15 @@ namespace PrEngine {
             (*it)->end();
     }
 
-    Sprite* RendererOpenGL2D::generate_sprite_graphics(const std::string& texture_file_path,  const std::string& mat_name, const Matrix4x4<float>& model, const Matrix4x4<float>& normal)
+    Graphics* RendererOpenGL2D::generate_sprite_graphics(const std::vector<std::string>& texture_file_paths,  const std::string& mat_name)
     {
 
+		Graphics* graphics = new Graphics();
         std::unordered_map<std::string, Material*>::iterator _mat_it = Material::material_library.find(mat_name);
         Material* mat;
         if(_mat_it == Material::material_library.end())
         {
-            mat = new Material("shaders"+PATH_SEP+"DiffuseUnlit2D.shader", std::string(texture_file_path), mat_name);
+            mat = new Material("shaders"+PATH_SEP+"DiffuseUnlit2D.shader", std::string( get_resource_path(texture_file_paths[0])), mat_name);
             Material::material_library[mat_name] = mat;
         }
         else
@@ -157,8 +158,7 @@ namespace PrEngine {
             mat = _mat_it->second;
         }
 
-
-        // find the proer scale needed for the quad mesh
+        // find the proper scale needed for the quad mesh
         Texture* tex = mat->diffuse_texture;
         float x_scale = tex->width;
         float y_scale = tex->height;
@@ -246,7 +246,6 @@ namespace PrEngine {
         indices.push_back(3);
         indices.push_back(0);
 
-        Graphics* graphics = new Graphics(model, normal);
         VertexLayout layout;
         VertexAttribute attribute_0(0,3,GL_FLOAT,GL_FALSE);
         VertexAttribute attribute_1(1,4,GL_FLOAT,GL_FALSE);
@@ -259,9 +258,6 @@ namespace PrEngine {
 
         GraphicsElement g_element;
         graphics->elements.push_back(g_element);
-
-
-
 		graphics->elements.back().material = mat;
 		graphics->elements.back().vao.Generate();
 		graphics->elements.back().vbo.Generate(&buffer[0], buffer.size()*sizeof(Vertex));
@@ -280,15 +276,11 @@ namespace PrEngine {
 
 		graphics->elements.back().vao.Unbind();
 		graphics->elements.back().ibo.Unbind();
-		auto width = graphics->elements.back().material->diffuse_texture->width;
-		auto height= graphics->elements.back().material->diffuse_texture->height;
-		std::cout<<width<<","<<height<<std::endl;
-		SpriteLayer* sprite_layer = (SpriteLayer*)get_layer("Sprite");
-		Animator* animator = new Animator(mat);
-		Sprite* _sprite = new Sprite(0, graphics, animator);
-		sprite_layer->sprite_list.push_back(_sprite);
+		
+		//SpriteLayer* sprite_layer = (SpriteLayer*)get_layer("Sprite");
+		//sprite_layer->sprite_list.push_back(sprite);
 
-		return _sprite;
+		return graphics;
     }
 
 

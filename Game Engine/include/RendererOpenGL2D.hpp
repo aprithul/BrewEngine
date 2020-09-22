@@ -45,7 +45,7 @@ namespace PrEngine {
 			void set_vsync(GLboolean value);
 			bool make_shader_program(const std::string& path, GLuint& shader_program);
 			GLuint make_shader( GLenum type, const std::string& source);
-			Sprite* generate_sprite_graphics(const std::string& texture_file_path, const std::string& mat_name,const Matrix4x4<float>& model, const Matrix4x4<float>& normal);
+			Graphics* generate_sprite_graphics(const std::vector<std::string>& texture_file_paths, const std::string& mat_name);
 			RenderLayer* get_layer(const std::string& layer_name);
 			//Matrix4x4<float> view_matrix;
 			//Matrix4x4<float> projection;

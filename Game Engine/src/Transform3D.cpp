@@ -117,19 +117,19 @@ namespace  PrEngine
         dirty = true;
     }
 
-    const Matrix4x4<float>& Transform3D::get_transformation()
+    const Matrix4x4<float>* const Transform3D::get_transformation()
     {
-        return transformation;
+        return &transformation;
     }
 
-    const Matrix4x4<float>& Transform3D::get_translation_transformation()
+    const Matrix4x4<float>* const Transform3D::get_translation_transformation()
     {
-        return translation;
+        return &translation;
     }
 
-    const Matrix4x4<float>& Transform3D::get_rotation_transformation()
+    const Matrix4x4<float>* const Transform3D::get_rotation_transformation()
     {
-        return rotation_transformation;
+        return &rotation_transformation;
     }
 
     const Vector3<float>& Transform3D::get_scale()

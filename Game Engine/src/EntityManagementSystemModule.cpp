@@ -111,13 +111,14 @@ namespace PrEngine
     }
 
 
-    Entity* EntityManagementSystem::assign_id_and_store_entity(Entity& entity)
+    Entity* EntityManagementSystem::generate_entity(std::string& name)
     {
-        if(entity.id != -1)
+		Entity* entity = new Entity(name);
+        if(entity->id != -1)
         {
             LOG(LOGTYPE_WARNING, "Entity already present in system, can't add duplicate");
             
-            return &entity;       
+            return entity;       
         }
 
         // get next id either from freed id queue or create a new id if none available in queue
@@ -146,18 +147,18 @@ namespace PrEngine
 
         }
 
-        entity.id = next_entity_id;
-        entities[next_pos] = &entity;
+        entity->id = next_entity_id;
+        entities[next_pos] = entity;
         id_map[next_entity_id] = next_pos; 
         entity_count++;
 
         if(started)
         {
-            entity.awake();
-            entity.start();
+            entity->awake();
+            entity->start();
         }
 
-        return &entity;
+        return entity;
     }
 
 

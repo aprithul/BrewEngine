@@ -11,6 +11,7 @@ namespace PrEngine
     {
         texture_create_status = 0;
         stbi_set_flip_vertically_on_load(true);
+		this->path = path;
         if(texture_data_library.count(path) > 0)
         {
             TextureData td = texture_data_library[path];
@@ -36,7 +37,7 @@ namespace PrEngine
 
 
         if(data == NULL){
-            LOG(LOGTYPE_ERROR, "Couldn't create texture");
+            LOG(LOGTYPE_ERROR, "Couldn't create texture ", path);
         }
         else
         {
@@ -78,7 +79,7 @@ namespace PrEngine
 
     Texture* Texture::load_texture(const std::string& path)
     {
-    	Texture* _tex = new Texture(get_resource_path(path).c_str());
+    	Texture* _tex = new Texture(path.c_str());
     	if(Texture::texture_create_status == 0)
     		return nullptr;
     	else
