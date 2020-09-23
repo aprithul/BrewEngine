@@ -27,7 +27,7 @@ namespace PrEngine
         static std::unordered_map<std::string, Texture*> texture_library;
         static int texture_create_status;
 
-        static void load_default_texture();
+        static Texture* load_default_texture();
         static Texture* load_texture(const std::string& path);
         static void delete_all_texture_data();
         static void delete_all_textures();
@@ -39,12 +39,12 @@ namespace PrEngine
         stbi_uc* data;
 		std::string path;
 
-        Texture();
-        Texture(const char* path);
-        ~Texture();
-        void Delete();
         virtual void Bind(int slot);
         virtual void Unbind();
+
+		private:
+			Texture(const std::string& path);
+			~Texture();
     };
 
 }

@@ -41,7 +41,7 @@ namespace PrEngine{
 		Graphics* _graphics = renderer->generate_sprite_graphics(image_file_paths, std::string("sprite_mat")+"_"+image_file_paths[0]);
 
 		Animator* _animator = new Animator();
-		_animator->set_frame_rate(fps);
+		//_animator->set_frame_rate(fps);
 
 		Sprite* _sprite = new Sprite(0);
 		_sprite->add_to_renderer(renderer);

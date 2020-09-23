@@ -13,8 +13,10 @@
 #include "Texture.hpp"
 #include "TimeModule.hpp"
 #include "Serializable.hpp"
+#include "Transform3D.hpp"
+#include "Animation.hpp"
 #include <string>
-#include <vector>
+#include <unordered_map>
 namespace PrEngine{
 	class Animator : public Component
 	{
@@ -22,20 +24,19 @@ namespace PrEngine{
 		Animator();
 		~Animator();
 		int current_frame_index;
+		float animation_speed;
+		void load_animation(std::string& animation_file);
+
 		void start() override;
 		void play();
 		void pause();
 		void stop();
-		void set_frame_rate(int frame_rate);
 		void update() override;
 		std::string to_string() override;
 	private:
-		void on_next_frame();
-		//const std::vector<Texture*>* const animation_frames;
-		double frame_delta;
-		int frame_rate;
-		Timer* on_frame_change_timer;
 		Material* material;
+		Transform3D* transform;
+		std::unordered_map<std::string, Animation> aniamtions;
 	};
 }
 

@@ -31,12 +31,13 @@ namespace PrEngine
     struct Material
     {
         static std::unordered_map<std::string, Material*> material_library;
+		static Material* load_material(const std::string& shader_path, const std::string& diffuse_tex_path, const std::string& name);
+		static bool material_creation_status;
+
         static void delete_all_materials();
-        Material(const std::string& shader_path, const std::string& diffuse_tex_path,const std::string& name);
-        Material(const std::string& shader_path, const std::vector<std::string>& cubemap_tex_path,const std::string& name);
+        //Material(const std::string& shader_path, const std::vector<std::string>& cubemap_tex_path,const std::string& name);
         //void Generate(const std::string& shader_path, const std::string& diffuse_tex_path, const std::string& name);
         void Delete();
-        ~Material();
         //std::string source_file_path;
         Texture* diffuse_texture;
         void Bind();
@@ -44,6 +45,11 @@ namespace PrEngine
         Shader* shader;
         Vector2<float> tiling;
         Vector2<float> panning;
+
+	private:
+		Material(const std::string& shader_path, const std::string& diffuse_tex_path, const std::string& name);
+		~Material();
+
     };
 
 } // namespace PrEngine

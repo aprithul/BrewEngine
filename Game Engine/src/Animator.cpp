@@ -14,9 +14,7 @@ namespace PrEngine
 	Animator::Animator():Component(COMP_ANIMATOR)
 	{
 		this->material = nullptr;
-		this->on_frame_change_timer = nullptr;
-		this->frame_rate = 1;
-		this->frame_delta = 999999;	
+		this->animation_speed = 1.f;
 		this->current_frame_index = 0;
 	}
 
@@ -41,6 +39,16 @@ namespace PrEngine
 
 			}
 
+			if (_entity->has_component[COMP_TRANSFORM_3D])
+			{
+				this->transform = (Transform3D*)_entity->components[COMP_TRANSFORM_3D];
+			}
+			else
+			{
+				LOG(LOGTYPE_ERROR, "couldn't get transform componenet in animator");
+
+			}
+
 		}
 		else
 		{
@@ -48,38 +56,26 @@ namespace PrEngine
 		}
 	}
 
-	void Animator::set_frame_rate(int frame_rate)
-	{
-		this->frame_rate = frame_rate;
-		this->frame_delta =  (1.0/frame_rate);
-		LOG(LOGTYPE_GENERAL,"setting animation frame delta to ", std::to_string(frame_delta));
-		if(on_frame_change_timer != nullptr)
-		{
-			this->on_frame_change_timer->target_duration = frame_delta;
-		}
-		else{
-			this->on_frame_change_timer = Time::make_timer(frame_delta, std::bind(&Animator::on_next_frame, this), true);
-
-		}
-	}
-
+	
 	void Animator::update()
 	{
 
+	
 	}
 
-	void Animator::on_next_frame()
+	void Animator::load_animation(std::string& file_name)
 	{
-		//current_frame_index = (current_frame_index +1)%animation_frames->size();
-		//material->diffuse_texture = (*animation_frames)[current_frame_index];
+		this->aniamtions.emplace(file_name,file_name);
 	}
 
 	std::string Animator::to_string()
 	{
 
-		std::string text = std::to_string(COMP_ANIMATOR)+","+std::to_string(COMP_ANIMATOR)+","+std::to_string(this->frame_rate);
+		std::string text = std::to_string(COMP_ANIMATOR) + ",";
 		return text;
 	}
+
+
 
 
 }

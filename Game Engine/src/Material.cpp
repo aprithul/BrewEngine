@@ -5,6 +5,7 @@ namespace PrEngine
 
     std::unordered_map<std::string, Material*> Material::material_library;
     std::unordered_map<std::string, Shader> Shader::shader_library;
+	bool Material::material_creation_status;
 
     /*Material::()
     {
@@ -53,25 +54,13 @@ namespace PrEngine
     Material::Material(const std::string& shader_path, const std::string& diffuse_tex_path,  const std::string& name)
     {
         // only create new texture on gpu if texture doesn't exist already
+		material_creation_status = 1;
         tiling = Vector2<float>(1,1);
         panning = Vector2<float>(0,0);
 
-        std::unordered_map<std::string, Texture*>::iterator _tex_it = Texture::texture_library.find(diffuse_tex_path);
-        if(_tex_it == Texture::texture_library.end()) // texture not in library, so create
-        {
-            Texture* _tex =  new Texture(diffuse_tex_path.c_str());
-            if(Texture::texture_create_status == 0){    // creating texture failed, so assign default
-                delete _tex;
-                diffuse_texture = Texture::texture_library[get_resource_path("default.jpg")];
-            }
-            else // successfully created texture, store in library and assign that
-            {
-                diffuse_texture = _tex;
-
-            }
-        }
-        else    // texture found in library, so assign that
-            diffuse_texture = Texture::texture_library[diffuse_tex_path];
+		diffuse_texture = Texture::load_texture(diffuse_tex_path);
+		if (diffuse_texture == nullptr)
+			material_creation_status = 0;
 
         std::unordered_map<std::string, Shader>::iterator _shader_it = Shader::shader_library.find(shader_path);
         if(_shader_it == Shader::shader_library.end())
@@ -80,13 +69,17 @@ namespace PrEngine
             //this->source_file_path = std::string(shader_path);
             
         	this->shader = Shader::make_shader_program(std::string(shader_path));
-        	if(this->shader == nullptr)
-        		LOG(LOGTYPE_ERROR, "Shader making failed");
+			if (this->shader == nullptr)
+			{
+				LOG(LOGTYPE_ERROR, "Shader making failed");
+				material_creation_status = 0;
+			}
             //Shader::shader_library[shader_path] = shader_program;
         }
         else{
             shader = &(_shader_it->second);
         }
+
 
     }
 
@@ -185,6 +178,30 @@ namespace PrEngine
         
     }
 
+	Material* Material::load_material(const std::string& shader_path, const std::string& diffuse_tex_path, const std::string& name)
+	{
+		Material* mat;
+		std::unordered_map<std::string, Material*>::iterator _mat_it = Material::material_library.find(name);
+		if (_mat_it == Material::material_library.end())
+		{
+			mat = new Material(shader_path, diffuse_tex_path, name);
+			if (!material_creation_status)
+			{
+				LOG(LOGTYPE_ERROR, "Material creation failed");
+				delete mat;
+				mat = nullptr;
+			}
+			else
+				Material::material_library[name] = mat;
+		}
+		else
+		{
+			mat = _mat_it->second;
+		}
+		return mat;
+	}
+
+
     void Material::delete_all_materials()
     {
     	LOG(LOGTYPE_GENERAL, "Deleting all materials");
@@ -257,7 +274,7 @@ namespace PrEngine
 
     Shader* Shader::make_shader_program(const std::string& path)
     {
-        std::string _source = read_file(get_resource_path(path).c_str());
+        std::string _source = read_file(get_resource_path(path));
         std::stringstream shader_source;
         shader_source << _source;
         

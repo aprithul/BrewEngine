@@ -1,18 +1,7 @@
-﻿  Camera3D.cpp
+﻿  Animator.cpp
 D:\PrEngine\PrEngine2D\Game Engine\include\Transform3D.hpp(17,32): warning C4584: 'PrEngine::Transform3D': base-class 'PrEngine::Serializable' is already a base-class of 'PrEngine::Component'
 D:\PrEngine\PrEngine2D\Game Engine\include\Serializable.hpp(14): message : see declaration of 'PrEngine::Serializable'
 D:\PrEngine\PrEngine2D\Game Engine\include\Component.hpp(25): message : see declaration of 'PrEngine::Component'
-D:\PrEngine\PrEngine2D\Game Engine\include\Matrix4x4f.hpp(137,15): warning C4101: '_temp': unreferenced local variable
-D:\PrEngine\PrEngine2D\Game Engine\include\Matrix4x4f.hpp(136): message : while compiling class template member function 'PrEngine::Matrix4x4<float> PrEngine::Matrix4x4<float>::transpose(void) const'
-D:\PrEngine\PrEngine2D\Game Engine\src\Camera3D.cpp(59): message : see reference to function template instantiation 'PrEngine::Matrix4x4<float> PrEngine::Matrix4x4<float>::transpose(void) const' being compiled
-  EntityGenerator.cpp
-D:\PrEngine\PrEngine2D\Game Engine\include\Transform3D.hpp(58): message : see reference to class template instantiation 'PrEngine::Matrix4x4<float>' being compiled
-D:\PrEngine\PrEngine2D\Game Engine\include\Transform3D.hpp(17,32): warning C4584: 'PrEngine::Transform3D': base-class 'PrEngine::Serializable' is already a base-class of 'PrEngine::Component'
-D:\PrEngine\PrEngine2D\Game Engine\include\Serializable.hpp(14): message : see declaration of 'PrEngine::Serializable'
-D:\PrEngine\PrEngine2D\Game Engine\include\Component.hpp(25): message : see declaration of 'PrEngine::Component'
-D:\PrEngine\PrEngine2D\Game Engine\src\EntityGenerator.cpp(38,36): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-  Generating Code...
-D:\PrEngine\PrEngine2D\Game Engine\src\EntityGenerator.cpp(38,28): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
 SDL2_mixer.lib(SDL2_mixer.dll) : warning LNK4006: __NULL_IMPORT_DESCRIPTOR already defined in SDL2.lib(SDL2.dll); second definition ignored
 glew32.lib(glew32.dll) : warning LNK4006: __NULL_IMPORT_DESCRIPTOR already defined in SDL2.lib(SDL2.dll); second definition ignored
 OpenGL32.lib(OPENGL32.dll) : warning LNK4006: __NULL_IMPORT_DESCRIPTOR already defined in SDL2.lib(SDL2.dll); second definition ignored

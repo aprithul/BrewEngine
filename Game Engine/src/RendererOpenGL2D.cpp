@@ -146,18 +146,8 @@ namespace PrEngine {
     {
 
 		Graphics* graphics = new Graphics();
-        std::unordered_map<std::string, Material*>::iterator _mat_it = Material::material_library.find(mat_name);
-        Material* mat;
-        if(_mat_it == Material::material_library.end())
-        {
-            mat = new Material("shaders"+PATH_SEP+"DiffuseUnlit2D.shader", std::string( get_resource_path(texture_file_paths[0])), mat_name);
-            Material::material_library[mat_name] = mat;
-        }
-        else
-        {
-            mat = _mat_it->second;
-        }
 
+		Material* mat = Material::load_material("shaders" + PATH_SEP + "DiffuseUnlit2D.shader", texture_file_paths[0], mat_name);
         // find the proper scale needed for the quad mesh
         Texture* tex = mat->diffuse_texture;
         float x_scale = tex->width;
