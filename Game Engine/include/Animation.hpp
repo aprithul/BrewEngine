@@ -22,8 +22,7 @@ namespace PrEngine {
 	public:
 		Animation(std::string& animation_name);
 		~Animation();
-
-	private:
+		std::string clip_name;
 		std::vector<Keyframe> frames;
 	};
 }

@@ -41,6 +41,7 @@ namespace PrEngine{
 		Graphics* _graphics = renderer->generate_sprite_graphics(image_file_paths, std::string("sprite_mat")+"_"+image_file_paths[0]);
 
 		Animator* _animator = new Animator();
+		_animator->load_animation("Animations" + PATH_SEP + "my.anim");
 		//_animator->set_frame_rate(fps);
 
 		Sprite* _sprite = new Sprite(0);
@@ -53,9 +54,10 @@ namespace PrEngine{
 		_entity->add_componenet(_sprite);
 		_entity->add_componenet(_animator);
 
-		//auto text = _entity->to_string();
+		auto text = _entity->to_string();
 		//write_to_file(text, "data", false);
-		std::string grpah_file = "scene.graph";
+		//std::string grpah_file = "scene.graph";
+		write_to_file(text, "scene.graph", false);
 		//load_scenegraph(grpah_file);
 		//auto _graph_data = read_file("Scene.graph");
 		//std::cout << _graph_data << std::endl;

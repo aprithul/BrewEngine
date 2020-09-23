@@ -25,6 +25,7 @@ namespace PrEngine{
 		~Animator();
 		int current_frame_index;
 		float animation_speed;
+		Animation* current_animation;
 		void load_animation(std::string& animation_file);
 
 		void start() override;
@@ -36,7 +37,8 @@ namespace PrEngine{
 	private:
 		Material* material;
 		Transform3D* transform;
-		std::unordered_map<std::string, Animation> aniamtions;
+		std::unordered_map<std::string, Animation> animations;
+		float animator_time;
 	};
 }
 

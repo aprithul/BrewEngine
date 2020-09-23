@@ -16,6 +16,10 @@ namespace PrEngine
 		this->material = nullptr;
 		this->animation_speed = 1.f;
 		this->current_frame_index = 0;
+		this->animator_time = 0;
+		this->transform = nullptr;
+		this->current_animation = nullptr;
+
 	}
 
 	Animator::~Animator()
@@ -59,19 +63,38 @@ namespace PrEngine
 	
 	void Animator::update()
 	{
-
-	
+		animator_time += Time::Frame_time;
+		Keyframe frame = current_animation->frames[current_frame_index];
+		if (frame.timestamp <= animator_time * animation_speed)
+		{
+			transform->set_position(frame.position);
+			transform->set_scale(frame.scale);
+			transform->set_rotation(frame.rotation);
+			material->diffuse_texture = frame.texture;
+			current_frame_index = (current_frame_index+1)%((int)(current_animation->frames.size()));
+			
+			// if we've looped around restart timer
+			if (current_frame_index == 0)
+			{
+				animator_time = 0;
+			}
+		}
 	}
 
 	void Animator::load_animation(std::string& file_name)
 	{
-		this->aniamtions.emplace(file_name,file_name);
+		this->animations.emplace(file_name,file_name);
+		if(current_animation == nullptr)
+			current_animation = &animations.begin()->second;
 	}
 
 	std::string Animator::to_string()
 	{
-
-		std::string text = std::to_string(COMP_ANIMATOR) + ",";
+		std::string text = std::to_string(COMP_ANIMATOR);
+		for (std::unordered_map<std::string, Animation>::iterator it = animations.begin(); it != animations.end(); it++)
+		{
+			text += "," + it->second.clip_name;
+		}
 		return text;
 	}
 
