@@ -7,6 +7,7 @@
 #include "../Vendor/imgui-master/imgui_impl_opengl3.h"
 #include "../Vendor/imgui-master/imgui_impl_sdl.h"
 #include "Vector2.hpp"
+#include <string>
 namespace PrEngine
 {
     class GuiLayer : public RenderLayer
@@ -20,6 +21,7 @@ namespace PrEngine
             void end() override;
             Vector2<float> *panning;
             Vector2<float> *tiling;
+			int fps;
         private:
             SDL_Window* window;
             SDL_GLContext* gl_context;

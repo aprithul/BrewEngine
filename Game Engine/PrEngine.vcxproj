@@ -181,7 +181,6 @@
     <ClCompile Include="src\Transform3D.cpp" />
     <ClCompile Include="src\Utils.cpp" />
     <ClCompile Include="src\Vertex.cpp" />
-    <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

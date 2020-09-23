@@ -29,16 +29,16 @@ namespace PrEngine{
 		return camera_ent;
 	}
 
-	Entity* EntityGenerator::make_animated_sprite_entity(const std::vector<std::string>& image_file_paths, int fps)
+	Entity* EntityGenerator::make_animated_sprite_entity(const std::string& image_file_path)
 	{
-
+		
 		Transform3D* _transform = new Transform3D();
 		auto rand_x = rand()%3 * (rand()%2==0?-1:1);
 		auto rand_y = rand()%3 * (rand()%2==0?-1:1);
 		_transform->set_position(rand_x, rand_y, 0);
 		_transform->set_scale(1,1,1);
 
-		Graphics* _graphics = renderer->generate_sprite_graphics(image_file_paths, std::string("sprite_mat")+"_"+image_file_paths[0]);
+		Graphics* _graphics = renderer->generate_sprite_graphics(image_file_path, std::string("sprite_mat_")+image_file_path);
 
 		Animator* _animator = new Animator();
 		_animator->load_animation("Animations" + PATH_SEP + "my.anim");
@@ -57,12 +57,14 @@ namespace PrEngine{
 		auto text = _entity->to_string();
 		//write_to_file(text, "data", false);
 		//std::string grpah_file = "scene.graph";
-		write_to_file(text, "scene.graph", false);
+		//write_to_file(text, "scene.graph", false);
 		//load_scenegraph(grpah_file);
 		//auto _graph_data = read_file("Scene.graph");
 		//std::cout << _graph_data << std::endl;
 		
 		return _entity;
+		std::string graph_file = "scene.graph";
+		//load_scenegraph(graph_file);
 	}
 
 	Entity* EntityGenerator::make_light_entity()
@@ -88,7 +90,8 @@ namespace PrEngine{
 		{
 			std::stringstream ent(entity_str);
 			std::string comp_str;
-			Entity* entity = new Entity();
+			std::string entity_name = "Time";
+			Entity* entity = EntityManagementSystem::entity_management_system->generate_entity(entity_name);
 
 			while (std::getline(ent, comp_str)) // get a componenet in the entity
 			{
@@ -103,20 +106,35 @@ namespace PrEngine{
 				if (tokens.size() > 0)
 				{
 					int comp_type = std::stoi(tokens[0], nullptr, 10);
+					LOG(LOGTYPE_GENERAL, "COMP TYPE: ",std::to_string(comp_type));
 					switch (comp_type)
 					{
 						case COMP_SPRITE:
-
-							//std::vector<std::string> texture_paths(tokens.begin() + 1, tokens.end());
-							//Sprite* sprite = renderer->generate_sprite_graphics(texture_paths,)
+						{	
+							Sprite* sprite = new Sprite(std::stoi(tokens[1]));
+							sprite->add_to_renderer(renderer);
+							entity->add_componenet(sprite);
 							break;
+						}
 						case COMP_ANIMATOR:
+						{	
+							Animator* animator = new Animator();
+							for (int i = 1; i < tokens.size(); i++)
+							{
+								animator->load_animation(tokens[i]);
+							}
+							entity->add_componenet(animator);
 							break;
+						}
+
 						case COMP_CAMERA:
 							break;
 						case COMP_GRAPHICS:	
-							
+						{
+							Graphics* graphics = renderer->generate_sprite_graphics(tokens[1], "sprite_mat_" + tokens[1]);
+							entity->add_componenet(graphics);
 							break;
+						}
 						case COMP_LIGHT:
 							break;
 						case COMP_TRANSFORM_3D:

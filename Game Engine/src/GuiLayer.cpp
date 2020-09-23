@@ -8,7 +8,7 @@ namespace PrEngine
         this->name = "GUI";
         panning = nullptr;
         tiling = nullptr;
-
+		this->fps = 0;
     }
 
     GuiLayer::~GuiLayer()
@@ -50,26 +50,7 @@ namespace PrEngine
         static bool show = true;
         //ImGui::ShowDemoWindow(&show);
 
-        if(inspector_active)
-        {
-            ImGui::Begin("Inspector", &inspector_active, ImGuiWindowFlags_MenuBar);
-            
-            ImGui::Text("Panning:");
-            if(panning!=nullptr)
-            {
-                ImGui::DragFloat("Pan X", &(panning->x), 0.01f);
-                ImGui::DragFloat("Pan Y", &(panning->y),0.01f);
-            }
-            ImGui::Text("Tiling:");
-            if(tiling!=nullptr)
-            {
-                ImGui::DragFloat("Tile X", &(tiling->x),0.01f);
-                ImGui::DragFloat("Tile Y", &(tiling->y),0.01f);
-            }
-            ImGui::End();
-        }
-
-        //ImGui::ShowDemoWindow();
+		ImGui::ShowMetricsWindow();
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData( ImGui::GetDrawData());

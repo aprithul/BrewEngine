@@ -9,7 +9,6 @@ namespace PrEngine {
 		std::stringstream data_stream(data);
 		std::string keyframe_data;
 
-		LOG(LOGTYPE_ERROR, "loading animation");
 		LOG(LOGTYPE_GENERAL, get_resource_path(clip_name));
 
 		while (std::getline(data_stream, keyframe_data, '\n')) // get an entity

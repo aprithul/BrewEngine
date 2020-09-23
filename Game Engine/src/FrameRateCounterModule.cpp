@@ -64,7 +64,7 @@ namespace PrEngine {
                 //text_texture = renderer2D->get_text_texture(fr, font, black);// 
             #endif
 
-            LOG(LOGTYPE_GENERAL,"frame rate: ",std::to_string(frame_count));
+            //LOG(LOGTYPE_GENERAL,"frame rate: ",std::to_string(frame_count));
 
 
             frame_count = 0;

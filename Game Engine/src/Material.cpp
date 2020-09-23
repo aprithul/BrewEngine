@@ -62,25 +62,9 @@ namespace PrEngine
 		if (diffuse_texture == nullptr)
 			material_creation_status = 0;
 
-        std::unordered_map<std::string, Shader>::iterator _shader_it = Shader::shader_library.find(shader_path);
-        if(_shader_it == Shader::shader_library.end())
-        {
-            // create shader, probably can be shared, will check later
-            //this->source_file_path = std::string(shader_path);
-            
-        	this->shader = Shader::make_shader_program(std::string(shader_path));
-			if (this->shader == nullptr)
-			{
-				LOG(LOGTYPE_ERROR, "Shader making failed");
-				material_creation_status = 0;
-			}
-            //Shader::shader_library[shader_path] = shader_program;
-        }
-        else{
-            shader = &(_shader_it->second);
-        }
-
-
+		this->shader = Shader::load_shader(std::string(shader_path));
+		if (this->shader == nullptr)
+			material_creation_status = 0;
     }
 
     /*
@@ -271,6 +255,29 @@ namespace PrEngine
             pos++;
         }
     }
+
+	Shader* Shader::load_shader(const std::string& path)
+	{
+		std::unordered_map<std::string, Shader>::iterator _shader_it = Shader::shader_library.find(path);
+		Shader* shader = nullptr;
+		if (_shader_it == Shader::shader_library.end())
+		{
+			// create shader, probably can be shared, will check later
+			//this->source_file_path = std::string(shader_path);
+
+			shader = Shader::make_shader_program(std::string(path));
+			if (shader == nullptr)
+			{
+				LOG(LOGTYPE_ERROR, "Shader making failed");
+			}
+		}
+		else
+		{
+			shader = &(_shader_it->second);
+		}
+
+		return shader;
+	}
 
     Shader* Shader::make_shader_program(const std::string& path)
     {

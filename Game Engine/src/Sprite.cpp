@@ -51,11 +51,7 @@ namespace PrEngine
     std::string Sprite::to_string()
     {
 		//for(int i=0; i<)
-		std::string text = std::to_string(COMP_SPRITE);
-		for (int i = 0; i < loaded_textures.size(); i++)
-		{
-			text += loaded_textures[i]->path;
-		}
+		std::string text = std::to_string(COMP_SPRITE)+","+std::to_string(order);
 		
 		return text;
 

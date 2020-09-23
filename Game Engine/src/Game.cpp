@@ -66,7 +66,6 @@ namespace PrEngine
 			Vector2<float> _delta_f = (_delta.normalize())*(float)(cam_pan_speed*2*Time::Frame_time);
 			Vector3<float> _delta3d(_delta_f.x, _delta_f.y, 0);
 			pos = pos + _delta3d;
-			LOG(LOGTYPE_WARNING, "Mouse pressed");
 		}
 		transform->set_position(pos);
 

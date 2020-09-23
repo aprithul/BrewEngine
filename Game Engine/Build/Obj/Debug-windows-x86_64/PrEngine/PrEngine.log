@@ -1,8 +1,9 @@
-﻿  Animator.cpp
+﻿  EntityGenerator.cpp
 D:\PrEngine\PrEngine2D\Game Engine\include\Transform3D.hpp(17,32): warning C4584: 'PrEngine::Transform3D': base-class 'PrEngine::Serializable' is already a base-class of 'PrEngine::Component'
 D:\PrEngine\PrEngine2D\Game Engine\include\Serializable.hpp(14): message : see declaration of 'PrEngine::Serializable'
 D:\PrEngine\PrEngine2D\Game Engine\include\Component.hpp(25): message : see declaration of 'PrEngine::Component'
-D:\PrEngine\PrEngine2D\Game Engine\src\Animator.cpp(66,36): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\src\EntityGenerator.cpp(38,36): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\src\EntityGenerator.cpp(38,28): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
 SDL2_mixer.lib(SDL2_mixer.dll) : warning LNK4006: __NULL_IMPORT_DESCRIPTOR already defined in SDL2.lib(SDL2.dll); second definition ignored
 glew32.lib(glew32.dll) : warning LNK4006: __NULL_IMPORT_DESCRIPTOR already defined in SDL2.lib(SDL2.dll); second definition ignored
 OpenGL32.lib(OPENGL32.dll) : warning LNK4006: __NULL_IMPORT_DESCRIPTOR already defined in SDL2.lib(SDL2.dll); second definition ignored

@@ -18,7 +18,7 @@ namespace PrEngine
         GLuint id;
         std::unordered_map<std::string, std::pair<std::string, GLuint>> uniform_locations;
         void Delete();
-
+		static Shader* load_shader(const std::string& path);
         static Shader* make_shader_program(const std::string& path);
         static void delete_all_shaders();
     	private:

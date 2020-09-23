@@ -31,7 +31,7 @@ namespace PrEngine{
 	public:
 		EntityGenerator();
 		~EntityGenerator();
-		Entity* make_animated_sprite_entity(const std::vector<std::string>& image_file_paths,int fps);
+		Entity* make_animated_sprite_entity(const  std::string& image_file_path);
 		Entity* make_light_entity();
 		Entity* make_camera();
 		void load_scenegraph(std::string& scene_file_name);

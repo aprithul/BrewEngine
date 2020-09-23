@@ -1,4 +1,5 @@
 #include "Utils.hpp"
+#define DEBUG_BASE_PATH
 
 namespace PrEngine{
     // writes text to file in append mode
@@ -40,6 +41,10 @@ namespace PrEngine{
             char *_base_path = SDL_GetBasePath();
             if (_base_path){
                 base_path = _base_path;
+#ifdef DEBUG_BASE_PATH
+				base_path = (std::string(_base_path)+".."+PATH_SEP+".."+PATH_SEP+".."+PATH_SEP).c_str();
+#endif // DEBUG_base
+
                 SDL_free(_base_path);
             }
             else {

@@ -150,7 +150,7 @@ namespace PrEngine
 
     std::string Graphics::to_string()
     {
-    	return std::to_string(COMP_GRAPHICS);
+    	return std::to_string(COMP_GRAPHICS)+","+ this->elements.back().material->diffuse_texture->path;
     }
 
     void GraphicsElement::Delete()

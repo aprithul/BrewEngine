@@ -142,12 +142,12 @@ namespace PrEngine {
             (*it)->end();
     }
 
-    Graphics* RendererOpenGL2D::generate_sprite_graphics(const std::vector<std::string>& texture_file_paths,  const std::string& mat_name)
+    Graphics* RendererOpenGL2D::generate_sprite_graphics(const std::string& texture_file_path,  const std::string& mat_name)
     {
 
 		Graphics* graphics = new Graphics();
 
-		Material* mat = Material::load_material("shaders" + PATH_SEP + "DiffuseUnlit2D.shader", texture_file_paths[0], mat_name);
+		Material* mat = Material::load_material("shaders" + PATH_SEP + "DiffuseUnlit2D.shader", texture_file_path, mat_name);
         // find the proper scale needed for the quad mesh
         Texture* tex = mat->diffuse_texture;
         float x_scale = tex->width;

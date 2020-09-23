@@ -89,6 +89,7 @@ namespace PrEngine
 		const Matrix4x4<float>* model;
 		const Matrix4x4<float>* normal;
 
+
     };
 }
 

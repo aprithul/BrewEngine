@@ -24,7 +24,6 @@ namespace PrEngine
             int order;
             Graphics* graphics;
             Animator* animator;
-			std::vector<Texture*> loaded_textures;
 
     };
 
