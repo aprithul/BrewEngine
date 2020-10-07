@@ -11,15 +11,14 @@
 
 namespace PrEngine
 {
+
+	std::unordered_map<std::string, Animation> Animator::animations;
+
 	Animator::Animator():Component(COMP_ANIMATOR)
 	{
-		this->material = nullptr;
-		this->animation_speed = 1.f;
-		this->current_frame_index = 0;
-		this->animator_time = 0;
-		this->transform = nullptr;
-		this->current_animation = nullptr;
-
+		animation_speed = 1.f;
+		current_frame_index = 0;
+		animator_time = 0;
 	}
 
 	Animator::~Animator()
@@ -29,49 +28,22 @@ namespace PrEngine
 
 	void Animator::start()
 	{
-		auto _entity = EntityManagementSystem::entity_management_system->get_entity(this->entity_id);
-		if (_entity != nullptr)
-		{
-			if (_entity->has_component[COMP_GRAPHICS])
-			{
-				auto graphics = (Graphics*)_entity->components[COMP_GRAPHICS];
-				this->material = graphics->elements.back().material;
-			}
-			else
-			{
-				LOG(LOGTYPE_ERROR, "couldn't get graphics componenet in animator");
-
-			}
-
-			if (_entity->has_component[COMP_TRANSFORM_3D])
-			{
-				this->transform = (Transform3D*)_entity->components[COMP_TRANSFORM_3D];
-			}
-			else
-			{
-				LOG(LOGTYPE_ERROR, "couldn't get transform componenet in animator");
-
-			}
-
-		}
-		else
-		{
-			LOG(LOGTYPE_ERROR, "Entity with id ", std::to_string(entity_id), " couldn't be found");
-		}
+		
 	}
 
 	
 	void Animator::update()
 	{
 		animator_time += Time::Frame_time;
-		Keyframe frame = current_animation->frames[current_frame_index];
+		Keyframe frame = current_animation.frames[current_frame_index];
 		if (frame.timestamp <= animator_time * animation_speed)
 		{
-			transform->set_position(frame.position);
-			transform->set_scale(frame.scale);
-			transform->set_rotation(frame.rotation);
-			material->diffuse_texture = frame.texture;
-			current_frame_index = (current_frame_index+1)%((int)(current_animation->frames.size()));
+			//transform->translate(frame.position);
+			transforms[id_transform].position = frame.position;
+			transforms[id_transform].scale = frame.scale;
+			transforms[id_transform].rotation = frame.rotation;
+			graphics[id_graphic].element.material->diffuse_texture = frame.texture;
+			current_frame_index = (current_frame_index+1)%((Int_32)(current_animation.frames.size()));
 			
 			// if we've looped around restart timer
 			if (current_frame_index == 0)
@@ -83,9 +55,7 @@ namespace PrEngine
 
 	void Animator::load_animation(std::string& file_name)
 	{
-		this->animations.emplace(file_name,file_name);
-		if(current_animation == nullptr)
-			current_animation = &animations.begin()->second;
+		animations.emplace(file_name, file_name);
 	}
 
 	std::string Animator::to_string()

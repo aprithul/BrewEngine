@@ -11,7 +11,7 @@
 namespace PrEngine
 {
     
-    Module::Module(std::string name, int priority)
+    Module::Module(std::string name, Int_32 priority)
     {
         this->priority = priority;
         this->name = name;

@@ -1,12 +1,16 @@
 #include "Camera3D.hpp"
+#include "EntityManagementSystemModule.hpp"
 
 namespace PrEngine
 {
-    Camera::Camera(float width, float height, float near_, float far_, float fov, Transform3D& _transform):transform(_transform),Component(COMP_CAMERA)
-    {
-        //fov = 45.f;
-        //near_ = 0.1f;
-        //far_ = -1.f;    
+
+	Camera::Camera():Component(COMP_CAMERA)
+	{
+
+	}
+
+    void Camera::set_perspective(Float_32 width, Float_32 height, Float_32 near_, Float_32 far_, Float_32 fov)
+    {  
         this->width = width;
         this->height = height;
         this->near_ = near_;
@@ -16,7 +20,7 @@ namespace PrEngine
 
     }
 
-    Camera::Camera(float left, float right, float bottom, float top, float near_, float far_, Transform3D& _transform):transform(_transform),Component(COMP_CAMERA)
+    void Camera::set_orthographic(Float_32 left, Float_32 right, Float_32 bottom, Float_32 top, Float_32 near_, Float_32 far_)
     {
         //fov = 45.f;
         //near_ = 0.1f;
@@ -43,8 +47,7 @@ namespace PrEngine
 
     void Camera::start()
     {
-        LOG(LOGTYPE_GENERAL, "Camera started");
-
+		
     }
 
     void Camera::update()
@@ -52,49 +55,18 @@ namespace PrEngine
 
         // set view matrix based on camera
 
-        view_matrix = Matrix4x4<float>::identity();
-        view_matrix.set(0,3, -transform.get_position().x);
-        view_matrix.set(1,3, -transform.get_position().y);
-        view_matrix.set(2,3, -transform.get_position().z);
-        Matrix4x4<float> reverse_rot = transform.get_rotation_transformation()->transpose();
+        view_matrix = Matrix4x4<Float_32>::identity();
+        view_matrix.set(0,3, -transforms[id_transform].position.x);
+        view_matrix.set(1,3, -transforms[id_transform].position.y);
+        view_matrix.set(2,3, -transforms[id_transform].position.z);
+        Matrix4x4<Float_32> reverse_rot = transforms[id_transform].rotation_transformation.transpose();
         view_matrix = reverse_rot * view_matrix;
         
         if(projection_type==PERSPECTIVE)
-            projection_matrix = Matrix4x4<float>::perspective(near_, far_,width, height, fov);
+            projection_matrix = Matrix4x4<Float_32>::perspective(near_, far_,width, height, fov);
         else
-            projection_matrix = Matrix4x4<float>::ortho(left*zoom, right*zoom, bottom*zoom, top*zoom, near_, far_);
-            //projection_matrix = Matrix4x4<float>::ortho(0, width,0, height, near_, far_);
-        
-
-/*
-        Vector3<float> rot = transform.get_rotation();
-        if(input_manager->keyboard.get_key(SDLK_a))
-            rot.y = rot.y-(Time::Frame_time*20.f);
-        if(input_manager->keyboard.get_key(SDLK_d))
-            rot.y = rot.y+(Time::Frame_time*20.f);
-        transform.set_rotation(rot);
-        if(input_manager->keyboard.get_key(SDLK_z))
-            rot.z = rot.z-(Time::Frame_time*20.f);
-        if(input_manager->keyboard.get_key(SDLK_c))
-            rot.z = rot.z+(Time::Frame_time*20.f);
-
-        if(input_manager->keyboard.get_key(SDLK_q))
-            rot.x = rot.x-(Time::Frame_time*20.f);
-        if(input_manager->keyboard.get_key(SDLK_e))
-            rot.x = rot.x+(Time::Frame_time*20.f);
-        transform.set_rotation(rot);*/
-
-        //std::cout<<"Mouse delta: "<<input_manager->mouse.delta.length()<<std::endl;
-        /*
-        float rotation_factor = 15.f;
-        Vector3<float> rot = transform.get_rotation();
-        //if(input_manager->keyboard.get_key(SDLK_a))
-        rot.y = rot.y+(Time::Frame_time*rotation_factor*input_manager->mouse.delta.x);
-        rot.x = rot.x+(Time::Frame_time*rotation_factor*input_manager->mouse.delta.y);
-        //if(input_manager->keyboard.get_key(SDLK_d))
-        //    rot.y = rot.y-(Time::Frame_time*100.f);
-        transform.set_rotation(rot);*/
-
+            projection_matrix = Matrix4x4<Float_32>::ortho(left*zoom, right*zoom, bottom*zoom, top*zoom, near_, far_);
+            //projection_matrix = Matrix4x4<Float_32>::ortho(0, width,0, height, near_, far_);
     }
 
     void Camera::end()
@@ -104,6 +76,9 @@ namespace PrEngine
 
     std::string Camera::to_string()
     {
-    	return std::to_string(COMP_CAMERA);
-    }
+		if (projection_type == ORTHOGRAPHIC)
+			return std::to_string(COMP_CAMERA) + "," + std::to_string(projection_type) + "," + std::to_string(left) + "," + std::to_string(right) + "," + std::to_string(bottom) + "," + std::to_string(top) + "," + std::to_string(near_) + "," + std::to_string(far_);
+		else
+			return std::to_string(COMP_CAMERA) + "," + std::to_string(projection_type) + "," + std::to_string(width) + "," + std::to_string(height) + "," + std::to_string(near_) + "," + std::to_string(far_) + "," + std::to_string(fov);
+	}
 }

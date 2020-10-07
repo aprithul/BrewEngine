@@ -7,27 +7,13 @@
 #include "Serializable.hpp"
 namespace PrEngine
 {
-    class Entity: public Serializable
+    class Entity
     {
         public:
             Entity();
-            Entity(std::string name);
-            virtual ~Entity();
-
-            long id;
-            std::string name;
-            bool is_sleeping;
-            bool has_component[COMP_COUNT_MAX];
-            Component* components[COMP_COUNT_MAX];
-            std::string to_string() override;
-
-            void add_componenet(Component* comp);
-            void awake();
-            void start();
-            void update();
-            void end();
+            Uint_32 id;
+            std::string to_string();
     };
 }
-
 
 #endif

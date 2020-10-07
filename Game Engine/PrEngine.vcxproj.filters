@@ -99,9 +99,6 @@
     <ClInclude Include="include\Game.hpp">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\GeometryLayer.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\GlAssert.hpp">
       <Filter>include</Filter>
     </ClInclude>
@@ -177,6 +174,7 @@
     <ClInclude Include="include\Animation.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\Types.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Vendor\imgui-master\imgui.cpp">
@@ -243,9 +241,6 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\Game.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\GeometryLayer.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\GlAssert.cpp">

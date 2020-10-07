@@ -5,7 +5,7 @@ namespace PrEngine
 
     std::unordered_map<std::string, Material*> Material::material_library;
     std::unordered_map<std::string, Shader> Shader::shader_library;
-	bool Material::material_creation_status;
+	Bool_8 Material::material_creation_status;
 
     /*Material::()
     {
@@ -15,8 +15,8 @@ namespace PrEngine
     Material::Material(const std::string& shader_path, const std::string& diffuse_tex_path, TextureCubeMap& env_map, const std::string& name)
     {
         // only create new texture on gpu if texture doesn't exist already
-        tiling = Vector2<float>(1,1);
-        panning = Vector2<float>(0,0);
+        tiling = Vector2<Float_32>(1,1);
+        panning = Vector2<Float_32>(0,0);
         
         environment_map_texture = &env_map;
 
@@ -55,8 +55,8 @@ namespace PrEngine
     {
         // only create new texture on gpu if texture doesn't exist already
 		material_creation_status = 1;
-        tiling = Vector2<float>(1,1);
-        panning = Vector2<float>(0,0);
+        tiling = Vector2<Float_32>(1,1);
+        panning = Vector2<Float_32>(0,0);
 
 		diffuse_texture = Texture::load_texture(diffuse_tex_path);
 		if (diffuse_texture == nullptr)
@@ -72,12 +72,12 @@ namespace PrEngine
     Material::Material(const std::string& shader_path, const std::vector<std::string>& cubemap_tex_path,const std::string& name)
     {
         // only create new texture on gpu if texture doesn't exist already
-        tiling = Vector2<float>(1,1);
-        panning = Vector2<float>(0,0);
+        tiling = Vector2<Float_32>(1,1);
+        panning = Vector2<Float_32>(0,0);
         environment_map_texture = nullptr;
 
         std::string cubemap_file_name = "";
-        for(int i=0; i<cubemap_tex_path.size(); i++)
+        for(Int_32 i=0; i<cubemap_tex_path.size(); i++)
         {
             cubemap_file_name += cubemap_tex_path[i];
         }
@@ -223,10 +223,10 @@ namespace PrEngine
 
     void Shader::parse_shader(const std::string& source)
     {
-        int pos = 0;
+        Int_32 pos = 0;
         while((pos = source.find("uniform",pos)) != std::string::npos)
         {
-            int prev = 1;
+            Int_32 prev = 1;
             while(pos-prev>=0 && source[pos-prev]==' ')
                 prev++;
             if(pos-prev<0 || source[pos-prev] !='/') // ignore comments, ignores spaces
@@ -234,8 +234,8 @@ namespace PrEngine
                 std::string u_type = ""; 
                 std::string u_name = "";
                 
-                int start = pos+8; // "uniform" length is 7
-                int i = 0;
+                Int_32 start = pos+8; // "uniform" length is 7
+                Int_32 i = 0;
                 for(; source[start+i]!=' '; i++);
                 
                 u_type = source.substr(start,i);
@@ -329,7 +329,7 @@ namespace PrEngine
             glGetProgramiv(shader_program.id, GL_LINK_STATUS, &program_linked);
             if (program_linked != GL_TRUE)
             {
-                int length;
+                Int_32 length;
                 glGetProgramiv(shader_program.id, GL_INFO_LOG_LENGTH, &length);
                 GLchar* log = (GLchar*)alloca(length*sizeof(GLchar));
                 glGetProgramInfoLog(shader_program.id, length, &length, log);
@@ -362,7 +362,7 @@ namespace PrEngine
         if(shader == 0)
             std::cout<<"Couldn't create shader"<<std::endl;
             
-        const char* _source = source.c_str();
+        const Char_8* _source = source.c_str();
         glShaderSource(shader,1, &(_source) , NULL);
         glCompileShader(shader);
         
@@ -371,7 +371,7 @@ namespace PrEngine
         glGetShaderiv(shader, GL_COMPILE_STATUS, &compilation_status);
         if(compilation_status != GL_TRUE)
         {
-            int length;
+            Int_32 length;
             glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
 
             GLchar* log = (GLchar*)alloca(length*sizeof(GLchar));

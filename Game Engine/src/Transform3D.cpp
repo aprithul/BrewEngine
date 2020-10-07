@@ -3,21 +3,15 @@ namespace  PrEngine
 {
     Transform3D::Transform3D():Component(COMP_TRANSFORM_3D)
     {
-        translation = Matrix4x4<float>::identity();
-        scale_m = Matrix4x4<float>::identity();
-        rotation_x = Matrix4x4<float>::identity();
-        rotation_y = Matrix4x4<float>::identity();
-        rotation_z = Matrix4x4<float>::identity();
-        transformation = Matrix4x4<float>::identity();
-        rotation_transformation = Matrix4x4<float>::identity();
-        position = Vector3<float>(0,0,0);
-        scale = Vector3<float>(1,1,1);
-        rotation = Vector3<float>(0,0,0);
-        forward = Vector3<float>(0,0,1.f);
-        right   = Vector3<float>(1.f,0,0.f);
-        up      = Vector3<float>(0,1.f,0.f);
-        dirty = true;
+        transformation = Matrix4x4<Float_32>::identity();
+        rotation_transformation = Matrix4x4<Float_32>::identity();
+        
+		position = Vector3<Float_32>(0,0,0);
+        scale = Vector3<Float_32>(1,1,1);
+        rotation = Vector3<Float_32>(0,0,0);
 
+        dirty = true;
+		transform_parent = 0;
         LOG(LOGTYPE_WARNING, "CALLED");
     }
 
@@ -26,149 +20,95 @@ namespace  PrEngine
 
     }
 
-    void Transform3D::set_position(const Vector3<float>& position)
-    {
-        this->position = position;
-        translation.set(0,3, this->position.x);
-        translation.set(1,3, this->position.y);
-        translation.set(2,3, this->position.z);
-        update_transformation();
-    }
-    
-    void Transform3D::set_position(float x, float y, float z)
-    {
-        this->position.x = x;
-        this->position.y = y;
-        this->position.z = z;
-        translation.set(0,3, this->position.x);
-        translation.set(1,3, this->position.y);
-        translation.set(2,3, this->position.z);
-        update_transformation();
-    }
-
-    void Transform3D::set_scale(const Vector3<float>& scale)
-    {
-        this->scale = scale;
-        scale_m.set(0,0, this->scale.x);
-        scale_m.set(1,1, this->scale.y);
-        scale_m.set(2,2, this->scale.z);
-        update_transformation();
-    }
-    
-    void Transform3D::set_scale(float x, float y, float z)
-    {
-        this->scale.x = x;
-        this->scale.y = y;
-        this->scale.z = z;
-        scale_m.set(0,0, this->scale.x);
-        scale_m.set(1,1, this->scale.y);
-        scale_m.set(2,2, this->scale.z);
-        update_transformation();
-    }
-
-    void Transform3D::set_rotation(const Vector3<float>& rotation)
-    {
-        this->rotation = rotation;
-
-        rotation_x.set(1,1, cosf(rotation.x*PI/180.f));
-        rotation_x.set(1,2, -sinf(rotation.x*PI/180.f));
-        rotation_x.set(2,1, sinf(rotation.x*PI/180.f));
-        rotation_x.set(2,2, cosf(rotation.x*PI/180.f));
-        
-        rotation_y.set(0,0, cosf(rotation.y*PI/180.f));
-        rotation_y.set(0,2, sinf(rotation.y*PI/180.f));
-        rotation_y.set(2,0, -sinf(rotation.y*PI/180.f));
-        rotation_y.set(2,2, cosf(rotation.y*PI/180.f));
-
-        rotation_z.set(0,0, cosf(rotation.z*PI/180.f));
-        rotation_z.set(0,1, -sinf(rotation.z*PI/180.f));
-        rotation_z.set(1,0, sinf(rotation.z*PI/180.f));
-        rotation_z.set(1,1, cosf(rotation.z*PI/180.f));
-        update_transformation();
-    }
-    
-    void Transform3D::set_rotation(float x, float y, float z)
-    {
-        this->rotation.x = x;
-        this->rotation.y = y;
-        this->rotation.z = z;
-
-        rotation_x.set(1,1, cosf(rotation.x*PI/180.f));
-        rotation_x.set(1,2, -sinf(rotation.x*PI/180.f));
-        rotation_x.set(2,1, sinf(rotation.x*PI/180.f));
-        rotation_x.set(2,2, cosf(rotation.x*PI/180.f));
-        
-        rotation_y.set(0,0, cosf(rotation.y*PI/180.f));
-        rotation_y.set(0,2, sinf(rotation.y*PI/180.f));
-        rotation_y.set(2,0, -sinf(rotation.y*PI/180.f));
-        rotation_y.set(2,2, cosf(rotation.y*PI/180.f));
-
-        rotation_z.set(0,0, cosf(rotation.z*PI/180.f));
-        rotation_z.set(0,1, -sinf(rotation.z*PI/180.f));
-        rotation_z.set(1,0, sinf(rotation.z*PI/180.f));
-        rotation_z.set(1,1, cosf(rotation.z*PI/180.f));
-        update_transformation();
-    }
 
     void Transform3D::update_transformation()
     {
-        rotation_transformation = rotation_z * rotation_y* rotation_x;
+		Float_32 a = rotation.x * PI / 180.f;
+		Float_32 b = rotation.y * PI / 180.f;
+		Float_32 c = rotation.z * PI / 180.f;
+
+		rotation_transformation = Matrix4x4<Float_32>::identity();
+		rotation_transformation.data[(0 * 4) + 0] = cosf(b) * cosf(c);
+		rotation_transformation.data[(0 * 4) + 1] = cosf(b) * sinf(c);
+		rotation_transformation.data[(0 * 4) + 2] = -sinf(b);
+		rotation_transformation.data[(0 * 4) + 3] = 0;
+
+		rotation_transformation.data[(1 * 4) + 0] = (sinf(a) * sinf(b) * cosf(c)) - (cosf(a) * sinf(c));
+		rotation_transformation.data[(1 * 4) + 1] = (sinf(a) * sinf(b) * sinf(c)) + (cosf(a) * cosf(c));
+		rotation_transformation.data[(1 * 4) + 2] = sinf(a)*cosf(b);
+		rotation_transformation.data[(1 * 4) + 3] = 0;
+
+		rotation_transformation.data[(2 * 4) + 0] = (cosf(a) * sinf(b) * cosf(c)) + (sinf(a) * sinf(c));
+		rotation_transformation.data[(2 * 4) + 1] = (cosf(a) * sinf(b) * sinf(c)) - (sinf(a) * cosf(c));
+		rotation_transformation.data[(2 * 4) + 2] = cosf(a) * cosf(b);
+		rotation_transformation.data[(2 * 4) + 3] = 0;
+
+		rotation_transformation.data[(3 * 4) + 0] = 0;
+		rotation_transformation.data[(3 * 4) + 1] = 0;
+		rotation_transformation.data[(3 * 4) + 2] = 0;
+		rotation_transformation.data[(3 * 4) + 3] = 1;
+
+		Matrix4x4<Float_32> scale_m = Matrix4x4<Float_32>::identity();
+		scale_m.set(0, 0, scale.x);
+		scale_m.set(1, 1, scale.y);
+		scale_m.set(2, 2, scale.z);
+
+		Matrix4x4<Float_32> translation = Matrix4x4<Float_32>::identity();
+		translation.set(0, 3, position.x);
+		translation.set(1, 3, position.y);
+		translation.set(2, 3, position.z);
+
         transformation = translation * rotation_transformation * scale_m;
-        dirty = true;
+        dirty = false;
     }
 
-    const Matrix4x4<float>* const Transform3D::get_transformation()
+	void Transform3D::update()
+	{
+		update_transformation();
+	}
+
+    const Vector3<Float_32> const Transform3D::get_forward()
     {
-        return &transformation;
+        return rotation_transformation * Vector3<Float_32>(0, 0, 1.f);
     }
 
-    const Matrix4x4<float>* const Transform3D::get_translation_transformation()
+    const Vector3<Float_32> Transform3D::get_right()
     {
-        return &translation;
+        return rotation_transformation * Vector3<Float_32>(1.f, 0, 0.f);
     }
 
-    const Matrix4x4<float>* const Transform3D::get_rotation_transformation()
+    const Vector3<Float_32> Transform3D::get_up()
     {
-        return &rotation_transformation;
+        return rotation_transformation * Vector3<Float_32>(0, 1.f, 0.f);
     }
 
-    const Vector3<float>& Transform3D::get_scale()
-    {
-        return scale;
-    }
+	void Transform3D::translate(const Vector3<Float_32>& translation)
+	{
+		position += translation;
+	}
 
-    const Vector3<float>& Transform3D::get_position()
-    {
-        return position;
-    }
+	void Transform3D::rotate(Float_32 _x, Float_32 _y, Float_32 _z)
+	{
+		rotation.x += _x;
+		rotation.y += _y;
+		rotation.z += _z;
+	}
 
-    const Vector3<float>& Transform3D::get_rotation()
-    {
-        return rotation;
-    }
-
-    const Vector3<float> Transform3D::get_forward()
-    {
-        return rotation_transformation * forward;
-    }
-
-    const Vector3<float> Transform3D::get_right()
-    {
-        return rotation_transformation * right;
-    }
-
-    const Vector3<float> Transform3D::get_up()
-    {
-        return rotation_transformation * up;
-    }
-
+	/*
     std::string Transform3D::to_string()
     {
     	std::string text = std::to_string(COMP_TRANSFORM_3D)+",";
-    	text+=std::to_string(position.x)+","+std::to_string(position.y)+","+std::to_string(position.z)+",";
-		text+=std::to_string(scale.x)+","+std::to_string(scale.y)+","+std::to_string(scale.z)+",";
-		text+=std::to_string(rotation.x)+","+std::to_string(rotation.y)+","+std::to_string(rotation.z);
-		return text;
+		text += std::to_string(position.x) + "," + std::to_string(position.y) + "," + std::to_string(position.z) + ",";
+		text += std::to_string(scale.x) + "," + std::to_string(scale.y) + "," + std::to_string(scale.z) + ",";
+		text += std::to_string(rotation.x) + "," + std::to_string(rotation.y) + "," + std::to_string(rotation.z) + ",";
+		text += std::to_string(id)+",";
+		text += std::to_string(transform_parent);
+/*		if (parent != nullptr)
+			text += std::to_string(parent->id);
+		else
+			text += std::to_string(-1);
 
+		return text;
     }
+	*/
 }

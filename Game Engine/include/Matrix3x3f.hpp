@@ -9,6 +9,7 @@
 #ifndef Matrix3x3_hpp
 #define Matrix3x3_hpp
 
+#include "Types.hpp"
 
 namespace PrEngine {
     class Matrix3x3f
@@ -19,14 +20,14 @@ namespace PrEngine {
         Matrix3x3f operator+(Matrix3x3f m);
         Matrix3x3f operator-(Matrix3x3f m);
         Matrix3x3f operator*(Matrix3x3f m);
-        Matrix3x3f operator/(float v);
-        Matrix3x3f operator*(float v);
+        Matrix3x3f operator/(Float_32 v);
+        Matrix3x3f operator*(Float_32 v);
         
-        void set(int i, int j, float v);
-        float get(int i, int j);
+        void set(Int_32 i, Int_32 j, Float_32 v);
+        Float_32 get(Int_32 i, Int_32 j);
         
     private:
-        float m[4][4];
+        Float_32 m[4][4];
     };
 }
 

@@ -11,9 +11,9 @@ namespace PrEngine {
 
     InputManager* InputManager::input_manager;
     std::string InputManager::textinput = "";
-    bool InputManager::textinput_modified = false;
+    Bool_8 InputManager::textinput_modified = false;
 
-    InputManager::InputManager(std::string name, int priority):Module(name, priority)
+    InputManager::InputManager(std::string name, Int_32 priority):Module(name, priority)
     {
         was_crossed = false;
         SDL_Init(SDL_INIT_GAMECONTROLLER);
@@ -43,7 +43,7 @@ namespace PrEngine {
     void InputManager::update_game_controllers()
     {
         LOG(LOGTYPE_GENERAL, "Num of Joysticks: ", std::to_string(SDL_NumJoysticks()));
-        for(int i=0; i<SDL_NumJoysticks(); i++)
+        for(Int_32 i=0; i<SDL_NumJoysticks(); i++)
         {
             if (SDL_IsGameController(i)) {
                 game_controllers[i].game_controller = SDL_GameControllerOpen(i);
@@ -63,16 +63,16 @@ namespace PrEngine {
     {
         textinput_modified = false;
 
-        for(int j=SDL_CONTROLLER_BUTTON_A; j<SDL_CONTROLLER_BUTTON_MAX; j++)
+        for(Int_32 j=SDL_CONTROLLER_BUTTON_A; j<SDL_CONTROLLER_BUTTON_MAX; j++)
         {
-            for(int i=0; i<MAX_GAMECONTROLLER_COUNT; i++)
+            for(Int_32 i=0; i<MAX_GAMECONTROLLER_COUNT; i++)
             {
                 game_controllers[i].button_released_flags[j] = false;
                 game_controllers[i].button_pressed_flags[j] = false;
             }
         }
 
-        for(int i=0; i<MAX_MOUSE_BUTTON_COUNT; i++)
+        for(Int_32 i=0; i<MAX_MOUSE_BUTTON_COUNT; i++)
         {
             mouse.button_pressed_flags[i] = false;
             mouse.button_released_flags[i] = false;
@@ -82,10 +82,10 @@ namespace PrEngine {
 
         mouse.scroll = 0;
     
-        for (std::unordered_map<SDL_Keycode,bool>::iterator it=keyboard.key_pressed_flags.begin(); it!=keyboard.key_pressed_flags.end(); ++it)
+        for (std::unordered_map<SDL_Keycode,Bool_8>::iterator it=keyboard.key_pressed_flags.begin(); it!=keyboard.key_pressed_flags.end(); ++it)
             keyboard.key_pressed_flags[it->first] = false;
         
-        for (std::unordered_map<SDL_Keycode,bool>::iterator it=keyboard.key_released_flags.begin(); it!=keyboard.key_released_flags.end(); ++it)
+        for (std::unordered_map<SDL_Keycode,Bool_8>::iterator it=keyboard.key_released_flags.begin(); it!=keyboard.key_released_flags.end(); ++it)
             keyboard.key_released_flags[it->first] = false;
 
 //        LOG(LOGTYPE_GENERAL, std::to_string(Time::get_time()));
@@ -101,11 +101,11 @@ namespace PrEngine {
 
             // handle all gamecontroller events
             case SDL_CONTROLLERAXISMOTION:
-                for(int i=0; i<MAX_GAMECONTROLLER_COUNT; i++)
+                for(Int_32 i=0; i<MAX_GAMECONTROLLER_COUNT; i++)
                 {
                     if(event.caxis.which == game_controllers[i].instance_id)
                     {
-                        float val = clamp(event.caxis.value/32767.f, -1.f,1.f);
+                        Float_32 val = clamp(event.caxis.value/32767.f, -1.f,1.f);
                         if(abs(val) <= game_controllers[i].dead_zone)
                             val = 0.0f;
                         
@@ -117,7 +117,7 @@ namespace PrEngine {
                 }
                 break;
             case SDL_CONTROLLERBUTTONDOWN:
-                for(int i=0; i<MAX_GAMECONTROLLER_COUNT; i++)
+                for(Int_32 i=0; i<MAX_GAMECONTROLLER_COUNT; i++)
                 {
                     if(event.cbutton.which == game_controllers[i].instance_id)
                     {
@@ -128,7 +128,7 @@ namespace PrEngine {
                 }
                 break;
             case SDL_CONTROLLERBUTTONUP:
-                for(int i=0; i<MAX_GAMECONTROLLER_COUNT; i++)
+                for(Int_32 i=0; i<MAX_GAMECONTROLLER_COUNT; i++)
                 {
                     if(event.cbutton.which == game_controllers[i].instance_id)
                     {
@@ -156,7 +156,7 @@ namespace PrEngine {
                     // KeyboardGameController
                     /*if(keyboardgc.axis_binding.count(event.key.keysym.sym)>0)
                     {
-                        std::pair<SDL_GameControllerAxis, float> _pair = keyboardgc.axis_binding[event.key.keysym.sym];
+                        std::pair<SDL_GameControllerAxis, Float_32> _pair = keyboardgc.axis_binding[event.key.keysym.sym];
                         keyboardgc.axis_state[_pair.first] += _pair.second;
                         std::cout<<_pair.first<<" , "<<keyboardgc.axis_state[_pair.first]<<std::endl;
                     }
@@ -194,7 +194,7 @@ namespace PrEngine {
                 // game controller
                 /*if(keyboardgc.axis_binding.count(event.key.keysym.sym)>0)
                 {
-                    std::pair<SDL_GameControllerAxis, float> _pair = keyboardgc.axis_binding[event.key.keysym.sym];
+                    std::pair<SDL_GameControllerAxis, Float_32> _pair = keyboardgc.axis_binding[event.key.keysym.sym];
                     keyboardgc.axis_state[_pair.first] -= _pair.second;
                     std::cout<<_pair.first<<" , "<<keyboardgc.axis_state[_pair.first]<<std::endl;
                 }
@@ -273,14 +273,14 @@ namespace PrEngine {
 
     void InputManager::end()
     {
-        for(int i=0; i<MAX_GAMECONTROLLER_COUNT; i++)
+        for(Int_32 i=0; i<MAX_GAMECONTROLLER_COUNT; i++)
         {
             if(game_controllers[i].game_controller != nullptr)
                 SDL_GameControllerClose(game_controllers[i].game_controller);
         }
     }
 
-    GameController* InputManager::get_gamecontroller(int index)
+    GameController* InputManager::get_gamecontroller(Int_32 index)
     {
         update_game_controllers();
         if(index<MAX_GAMECONTROLLER_COUNT)
@@ -303,10 +303,10 @@ namespace PrEngine {
         joy_stick = nullptr;
         instance_id = -1;
 
-        for(int i=SDL_CONTROLLER_AXIS_LEFTX; i<SDL_CONTROLLER_AXIS_MAX; i++)
+        for(Int_32 i=SDL_CONTROLLER_AXIS_LEFTX; i<SDL_CONTROLLER_AXIS_MAX; i++)
             axis_state[i] = 0.f;
         
-        for(int i=SDL_CONTROLLER_BUTTON_A; i<SDL_CONTROLLER_BUTTON_MAX; i++)
+        for(Int_32 i=SDL_CONTROLLER_BUTTON_A; i<SDL_CONTROLLER_BUTTON_MAX; i++)
         {
             button_state[i] = false;
             button_pressed_flags[i] = false;
@@ -317,10 +317,10 @@ namespace PrEngine {
 
         // temporary
         // initial bindings
-        for(int i=SDL_CONTROLLER_AXIS_LEFTX; i<SDL_CONTROLLER_AXIS_MAX; i++)
+        for(Int_32 i=SDL_CONTROLLER_AXIS_LEFTX; i<SDL_CONTROLLER_AXIS_MAX; i++)
             axis_binding[i] = (SDL_GameControllerAxis)i;
        
-        for(int i=SDL_CONTROLLER_BUTTON_A; i<SDL_CONTROLLER_BUTTON_MAX; i++)
+        for(Int_32 i=SDL_CONTROLLER_BUTTON_A; i<SDL_CONTROLLER_BUTTON_MAX; i++)
             button_binding[i] = (SDL_GameControllerButton)i;
         
 
@@ -334,10 +334,10 @@ namespace PrEngine {
         this->joy_stick = SDL_GameControllerGetJoystick(game_controller);
         this->name = SDL_GameControllerName(game_controller);
         
-        for(int i=SDL_CONTROLLER_AXIS_LEFTX; i<SDL_CONTROLLER_AXIS_MAX; i++)
+        for(Int_32 i=SDL_CONTROLLER_AXIS_LEFTX; i<SDL_CONTROLLER_AXIS_MAX; i++)
             axis_state[i] = 0.f;
         
-        for(int i=SDL_CONTROLLER_BUTTON_A; i<SDL_CONTROLLER_BUTTON_MAX; i++)
+        for(Int_32 i=SDL_CONTROLLER_BUTTON_A; i<SDL_CONTROLLER_BUTTON_MAX; i++)
         {
             button_state[i] = false;
             button_pressed_flags[i] = false;
@@ -347,10 +347,10 @@ namespace PrEngine {
 
         // temporary
         // initial bindings
-        for(int i=SDL_CONTROLLER_AXIS_LEFTX; i<SDL_CONTROLLER_AXIS_MAX; i++)
+        for(Int_32 i=SDL_CONTROLLER_AXIS_LEFTX; i<SDL_CONTROLLER_AXIS_MAX; i++)
             axis_binding[i] = (SDL_GameControllerAxis)i;
        
-        for(int i=SDL_CONTROLLER_BUTTON_A; i<SDL_CONTROLLER_BUTTON_MAX; i++)
+        for(Int_32 i=SDL_CONTROLLER_BUTTON_A; i<SDL_CONTROLLER_BUTTON_MAX; i++)
             button_binding[i] = (SDL_GameControllerButton)i;
 
         
@@ -361,25 +361,25 @@ namespace PrEngine {
 
     }
 
-    float GameController::get_axis(SDL_GameControllerAxis axis)
+    Float_32 GameController::get_axis(SDL_GameControllerAxis axis)
     {
         SDL_GameControllerAxis _axis = axis_binding[axis];
         return axis_state[_axis];
     }
 
-    bool GameController::get_button(SDL_GameControllerButton button)
+    Bool_8 GameController::get_button(SDL_GameControllerButton button)
     {
         SDL_GameControllerButton _button = button_binding[button];
         return button_state[_button];
     }
 
-    bool GameController::get_button_down(SDL_GameControllerButton button)
+    Bool_8 GameController::get_button_down(SDL_GameControllerButton button)
     {
         SDL_GameControllerButton _button = button_binding[button];
         return button_pressed_flags[_button];
     }
     
-    bool GameController::get_button_up(SDL_GameControllerButton button)
+    Bool_8 GameController::get_button_up(SDL_GameControllerButton button)
     {
         SDL_GameControllerButton _button = button_binding[button];
         return button_released_flags[_button];
@@ -387,7 +387,7 @@ namespace PrEngine {
 
     SDL_GameControllerButton GameController::find_down_button()
     {
-        for(int i=0; i<SDL_CONTROLLER_BUTTON_MAX; i++)
+        for(Int_32 i=0; i<SDL_CONTROLLER_BUTTON_MAX; i++)
         {
             if(button_pressed_flags[i] == true)
             {
@@ -397,11 +397,11 @@ namespace PrEngine {
         return SDL_CONTROLLER_BUTTON_INVALID;
     }
 
-    std::pair<SDL_GameControllerAxis, float> GameController::find_max_axis()
+    std::pair<SDL_GameControllerAxis, Float_32> GameController::find_max_axis()
     {
-        float max = 0.0f;
+        Float_32 max = 0.0f;
         SDL_GameControllerAxis max_axis = SDL_CONTROLLER_AXIS_INVALID;
-        for(int i=0; i<SDL_CONTROLLER_AXIS_MAX; i++)
+        for(Int_32 i=0; i<SDL_CONTROLLER_AXIS_MAX; i++)
         {
             if(abs(axis_state[i]) > abs(max))
             {
@@ -410,7 +410,7 @@ namespace PrEngine {
             }
 
         }
-        return std::pair<SDL_GameControllerAxis, float>{max_axis, max};
+        return std::pair<SDL_GameControllerAxis, Float_32>{max_axis, max};
 
     }
 
@@ -420,10 +420,10 @@ namespace PrEngine {
     KeyboardGameController::KeyboardGameController()
     {
         /*
-        for(int i=SDL_CONTROLLER_AXIS_LEFTX; i<SDL_CONTROLLER_AXIS_MAX; i++)
+        for(Int_32 i=SDL_CONTROLLER_AXIS_LEFTX; i<SDL_CONTROLLER_AXIS_MAX; i++)
             axis_state[i] = 0.f;
         
-        for(int i=SDL_CONTROLLER_BUTTON_A; i<SDL_CONTROLLER_BUTTON_MAX; i++)
+        for(Int_32 i=SDL_CONTROLLER_BUTTON_A; i<SDL_CONTROLLER_BUTTON_MAX; i++)
         {
             button_state[i] = false;
             button_pressed_flags[i] = false;
@@ -431,10 +431,10 @@ namespace PrEngine {
         }
 
         // temporary binding for keyboard to gamecontroller
-        axis_binding[SDLK_a] = std::pair<SDL_GameControllerAxis, float>{SDL_CONTROLLER_AXIS_LEFTX,-1.f};
-        axis_binding[SDLK_d] = std::pair<SDL_GameControllerAxis, float>{SDL_CONTROLLER_AXIS_LEFTX, 1.f};
-        axis_binding[SDLK_w] = std::pair<SDL_GameControllerAxis, float>{SDL_CONTROLLER_AXIS_LEFTY, 1.f};
-        axis_binding[SDLK_s] = std::pair<SDL_GameControllerAxis, float>{SDL_CONTROLLER_AXIS_LEFTY, -1.f};
+        axis_binding[SDLK_a] = std::pair<SDL_GameControllerAxis, Float_32>{SDL_CONTROLLER_AXIS_LEFTX,-1.f};
+        axis_binding[SDLK_d] = std::pair<SDL_GameControllerAxis, Float_32>{SDL_CONTROLLER_AXIS_LEFTX, 1.f};
+        axis_binding[SDLK_w] = std::pair<SDL_GameControllerAxis, Float_32>{SDL_CONTROLLER_AXIS_LEFTY, 1.f};
+        axis_binding[SDLK_s] = std::pair<SDL_GameControllerAxis, Float_32>{SDL_CONTROLLER_AXIS_LEFTY, -1.f};
 
         button_binding[SDLK_j] = SDL_CONTROLLER_BUTTON_X;
         button_binding[SDLK_i] = SDL_CONTROLLER_BUTTON_Y;
@@ -486,7 +486,7 @@ namespace PrEngine {
 
     }
     
-    bool Keyboard::get_key(SDL_Keycode k)
+    Bool_8 Keyboard::get_key(SDL_Keycode k)
     {
         SDL_Keycode kk = key_binding[k];
         if(key_state.count(kk)>0)
@@ -494,7 +494,7 @@ namespace PrEngine {
         return false;
     }
 
-    bool Keyboard::get_key_down(SDL_Keycode k)
+    Bool_8 Keyboard::get_key_down(SDL_Keycode k)
     {
         SDL_Keycode kk = key_binding[k];
         if(key_pressed_flags.count(kk)>0)
@@ -502,7 +502,7 @@ namespace PrEngine {
         return false;
     }
 
-    bool Keyboard::get_key_up(SDL_Keycode k)
+    Bool_8 Keyboard::get_key_up(SDL_Keycode k)
     {
         SDL_Keycode kk = key_binding[k];
         if(key_released_flags.count(kk)>0)
@@ -513,7 +513,7 @@ namespace PrEngine {
 
     SDL_Keycode Keyboard::find_down_key()
     {
-        for (std::unordered_map<SDL_Keycode,bool>::iterator it=key_pressed_flags.begin(); it!=key_pressed_flags.end(); ++it)
+        for (std::unordered_map<SDL_Keycode,Bool_8>::iterator it=key_pressed_flags.begin(); it!=key_pressed_flags.end(); ++it)
         {
             if(it->second == true)
             {
@@ -534,7 +534,7 @@ namespace PrEngine {
         position.y = -100;
         window_id = -1;
 
-        for(int i=0; i<MAX_MOUSE_BUTTON_COUNT; i++)
+        for(Int_32 i=0; i<MAX_MOUSE_BUTTON_COUNT; i++)
         {
             button_state[i] = false;
             button_pressed_flags[i] = false;
@@ -542,7 +542,7 @@ namespace PrEngine {
         }
 
         //initial binding
-        for(int i=0; i<MAX_MOUSE_BUTTON_COUNT; i++)
+        for(Int_32 i=0; i<MAX_MOUSE_BUTTON_COUNT; i++)
         {
             mb_to_mb_binding[i] = i;
             mb_to_kb_binding[i] = SDLK_UNKNOWN;
@@ -556,11 +556,11 @@ namespace PrEngine {
 
     }
 
-    bool Mouse::get_mouse_button(int index)
+    Bool_8 Mouse::get_mouse_button(Int_32 index)
     {
         if(index < MAX_MOUSE_BUTTON_COUNT)  
         {
-            int mb_index = mb_to_mb_binding[index];
+            Int_32 mb_index = mb_to_mb_binding[index];
             SDL_Keycode kb_index = mb_to_kb_binding[mb_index];
             if(kb_index == SDLK_UNKNOWN)
                 return button_state[mb_index];
@@ -574,11 +574,11 @@ namespace PrEngine {
         }        
     }
 
-    bool Mouse::get_mouse_button_down(int index)
+    Bool_8 Mouse::get_mouse_button_down(Int_32 index)
     {
         if(index < MAX_MOUSE_BUTTON_COUNT)  
         {
-            int mb_index = mb_to_mb_binding[index];
+            Int_32 mb_index = mb_to_mb_binding[index];
             SDL_Keycode kb_index = mb_to_kb_binding[mb_index];
             if(kb_index == SDLK_UNKNOWN)
                 return button_pressed_flags[mb_index];
@@ -592,11 +592,11 @@ namespace PrEngine {
         }        
     }
 
-    bool Mouse::get_mouse_button_up(int index)
+    Bool_8 Mouse::get_mouse_button_up(Int_32 index)
     {
         if(index < MAX_MOUSE_BUTTON_COUNT)  
         {
-            int mb_index = mb_to_mb_binding[index];
+            Int_32 mb_index = mb_to_mb_binding[index];
             SDL_Keycode kb_index = mb_to_kb_binding[mb_index];
             if(kb_index == SDLK_UNKNOWN)
                 return button_released_flags[mb_index];
@@ -610,13 +610,13 @@ namespace PrEngine {
         }        
     }
 
-    void Mouse::map_mb_to_mb(int from, int to)
+    void Mouse::map_mb_to_mb(Int_32 from, Int_32 to)
     {
         mb_to_mb_binding[from] = to;
     }    
 
 
-    void Mouse::map_mb_to_kb(int from, SDL_Keycode to)
+    void Mouse::map_mb_to_kb(Int_32 from, SDL_Keycode to)
     {
         mb_to_mb_binding[from] = from;
         mb_to_kb_binding[from] = to;

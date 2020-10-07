@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include "math.h"
+#include "Types.hpp"
 
 namespace PrEngine {
 
@@ -57,12 +58,12 @@ namespace PrEngine {
         }
 
 
-        Vector2<double> operator*(const double d) const{
-            return Vector2<double>( (double)this->x * d, (double)this->y * d);
+        Vector2<Double_64> operator*(const Double_64 d) const{
+            return Vector2<Double_64>( (Double_64)this->x * d, (Double_64)this->y * d);
         }
 
-        Vector2<float> operator*(const float f) const{
-            return Vector2<float>( (float)this->x * f, (float)this->y * f);
+        Vector2<Float_32> operator*(const Float_32 f) const{
+            return Vector2<Float_32>( (Float_32)this->x * f, (Float_32)this->y * f);
         }
 
         Vector2 operator/(const T v) const{
@@ -70,14 +71,14 @@ namespace PrEngine {
 
         }
         Vector2 normalize(){
-        double len = length();
+        Double_64 len = length();
         if(len<=0.000001)
         	return (*this);
 		x /= len;
         y /= len;
         return (*this);
         }
-        float length() const{
+        Float_32 length() const{
         return sqrt( x*x + y*y);
 
         }

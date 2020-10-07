@@ -2,7 +2,7 @@
 
 namespace PrEngine
 {
-    int Texture::texture_create_status;
+    Int_32 Texture::texture_create_status;
 
     std::unordered_map<std::string, TextureData> Texture::texture_data_library;
     std::unordered_map<std::string, Texture*> Texture::texture_library;
@@ -141,7 +141,7 @@ namespace PrEngine
 
     }
 
-    void Texture::Bind(int slot)
+    void Texture::Bind(Int_32 slot)
     {
         GL_CALL(
             glActiveTexture(GL_TEXTURE0 + slot))

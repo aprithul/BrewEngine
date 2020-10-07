@@ -22,7 +22,7 @@ namespace PrEngine
             void update() override;
             void end() override;
 
-            std::vector<Graphics*> graphics_list;
+            //std::vector<Graphics*> graphics_list;
             long camera_handle;
     };
 } // namespace Pringin

@@ -32,7 +32,7 @@ namespace PrEngine
     {
         static std::unordered_map<std::string, Material*> material_library;
 		static Material* load_material(const std::string& shader_path, const std::string& diffuse_tex_path, const std::string& name);
-		static bool material_creation_status;
+		static Bool_8 material_creation_status;
 
         static void delete_all_materials();
         //Material(const std::string& shader_path, const std::vector<std::string>& cubemap_tex_path,const std::string& name);
@@ -43,8 +43,8 @@ namespace PrEngine
         void Bind();
         void Unbind();
         Shader* shader;
-        Vector2<float> tiling;
-        Vector2<float> panning;
+        Vector2<Float_32> tiling;
+        Vector2<Float_32> panning;
 
 	private:
 		Material(const std::string& shader_path, const std::string& diffuse_tex_path, const std::string& name);

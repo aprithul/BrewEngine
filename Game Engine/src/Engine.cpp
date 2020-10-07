@@ -24,7 +24,7 @@ namespace PrEngine {
     Engine::~Engine()
     {
         
-        for(int _i=0; _i<engine_modules.size(); _i++)
+        for(Int_32 _i=0; _i<engine_modules.size(); _i++)
         {
             delete engine_modules[_i];
         }
@@ -34,7 +34,7 @@ namespace PrEngine {
         LOG(LOGTYPE_GENERAL, "Engine destroyed");
     }
     
-    static bool priority_comparer(Module* a, Module* b)
+    static Bool_8 priority_comparer(Module* a, Module* b)
     {
         return (a->priority<b->priority);        
     }
@@ -49,7 +49,7 @@ namespace PrEngine {
     // get the specified component
     Module* Engine::get_module(std::string component_name)
     {
-        for(int _i=0; _i<engine_modules.size(); _i++)
+        for(Int_32 _i=0; _i<engine_modules.size(); _i++)
         {
             if(engine_modules[_i]->name == component_name)
             {
@@ -64,7 +64,7 @@ namespace PrEngine {
     void Engine::start()
     {
         this->is_running = true;
-        for(int _i=0; _i<engine_modules.size(); _i++)
+        for(Int_32 _i=0; _i<engine_modules.size(); _i++)
         {
                 engine_modules[_i]->start();
         }
@@ -86,7 +86,7 @@ namespace PrEngine {
         {
             //LOG(LOGTYPE_GENERAL, "Updating: ");
             // update all components
-            for(int _i=0; _i<engine_modules.size(); _i++)
+            for(Int_32 _i=0; _i<engine_modules.size(); _i++)
             {
                 engine_modules[_i]->update();
             }
@@ -106,7 +106,7 @@ namespace PrEngine {
     // called in the end
     void Engine::end()
     {
-        for(int _i=0; _i<engine_modules.size(); _i++)
+        for(Int_32 _i=0; _i<engine_modules.size(); _i++)
         {
             engine_modules[_i]->end();
         }

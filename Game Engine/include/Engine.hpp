@@ -22,13 +22,13 @@
 namespace PrEngine {
     // pair typedef, used as component map key
     // string is the name of the component
-    // int is the order of execution
-    //typedef std::pair<std::string, int> string_int_pair;
+    // Int_32 is the order of execution
+    //typedef std::pair<std::string, Int_32> string_int_pair;
     
     // comparator object, used to sort map so that execution order is maintained
     /*struct CompareComponent
     {
-        bool operator()(const string_int_pair& a, const string_int_pair& b) const {
+        Bool_8 operator()(const string_int_pair& a, const string_int_pair& b) const {
             return a.second < b.second;
         }
     };*/
@@ -45,17 +45,17 @@ namespace PrEngine {
         void start();
         void update();
         void end();
-        void set_frame_rate(int frame_rate);
-        bool compare(std::string a, std::string b);
+        void set_frame_rate(Int_32 frame_rate);
+        Bool_8 compare(std::string a, std::string b);
     private:
         // map to store all components
         // sorted in execution order
         //std::map< string_int_pair, Component*, CompareComponent> engine_components;
-        static bool priority_comparer(Module* a, Module* b);
+        static Bool_8 priority_comparer(Module* a, Module* b);
         std::vector<Module*> engine_modules;
-        int frame_rate;
-        double frame_delta;
-        bool is_running;
+        Int_32 frame_rate;
+        Double_64 frame_delta;
+        Bool_8 is_running;
 
     };
 

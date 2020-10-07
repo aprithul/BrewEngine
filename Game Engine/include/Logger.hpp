@@ -37,12 +37,12 @@ namespace PrEngine{
 
 
     // Logging functions
-    extern const char* log_file_path;
-    extern bool log_enabled;
+    extern const Char_8* log_file_path;
+    extern Bool_8 log_enabled;
     extern LogLevel log_level;
     extern void LOG(LogType type = LOGTYPE_GENERAL, const std::string& log_text="", const std::string& log_text_2="", const std::string& log_text_3="",const std::string& log_text_4="",const std::string& log_text_5="",const std::string& log_text_6="",const std::string& log_text_7="",const std::string& log_text_8="",const std::string& log_text_9="",const std::string& log_text_10="");
     extern void close_log_file();
-    extern void set_log_file_path(const char* log_file_path);
+    extern void set_log_file_path(const Char_8* log_file_path);
     //extern PrLog logError;
 }
 

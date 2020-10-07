@@ -30,25 +30,25 @@ namespace PrEngine {
 			std::vector<RenderLayer*> render_layers;
 
 			// display attributes
-			int height;
-			int width;
+			Int_32 height;
+			Int_32 width;
 			std::string title;
 
 			// constructor/ destructors
-			RendererOpenGL2D(int width, int height, std::string title, std::string module_name,int priority);
+			RendererOpenGL2D(Int_32 width, Int_32 height, std::string title, std::string module_name,Int_32 priority);
 			~RendererOpenGL2D();
 			void init();
 			// clears the display with the color specified
-			void Clear(float r, float g, float b, float a);
-			// swaps buffers in a double buffer environment
+			void Clear(Float_32 r, Float_32 g, Float_32 b, Float_32 a);
+			// swaps buffers in a Double_64 buffer environment
 			void SwapBuffers();
 			void set_vsync(GLboolean value);
-			bool make_shader_program(const std::string& path, GLuint& shader_program);
+			Bool_8 make_shader_program(const std::string& path, GLuint& shader_program);
 			GLuint make_shader( GLenum type, const std::string& source);
-			Graphics* generate_sprite_graphics(const std::string& texture_file_path, const std::string& mat_name);
+			void generate_sprite_graphics(Uint_32 entity_id, const std::string& texture_file_path, const std::string& mat_name);
 			RenderLayer* get_layer(const std::string& layer_name);
-			//Matrix4x4<float> view_matrix;
-			//Matrix4x4<float> projection;
+			//Matrix4x4<Float_32> view_matrix;
+			//Matrix4x4<Float_32> projection;
 
 			void start() override;
 			void update() override;

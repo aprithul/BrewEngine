@@ -10,7 +10,7 @@
 
 namespace PrEngine {
     
-    FrameRateCounter::FrameRateCounter(std::string name, int priority):Module(name,priority)
+    FrameRateCounter::FrameRateCounter(std::string name, Int_32 priority):Module(name,priority)
     {
         one_second = 0;
     }
@@ -37,7 +37,7 @@ namespace PrEngine {
 
     std::string text = "";    
     std::string text2 = "pri";    
-    bool toggle  = false;
+    Bool_8 toggle  = false;
     void FrameRateCounter::update()
     {
         frame_count++;
@@ -75,7 +75,7 @@ namespace PrEngine {
         // not destroying texture every frame to save on performance, instead doing it once a second
         #if !IS_SERVER
             //if(text_texture != nullptr) 
-            //    renderer2D->draw_text(text_texture ,Vector2<int>{0,0}, TOP_LEFT);
+            //    renderer2D->draw_text(text_texture ,Vector2<Int_32>{0,0}, TOP_LEFT);
         #endif
     }
     

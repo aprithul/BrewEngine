@@ -2,9 +2,12 @@
 #define RENDER_LAYER_HPP
 
 #include <string>
-
+#include "Types.hpp"
+#include "Graphics.hpp"
 namespace PrEngine
 {
+	extern Graphic graphics[];
+
     class RenderLayer
     {
         public:

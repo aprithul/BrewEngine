@@ -2,7 +2,9 @@
 #define COMPONENET_HPP
 
 #include <string>
+#include <vector>
 #include "Serializable.hpp"
+#include "Types.hpp"
 namespace PrEngine
 {
 
@@ -18,28 +20,19 @@ namespace PrEngine
 		COMP_ANIMATOR,
         COMP_COUNT_MAX,
     };
-
     extern const std::string CompName[COMP_COUNT_MAX];
 
-
-    class Component : public Serializable
+    struct Component
     {
-    private:
-        /* data */
-		bool is_entity_id_set;
-    public:
         Component(ComponentType type);
         virtual ~Component();
         virtual void awake();
         virtual void start();
         virtual void update();
         virtual void end();
-		void set_entity_id(int entity_id);
         const ComponentType type;
-	protected:
-		int entity_id;
+		Uint_32 entity;
     };
-
 }
 
 

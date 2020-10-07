@@ -7,6 +7,7 @@
 #endif
 
 #include <iostream>
+#include"Types.hpp"
 
 #define DEBUG true
 
@@ -23,4 +24,4 @@
 #endif
 
 void gl_clear_error();
-bool gl_get_error(char* func_name, char* file_name, int line_no);
+Bool_8 gl_get_error(Char_8* func_name, Char_8* file_name, Int_32 line_no);

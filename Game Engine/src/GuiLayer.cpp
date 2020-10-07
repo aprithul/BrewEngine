@@ -47,7 +47,7 @@ namespace PrEngine
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplSDL2_NewFrame(window);
         ImGui::NewFrame();
-        static bool show = true;
+        static Bool_8 show = true;
         //ImGui::ShowDemoWindow(&show);
 
 		ImGui::ShowMetricsWindow();

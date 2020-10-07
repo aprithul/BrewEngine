@@ -1,6 +1,12 @@
 #include "Animation.hpp"
 
 namespace PrEngine {
+
+	Animation::Animation() 
+	{
+
+	}
+
 	Animation::Animation(std::string& animation_name)
 	{
 		this->clip_name = std::string(animation_name);
@@ -56,4 +62,7 @@ namespace PrEngine {
 	{
 
 	}
+
+
+
 }

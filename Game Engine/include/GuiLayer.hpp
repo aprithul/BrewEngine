@@ -19,15 +19,15 @@ namespace PrEngine
             void start() override;
             void update() override;
             void end() override;
-            Vector2<float> *panning;
-            Vector2<float> *tiling;
-			int fps;
+            Vector2<Float_32> *panning;
+            Vector2<Float_32> *tiling;
+			Int_32 fps;
         private:
             SDL_Window* window;
             SDL_GLContext* gl_context;
             
             // inspector
-            bool inspector_active;
+            Bool_8 inspector_active;
 
 
     };

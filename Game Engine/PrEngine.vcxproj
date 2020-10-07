@@ -85,6 +85,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\Animation.hpp" />
+    <ClInclude Include="include\Types.hpp" />
     <ClInclude Include="Vendor\imgui-master\imconfig.h" />
     <ClInclude Include="Vendor\imgui-master\imgui.h" />
     <ClInclude Include="Vendor\imgui-master\imgui_impl_opengl3.h" />
@@ -109,7 +110,6 @@
     <ClInclude Include="include\FrameRateCounterModule.hpp" />
     <ClInclude Include="include\FrameRateRegulatorModule.hpp" />
     <ClInclude Include="include\Game.hpp" />
-    <ClInclude Include="include\GeometryLayer.hpp" />
     <ClInclude Include="include\GlAssert.hpp" />
     <ClInclude Include="include\Graphics.hpp" />
     <ClInclude Include="include\GuiLayer.hpp" />
@@ -159,7 +159,6 @@
     <ClCompile Include="src\FrameRateCounterModule.cpp" />
     <ClCompile Include="src\FrameRateRegulatorModule.cpp" />
     <ClCompile Include="src\Game.cpp" />
-    <ClCompile Include="src\GeometryLayer.cpp" />
     <ClCompile Include="src\GlAssert.cpp" />
     <ClCompile Include="src\Graphics.cpp" />
     <ClCompile Include="src\GuiLayer.cpp" />

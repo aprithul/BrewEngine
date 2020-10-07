@@ -10,11 +10,12 @@
 #include "Matrix4x4f.hpp"
 #include <vector>
 #include "Sprite.hpp"
+#include "Transform3D.hpp"
 
 namespace PrEngine
 {
 
-    void insertion_sort(std::vector<Sprite*>& arr, int n);
+    void insertion_sort(std::vector<Sprite*>& arr, Int_32 n);
 
     class SpriteLayer : public RenderLayer
     {
@@ -28,8 +29,7 @@ namespace PrEngine
 
             std::vector<Sprite*> sprite_list;
         private:
-            Entity* light;
-            Entity* camera;
+			void UpdateTransforms(Transform3D* transform);
 
     };
 } // namespace Pringin

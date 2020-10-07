@@ -12,7 +12,7 @@ namespace PrEngine
     {
         public:
 
-            AudioManager(const std::string& name, int priority);
+            AudioManager(const std::string& name, Int_32 priority);
             ~AudioManager();
 
             void start() override;

@@ -9,7 +9,7 @@
 
 namespace PrEngine {
 
-	RendererOpenGL2D::RendererOpenGL2D(int width, int height, std::string title, std::string module_name, int priority):Module(module_name, priority)
+	RendererOpenGL2D::RendererOpenGL2D(Int_32 width, Int_32 height, std::string title, std::string module_name, Int_32 priority):Module(module_name, priority)
     {
         this->width = width;
         this->height = height;
@@ -46,7 +46,7 @@ namespace PrEngine {
         else
             printf("Context created with OpenGL version  (%s)\n", glGetString(GL_VERSION));
 
-        std::cout<<"Vector3 size"<<sizeof(Vector3<float>)<<std::endl;
+        std::cout<<"Vector3 size"<<sizeof(Vector3<Float_32>)<<std::endl;
 
         std::cout<<"Loading default texture"<<std::endl;
         Texture::load_default_texture();
@@ -105,7 +105,7 @@ namespace PrEngine {
 
     }
 
-    void RendererOpenGL2D::Clear(float r, float g, float b, float a)
+    void RendererOpenGL2D::Clear(Float_32 r, Float_32 g, Float_32 b, Float_32 a)
     {
         glClearColor(r, g, b, a);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -142,16 +142,13 @@ namespace PrEngine {
             (*it)->end();
     }
 
-    Graphics* RendererOpenGL2D::generate_sprite_graphics(const std::string& texture_file_path,  const std::string& mat_name)
+    void RendererOpenGL2D::generate_sprite_graphics(Uint_32 graphic_id, const std::string& texture_file_path,  const std::string& mat_name)
     {
-
-		Graphics* graphics = new Graphics();
-
 		Material* mat = Material::load_material("shaders" + PATH_SEP + "DiffuseUnlit2D.shader", texture_file_path, mat_name);
         // find the proper scale needed for the quad mesh
         Texture* tex = mat->diffuse_texture;
-        float x_scale = tex->width;
-        float y_scale = tex->height;
+        Float_32 x_scale = tex->width;
+        Float_32 y_scale = tex->height;
         if(x_scale>y_scale)
         {
         	x_scale = (x_scale/y_scale);
@@ -246,31 +243,26 @@ namespace PrEngine {
         layout.add_attribute(attribute_2);
         layout.add_attribute(attribute_3);
 
-        GraphicsElement g_element;
-        graphics->elements.push_back(g_element);
-		graphics->elements.back().material = mat;
-		graphics->elements.back().vao.Generate();
-		graphics->elements.back().vbo.Generate(&buffer[0], buffer.size()*sizeof(Vertex));
-
-		graphics->elements.back().layout = layout;
-		for(std::vector<VertexAttribute>::iterator attr = graphics->elements.back().layout.vertex_attributes.begin(); attr !=  graphics->elements.back().layout.vertex_attributes.end(); attr++)
+		graphics[graphic_id].element.material = mat;
+		graphics[graphic_id].element.vao.Generate();
+		graphics[graphic_id].element.vbo.Generate(&buffer[0], buffer.size() * sizeof(Vertex));
+		graphics[graphic_id].element.layout = layout;
+		for (std::vector<VertexAttribute>::iterator attr = graphics[graphic_id].element.layout.vertex_attributes.begin(); attr != graphics[graphic_id].element.layout.vertex_attributes.end(); attr++)
 		{
 			GL_CALL(
-				glEnableVertexAttribArray( attr->index))
-			GL_CALL(
-				glVertexAttribPointer(attr->index, attr->count, attr->type, attr->normalized, layout.stride, (void*)attr->offset))
+				glEnableVertexAttribArray(attr->index))
+				GL_CALL(
+					glVertexAttribPointer(attr->index, attr->count, attr->type, attr->normalized, layout.stride, (void*)attr->offset))
 		}
 
-		graphics->elements.back().ibo.Generate( &indices[0], indices.size()*sizeof(GLuint), indices.size());
-		graphics->elements.back().num_of_triangles = (buffer.size()/3);
+		graphics[graphic_id].element.ibo.Generate(&indices[0], indices.size() * sizeof(GLuint), indices.size());
+		graphics[graphic_id].element.num_of_triangles = (buffer.size() / 3);
 
-		graphics->elements.back().vao.Unbind();
-		graphics->elements.back().ibo.Unbind();
+		graphics[graphic_id].element.vao.Unbind();
+		graphics[graphic_id].element.ibo.Unbind();
+
 		
-		//SpriteLayer* sprite_layer = (SpriteLayer*)get_layer("Sprite");
-		//sprite_layer->sprite_list.push_back(sprite);
-
-		return graphics;
+		
     }
 
 

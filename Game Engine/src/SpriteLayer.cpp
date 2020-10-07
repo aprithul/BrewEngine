@@ -6,123 +6,102 @@ namespace PrEngine
     SpriteLayer::SpriteLayer()
     {
         this->name = "Sprite";
-        this->camera = nullptr;
-        this->light = nullptr;
+
     }
 
     void SpriteLayer::start()
     {
     }
 
+	void SpriteLayer::UpdateTransforms(Transform3D* transform)
+	{
+		/*if (transform->parent != nullptr)
+		{
+			UpdateTransforms(transform->parent);
+		}
+
+		if (transform->dirty)
+		{
+			transform->update_transformation();
+		}*/
+	}
+
     void SpriteLayer::update()
     {
-        insertion_sort(sprite_list, sprite_list.size());
-        if(camera == nullptr)
-        {
-        	camera = EntityManagementSystem::entity_management_system->get_entity_with_component(COMP_CAMERA);
-        	if(camera==nullptr)
-        	{
-        		LOG(LOGTYPE_ERROR, "Camera not found");
-        		return;
-        	}
-        }
-        if(light == nullptr)
-        {
-        	light = EntityManagementSystem::entity_management_system->get_entity_with_component(COMP_LIGHT);
-        	if(light==nullptr)
+        //insertion_sort(sprite_list, sprite_list.size());
+		DirectionalLight _light = directional_lights[0];
+		Camera _camera = cameras[0];
+		Vector3<Float_32> _cam_pos = transforms[_camera.id_transform].position;
+		Vector3<Float_32> _dir = transforms[_light.id_transform].get_forward();
+
+		Uint_32 limit = entity_management_system->next_graphic_pos;
+		for (Uint_32 _i = 0; _i < limit; _i++)
+		{
+			if (is_valid(graphic_active_status, _i))
 			{
-				LOG(LOGTYPE_ERROR, "light not found");
-				return;
-			}
-        }
+				//UpdateTransforms(transform);
+				//Matrix4x4<Float_32> mvp = (projection) * (*(grp->model)) ;
 
-        for(std::vector<Sprite*>::iterator it = sprite_list.begin(); it != sprite_list.end(); it++ )
-        {
-            Graphics* grp = (*it)->graphics;
-            //Matrix4x4<float> mvp = (projection) * (*(grp->model)) ;
-            
-            for(int i=0; i < grp->elements.size(); i++)
-            {
-            	grp->elements[i].material->Bind();
-				//std::cout<<"before: "<<grp->elements[i].material.uniform_locations["u_MVP"]  <<std::endl;
+				graphics[_i].element.material->Bind();
+				//std::cout<<"before: "<<grp->element.material.uniform_locations["u_MVP"]  <<std::endl;
 
-				std::unordered_map<std::string, std::pair<std::string,GLuint>>& m = grp->elements[i].material->shader->uniform_locations;
+				std::unordered_map<std::string, std::pair<std::string, GLuint>>& m = graphics[_i].element.material->shader->uniform_locations;
 
 
-				for( std::unordered_map<std::string, std::pair<std::string,GLuint>>::iterator it = m.begin(); it!=m.end(); it++)
+				for (std::unordered_map<std::string, std::pair<std::string, GLuint>>::iterator it = m.begin(); it != m.end(); it++)
 				{
 
-					if( it->first == "u_sampler2d")
+					if (it->first == "u_sampler2d")
 					{
 						GL_CALL(
 							glUniform1i(it->second.second, 0))
 					}
 
-					if(it->first == "u_env_map")
-					{
-						GL_CALL(
-							glUniform1i(it->second.second, 1))
-					}
-
-					if(it->first == "u_sampler_cube")
-					{
-						GL_CALL(
-							glUniform1i(it->second.second, 0))
-					}
-
-					if(it->first == "u_Dir_Light")
+					if (it->first == "u_Dir_Light")
 					{
 
-						Vector3<float> dir = ((Transform3D*)(EntityManagementSystem::entity_management_system->get_entity_with_component(COMP_LIGHT)->components[COMP_TRANSFORM_3D]))->get_forward(); // must change
 						GL_CALL(
-							glUniform3f(it->second.second, dir.x, dir.y, dir.z))
+							glUniform3f(it->second.second, _dir.x, _dir.y, _dir.z))
 					}
 
-					if(it->first == "u_Ambient_Strength")
+					if (it->first == "u_Ambient_Strength")
 					{
 						//LOG(LOGTYPE_ERROR, "Dir: ", std::to_string(light->direction.x));
 						GL_CALL(
-							glUniform1f(it->second.second, ((DirectionalLight*)(light->components[COMP_LIGHT]))->ambient)
+							glUniform1f(it->second.second, _light.ambient)
 						)
 					}
 
-					if(it->first == "u_Specular_Strength")
+					if (it->first == "u_Specular_Strength")
 					{
 						GL_CALL(
-							glUniform1f(it->second.second, ((DirectionalLight*)(light->components[COMP_LIGHT]))->specular)
+							glUniform1f(it->second.second, _light.specular)
 						)
 					}
 					// models and normals should be same size
-					//for(int j=0; j<grp->models.size() ; j++)
+					//for(Int_32 j=0; j<grp->models.size() ; j++)
 					//{
 
-					Camera* cam_component = (Camera*)(camera->components[COMP_CAMERA]);
-					//Matrix4x4<float> mvp = (cam_component->projection_matrix) * cam_component->view_matrix * (*(grp->models[j])) ;
+					//Camera* cam_component = (Camera*)(camera->components[COMP_CAMERA]);
+					//Matrix4x4<Float_32> mvp = (cam_component->projection_matrix) * cam_component->view_matrix * (*(grp->models[j])) ;
 
 
-					if(it->first == "u_skybox")
-					{
-						GL_CALL(glUniform1i(it->second.second, 0))
-						//mvp = (cam_component->projection_matrix) * _view * (*(grp->models[j])) ;
-
-					}
-
-					if(it->first == "u_Model")
+					if (it->first == "u_Model")
 					{
 
 						GL_CALL(
-							glUniformMatrix4fv(it->second.second,1, GL_TRUE, grp->model->data))
+							glUniformMatrix4fv(it->second.second, 1, GL_TRUE, transforms[graphics[_i].id_transform].transformation.data))
 					}
 
-					if(it->first == "u_View")
+					if (it->first == "u_View")
 					{
 						GL_CALL(
-							glUniformMatrix4fv(it->second.second, 1, GL_TRUE, cam_component->view_matrix.data) )
+							glUniformMatrix4fv(it->second.second, 1, GL_TRUE, _camera.view_matrix.data))
 					}
 
-					if(it->first == "u_View_t")
+					if (it->first == "u_View_t")
 					{
-						Matrix4x4<float> _view = Matrix4x4<float>(cam_component->view_matrix);
+						Matrix4x4<Float_32> _view = Matrix4x4<Float_32>(_camera.view_matrix);
 						_view.data[3] = 0;
 						_view.data[7] = 0;
 						_view.data[11] = 0;
@@ -132,39 +111,39 @@ namespace PrEngine
 						_view.data[15] = 1;
 
 						GL_CALL(
-							glUniformMatrix4fv(it->second.second, 1, GL_TRUE, _view.data) )
+							glUniformMatrix4fv(it->second.second, 1, GL_TRUE, _view.data))
 					}
 
-					if(it->first == "u_Projection")
+					if (it->first == "u_Projection")
 					{
 						GL_CALL(
-							glUniformMatrix4fv(it->second.second,1, GL_TRUE, (cam_component->projection_matrix).data))
+							glUniformMatrix4fv(it->second.second, 1, GL_TRUE, _camera.projection_matrix.data))
 					}
 
-					if(it->first == "u_Camera_Position")
+					if (it->first == "u_Camera_Position")
 					{
-						Vector3<float> cam_pos = cam_component->transform.get_position();
+						
 						GL_CALL(
-							glUniform3f(it->second.second, cam_pos.x, cam_pos.y, cam_pos.z) )
+							glUniform3f(it->second.second, _cam_pos.x, _cam_pos.y, _cam_pos.z))
 					}
 
-					if(it->first == "u_Normal_M")
+					if (it->first == "u_Normal_M")
 					{
 						GL_CALL(
-							glUniformMatrix4fv(it->second.second,1, GL_TRUE, grp->normal->data ))
+							glUniformMatrix4fv(it->second.second, 1, GL_TRUE, transforms[graphics[_i].id_transform].rotation_transformation.data))
 					}
 
-					if(it->first =="u_Panning")
+					if (it->first == "u_Panning")
 					{
 						GL_CALL(
-							glUniform2f(it->second.second,grp->elements[0].material->panning.x, grp->elements[0].material->panning.y);
+							glUniform2f(it->second.second, graphics[_i].element.material->panning.x, graphics[_i].element.material->panning.y);
 						)
 					}
 
-					if(it->first =="u_Tiling")
+					if (it->first == "u_Tiling")
 					{
 						GL_CALL(
-							glUniform2f(it->second.second,grp->elements[0].material->tiling.x, grp->elements[0].material->tiling.y);
+							glUniform2f(it->second.second, graphics[_i].element.material->tiling.x, graphics[_i].element.material->tiling.y);
 						)
 					}
 
@@ -175,18 +154,18 @@ namespace PrEngine
 
 					//GL_CALL(
 					//    glUniform1f((*it)->material.uniform_locations["u_red"], 1.f))
+
+					graphics[_i].element.vao.Bind();
+					graphics[_i].element.ibo.Bind();
+					GL_CALL(
+						//glDrawArrays(GL_TRIANGLES,0, grp->element.num_of_triangles*3))
+						glDrawElements(GL_TRIANGLES, graphics[_i].element.ibo.count, GL_UNSIGNED_INT, nullptr));
+					graphics[_i].element.vao.Unbind();
+					graphics[_i].element.ibo.Unbind();
 				}
+				graphics[_i].element.material->Unbind();
 
-				grp->elements[i].vao.Bind();
-				grp->elements[i].ibo.Bind();
-				GL_CALL(
-					//glDrawArrays(GL_TRIANGLES,0, grp->elements[i].num_of_triangles*3))
-					glDrawElements(GL_TRIANGLES, grp->elements[i].ibo.count, GL_UNSIGNED_INT, nullptr));
-				grp->elements[i].vao.Unbind();
-				grp->elements[i].ibo.Unbind();
-
-				grp->elements[i].material->Unbind();
-            }
+			}
         }
 
     }
@@ -202,9 +181,9 @@ namespace PrEngine
     }
 
 
-    void insertion_sort(std::vector<Sprite*>& arr, int n)  
+    void insertion_sort(Sprite** arr, Int_32 n)  
     {  
-        int i, j;  
+        Int_32 i, j;  
         //LOG(LOGTYPE_GENERAL, std::to_string(n));
         Sprite* key;
         for (i = 1; i < n; i++) 

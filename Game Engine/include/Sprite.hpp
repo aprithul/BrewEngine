@@ -15,16 +15,15 @@ namespace PrEngine
     {
 
         public:
-            Sprite(int order);
+			Sprite();
+            Sprite(Int_32 order);
             ~Sprite();
-            std::string to_string() override;
+            std::string to_string();
 			void start() override;
 			void add_to_renderer(RendererOpenGL2D* renderer);
 
-            int order;
-            Graphics* graphics;
-            Animator* animator;
-
+            Int_32 order;
+            Uint_32 id_graphics;
     };
 
 }

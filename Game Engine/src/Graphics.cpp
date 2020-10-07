@@ -1,5 +1,5 @@
 #include "Graphics.hpp"
-#include "Transform3D.hpp"
+//#include "Transform3D.hpp"
 #include "EntityManagementSystemModule.hpp"
 
 namespace PrEngine
@@ -111,46 +111,24 @@ namespace PrEngine
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
     }
 
-    Graphics::Graphics():Component(COMP_GRAPHICS)
+    Graphic::Graphic():Component(COMP_GRAPHICS)
     {
 
     }
 
-	void Graphics::start()
+	void Graphic::start()
 	{
-		auto _entity = EntityManagementSystem::entity_management_system->get_entity(this->entity_id);
-		if (_entity != nullptr)
-		{
-			if (_entity->has_component[COMP_TRANSFORM_3D])
-			{
-				auto transform = (Transform3D*)_entity->components[COMP_TRANSFORM_3D];
-				model = (transform->get_transformation());
-				normal = (transform->get_rotation_transformation());
-			}
-			else
-			{
-				LOG(LOGTYPE_ERROR, "Loading matrix failed");
-			}
-
-		}
-		else
-		{
-			LOG(LOGTYPE_ERROR, "Entity with id ", std::to_string(entity_id), " couldn't be found");
-		}
-
 	}
 
-    Graphics::~Graphics()
+    Graphic::~Graphic()
     {
-        for(std::vector<GraphicsElement>::iterator it = elements.begin(); it!= elements.end(); it++)
-            it->Delete();
-        
+        element.Delete();
         //delete material;
     }
 
-    std::string Graphics::to_string()
+    std::string Graphic::to_string()
     {
-    	return std::to_string(COMP_GRAPHICS)+","+ this->elements.back().material->diffuse_texture->path;
+    	return std::to_string(COMP_GRAPHICS)+","+ this->element.material->diffuse_texture->path;
     }
 
     void GraphicsElement::Delete()
@@ -167,7 +145,7 @@ namespace PrEngine
         stride = sizeof(Vertex);
     }
 
-    VertexAttribute::VertexAttribute(GLuint index, GLuint count, int type, GLboolean normalized)
+    VertexAttribute::VertexAttribute(GLuint index, GLuint count, Int_32 type, GLboolean normalized)
     {
         this->index = index;
         this->count = count;

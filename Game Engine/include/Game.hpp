@@ -12,7 +12,7 @@ namespace PrEngine
     class Game : public Module
     {
         public:
-            Game(std::string name, int priority);
+            Game(std::string name, Int_32 priority);
             ~Game();
 
             void start() override;

@@ -19,30 +19,30 @@ namespace PrEngine {
 
 	struct Timer
 	{
-		Timer(double duration, std::function<void()> callback, bool recurring );
+		Timer(Double_64 duration, std::function<void()> callback, Bool_8 recurring );
 		std::function<void()> callback;
-		double target_duration;
-		double current_duration;
-		bool recurring;
+		Double_64 target_duration;
+		Double_64 current_duration;
+		Bool_8 recurring;
 
 	};
 
 	class Time: public Module
     {
     public:
-        Time(std::string name, int priority);
+        Time(std::string name, Int_32 priority);
         ~Time();
         void update() override;
         void start() override;
         void end() override;
-        static double get_time();
-        static double get_frame_start_time();
-        static double Frame_time;
-        static Timer* make_timer(double duration, std::function<void()> callback, bool recurring);
+        static Double_64 get_time();
+        static Double_64 get_frame_start_time();
+        static Double_64 Frame_time;
+        static Timer* make_timer(Double_64 duration, std::function<void()> callback, Bool_8 recurring);
         
     private:
-        static double current_frame_start_time;
-        static double last_frame_start_time;
+        static Double_64 current_frame_start_time;
+        static Double_64 last_frame_start_time;
         static std::vector<Timer> timers;
     };
 

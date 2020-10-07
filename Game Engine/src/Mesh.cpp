@@ -22,7 +22,7 @@ namespace PrEngine {
         delete [] vertex_indices;
     }
     
-    void Mesh::set_vertices(Vertex* _vertices, int vertex_count)
+    void Mesh::set_vertices(Vertex* _vertices, Int_32 vertex_count)
     {
         this->vertex_count = vertex_count;
         vertices_array_size = this->vertex_count*sizeof(Vertex);
@@ -32,7 +32,7 @@ namespace PrEngine {
         std::copy(_vertices,_vertices+vertex_count, this->vertices);
     }
 
-    void Mesh::set_indices(GLuint* indices, int count)
+    void Mesh::set_indices(GLuint* indices, Int_32 count)
     {
         this->vertex_indices = new GLuint[count];
         std::copy(indices,indices+count,this->vertex_indices);
@@ -54,7 +54,7 @@ namespace PrEngine {
  #include <OpenGL/OpenGL.h>
  #include <GLFW/glfw3.h>
  
- int main(void)
+ Int_32 main(void)
  {
  // opengl version set
  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -75,17 +75,17 @@ if (!window)
 }
 glfwMakeContextCurrent(window);
 
-float positions[6] = {
+Float_32 positions[6] = {
     -0.5f, -0.5,
     0.5f, -0.5f,
     0.0f,  0.5f
 };
 
-unsigned int buffer;
+unsigned Int_32 buffer;
 glGenBuffers(1, &buffer);
 glBindBuffer(GL_ARRAY_BUFFER, buffer);
-glBufferData(GL_ARRAY_BUFFER, 6*sizeof(float), positions, GL_STATIC_DRAW);
-glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float)*2, 0);
+glBufferData(GL_ARRAY_BUFFER, 6*sizeof(Float_32), positions, GL_STATIC_DRAW);
+glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Float_32)*2, 0);
 glEnableVertexAttribArray(0);
 
 while (!glfwWindowShouldClose(window))

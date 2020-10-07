@@ -11,12 +11,12 @@
 
 namespace PrEngine {
     
-    double Time::Frame_time;
-    double Time::current_frame_start_time;
-    double Time::last_frame_start_time;
+    Double_64 Time::Frame_time;
+    Double_64 Time::current_frame_start_time;
+    Double_64 Time::last_frame_start_time;
     std::vector<Timer> Time::timers;
     
-    Time::Time(std::string name, int priority):Module(name,priority)
+    Time::Time(std::string name, Int_32 priority):Module(name,priority)
     {
     }
     
@@ -69,12 +69,12 @@ namespace PrEngine {
         
     }
     
-    double Time::get_frame_start_time()
+    Double_64 Time::get_frame_start_time()
     {
         return current_frame_start_time;
     }
     
-    double Time::get_time()
+    Double_64 Time::get_time()
     {
         return  SDL_GetTicks()/1000.0;
     }
@@ -85,7 +85,7 @@ namespace PrEngine {
         
     }
     
-    Timer::Timer(double duration, std::function<void()> callback, bool recurring)
+    Timer::Timer(Double_64 duration, std::function<void()> callback, Bool_8 recurring)
     {
     	this->current_duration = 0;
     	this->target_duration = duration;
@@ -93,7 +93,7 @@ namespace PrEngine {
     	this->recurring = recurring;
     }
 
-    Timer* Time::make_timer(double duration, std::function<void()> callback, bool recurring)
+    Timer* Time::make_timer(Double_64 duration, std::function<void()> callback, Bool_8 recurring)
     {
     	Timer t(duration, callback,recurring);
     	timers.push_back(t);

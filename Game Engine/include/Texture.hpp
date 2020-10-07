@@ -14,9 +14,9 @@ namespace PrEngine
     struct TextureData
     {
         stbi_uc* data;
-        int width;
-        int height;
-        int no_of_channels;
+        Int_32 width;
+        Int_32 height;
+        Int_32 no_of_channels;
 
         void Delete();
     };
@@ -25,7 +25,7 @@ namespace PrEngine
     {
         static std::unordered_map<std::string, TextureData> texture_data_library;
         static std::unordered_map<std::string, Texture*> texture_library;
-        static int texture_create_status;
+        static Int_32 texture_create_status;
 
         static Texture* load_default_texture();
         static Texture* load_texture(const std::string& path);
@@ -33,13 +33,13 @@ namespace PrEngine
         static void delete_all_textures();
 
         GLuint id;
-        int width;
-        int height;
-        int no_of_channels;
+        Int_32 width;
+        Int_32 height;
+        Int_32 no_of_channels;
         stbi_uc* data;
 		std::string path;
 
-        virtual void Bind(int slot);
+        virtual void Bind(Int_32 slot);
         virtual void Unbind();
 
 		private:

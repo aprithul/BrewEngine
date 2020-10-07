@@ -18,21 +18,21 @@ namespace PrEngine {
     class FrameRateRegulator:public Module
     {
     public:
-        FrameRateRegulator(std::string name, int priority);
+        FrameRateRegulator(std::string name, Int_32 priority);
         ~FrameRateRegulator();
         void start() override;
         void update() override;
         void end() override;
-        void set_frame_rate(int frame_rate);
+        void set_frame_rate(Int_32 frame_rate);
         void set_uncapped();
     private:
-        int target_frame_rate;
-        double frame_delta;
-        double idle_time;
-        double target_time;
-        double one_second;
-        double sleep_time;
-        int frame_count;
+        Int_32 target_frame_rate;
+        Double_64 frame_delta;
+        Double_64 idle_time;
+        Double_64 target_time;
+        Double_64 one_second;
+        Double_64 sleep_time;
+        Int_32 frame_count;
         
     };
 }

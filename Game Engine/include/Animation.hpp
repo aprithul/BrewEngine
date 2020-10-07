@@ -9,17 +9,16 @@ namespace PrEngine {
 
 	struct Keyframe
 	{
-		Vector3<float> position;
-		Vector3<float> rotation;
-		Vector3<float> scale;
+		Vector3<Float_32> position;
+		Vector3<Float_32> rotation;
+		Vector3<Float_32> scale;
 		Texture* texture;
-		float timestamp;
-
+		Float_32 timestamp;
 	};
 
-	class Animation
+	struct Animation
 	{
-	public:
+		Animation();
 		Animation(std::string& animation_name);
 		~Animation();
 		std::string clip_name;

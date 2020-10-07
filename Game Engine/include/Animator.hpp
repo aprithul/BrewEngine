@@ -18,27 +18,28 @@
 #include <string>
 #include <unordered_map>
 namespace PrEngine{
-	class Animator : public Component
+	struct Animator : public Component
 	{
-	public:
 		Animator();
 		~Animator();
-		int current_frame_index;
-		float animation_speed;
-		Animation* current_animation;
-		void load_animation(std::string& animation_file);
+		Int_32 current_frame_index;
+		Animation current_animation;
+		Float_32 animation_speed;
+		Float_32 animator_time;
+		Uint_32 id_transform;
+		Uint_32 id_graphic;
 
 		void start() override;
 		void play();
 		void pause();
 		void stop();
 		void update() override;
-		std::string to_string() override;
-	private:
-		Material* material;
-		Transform3D* transform;
-		std::unordered_map<std::string, Animation> animations;
-		float animator_time;
+		std::string to_string();
+
+		static void load_animation(std::string& animation_file);
+		static std::unordered_map<std::string, Animation> animations;
+
+		
 	};
 }
 

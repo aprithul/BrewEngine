@@ -45,7 +45,7 @@
             uint16_t sequence_number;
             uint16_t ack;
             uint32_t bit_filed;
-            char data[PAYLOAD_SIZE];
+            Char_8 data[PAYLOAD_SIZE];
         };
 
 
@@ -56,18 +56,18 @@
             sockaddr_in address;
             Address();
             
-            Address( unsigned char a, 
-                    unsigned char b, 
-                    unsigned char c, 
-                    unsigned char d, 
+            Address( unsigned Char_8 a, 
+                    unsigned Char_8 b, 
+                    unsigned Char_8 c, 
+                    unsigned Char_8 d, 
                     unsigned short port );
 
             // not defined yet
-            unsigned int GetAddress() const;
-            unsigned char GetA() const;
-            unsigned char GetB() const;
-            unsigned char GetC() const;
-            unsigned char GetD() const;
+            unsigned Int_32 GetAddress() const;
+            unsigned Char_8 GetA() const;
+            unsigned Char_8 GetB() const;
+            unsigned Char_8 GetC() const;
+            unsigned Char_8 GetD() const;
             unsigned short GetPort() const;
 
         };
@@ -80,20 +80,20 @@
 
                 ~Socket();
 
-                bool Open( unsigned short port );
+                Bool_8 Open( unsigned short port );
 
                 void Close();
 
-                bool IsOpen() const;
+                Bool_8 IsOpen() const;
 
-                bool Send( const Address & destination, 
+                Bool_8 Send( const Address & destination, 
                         const Packet* packet, 
-                        int size );
+                        Int_32 size );
 
-                int Receive( Address & sender, 
+                Int_32 Receive( Address & sender, 
                             Packet* packet, 
-                            int size );
-                int handle;
+                            Int_32 size );
+                Int_32 handle;
 
 
             private:
@@ -105,7 +105,7 @@
         class NetworkManager : public Module
         {
             public:
-                NetworkManager(const std::string& name, int priority);
+                NetworkManager(const std::string& name, Int_32 priority);
                 ~NetworkManager();
 
                 void start() override;
@@ -113,7 +113,7 @@
                 void end() override;
 
             private:
-                const int port = 30001;
+                const Int_32 port = 30001;
                 Socket socket;
         };
     }

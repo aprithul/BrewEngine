@@ -22,7 +22,7 @@ namespace PrEngine {
     public:
         Matrix4x4()
         {
-            for(int i=0; i<16; i++)
+            for(Int_32 i=0; i<16; i++)
             {
                 data[i] = 0;
             }
@@ -36,9 +36,9 @@ namespace PrEngine {
         Matrix4x4<T> operator+(Matrix4x4<T> m) const 
         {
             Matrix4x4<T> r;
-            for(int i=0; i<4; i++)
+            for(Int_32 i=0; i<4; i++)
             {
-                for(int j=0; j<4; j++)
+                for(Int_32 j=0; j<4; j++)
                 {
                     r.data[(i*4)+j] = data[(i*4)+j] + m.data[(i*4)+j];
                 }
@@ -49,9 +49,9 @@ namespace PrEngine {
         Matrix4x4<T> operator-(Matrix4x4<T> m) const
         {
             Matrix4x4<T> r;
-            for(int i=0; i<4; i++)
+            for(Int_32 i=0; i<4; i++)
             {
-                for(int j=0; j<4; j++)
+                for(Int_32 j=0; j<4; j++)
                 {
                     r.data[(i*4)+j] = data[(i*4)+j] - m.data[(i*4)+j];
                 }
@@ -62,9 +62,9 @@ namespace PrEngine {
         Matrix4x4<T> operator*(const Matrix4x4<T>& m) const
         {
             Matrix4x4<T> r;
-            for(int i=0; i<4; i++)
+            for(Int_32 i=0; i<4; i++)
             {
-                for(int j=0; j<4; j++)
+                for(Int_32 j=0; j<4; j++)
                 {
                     r.data[(i*4)+j] =   (data[(i*4)+0]*m.data[0+j]) +
                                         (data[(i*4)+1]*m.data[4+j]) +
@@ -96,9 +96,9 @@ namespace PrEngine {
         Matrix4x4<T> operator^(Matrix4x4<T> m) const
         {
             Matrix4x4<T> r;
-            for(int i=0; i<4; i++)
+            for(Int_32 i=0; i<4; i++)
             {
-                for(int j=0; j<4; j++)
+                for(Int_32 j=0; j<4; j++)
                 {
                     r.data[(i*4)+j] = data[(i*4)+j] * m.data[(i*4)+j];
                 }
@@ -109,9 +109,9 @@ namespace PrEngine {
         Matrix4x4<T> operator/(T v) const
         {
             Matrix4x4<T> r;
-            for(int i=0; i<4; i++)
+            for(Int_32 i=0; i<4; i++)
             {
-                for(int j=0; j<4; j++)
+                for(Int_32 j=0; j<4; j++)
                 {
                     r.data[(i*4)+j] = data[(i*4)+j] / v;
                 }
@@ -122,9 +122,9 @@ namespace PrEngine {
         Matrix4x4<T> operator*(T v) const
         {
             Matrix4x4<T> r;
-            for(int i=0; i<4; i++)
+            for(Int_32 i=0; i<4; i++)
             {
-                for(int j=0; j<4; j++)
+                for(Int_32 j=0; j<4; j++)
                 {
                     r.data[(i*4)+j] = data[(i*4)+j] * v;
                 }
@@ -136,9 +136,9 @@ namespace PrEngine {
         {
             T _temp;
             Matrix4x4<T> r;
-            for(int i=0; i<4; i++)
+            for(Int_32 i=0; i<4; i++)
             {
-                for(int j=i;j<4;j++)
+                for(Int_32 j=i;j<4;j++)
                 {
                     r.data[(j*4)+i] = data[(i*4)+j];
                     r.data[(i*4)+j] = data[(j*4)+i];
@@ -147,11 +147,11 @@ namespace PrEngine {
             return r;
         }        
 
-        void set(int i, int j, T v)
+        void set(Int_32 i, Int_32 j, T v)
         {
             data[(i*4)+j] = v;
         }
-        T get(int i, int j)
+        T get(Int_32 i, Int_32 j)
         {
             return data[(i*4)+j];
         }
@@ -166,9 +166,9 @@ namespace PrEngine {
             return identity;
         }
 
-        static Matrix4x4 ortho(float left, float right, float bottom, float top, float near_, float far_)
+        static Matrix4x4 ortho(Float_32 left, Float_32 right, Float_32 bottom, Float_32 top, Float_32 near_, Float_32 far_)
         {
-            Matrix4x4<float> ortho;
+            Matrix4x4<Float_32> ortho;
             ortho.set(0,0, 2.f/(right-left));
             ortho.set(0,3, -(right+left)/(right-left));
 
@@ -184,10 +184,10 @@ namespace PrEngine {
             return ortho;
         }
 
-        static Matrix4x4 perspective(float n, float f, float width, float height, float fov)
+        static Matrix4x4 perspective(Float_32 n, Float_32 f, Float_32 width, Float_32 height, Float_32 fov)
         {
-            float aspect_ratio = width / height;
-            Matrix4x4<float> perspective;
+            Float_32 aspect_ratio = width / height;
+            Matrix4x4<Float_32> perspective;
             perspective.set(0,0, 1/(aspect_ratio*std::tan(fov*DEG_TO_RAD/2.f)));
             perspective.set(1,1, 1/(std::tan(fov*DEG_TO_RAD/2.f)));
             perspective.set(2,2, (-f-n)/(n-f));
@@ -197,9 +197,9 @@ namespace PrEngine {
             return perspective;
         }
 
-        static Matrix4x4 perspective(float n, float f, float width, float height)
+        static Matrix4x4 perspective(Float_32 n, Float_32 f, Float_32 width, Float_32 height)
         {
-            Matrix4x4<float> perspective;
+            Matrix4x4<Float_32> perspective;
             perspective.set(0,0, (n/(width/2.f)));
             perspective.set(1,1, (n/(height/2.f)));
             perspective.set(2,2, (-(f+n)/(f-n)));

@@ -10,7 +10,7 @@
 #define MODULE_HPP
 
 #include <string>
-
+#include "Types.hpp"
 #define IS_SERVER false
 
 namespace PrEngine {
@@ -19,14 +19,14 @@ namespace PrEngine {
     class Module
     {
     public:
-        Module(std::string name, int priority);
+        Module(std::string name, Int_32 priority);
         virtual ~Module();
         virtual void start() = 0;
         virtual void update() = 0;
         virtual void end() = 0;
-        bool is_active;
+        Bool_8 is_active;
         std::string name;
-        int priority;
+        Int_32 priority;
         
     };
 }

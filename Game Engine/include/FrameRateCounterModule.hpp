@@ -21,7 +21,7 @@ namespace PrEngine {
     class FrameRateCounter:public Module
     {
     public:
-        FrameRateCounter(std::string name, int priority);
+        FrameRateCounter(std::string name, Int_32 priority);
         ~FrameRateCounter();
         //Renderer2D* renderer2D;
 
@@ -29,9 +29,9 @@ namespace PrEngine {
         void start() override;
         void update() override;
         void end() override;
-        double one_second;
-        int frame_count;
-        int last_frame_count;
+        Double_64 one_second;
+        Int_32 frame_count;
+        Int_32 last_frame_count;
         //TTF_Font* font;
         //SDL_Texture* text_texture;
     };

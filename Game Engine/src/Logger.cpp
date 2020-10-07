@@ -3,10 +3,10 @@
 namespace PrEngine{
 
 
-    const char* LogTypeStrings[] = {"ERROR", "WARNING", "LOG"};
+    const Char_8* LogTypeStrings[] = {"ERROR", "WARNING", "LOG"};
     std::ofstream log_file;
-    const char* log_file_path;
-    bool log_enabled = true;
+    const Char_8* log_file_path;
+    Bool_8 log_enabled = true;
     LogLevel log_level = LOGLEVEL_MIN;
 
 
@@ -16,7 +16,7 @@ namespace PrEngine{
         log_file.close();
     }
 
-    void set_log_file_path(const char* log_file_path)
+    void set_log_file_path(const Char_8* log_file_path)
     {
         PrEngine::log_file_path = log_file_path;
     }
@@ -54,11 +54,11 @@ namespace PrEngine{
             break;
         }
 
-        if(log_file)
+        /*if(log_file)
         {    
             if(log_file.is_open())
                 log_file<<LogTypeStrings[type]<<": "<<log_text<<log_text_2<<log_text_3<<log_text_4<<log_text_5<<log_text_6<<log_text_7<<log_text_8<<log_text_9<<log_text_10;
-        }
+        }*/
     }
 
 }

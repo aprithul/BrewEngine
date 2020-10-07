@@ -19,12 +19,12 @@ namespace PrEngine {
         
     }
     
-    float Matrix3x3f::get(int i, int j)
+    Float_32 Matrix3x3f::get(Int_32 i, Int_32 j)
     {
         return m[i][j];
     }
     
-    void Matrix3x3f::set(int i, int j, float v)
+    void Matrix3x3f::set(Int_32 i, Int_32 j, Float_32 v)
     {
         m[i][j] = v;
     }
@@ -32,30 +32,30 @@ namespace PrEngine {
     Matrix3x3f Matrix3x3f::operator*(Matrix3x3f _m)
     {
         Matrix3x3f r;
-        for(int i=0; i<4; i++)
-            for(int j=0; j<4; j++)
+        for(Int_32 i=0; i<4; i++)
+            for(Int_32 j=0; j<4; j++)
             {
                 r.set( i, j,  m[i][0]*_m.get(0,j) + m[i][1]*_m.get(1,j) + m[i][2]*_m.get(2,j) + m[i][3]*_m.get(3,j));
             }
         return r;
     }
     
-    Matrix3x3f Matrix3x3f::operator*(float v)
+    Matrix3x3f Matrix3x3f::operator*(Float_32 v)
     {
         Matrix3x3f r;
-        for(int i=0; i<4; i++)
-            for(int j=0; j<4; j++)
+        for(Int_32 i=0; i<4; i++)
+            for(Int_32 j=0; j<4; j++)
             {
                 r.set( i, j, m[i][j]* v);
             }
         return r;
     }
 
-    Matrix3x3f Matrix3x3f::operator/(float v)
+    Matrix3x3f Matrix3x3f::operator/(Float_32 v)
     {
         Matrix3x3f r;
-        for(int i=0; i<4; i++)
-            for(int j=0; j<4; j++)
+        for(Int_32 i=0; i<4; i++)
+            for(Int_32 j=0; j<4; j++)
             {
                 r.set( i, j, m[i][j] / v);
             }
@@ -65,8 +65,8 @@ namespace PrEngine {
     Matrix3x3f Matrix3x3f::operator-(Matrix3x3f _m)
     {
         Matrix3x3f r;
-        for(int i=0; i<4; i++)
-            for(int j=0; j<4; j++)
+        for(Int_32 i=0; i<4; i++)
+            for(Int_32 j=0; j<4; j++)
             {
                 r.set( i, j, m[i][j] - _m.get(i,j));
             }
@@ -77,8 +77,8 @@ namespace PrEngine {
     Matrix3x3f Matrix3x3f::operator+(Matrix3x3f _m)
     {
         Matrix3x3f r;
-        for(int i=0; i<4; i++)
-            for(int j=0; j<4; j++)
+        for(Int_32 i=0; i<4; i++)
+            for(Int_32 j=0; j<4; j++)
             {
                 r.set( i, j, m[i][j] + _m.get(i,j));
             }

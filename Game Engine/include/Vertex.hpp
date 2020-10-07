@@ -12,6 +12,7 @@
 #include <stdio.h>  
 #include <memory>
 #include "Vector3.hpp"
+#include "Types.hpp"
 
 #ifdef __APPLE__
 	#include <OpenGL/gl3.h>
@@ -25,22 +26,22 @@ namespace PrEngine {
     struct Vertex
     {
         Vertex();
-        Vertex(float x,float y, float z);
-        Vertex(float x, float y, float z, float nx, float ny, float nz);
-        Vertex(float x, float y, float z, float nx, float ny, float nz, float r, float g, float b, float a);
-        Vertex(float x, float y, float z, float nx, float ny, float nz, float r, float g, float b, float a, float u, float v);
-        float p_x;
-        float p_y;
-        float p_z;
-        float c_r;
-        float c_g;
-        float c_b;
-        float c_a;
-        float n_x;
-        float n_y;
-        float n_z;
-        float u;
-        float v;        
+        Vertex(Float_32 x,Float_32 y, Float_32 z);
+        Vertex(Float_32 x, Float_32 y, Float_32 z, Float_32 nx, Float_32 ny, Float_32 nz);
+        Vertex(Float_32 x, Float_32 y, Float_32 z, Float_32 nx, Float_32 ny, Float_32 nz, Float_32 r, Float_32 g, Float_32 b, Float_32 a);
+        Vertex(Float_32 x, Float_32 y, Float_32 z, Float_32 nx, Float_32 ny, Float_32 nz, Float_32 r, Float_32 g, Float_32 b, Float_32 a, Float_32 u, Float_32 v);
+        Float_32 p_x;
+        Float_32 p_y;
+        Float_32 p_z;
+        Float_32 c_r;
+        Float_32 c_g;
+        Float_32 c_b;
+        Float_32 c_a;
+        Float_32 n_x;
+        Float_32 n_y;
+        Float_32 n_z;
+        Float_32 u;
+        Float_32 v;        
     };
 
     

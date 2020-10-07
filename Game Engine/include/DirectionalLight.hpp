@@ -9,16 +9,14 @@ namespace PrEngine
     class DirectionalLight : public Component
     {
         public:
-            DirectionalLight(float specular, float ambient);
+			DirectionalLight();
+            DirectionalLight(Float_32 specular, Float_32 ambient);
             ~DirectionalLight() override;
-            float specular;
-            float ambient;
+            Float_32 specular;
+            Float_32 ambient;
+			Uint_32 id_transform;
 
-            void awake() override;
-            void start() override;
-            void update() override;
-            void end() override;
-            std::string to_string() override;
+            std::string to_string();
 
     };
 }

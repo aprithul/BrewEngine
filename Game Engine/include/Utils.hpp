@@ -11,6 +11,7 @@
 #include <sstream>
 #include "Vector2.hpp"
 #include "Logger.hpp"
+#include "Types.hpp"
 
 #ifdef _WIN32
     const std::string PATH_SEP = "\\";
@@ -21,17 +22,17 @@
 namespace PrEngine
 {
 	extern std::string read_file(const std::string& file_name);
-    extern void write_to_file(const std::string& text, const std::string& file_name, bool binary);
+    extern void write_to_file(const std::string& text, const std::string& file_name, Bool_8 binary, Bool_8 append);
     extern std::string get_resource_path(const std::string &subDir); 
     
     struct Rect
     {
-        float x;
-        float y;
-        float w;
-        float h;
+        Float_32 x;
+        Float_32 y;
+        Float_32 w;
+        Float_32 h;
         
-        Rect(float x,float y,float w,float h);
+        Rect(Float_32 x,Float_32 y,Float_32 w,Float_32 h);
         Rect();
     };
     
@@ -48,7 +49,7 @@ namespace PrEngine
     }
 
     template<typename T>
-    int sign(T v)
+    Int_32 sign(T v)
     {
         if(v >= 0)
             return 1;
@@ -66,9 +67,9 @@ namespace PrEngine
             return 0;
     }
 
-    bool inside(Vector2<int> pos, SDL_Rect& rect, bool centered = false);
-    bool inside(Vector2<float> pos, SDL_Rect& rect, bool centered = false);
-    //bool inside(Vector2<float> pos, SDL_FRect& rect, bool centered = false);
+    Bool_8 inside(Vector2<Int_32> pos, SDL_Rect& rect, Bool_8 centered = false);
+    Bool_8 inside(Vector2<Float_32> pos, SDL_Rect& rect, Bool_8 centered = false);
+    //Bool_8 inside(Vector2<Float_32> pos, SDL_FRect& rect, Bool_8 centered = false);
 
 }
 #endif

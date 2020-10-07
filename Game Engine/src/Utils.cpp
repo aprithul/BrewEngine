@@ -5,9 +5,9 @@ namespace PrEngine{
     // writes text to file in append mode
     // doesn't automaticlaly close file
     // file pointer needs to be provided so file can be closed when writing is finished
-	void write_to_file(const std::string& text, const std ::string& file_name, bool binary)
+	void write_to_file(const std::string& text, const std ::string& file_name, Bool_8 binary, Bool_8 append)
     {
-		std::ofstream _file(file_name, std::ios::app | (binary?std::ios::binary:0));
+		std::ofstream _file(file_name, (append?std::ios::app:0) | (binary?std::ios::binary:0));
 		if (_file.is_open())
 		{
 			_file << text;
@@ -38,7 +38,7 @@ namespace PrEngine{
         static std::string base_path;
         if (base_path.empty()){
             //SDL_GetBasePath will return NULL if something went wrong in retrieving the path
-            char *_base_path = SDL_GetBasePath();
+            Char_8 *_base_path = SDL_GetBasePath();
             if (_base_path){
                 base_path = _base_path;
 #ifdef DEBUG_BASE_PATH
@@ -69,7 +69,7 @@ namespace PrEngine{
         h = 0;
     }
 
-    Rect::Rect(float x,float y,float w,float h)
+    Rect::Rect(Float_32 x,Float_32 y,Float_32 w,Float_32 h)
     {
         this->x = x;
         this->y = y;
@@ -77,7 +77,7 @@ namespace PrEngine{
         this->h = h;
     }
     
-    bool inside(Vector2<int> pos, SDL_Rect& rect, bool centered)
+    Bool_8 inside(Vector2<Int_32> pos, SDL_Rect& rect, Bool_8 centered)
     {
         if(!centered)
         {
@@ -95,7 +95,7 @@ namespace PrEngine{
         return false;
     }
 
-    bool inside(Vector2<float> pos, SDL_Rect& rect, bool centered)
+    Bool_8 inside(Vector2<Float_32> pos, SDL_Rect& rect, Bool_8 centered)
     {
         if(!centered)
         {
@@ -113,7 +113,7 @@ namespace PrEngine{
         return false;
     }
 
-/*    bool inside(Vector2<float> pos, SDL_FRect& rect, bool centered)
+/*    Bool_8 inside(Vector2<Float_32> pos, SDL_FRect& rect, Bool_8 centered)
     {
         if(!centered)
         {

@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include "math.h"
+#include "Types.hpp"
 
 namespace PrEngine {
 
@@ -61,12 +62,12 @@ namespace PrEngine {
         }
 
 
-        Vector3<double> operator*(const double d) const{
-            return Vector3<double>( (double)this->x * d, (double)this->y * d, (double)this->z * d);
+        Vector3<Double_64> operator*(const Double_64 d) const{
+            return Vector3<Double_64>( (Double_64)this->x * d, (Double_64)this->y * d, (Double_64)this->z * d);
         }
 
-        Vector3<float> operator*(const float f) const{
-            return Vector3<float>( (float)this->x * f, (float)this->y * f, (float)this->z * f);
+        Vector3<Float_32> operator*(const Float_32 f) const{
+            return Vector3<Float_32>( (Float_32)this->x * f, (Float_32)this->y * f, (Float_32)this->z * f);
         }
 
         Vector3 operator/(const T v) const{
@@ -78,14 +79,21 @@ namespace PrEngine {
             return ( this->x == v.x && this->y == v.y && this->z == v.z);
         }
 
+		Vector3 operator=(const T& v) {
+			this->x = v.x;
+			this->y = v.y;
+			this->z = v.z;
+			return *this;
+		}
+
         Vector3 normalize(){
-        double len = length();
+        Double_64 len = length();
         x /= len;
         y /= len;
         z /= len;
         return (*this);
         }
-        float length() const{
+        Float_32 length() const{
         return sqrt( x*x + y*y + z*z);
 
         }

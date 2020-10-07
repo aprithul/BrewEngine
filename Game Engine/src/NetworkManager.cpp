@@ -3,7 +3,7 @@
 
 namespace PrEngine
 {
-    bool InitializeSockets()
+    Bool_8 InitializeSockets()
     {
         #if PLATFORM == PLATFORM_WINDOWS
         WSADATA WsaData;
@@ -52,7 +52,7 @@ namespace PrEngine
         #endif
     }
 
-    bool Socket::Open(unsigned short port)
+    Bool_8 Socket::Open(unsigned short port)
     {
         sockaddr_in address;
         address.sin_family = AF_INET;
@@ -69,7 +69,7 @@ namespace PrEngine
 
         #if PLATFORM == PLATFORM_MAC || PLATFORM == PLATFORM_UNIX
 
-        int nonBlocking = 1;
+        Int_32 nonBlocking = 1;
         if ( fcntl( handle, F_SETFL, O_NONBLOCK, nonBlocking ) == -1 )
         {
             printf( "failed to set non-blocking\n" );
@@ -93,9 +93,9 @@ namespace PrEngine
     }
 
 
-    bool Socket::Send(const Address& destination, const Packet* packet, int size)
+    Bool_8 Socket::Send(const Address& destination, const Packet* packet, Int_32 size)
     {
-        int sent_bytes = sendto( handle, packet, size, 0, 
+        Int_32 sent_bytes = sendto( handle, packet, size, 0, 
                                 (sockaddr*)&(destination.address), sizeof(sockaddr_in) );
 
         if ( sent_bytes != size )
@@ -112,21 +112,21 @@ namespace PrEngine
 
 
 
-    int Socket::Receive(Address &sender, Packet* packet, int size)
+    Int_32 Socket::Receive(Address &sender, Packet* packet, Int_32 size)
     {
         return -1;
     }
 
-    int Socket::Receive(Address & sender, Packet * packet, int size)
+    Int_32 Socket::Receive(Address & sender, Packet * packet, Int_32 size)
     {
         #if PLATFORM == PLATFORM_WINDOWS
-        typedef int socklen_t;
+        typedef Int_32 socklen_t;
         #endif
 
         sockaddr_in from;
         socklen_t fromLength = sizeof( from );
 
-        int bytes = recvfrom( handle, 
+        Int_32 bytes = recvfrom( handle, 
                             packet, 
                             size,
                             0, 
@@ -136,10 +136,10 @@ namespace PrEngine
         if ( bytes <= 0 )
             return 0;
 
-        unsigned int from_address = 
+        unsigned Int_32 from_address = 
             ntohl( from.sin_addr.s_addr );
 
-        unsigned int from_port = 
+        unsigned Int_32 from_port = 
             ntohs( from.sin_port );
         
         return bytes;
@@ -149,9 +149,9 @@ namespace PrEngine
 
     //////////////??ADDRESS/////////
 
-    Address::Address(unsigned char a, unsigned char b, unsigned char c, unsigned char d, unsigned short port)
+    Address::Address(unsigned Char_8 a, unsigned Char_8 b, unsigned Char_8 c, unsigned Char_8 d, unsigned short port)
     {
-         unsigned int _address = ( a << 24 ) | 
+         unsigned Int_32 _address = ( a << 24 ) | 
                                 ( b << 16 ) | 
                                 ( c << 8  ) | 
                                 d;
@@ -167,7 +167,7 @@ namespace PrEngine
         
     }
 
-    NetworkManager::NetworkManager(const std::string& name, int priority) :Module(name,priority)
+    NetworkManager::NetworkManager(const std::string& name, Int_32 priority) :Module(name,priority)
     {
     }
 
@@ -205,7 +205,7 @@ namespace PrEngine
         
         Address sender;
         Packet packet;
-        int bytes_read = socket.Receive( sender, 
+        Int_32 bytes_read = socket.Receive( sender, 
                             &packet, 
                             sizeof( packet ) );
         //if ( !bytes_read )

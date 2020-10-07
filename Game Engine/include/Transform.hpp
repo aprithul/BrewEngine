@@ -7,20 +7,17 @@
 
 namespace PrEngine{
     
-    class Transform : public Component
+    struct Transform : public Component
     {
-        public:
-            Vector2<float> position;
-            float angle;
-            Vector2<float> scale;
-            std::string to_string() override;
+        Vector2<Float_32> position;
+        Float_32 angle;
+        Vector2<Float_32> scale;
 
-            Transform();
-            Transform(Vector2<float> position, float angle, Vector2<float> scale);
-            ~Transform();
-            Vector2<float> translate(const Vector2<float>& translation);
-            void rotate(float amount);
-    
+        Transform();
+        Transform(Vector2<Float_32> position, Float_32 angle, Vector2<Float_32> scale);
+        ~Transform();
+        Vector2<Float_32> translate(const Vector2<Float_32>& translation);
+        void rotate(Float_32 amount);
     };
 }
 #endif

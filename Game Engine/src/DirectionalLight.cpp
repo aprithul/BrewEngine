@@ -2,7 +2,14 @@
 
 namespace PrEngine
 {
-    DirectionalLight::DirectionalLight(float _specular, float _ambient):Component(COMP_LIGHT)
+
+	DirectionalLight::DirectionalLight() :Component(COMP_LIGHT)
+	{
+		this->specular = 0;
+		this->ambient = 0;
+	}
+
+    DirectionalLight::DirectionalLight(Float_32 _specular, Float_32 _ambient):Component(COMP_LIGHT)
     {
         this->specular = _specular;
         this->ambient = _ambient;
@@ -13,28 +20,8 @@ namespace PrEngine
 
     }
 
-    void DirectionalLight::awake()
-    {
-    }
-
-    void DirectionalLight::start()
-    {
-
-    }
-
-    void DirectionalLight::update()
-    {
-
-    }
-
-
-    void DirectionalLight::end()
-    {
-
-    }
-
     std::string DirectionalLight::to_string()
     {
-    	return std::to_string(COMP_LIGHT);
+		return std::to_string(COMP_LIGHT) + "," + std::to_string(specular) + "," + std::to_string(ambient);
     }
 }

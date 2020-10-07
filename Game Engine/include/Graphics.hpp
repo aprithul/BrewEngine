@@ -7,6 +7,7 @@
 #include "Component.hpp"
 #include "Vertex.hpp"
 #include "Matrix4x4f.hpp"
+#include "Transform3D.hpp"
 
 namespace PrEngine
 {
@@ -48,13 +49,13 @@ namespace PrEngine
         {
             GLuint index;     
             GLuint count;
-            int type;
+            Int_32 type;
             GLboolean normalized;
             GLsizei offset;
 
             GLsizei size;
 
-            VertexAttribute(GLuint index, GLuint count, int type, GLboolean normalized);
+            VertexAttribute(GLuint index, GLuint count, Int_32 type, GLboolean normalized);
     };
 
     struct VertexLayout
@@ -72,24 +73,19 @@ namespace PrEngine
         IndexBuffer ibo;
         Material* material;
         VertexLayout layout;
-        int num_of_triangles;
+        Int_32 num_of_triangles;
         void Delete();
     };
 
-    struct Graphics : public Component
+    struct Graphic : public Component
     {
-        std::vector<GraphicsElement> elements;
-        //Material* material;
-        //VertexLayout layout;  
+        GraphicsElement element;
 
-        Graphics();// const Vertex* vertices, GLuint vertices_size, const GLuint* indices, GLuint indices_size, GLsizei indices_count, Material material,Texture texture, VertexLayout layout);
-        ~Graphics();
+        Graphic();// const Vertex* vertices, GLuint vertices_size, const GLuint* indices, GLuint indices_size, GLsizei indices_count, Material material,Texture texture, VertexLayout layout);
+        ~Graphic();
 		void start() override;
-        std::string to_string() override;
-		const Matrix4x4<float>* model;
-		const Matrix4x4<float>* normal;
-
-
+        std::string to_string();
+		Uint_32 id_transform;
     };
 }
 

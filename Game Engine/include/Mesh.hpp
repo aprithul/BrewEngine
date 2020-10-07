@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include "Vertex.hpp"
+#include "Types.hpp"
 #ifdef __APPLE__
 #include <OpenGL/gl3.h>
 #elif _WIN64
@@ -24,8 +25,8 @@ namespace PrEngine {
     public:
         Mesh();
         ~Mesh();
-        void set_vertices(Vertex* _vertices, int vertex_count);
-        void set_indices(GLuint* indices, int count);
+        void set_vertices(Vertex* _vertices, Int_32 vertex_count);
+        void set_indices(GLuint* indices, Int_32 count);
         void upload();
         void draw();
         

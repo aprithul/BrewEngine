@@ -33,29 +33,29 @@ namespace PrEngine {
             SDL_GameController* game_controller;            
             SDL_Joystick* joy_stick;
             std::string name;
-            int instance_id;
-            float dead_zone;
+            Int_32 instance_id;
+            Float_32 dead_zone;
             
             GameController();
             GameController(SDL_GameController* game_controller);
             ~GameController();
 
-            float get_axis(SDL_GameControllerAxis axis);
-            bool get_button(SDL_GameControllerButton action);
-            bool get_button_down(SDL_GameControllerButton action);
-            bool get_button_up(SDL_GameControllerButton action);
+            Float_32 get_axis(SDL_GameControllerAxis axis);
+            Bool_8 get_button(SDL_GameControllerButton action);
+            Bool_8 get_button_down(SDL_GameControllerButton action);
+            Bool_8 get_button_up(SDL_GameControllerButton action);
             SDL_GameControllerButton find_down_button();
-            std::pair<SDL_GameControllerAxis, float> find_max_axis();
+            std::pair<SDL_GameControllerAxis, Float_32> find_max_axis();
             
             SDL_GameControllerAxis axis_binding[SDL_CONTROLLER_AXIS_MAX];
             std::string axis_names[SDL_CONTROLLER_AXIS_MAX];
-            float axis_state[SDL_CONTROLLER_AXIS_MAX]; 
+            Float_32 axis_state[SDL_CONTROLLER_AXIS_MAX]; 
 
             SDL_GameControllerButton button_binding[SDL_CONTROLLER_BUTTON_MAX];
             std::string button_names[SDL_CONTROLLER_BUTTON_MAX];
-            bool button_state[SDL_CONTROLLER_BUTTON_MAX];
-            bool button_pressed_flags[SDL_CONTROLLER_BUTTON_MAX];
-            bool button_released_flags[SDL_CONTROLLER_BUTTON_MAX];
+            Bool_8 button_state[SDL_CONTROLLER_BUTTON_MAX];
+            Bool_8 button_pressed_flags[SDL_CONTROLLER_BUTTON_MAX];
+            Bool_8 button_released_flags[SDL_CONTROLLER_BUTTON_MAX];
 
             
 
@@ -69,14 +69,14 @@ namespace PrEngine {
             KeyboardGameController();
             ~KeyboardGameController();
 
-            std::unordered_map<SDL_Keycode, std::pair<SDL_GameControllerAxis,float> > axis_binding;
+            std::unordered_map<SDL_Keycode, std::pair<SDL_GameControllerAxis,Float_32> > axis_binding;
             //std::string axis_names[SDL_CONTROLLER_AXIS_MAX];
-            //float axis_state[SDL_CONTROLLER_AXIS_MAX];
+            //Float_32 axis_state[SDL_CONTROLLER_AXIS_MAX];
 
             std::unordered_map<SDL_Keycode, SDL_GameControllerButton> button_binding;
-            //bool button_state[SDL_CONTROLLER_BUTTON_MAX];
-            //bool button_pressed_flags[SDL_CONTROLLER_BUTTON_MAX];
-            //bool button_released_flags[SDL_CONTROLLER_BUTTON_MAX];
+            //Bool_8 button_state[SDL_CONTROLLER_BUTTON_MAX];
+            //Bool_8 button_pressed_flags[SDL_CONTROLLER_BUTTON_MAX];
+            //Bool_8 button_released_flags[SDL_CONTROLLER_BUTTON_MAX];
     };
 
     class Mouse
@@ -86,26 +86,26 @@ namespace PrEngine {
             Mouse();
             ~Mouse();
 
-            bool get_mouse_button(int index);
-            bool get_mouse_button_down(int index);
-            bool get_mouse_button_up(int index);
-            int window_id;
+            Bool_8 get_mouse_button(Int_32 index);
+            Bool_8 get_mouse_button_down(Int_32 index);
+            Bool_8 get_mouse_button_up(Int_32 index);
+            Int_32 window_id;
 
-            Vector2<int> position;
-            int mb_to_mb_binding[MAX_MOUSE_BUTTON_COUNT];
+            Vector2<Int_32> position;
+            Int_32 mb_to_mb_binding[MAX_MOUSE_BUTTON_COUNT];
             SDL_Keycode mb_to_kb_binding[MAX_MOUSE_BUTTON_COUNT];
 
-            bool button_state[MAX_MOUSE_BUTTON_COUNT];
-            int click_count[MAX_MOUSE_BUTTON_COUNT];
-            bool button_released_flags[MAX_MOUSE_BUTTON_COUNT];
-            bool button_pressed_flags[MAX_MOUSE_BUTTON_COUNT];
-            std::unordered_map<SDL_Keycode, bool> kb_down;
-            std::unordered_map<SDL_Keycode, bool> kb_up;
-            std::unordered_map<SDL_Keycode, bool> kb;
-            void map_mb_to_mb(int from, int to);
-            void map_mb_to_kb(int from, SDL_Keycode to);
-            Vector2<int> delta;
-            int scroll;
+            Bool_8 button_state[MAX_MOUSE_BUTTON_COUNT];
+            Int_32 click_count[MAX_MOUSE_BUTTON_COUNT];
+            Bool_8 button_released_flags[MAX_MOUSE_BUTTON_COUNT];
+            Bool_8 button_pressed_flags[MAX_MOUSE_BUTTON_COUNT];
+            std::unordered_map<SDL_Keycode, Bool_8> kb_down;
+            std::unordered_map<SDL_Keycode, Bool_8> kb_up;
+            std::unordered_map<SDL_Keycode, Bool_8> kb;
+            void map_mb_to_mb(Int_32 from, Int_32 to);
+            void map_mb_to_kb(Int_32 from, SDL_Keycode to);
+            Vector2<Int_32> delta;
+            Int_32 scroll;
     };
 
     class Keyboard
@@ -116,13 +116,13 @@ namespace PrEngine {
             std::unordered_map<SDL_Keycode, SDL_Keycode> key_binding;
             std::unordered_map<SDL_Keycode, std::string> key_names;
             
-            std::unordered_map<SDL_Keycode, bool> key_state;
-            std::unordered_map<SDL_Keycode, bool> key_pressed_flags;
-            std::unordered_map<SDL_Keycode, bool> key_released_flags;
+            std::unordered_map<SDL_Keycode, Bool_8> key_state;
+            std::unordered_map<SDL_Keycode, Bool_8> key_pressed_flags;
+            std::unordered_map<SDL_Keycode, Bool_8> key_released_flags;
 
-            bool get_key(SDL_Keycode k);
-            bool get_key_down(SDL_Keycode k);
-            bool get_key_up(SDL_Keycode k);
+            Bool_8 get_key(SDL_Keycode k);
+            Bool_8 get_key_down(SDL_Keycode k);
+            Bool_8 get_key_up(SDL_Keycode k);
             SDL_Keycode find_down_key();
     };
 
@@ -132,17 +132,17 @@ namespace PrEngine {
         public:
     		static InputManager* input_manager;
     	    static std::string textinput;
-    	    static bool textinput_modified;
+    	    static Bool_8 textinput_modified;
 
-            InputManager(std::string name, int priority);
+            InputManager(std::string name, Int_32 priority);
             ~InputManager();
-            bool was_crossed;
+            Bool_8 was_crossed;
             
             void start() override;
             void update() override;
             void end() override;
 
-            GameController* get_gamecontroller(int index);
+            GameController* get_gamecontroller(Int_32 index);
             Keyboard keyboard;
             Mouse mouse;
 

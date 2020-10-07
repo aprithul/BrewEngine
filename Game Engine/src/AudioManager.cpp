@@ -2,7 +2,7 @@
 
 namespace PrEngine
 {
-    AudioManager::AudioManager(const std::string& name, int priority):Module(name, priority)
+    AudioManager::AudioManager(const std::string& name, Int_32 priority):Module(name, priority)
     {
 
     }

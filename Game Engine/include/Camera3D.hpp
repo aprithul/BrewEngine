@@ -15,37 +15,37 @@ namespace PrEngine
         ORTHOGRAPHIC = 1
     };
 
-    class Camera: public Component
+    struct Camera: public Component
     {
-        public:
-            Camera(float width, float height, float near, float far, float fov, Transform3D& _transform);
-            Camera(float left, float right, float bottom, float top, float near_, float far_, Transform3D& _transform);
-            ~Camera();
-            Transform3D& transform;
+		Camera();
+		void set_perspective(Float_32 width, Float_32 height, Float_32 near, Float_32 far, Float_32 fov);
+		void set_orthographic(Float_32 left, Float_32 right, Float_32 bottom, Float_32 top, Float_32 near_, Float_32 far_);
+		~Camera();
+		Uint_32 id_transform;
 
-            void zoom_in(float zoom_speed);
-            void zoom_out(float zoom_speed);
-            void awake() override;
-            void start() override;
-            void update() override;
-            void end() override;     
-            std::string to_string() override;
+		void zoom_in(Float_32 zoom_speed);
+		void zoom_out(Float_32 zoom_speed);
+		void awake() override;
+		void start() override;
+		void update() override;
+		void end() override;     
+		std::string to_string();
 
-            float fov;
-            float near_;
-            float far_; 
-            float width;
-            float height;
+		Float_32 fov;
+		Float_32 near_;
+		Float_32 far_; 
+		Float_32 width;
+		Float_32 height;
 
-            float left;
-            float right;
-            float bottom;
-            float top;
-            float zoom;
+		Float_32 left;
+		Float_32 right;
+		Float_32 bottom;
+		Float_32 top;
+		Float_32 zoom;
 
-            Matrix4x4<float> view_matrix;
-            Matrix4x4<float> projection_matrix;
-            ProjectionType projection_type;
+		Matrix4x4<Float_32> view_matrix;
+		Matrix4x4<Float_32> projection_matrix;
+		ProjectionType projection_type;
     };
 }
 #endif
