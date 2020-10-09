@@ -31,7 +31,6 @@ namespace PrEngine
         virtual void update();
         virtual void end();
         const ComponentType type;
-		Uint_32 entity;
     };
 }
 

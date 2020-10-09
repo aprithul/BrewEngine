@@ -15,7 +15,6 @@ namespace PrEngine
 
     Component::Component(ComponentType type):type(type)
     {
-		entity = -1;
     }
     
     Component::~Component()

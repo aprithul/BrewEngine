@@ -85,6 +85,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\Animation.hpp" />
+    <ClInclude Include="include\EngineMain.hpp" />
     <ClInclude Include="include\Types.hpp" />
     <ClInclude Include="Vendor\imgui-master\imconfig.h" />
     <ClInclude Include="Vendor\imgui-master\imgui.h" />
@@ -137,6 +138,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Animation.cpp" />
+    <ClCompile Include="src\EngineMaine.cpp" />
     <ClCompile Include="Vendor\imgui-master\imgui.cpp" />
     <ClCompile Include="Vendor\imgui-master\imgui_demo.cpp" />
     <ClCompile Include="Vendor\imgui-master\imgui_draw.cpp" />

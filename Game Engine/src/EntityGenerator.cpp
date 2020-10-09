@@ -47,11 +47,11 @@ namespace PrEngine{
 		graphics[id_graphic].id_transform = id_transform;
 
 		Animator::load_animation("Animations" + PATH_SEP + "my.anim");
-		Uint_32 id_animator = entity_management_system->make_animator_comp(entity);
+		/*Uint_32 id_animator = entity_management_system->make_animator_comp(entity);
 		Animation anim = Animator::animations.begin()->second;
 		animators[id_animator].current_animation = anim;
 		animators[id_animator].id_transform = id_transform;
-		animators[id_animator].id_graphic = id_graphic;
+		animators[id_animator].id_graphic = id_graphic;*/
 
 		//sprites[id].add_to_renderer(renderer);
 

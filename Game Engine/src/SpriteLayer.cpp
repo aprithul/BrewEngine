@@ -34,10 +34,9 @@ namespace PrEngine
 		Vector3<Float_32> _cam_pos = transforms[_camera.id_transform].position;
 		Vector3<Float_32> _dir = transforms[_light.id_transform].get_forward();
 
-		Uint_32 limit = entity_management_system->next_graphic_pos;
-		for (Uint_32 _i = 0; _i < limit; _i++)
+		for (Uint_32 _i = 0; _i < MAX_GRAPHIC_COUNT; _i++)
 		{
-			if (is_valid(graphic_active_status, _i))
+			if (is_valid(graphic_active_status, _i))//  is_valid(graphic_active_status, graphics[_i].entity))
 			{
 				//UpdateTransforms(transform);
 				//Matrix4x4<Float_32> mvp = (projection) * (*(grp->model)) ;
@@ -154,15 +153,14 @@ namespace PrEngine
 
 					//GL_CALL(
 					//    glUniform1f((*it)->material.uniform_locations["u_red"], 1.f))
-
-					graphics[_i].element.vao.Bind();
-					graphics[_i].element.ibo.Bind();
-					GL_CALL(
-						//glDrawArrays(GL_TRIANGLES,0, grp->element.num_of_triangles*3))
-						glDrawElements(GL_TRIANGLES, graphics[_i].element.ibo.count, GL_UNSIGNED_INT, nullptr));
-					graphics[_i].element.vao.Unbind();
-					graphics[_i].element.ibo.Unbind();
 				}
+				graphics[_i].element.vao.Bind();
+				graphics[_i].element.ibo.Bind();
+				GL_CALL(
+					//glDrawArrays(GL_TRIANGLES,0, grp->element.num_of_triangles*3))
+					glDrawElements(GL_TRIANGLES, graphics[_i].element.ibo.count, GL_UNSIGNED_INT, nullptr));
+				graphics[_i].element.vao.Unbind();
+				graphics[_i].element.ibo.Unbind();
 				graphics[_i].element.material->Unbind();
 
 			}

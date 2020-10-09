@@ -14,30 +14,42 @@
 #include <vector>
 #include <queue>
 #include <climits>
-#define MAX_ENTITY_COUNT 99
+
+#define MAX_ENTITY_COUNT 128
+#define MAX_TRANSFORM_COUNT MAX_ENTITY_COUNT
+#define MAX_GRAPHIC_COUNT 64
+#define MAX_SPRITE_COUNT 64
+#define MAX_ANIMATOR_COUNT 64
+
 
 namespace PrEngine
 {
 
 
 	// components
+	extern Uint_32 transform_entity_id[MAX_ENTITY_COUNT];
 	extern Transform3D transforms[MAX_ENTITY_COUNT];
-	extern Uint_32 transform_active_status[MAX_ENTITY_COUNT / 32];
+	extern Uint_32 transform_active_status[1 +(MAX_ENTITY_COUNT / 32)];
 
+	extern Uint_32 camera_entity_id[1];
 	extern Camera cameras[1];
-	extern Uint_32 camera_active_status[MAX_ENTITY_COUNT / 32];
+	extern Uint_32 camera_active_status[1];
 
-	extern Sprite sprites[MAX_ENTITY_COUNT];
-	extern Uint_32 sprite_active_status[MAX_ENTITY_COUNT / 32];
+	extern Uint_32 sprite_entity_id[MAX_SPRITE_COUNT];
+	extern Sprite sprites[MAX_SPRITE_COUNT];
+	extern Uint_32 sprite_active_status[1 + (MAX_SPRITE_COUNT / 32)];
 
-	extern Graphic graphics[MAX_ENTITY_COUNT];
-	extern Uint_32 graphic_active_status[MAX_ENTITY_COUNT / 32];
-
+	extern Uint_32 graphic_entity_id[MAX_GRAPHIC_COUNT];
+	extern Graphic graphics[MAX_GRAPHIC_COUNT];
+	extern Uint_32 graphic_active_status[1 + (MAX_GRAPHIC_COUNT / 32)];
+	
+	extern 	Uint_32 directional_light_entity_id[1];
 	extern DirectionalLight directional_lights[1];
-	extern Uint_32 directional_light_active_status[MAX_ENTITY_COUNT / 32];
+	extern Uint_32 directional_light_active_status[1];
 
-	extern Animator animators[MAX_ENTITY_COUNT];
-	extern Uint_32 animator_active_status[MAX_ENTITY_COUNT / 32];
+	extern Uint_32 animator_entity_id[MAX_ANIMATOR_COUNT];
+	extern Animator animators[MAX_ANIMATOR_COUNT];
+	extern Uint_32 animator_active_status[1+(MAX_ANIMATOR_COUNT/ 32)];
 
 	extern Uint_32 entity_validity[MAX_ENTITY_COUNT / 32];
 

@@ -175,6 +175,9 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\Types.hpp" />
+    <ClInclude Include="include\EngineMain.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Vendor\imgui-master\imgui.cpp">
@@ -307,6 +310,9 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\Animation.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\EngineMaine.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
