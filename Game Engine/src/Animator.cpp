@@ -39,9 +39,12 @@ namespace PrEngine
 		if (frame.timestamp <= animator_time * animation_speed)
 		{
 			//transform->translate(frame.position);
-			transforms[id_transform].position = frame.position;
-			transforms[id_transform].scale = frame.scale;
-			transforms[id_transform].rotation = frame.rotation;
+			
+			get_transform(id_transform).position = frame.position;
+			get_transform(id_transform).scale = frame.scale;
+			get_transform(id_transform).rotation = frame.rotation;
+			transform_dirty_flag[id_transform] = true;
+			//set_valid(transform_dirty_flag, id_transform);
 			graphics[id_graphic].element.material->diffuse_texture = frame.texture;
 			current_frame_index = (current_frame_index+1)%((Int_32)(current_animation.frames.size()));
 			

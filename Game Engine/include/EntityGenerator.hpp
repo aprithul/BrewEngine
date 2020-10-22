@@ -20,12 +20,6 @@
 
 namespace PrEngine{
 
-	enum EntityTypes
-	{
-		ANIMATED_SPRITE,
-		LIGHT,
-		COUNT
-	};
 	class EntityGenerator
 	{
 	public:

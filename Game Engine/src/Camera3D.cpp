@@ -56,10 +56,10 @@ namespace PrEngine
         // set view matrix based on camera
 
         view_matrix = Matrix4x4<Float_32>::identity();
-        view_matrix.set(0,3, -transforms[id_transform].position.x);
-        view_matrix.set(1,3, -transforms[id_transform].position.y);
-        view_matrix.set(2,3, -transforms[id_transform].position.z);
-        Matrix4x4<Float_32> reverse_rot = transforms[id_transform].rotation_transformation.transpose();
+        view_matrix.set(0,3, -get_transform(id_transform).position.x);
+        view_matrix.set(1,3, -get_transform(id_transform).position.y);
+        view_matrix.set(2,3, -get_transform(id_transform).position.z);
+        Matrix4x4<Float_32> reverse_rot = get_transform(id_transform).rotation_transformation.transpose();
         view_matrix = reverse_rot * view_matrix;
         
         if(projection_type==PERSPECTIVE)

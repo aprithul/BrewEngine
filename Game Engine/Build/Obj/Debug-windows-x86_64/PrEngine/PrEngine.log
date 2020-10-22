@@ -1,11 +1,8 @@
-﻿  RendererOpenGL2D.cpp
-D:\PrEngine\PrEngine2D\Game Engine\src\RendererOpenGL2D.cpp(150,26): warning C4244: 'initializing': conversion from 'Int_32' to 'Float_32', possible loss of data
-D:\PrEngine\PrEngine2D\Game Engine\src\RendererOpenGL2D.cpp(151,26): warning C4244: 'initializing': conversion from 'Int_32' to 'Float_32', possible loss of data
-D:\PrEngine\PrEngine2D\Game Engine\src\RendererOpenGL2D.cpp(248,87): warning C4267: 'argument': conversion from 'size_t' to 'GLuint', possible loss of data
-D:\PrEngine\PrEngine2D\Game Engine\src\RendererOpenGL2D.cpp(255,1): warning C4312: 'type cast': conversion from 'GLsizei' to 'void *' of greater size
-D:\PrEngine\PrEngine2D\Game Engine\src\RendererOpenGL2D.cpp(258,105): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
-D:\PrEngine\PrEngine2D\Game Engine\src\RendererOpenGL2D.cpp(258,105): warning C4267: 'argument': conversion from 'size_t' to 'GLuint', possible loss of data
-D:\PrEngine\PrEngine2D\Game Engine\src\RendererOpenGL2D.cpp(259,70): warning C4267: '=': conversion from 'size_t' to 'Int_32', possible loss of data
+﻿  Transform3D.cpp
+D:\PrEngine\PrEngine2D\Game Engine\src\Transform3D.cpp(24,14): warning C4244: 'initializing': conversion from 'double' to 'Float_32', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\src\Transform3D.cpp(25,14): warning C4244: 'initializing': conversion from 'double' to 'Float_32', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\src\Transform3D.cpp(26,14): warning C4244: 'initializing': conversion from 'double' to 'Float_32', possible loss of data
+D:\PrEngine\PrEngine2D\Game Engine\src\Transform3D.cpp(67,29): warning C4114: same type qualifier used more than once
 SDL2_mixer.lib(SDL2_mixer.dll) : warning LNK4006: __NULL_IMPORT_DESCRIPTOR already defined in SDL2.lib(SDL2.dll); second definition ignored
 glew32.lib(glew32.dll) : warning LNK4006: __NULL_IMPORT_DESCRIPTOR already defined in SDL2.lib(SDL2.dll); second definition ignored
 OpenGL32.lib(OPENGL32.dll) : warning LNK4006: __NULL_IMPORT_DESCRIPTOR already defined in SDL2.lib(SDL2.dll); second definition ignored

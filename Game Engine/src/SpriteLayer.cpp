@@ -29,14 +29,14 @@ namespace PrEngine
     void SpriteLayer::update()
     {
         //insertion_sort(sprite_list, sprite_list.size());
-		DirectionalLight _light = directional_lights[0];
-		Camera _camera = cameras[0];
-		Vector3<Float_32> _cam_pos = transforms[_camera.id_transform].position;
-		Vector3<Float_32> _dir = transforms[_light.id_transform].get_forward();
+		DirectionalLight _light = directional_lights[1];
+		Camera _camera = cameras[1];
+		Vector3<Float_32> _cam_pos = get_transform(_camera.id_transform).position;
+		Vector3<Float_32> _dir = get_transform(_light.id_transform).get_forward();
 
 		for (Uint_32 _i = 0; _i < MAX_GRAPHIC_COUNT; _i++)
 		{
-			if (is_valid(graphic_active_status, _i))//  is_valid(graphic_active_status, graphics[_i].entity))
+			if (graphic_active_status[_i])//  is_valid(graphic_active_status, graphics[_i].entity))
 			{
 				//UpdateTransforms(transform);
 				//Matrix4x4<Float_32> mvp = (projection) * (*(grp->model)) ;

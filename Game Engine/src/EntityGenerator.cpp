@@ -20,7 +20,7 @@ namespace PrEngine{
 		Uint_32 entity = entity_management_system->make_entity();
 		
 		Uint_32 id_transform = entity_management_system->make_transform_comp(entity);
-		transforms[id_transform].position = Vector3<Float_32>( 0.f, 1.f, -6.f);
+		get_transform(id_transform).position = Vector3<Float_32>( 0.f, 1.f, -6.f);
 		
 		Uint_32 id_camera = entity_management_system->make_camera_comp(entity);
 		cameras[id_camera].set_orthographic(-8, 8, -4.5f, 4.5f, -10, 10);
@@ -39,8 +39,8 @@ namespace PrEngine{
 		auto rand_y = rand()%3 * (rand()%2==0?-1:1);
 		
 		Uint_32 id_transform = entity_management_system->make_transform_comp(entity);
-		transforms[id_transform].position = Vector3<Float_32>(rand_x, rand_y, -6.f);
-		transforms[id_transform].scale = Vector3<Float_32>(1,1,1);
+		get_transform(id_transform).position = Vector3<Float_32>(rand_x, rand_y, -6.f);
+		get_transform(id_transform).scale = Vector3<Float_32>(1,1,1);
 
 		Uint_32 id_graphic = entity_management_system->make_graphic_comp(entity);
 		renderer->generate_sprite_graphics(id_graphic, image_file_path, std::string("sprite_mat_")+image_file_path);
@@ -80,7 +80,7 @@ namespace PrEngine{
 		Uint_32 entity = entity_management_system->make_entity();
 
 		Uint_32 id_transform = entity_management_system->make_transform_comp(entity);
-        transforms[id_transform].rotation = Vector3<Float_32>(0,0,90);
+		get_transform(id_transform).rotation = Vector3<Float_32>(0,0,90);
 
 		Uint_32 id_dir_light = entity_management_system->make_directional_light_comp(entity);
 		directional_lights[id_dir_light].specular = 0.5f;

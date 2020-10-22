@@ -96,9 +96,6 @@
     <ClInclude Include="include\FrameRateRegulatorModule.hpp">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\Game.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\GlAssert.hpp">
       <Filter>include</Filter>
     </ClInclude>
@@ -175,9 +172,6 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\Types.hpp" />
-    <ClInclude Include="include\EngineMain.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Vendor\imgui-master\imgui.cpp">
@@ -241,9 +235,6 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\FrameRateRegulatorModule.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Game.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\GlAssert.cpp">
@@ -310,9 +301,6 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\Animation.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\EngineMaine.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

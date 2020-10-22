@@ -10,9 +10,7 @@ namespace  PrEngine
         scale = Vector3<Float_32>(1,1,1);
         rotation = Vector3<Float_32>(0,0,0);
 
-        dirty = true;
-		transform_parent = 0;
-        LOG(LOGTYPE_WARNING, "CALLED");
+		parent_transform = 0;
     }
 
     Transform3D::~Transform3D()
@@ -58,8 +56,7 @@ namespace  PrEngine
 		translation.set(1, 3, position.y);
 		translation.set(2, 3, position.z);
 
-        transformation = translation * rotation_transformation * scale_m;
-        dirty = false;
+        transformation = transforms[parent_transform].transformation * translation * rotation_transformation * scale_m;
     }
 
 	void Transform3D::update()
