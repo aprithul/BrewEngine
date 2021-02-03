@@ -91,21 +91,16 @@ namespace  PrEngine
 		rotation.z += _z;
 	}
 
-	/*
+	
     std::string Transform3D::to_string()
     {
     	std::string text = std::to_string(COMP_TRANSFORM_3D)+",";
 		text += std::to_string(position.x) + "," + std::to_string(position.y) + "," + std::to_string(position.z) + ",";
 		text += std::to_string(scale.x) + "," + std::to_string(scale.y) + "," + std::to_string(scale.z) + ",";
 		text += std::to_string(rotation.x) + "," + std::to_string(rotation.y) + "," + std::to_string(rotation.z) + ",";
-		text += std::to_string(id)+",";
-		text += std::to_string(transform_parent);
-/*		if (parent != nullptr)
-			text += std::to_string(parent->id);
-		else
-			text += std::to_string(-1);
+		text += std::to_string(parent_transform);
 
 		return text;
     }
-	*/
+	
 }

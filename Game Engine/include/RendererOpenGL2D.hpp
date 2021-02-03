@@ -35,7 +35,7 @@ namespace PrEngine {
 			std::string title;
 
 			// constructor/ destructors
-			RendererOpenGL2D(Int_32 width, Int_32 height, std::string title, std::string module_name,Int_32 priority);
+			RendererOpenGL2D(Int_32 width, Int_32 height, Bool_8 full_screen, std::string& title, std::string module_name,Int_32 priority);
 			~RendererOpenGL2D();
 			void init();
 			// clears the display with the color specified

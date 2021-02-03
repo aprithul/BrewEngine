@@ -84,7 +84,7 @@ namespace PrEngine
         Graphic();// const Vertex* vertices, GLuint vertices_size, const GLuint* indices, GLuint indices_size, GLsizei indices_count, Material material,Texture texture, VertexLayout layout);
         ~Graphic();
 		void start() override;
-        std::string to_string();
+        std::string to_string() override;
 		Uint_32 id_transform;
     };
 }

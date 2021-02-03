@@ -1,5 +1,5 @@
 #include "Material.hpp"
-
+#include <cctype>
 namespace PrEngine
 {
 

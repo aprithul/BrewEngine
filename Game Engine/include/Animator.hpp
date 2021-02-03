@@ -34,7 +34,7 @@ namespace PrEngine{
 		void pause();
 		void stop();
 		void update() override;
-		std::string to_string();
+		std::string to_string() override;
 
 		static void load_animation(std::string& animation_file);
 		static std::unordered_map<std::string, Animation> animations;

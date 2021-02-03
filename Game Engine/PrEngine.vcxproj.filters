@@ -60,6 +60,9 @@
     <ClInclude Include="Vendor\include\tiny_obj_loader.h">
       <Filter>Vendor\include</Filter>
     </ClInclude>
+    <ClInclude Include="include\Animation.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
     <ClInclude Include="include\Animator.hpp">
       <Filter>include</Filter>
     </ClInclude>
@@ -94,6 +97,9 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\FrameRateRegulatorModule.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GeometryLayer.hpp">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\GlAssert.hpp">
@@ -156,6 +162,9 @@
     <ClInclude Include="include\Transform3D.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\Types.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
     <ClInclude Include="include\Utils.hpp">
       <Filter>include</Filter>
     </ClInclude>
@@ -168,10 +177,6 @@
     <ClInclude Include="include\Vertex.hpp">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\Animation.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Types.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Vendor\imgui-master\imgui.cpp">
@@ -200,6 +205,9 @@
     </ClCompile>
     <ClCompile Include="Vendor\src\tiny_obj_loader.cpp">
       <Filter>Vendor\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Animation.cpp">
+      <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\Animator.cpp">
       <Filter>src</Filter>
@@ -298,9 +306,6 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\Vertex.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Animation.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

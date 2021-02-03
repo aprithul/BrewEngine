@@ -5,104 +5,75 @@
 //  Copyright © 2017 Aniruddha Prithul. All rights reserved.
 #include <stdlib.h>
 #include <iostream>
-#include "Module.hpp"
-//#include <emscripten.h>
-#if defined(EMSCRIPTEN) && defined(_WIN64)
-#include "NetworkManager.hpp"
-#endif
-#include "Utils.hpp"
-#include "Vector2.hpp"
-#include "Engine.hpp"
-#include "TimeModule.hpp"
-#include "InputModule.hpp"
-#include "EntityManagementSystemModule.hpp"
-//#include "RendererModule.hpp"
-#include "RendererOpenGL2D.hpp"
-#include "FrameRateRegulatorModule.hpp"
-#include "FrameRateCounterModule.hpp"
-#include "Sprite.hpp"
-#include "Camera3D.hpp"
-#include "DirectionalLight.hpp"-
-#include "Game.hpp"
+//#include "Module.hpp"
+#include "EngineMain.hpp"
 #include "EntityGenerator.hpp"
+#include "Game.hpp"
+//#include <emscripten.h>
+
 //#include "ImGuiModule.hpp"
 
-//using namespace PrEngine;
+Int_32 make_engine_and_start_game();
 
-
-namespace PrEngine{
-
-	//void main_loop(void* game_engine);
-	bool is_running = true;
-
-	int make_engine(){
-		// helps us reload into editor or game mode
-		bool restart = true;
-		// create a new game engine instance
-		while(restart)
-		{
-			restart = false;
-			Engine* game_engine = new Engine();
-			//restart = false;
-			// add the components
-			// render, frame regulator and frame counter should be the last three components updated ( and so added to engine )
-			game_engine->add_module( new Time("Time", 0));
-			game_engine->add_module(new InputManager("Input",1));
-			game_engine->add_module(new EntityManagementSystem("EMS", 2));
-			game_engine->add_module( new FrameRateRegulator("Frame Rate Regulator", 100000));
-				((FrameRateRegulator*)game_engine->get_module("Frame Rate Regulator"))->set_uncapped();
-			game_engine->add_module(new FrameRateCounter("Frame Counter", 100001));
-			game_engine->add_module(new Game("game module",3));
-			game_engine->add_module(new RendererOpenGL2D(1280,720,"PrEngine", "Renderer", 20));
-				((RendererOpenGL2D*)game_engine->get_module("Renderer"))->set_vsync(true);
-
-
-			#if defined(EMSCRIPTEN) && defined(_WIN64)
-			NetworkManager* network_manager = (NetworkManager*) game_engine->
-									add_module(new NetworkManager("Network manager", 5));
-			#endif
-
-			std::vector<std::string> file_paths;
-			for(int i=0; i<27; i++)
-			{
-				file_paths.push_back("braid"+PATH_SEP+"tim_run"+PATH_SEP+std::to_string(i)+".gif");
-			}
-
-			EntityGenerator* entity_generator = new EntityGenerator();
-			entity_generator->make_camera();
-			entity_generator->make_animated_sprite_entity(file_paths,27);
-			entity_generator->make_light_entity();
-
-			game_engine->start();
-
-			//show_file_structure( get_resource_path(""),"");
-
-			#ifndef EMSCRIPTEN
-					game_engine->update();
-					game_engine->end();
-					delete game_engine;
-		}
-
-
-		#else
-				emscripten_set_main_loop_arg(main_loop, game_engine, 0, 1);
-		#endif
-
-		return 0;
-	}
-
-
-	/*void main_loop(void* game_engine)
-	{
-			((Engine*)game_engine)->update();
-	}*/
-
-}
-int main(int argc, char * argv[])
+Int_32 main(Int_32 argc, char* argv[])
 {
-	std::cout << "hello" << std::endl;
-	PrEngine::make_engine();
-	std::cout << "world" << std::endl;
+	make_engine_and_start_game();
 
 	return 0;
 }
+
+
+Int_32 make_engine_and_start_game(){
+
+	// if restart is true, program will restart if quit
+	bool restart = false;
+	// create a new game engine instance
+	do
+	{
+		PrEngine::Engine* game_engine = setup_engine_with_parameters(1280, 720,"PrEngine Demo", false);
+		game_engine->add_module(new Game("game module", 3)); //All 'gameplay' code managed by game module 
+															// priority = 3 means that game module is added after Time, Input and EntityManagementSystem modules
+
+		std::string file_path = std::string("braid") + PATH_SEP + "tim_run" + PATH_SEP + std::to_string(0) + ".gif";
+		PrEngine::EntityGenerator* entity_generator = new PrEngine::EntityGenerator();
+		//entity_generator->make_camera_orthographic(16.f, 9.f);
+		
+		//for (int i = 0; i < MAX_GRAPHIC_COUNT / 10; i++)
+		//{
+		entity_generator->load_scenegraph("scene.graph");
+		/*auto p = entity_generator->make_animated_sprite_entity(file_path);
+		auto c = entity_generator->make_animated_sprite_entity(file_path);
+		entity_management_system->set_parent_transform(p, c);
+		auto i = entity_generator->make_animated_sprite_entity(file_path);*/
+
+
+		//}
+		PrEngine::LOG(PrEngine::LOGTYPE_WARNING, std::to_string(PrEngine::entity_management_system->entity_count));
+
+		//std::string scene_name = "scene.graph";
+		//entity_generator->load_scenegraph(scene_name);
+		//entity_generator->make_light_entity();
+
+		game_engine->start();
+		//show_file_structure( get_resource_path(""),"");
+	#ifndef EMSCRIPTEN
+		game_engine->update();
+		game_engine->end();
+		delete game_engine;
+	}
+	while (restart);
+
+
+	#else
+			emscripten_set_main_loop_arg(main_loop, game_engine, 0, 1);
+	#endif
+
+	return 0;
+}
+
+
+/*void main_loop(void* game_engine)
+{
+		((Engine*)game_engine)->update();
+}*/
+

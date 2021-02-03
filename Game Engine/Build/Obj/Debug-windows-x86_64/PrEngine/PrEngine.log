@@ -1,9 +1,13 @@
-﻿  Transform3D.cpp
-D:\PrEngine\PrEngine2D\Game Engine\src\Transform3D.cpp(24,14): warning C4244: 'initializing': conversion from 'double' to 'Float_32', possible loss of data
-D:\PrEngine\PrEngine2D\Game Engine\src\Transform3D.cpp(25,14): warning C4244: 'initializing': conversion from 'double' to 'Float_32', possible loss of data
-D:\PrEngine\PrEngine2D\Game Engine\src\Transform3D.cpp(26,14): warning C4244: 'initializing': conversion from 'double' to 'Float_32', possible loss of data
-D:\PrEngine\PrEngine2D\Game Engine\src\Transform3D.cpp(67,29): warning C4114: same type qualifier used more than once
+﻿  EntityGenerator.cpp
+d:\prengine\prengine2d\game engine\src\entitygenerator.cpp(43): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=Float_32
+          ]
 SDL2_mixer.lib(SDL2_mixer.dll) : warning LNK4006: __NULL_IMPORT_DESCRIPTOR already defined in SDL2.lib(SDL2.dll); second definition ignored
+SDL2_mixer.lib(SDL2_mixer.dll) : warning LNK4221: This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library
 glew32.lib(glew32.dll) : warning LNK4006: __NULL_IMPORT_DESCRIPTOR already defined in SDL2.lib(SDL2.dll); second definition ignored
+glew32.lib(glew32.dll) : warning LNK4221: This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library
 OpenGL32.lib(OPENGL32.dll) : warning LNK4006: __NULL_IMPORT_DESCRIPTOR already defined in SDL2.lib(SDL2.dll); second definition ignored
+OpenGL32.lib(OPENGL32.dll) : warning LNK4221: This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library
   PrEngine.vcxproj -> D:\PrEngine\PrEngine2D\Game Engine\Build\Debug-windows-x86_64\PrEngine\PrEngine.lib

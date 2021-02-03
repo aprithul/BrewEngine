@@ -18,7 +18,7 @@ namespace PrEngine
 			Sprite();
             Sprite(Int_32 order);
             ~Sprite();
-            std::string to_string();
+            std::string to_string() override;
 			void start() override;
 			void add_to_renderer(RendererOpenGL2D* renderer);
 

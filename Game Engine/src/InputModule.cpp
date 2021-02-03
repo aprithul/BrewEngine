@@ -9,12 +9,14 @@
 
 namespace PrEngine {
 
-    InputManager* InputManager::input_manager;
+    InputManager* input_manager = nullptr;
     std::string InputManager::textinput = "";
     Bool_8 InputManager::textinput_modified = false;
 
     InputManager::InputManager(std::string name, Int_32 priority):Module(name, priority)
     {
+		assert(input_manager == nullptr);
+
         was_crossed = false;
         SDL_Init(SDL_INIT_GAMECONTROLLER);
         SDL_Init(SDL_INIT_JOYSTICK);
@@ -456,25 +458,46 @@ namespace PrEngine {
         key_binding[SDLK_DOWN] = SDLK_DOWN;
         key_binding[SDLK_LEFT] = SDLK_LEFT;
         key_binding[SDLK_RIGHT] = SDLK_RIGHT;
-        key_binding[SDLK_q] = SDLK_q;
-        key_binding[SDLK_e] = SDLK_e;
-        key_binding[SDLK_a] = SDLK_a;
-        key_binding[SDLK_d] = SDLK_d;
-        key_binding[SDLK_w] = SDLK_w;
-        key_binding[SDLK_s] = SDLK_s;
-        
+		key_binding[SDLK_a] = SDLK_a;
+		key_binding[SDLK_b] = SDLK_b;
+		key_binding[SDLK_c] = SDLK_c;
+		key_binding[SDLK_d] = SDLK_d;
+		key_binding[SDLK_e] = SDLK_e;
+		key_binding[SDLK_f] = SDLK_f;
+		key_binding[SDLK_g] = SDLK_g;
+		key_binding[SDLK_h] = SDLK_h;
+		key_binding[SDLK_i] = SDLK_i;
+		key_binding[SDLK_j] = SDLK_j;
+		key_binding[SDLK_k] = SDLK_k;
+		key_binding[SDLK_l] = SDLK_l;
+		key_binding[SDLK_m] = SDLK_m;
+		key_binding[SDLK_n] = SDLK_n;
+		key_binding[SDLK_o] = SDLK_o;
+		key_binding[SDLK_p] = SDLK_p;
+		key_binding[SDLK_q] = SDLK_q;
         key_binding[SDLK_r] = SDLK_r;
-        key_binding[SDLK_t] = SDLK_t;
-        key_binding[SDLK_z] = SDLK_z;
-        key_binding[SDLK_c] = SDLK_c;
-        key_binding[SDLK_t] = SDLK_t;
-        key_binding[SDLK_y] = SDLK_y;
-        key_binding[SDLK_v] = SDLK_v;
-        key_binding[SDLK_b] = SDLK_b;
+		key_binding[SDLK_s] = SDLK_s;
+		key_binding[SDLK_t] = SDLK_t;
+		key_binding[SDLK_u] = SDLK_u;
+		key_binding[SDLK_v] = SDLK_v;
+		key_binding[SDLK_w] = SDLK_w;
+		key_binding[SDLK_x] = SDLK_x;
+		key_binding[SDLK_y] = SDLK_y;
+		key_binding[SDLK_z] = SDLK_z;
 
         key_binding[SDLK_1] = SDLK_1;
-        key_binding[SDLK_2] = SDLK_2;
-        
+		key_binding[SDLK_2] = SDLK_2;
+		key_binding[SDLK_3] = SDLK_3;
+		key_binding[SDLK_4] = SDLK_4;
+		key_binding[SDLK_5] = SDLK_5;
+		key_binding[SDLK_6] = SDLK_6;
+		key_binding[SDLK_7] = SDLK_7;
+		key_binding[SDLK_8] = SDLK_8;
+		key_binding[SDLK_9] = SDLK_9;
+		key_binding[SDLK_0] = SDLK_0;
+		
+		key_binding[SDLK_F5] = SDLK_F5;
+
         key_binding[SDLK_LSHIFT] = SDLK_LSHIFT;
         key_binding[SDLK_SPACE] = SDLK_SPACE;
         key_binding[SDLK_LCTRL] = SDLK_LCTRL;

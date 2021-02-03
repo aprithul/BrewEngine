@@ -82,7 +82,7 @@ namespace PrEngine
 		static Uint_32 next_camera_pos;
 		static Uint_32 camera_entity_id[MAX_CAMERA_COUNT];
 		static Uint_32 sprite_entity_id[MAX_SPRITE_COUNT];
-		static Uint_32 graphic_entity_id[MAX_GRAPHIC_COUNT];
+		static Uint_32 graphics_entity_id[MAX_GRAPHIC_COUNT];
 		static Uint_32 directional_light_entity_id[MAX_DIRECTIONAL_LIGHT_COUNT];
 		static Uint_32 animator_entity_id[MAX_ANIMATOR_COUNT];
 		static Uint_32 transform_entity_id[MAX_ENTITY_COUNT];
@@ -104,6 +104,8 @@ namespace PrEngine
 		void set_parent_transform(Uint_32 parent_transform, Uint_32& child_transform);
 		void decrease_hierarchy_level_recursively(Uint_32 transform);
 		void sort_transform_order();
+		Uint_32 get_active_camera();
+		void save_scene(const std::string& scene_file);
 
 		void start() override;
 		void update() override;

@@ -61,6 +61,12 @@ void Game::update()
         Float_32 speed = 20.f;
         cameras[camera_id].zoom += input_manager->mouse.scroll*Time::Frame_time*speed;
     }
+
+	if (input_manager->keyboard.get_key_down(SDLK_F5))
+	{
+		entity_management_system->save_scene("scene.graph");
+		LOG(LOGTYPE_WARNING, "scene file saved");
+	}
 		
 }
 

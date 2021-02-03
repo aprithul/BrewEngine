@@ -2,9 +2,7 @@
 #define DEBUG_BASE_PATH
 
 namespace PrEngine{
-    // writes text to file in append mode
-    // doesn't automaticlaly close file
-    // file pointer needs to be provided so file can be closed when writing is finished
+    // write to file
 	void write_to_file(const std::string& text, const std ::string& file_name, Bool_8 binary, Bool_8 append)
     {
 		std::ofstream _file(file_name, (append?std::ios::app:0) | (binary?std::ios::binary:0));

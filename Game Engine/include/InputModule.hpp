@@ -130,7 +130,6 @@ namespace PrEngine {
     class InputManager : public Module
     {
         public:
-    		static InputManager* input_manager;
     	    static std::string textinput;
     	    static Bool_8 textinput_modified;
 
@@ -153,6 +152,9 @@ namespace PrEngine {
             //KeyboardGameController keyboardgc;
             SDL_Event event;
     };
+
+	extern InputManager* input_manager;
+
 
 
 }

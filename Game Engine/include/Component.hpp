@@ -31,6 +31,8 @@ namespace PrEngine
         virtual void update();
         virtual void end();
         const ComponentType type;
+
+		virtual std::string to_string() = 0;
     };
 }
 

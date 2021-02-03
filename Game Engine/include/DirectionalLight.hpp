@@ -16,7 +16,7 @@ namespace PrEngine
             Float_32 ambient;
 			Uint_32 id_transform;
 
-            std::string to_string();
+            std::string to_string() override;
 
     };
 }

@@ -3,7 +3,7 @@
 #include <algorithm>
 namespace PrEngine
 {
-	EntityManagementSystem* entity_management_system;
+	EntityManagementSystem* entity_management_system = nullptr;
 
 	Transform3D transforms[MAX_ENTITY_COUNT];
 	Camera cameras[MAX_CAMERA_COUNT];
@@ -45,13 +45,15 @@ namespace PrEngine
 	Uint_32 EntityManagementSystem::next_camera_pos;
 	Uint_32 EntityManagementSystem::camera_entity_id[MAX_CAMERA_COUNT] = {};
 	Uint_32 EntityManagementSystem::sprite_entity_id[MAX_SPRITE_COUNT]={};
-	Uint_32 EntityManagementSystem::graphic_entity_id[MAX_GRAPHIC_COUNT]={};
+	Uint_32 EntityManagementSystem::graphics_entity_id[MAX_GRAPHIC_COUNT]={};
 	Uint_32 EntityManagementSystem::directional_light_entity_id[MAX_DIRECTIONAL_LIGHT_COUNT]={};
 	Uint_32 EntityManagementSystem::animator_entity_id[MAX_ANIMATOR_COUNT]={};
 	Uint_32 EntityManagementSystem::transform_entity_id[MAX_ENTITY_COUNT]={};
 
     EntityManagementSystem::EntityManagementSystem(std::string name, Int_32 priority) : Module(name, priority)
     {
+		assert(entity_management_system == nullptr);
+
     	next_entity_pos = 1;
 		next_animator_pos = 1;
 		next_camera_pos = 1;
@@ -108,7 +110,7 @@ namespace PrEngine
 
 			for (int _i = 0; _i < MAX_GRAPHIC_COUNT; _i++)
 			{
-				if (graphic_entity_id[_i] == id)
+				if (graphics_entity_id[_i] == id)
 				{
 					graphic_active_status[_i] = false;
 					break;
@@ -199,7 +201,7 @@ namespace PrEngine
 	Uint_32 EntityManagementSystem::make_animator_comp(Uint_32 entity_id)
 	{
 		Uint_32 _id = next_animator_pos;
-		if (animator_released_positions.empty() != true)
+		if (!animator_released_positions.empty())
 		{
 			_id = animator_released_positions.front();
 			animator_released_positions.pop();
@@ -241,7 +243,7 @@ namespace PrEngine
 		else
 			next_graphic_pos++;
 
-		graphic_entity_id[_id] = entity_id;
+		graphics_entity_id[_id] = entity_id;
 		graphic_active_status[_id] = true;
 
 		return _id;
@@ -349,4 +351,56 @@ assert(transform_hierarchy_level > 0);
     {
 
     }
+
+	void EntityManagementSystem::save_scene(const std::string& scene_file)
+	{
+		write_to_file("", scene_file, 0, 0); //clears file
+
+		std::unordered_map<int, std::string> entities_in_scene;
+
+		for (Uint_32 i = 1; i < next_transform_order; i++)
+		{
+			int j = transform_order[i];
+			if (transform_active_status[j])
+				entities_in_scene[transform_entity_id[j]] = transforms[j].to_string() + ","+ std::to_string(j) + "\n";
+		}
+
+		for (Uint_32 i = 0; i < next_camera_pos; i++)
+		{
+			if (camera_active_status[i])
+				entities_in_scene[camera_entity_id[i]] += cameras[i].to_string() + "\n";
+		}
+
+		for (Uint_32 i = 0; i < next_directional_light_pos; i++)
+		{
+			if (directional_light_active_status[i])
+				entities_in_scene[directional_light_entity_id[i]] += directional_lights[i].to_string() + "\n";
+		}
+		for (Uint_32 i = 0; i < next_graphic_pos; i++)
+		{
+			if (graphic_active_status[i])
+				entities_in_scene[graphics_entity_id[i]] += graphics[i].to_string() + "\n";
+		}
+
+		for (Uint_32 i = 0; i < next_animator_pos; i++)
+		{
+			if (animator_active_status[i])
+				entities_in_scene[animator_entity_id[i]] += animators[i].to_string() + "\n";
+		}
+
+		for (auto it : entities_in_scene)
+		{
+			write_to_file(it.second + "~\n", scene_file, 0, 1);
+		}
+	}
+
+	Uint_32 EntityManagementSystem::get_active_camera()
+	{
+		for (int i = 1; i < MAX_CAMERA_COUNT; i++)
+		{
+			if (camera_active_status[i])
+				return i;
+		}
+		return 0;
+	}
 }

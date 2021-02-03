@@ -9,7 +9,7 @@
 
 namespace PrEngine {
 
-	RendererOpenGL2D::RendererOpenGL2D(Int_32 width, Int_32 height, std::string title, std::string module_name, Int_32 priority):Module(module_name, priority)
+	RendererOpenGL2D::RendererOpenGL2D(Int_32 width, Int_32 height, Bool_8 full_screen, std::string& title, std::string module_name, Int_32 priority):Module(module_name, priority)
     {
         this->width = width;
         this->height = height;
@@ -19,7 +19,8 @@ namespace PrEngine {
         init();
 
         // create window
-        window = SDL_CreateWindow(this->title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, this->width, this->height, SDL_WINDOW_OPENGL);
+        window = SDL_CreateWindow(this->title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, this->width, this->height, 
+																														SDL_WINDOW_OPENGL | (full_screen*SDL_WINDOW_FULLSCREEN) );
         // create the openGL context from the window  that was created
         glContext = SDL_GL_CreateContext(window);
 

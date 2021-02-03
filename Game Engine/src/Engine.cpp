@@ -92,7 +92,7 @@ namespace PrEngine {
             }
             
             // check if window was crossed
-            if(InputManager::input_manager->was_crossed)
+            if(input_manager->was_crossed)
                 is_running = false;
             
             //if(input_handler->get_key_down(SDLK_q))
