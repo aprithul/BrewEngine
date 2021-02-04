@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include "math.h"
 #include "Types.hpp"
+#include <string>
 
 namespace PrEngine {
 
@@ -97,6 +98,12 @@ namespace PrEngine {
         return sqrt( x*x + y*y + z*z);
 
         }
+
+		std::string to_string()
+		{
+			std::string ret = std::to_string(x) + "," + std::to_string(y) + "," + std::to_string(z);
+			return ret;
+		}
     };
         
 }

@@ -209,12 +209,14 @@ namespace PrEngine{
 						{
 
 							id_transform = entity_management_system->make_transform_comp(entity);
+							LOG(LOGTYPE_WARNING, std::to_string(id_transform));
 							transform_id_mapping[std::stoi(tokens[11])] = id_transform;	//mapping for finding parents
 							get_transform(id_transform).position = Vector3<Float_32>(std::stof(tokens[1]), std::stof(tokens[2]), std::stof(tokens[3]));
 							get_transform(id_transform).scale = Vector3<Float_32>(std::stof(tokens[4]), std::stof(tokens[5]), std::stof(tokens[6]));
 							get_transform(id_transform).rotation = Vector3<Float_32>(std::stof(tokens[7]), std::stof(tokens[8]), std::stof(tokens[9]));
 							Uint32 parent_transform_id =  transform_id_mapping[std::stoi(tokens[10])];	
-							entity_management_system->set_parent_transform(parent_transform_id, id_transform);
+							if(parent_transform_id)
+								entity_management_system->set_parent_transform(parent_transform_id, id_transform);
 
 							//Transform3D* _transform = new Transform3D();
 							//_transform->set_position(std::stof(tokens[1]), std::stof(tokens[2]), std::stof(tokens[3]));

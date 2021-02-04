@@ -36,7 +36,7 @@ namespace PrEngine
 
 		for (Uint_32 _i = 0; _i < MAX_GRAPHIC_COUNT; _i++)
 		{
-			if (graphic_active_status[_i])//  is_valid(graphic_active_status, graphics[_i].entity))
+			if (EntityManagementSystem::graphics_entity_id[_i])//  is_valid(graphic_active_status, graphics[_i].entity))
 			{
 				//UpdateTransforms(transform);
 				//Matrix4x4<Float_32> mvp = (projection) * (*(grp->model)) ;

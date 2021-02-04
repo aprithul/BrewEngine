@@ -40,6 +40,7 @@ namespace PrEngine
 		{
 			//transform->translate(frame.position);
 			
+			//LOG(LOGTYPE_GENERAL, "Anim id: " + std::to_string(id_transform));
 			get_transform(id_transform).position = frame.position;
 			get_transform(id_transform).scale = frame.scale;
 			get_transform(id_transform).rotation = frame.rotation;

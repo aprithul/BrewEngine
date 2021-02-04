@@ -14,6 +14,7 @@
 #include <vector>
 #include <queue>
 #include <climits>
+#include <unordered_set>
 
 #define MAX_ENTITY_COUNT 131072
 #define MAX_TRANSFORM_COUNT MAX_ENTITY_COUNT
@@ -29,14 +30,15 @@ namespace PrEngine
 {
 
 	extern Bool_8 transform_dirty_flag[MAX_ENTITY_COUNT];
-	extern Bool_8 sprite_active_status[MAX_SPRITE_COUNT];
-	extern Bool_8 directional_light_active_status[MAX_DIRECTIONAL_LIGHT_COUNT];
-	extern Bool_8 graphic_active_status[MAX_GRAPHIC_COUNT];
-	extern Bool_8 camera_active_status[MAX_CAMERA_COUNT];
-	extern Bool_8 animator_active_status[MAX_ANIMATOR_COUNT];
-	extern Bool_8 transform_active_status[MAX_ENTITY_COUNT];
+	//extern Bool_8 sprite_active_status[MAX_SPRITE_COUNT];
+	//extern Bool_8 directional_light_active_status[MAX_DIRECTIONAL_LIGHT_COUNT];
+	//extern Bool_8 graphic_active_status[MAX_GRAPHIC_COUNT];
+	//extern Bool_8 camera_active_status[MAX_CAMERA_COUNT];
+	//extern Bool_8 animator_active_status[MAX_ANIMATOR_COUNT];
+	//extern Bool_8 transform_active_status[MAX_ENTITY_COUNT];
 	extern Uint_32 transform_order[MAX_ENTITY_COUNT]; //indices are ids. Indirection allows transforms to be updated in correct order 
 	extern Uint_32 transform_hierarchy_level[MAX_ENTITY_COUNT];
+	extern std::unordered_set<Uint_32> transform_children[MAX_ENTITY_COUNT];
 
 	// component arrays
 	extern Transform3D transforms[MAX_ENTITY_COUNT];

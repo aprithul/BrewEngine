@@ -1,5 +1,4 @@
 #include "EntityManagementSystemModule.hpp"
-#include <unordered_set>
 #include <algorithm>
 namespace PrEngine
 {
@@ -17,12 +16,12 @@ namespace PrEngine
 	Uint_32 transform_order[MAX_ENTITY_COUNT] = {};
 	Uint_32 transform_hierarchy_level[MAX_ENTITY_COUNT] = {};
 	Bool_8 transform_dirty_flag[MAX_ENTITY_COUNT] = {};
-	Bool_8 transform_active_status[MAX_ENTITY_COUNT] = {};
-	Bool_8 sprite_active_status[MAX_SPRITE_COUNT] = {};
-	Bool_8 directional_light_active_status[MAX_DIRECTIONAL_LIGHT_COUNT] = {};
-	Bool_8 graphic_active_status[MAX_GRAPHIC_COUNT] = {};
-	Bool_8 camera_active_status[MAX_CAMERA_COUNT] = {};
-	Bool_8 animator_active_status[MAX_ANIMATOR_COUNT] = {};
+	//Bool_8 transform_active_status[MAX_ENTITY_COUNT] = {};
+	//Bool_8 sprite_active_status[MAX_SPRITE_COUNT] = {};
+	//Bool_8 directional_light_active_status[MAX_DIRECTIONAL_LIGHT_COUNT] = {};
+	//Bool_8 graphic_active_status[MAX_GRAPHIC_COUNT] = {};
+	//Bool_8 camera_active_status[MAX_CAMERA_COUNT] = {};
+	//Bool_8 animator_active_status[MAX_ANIMATOR_COUNT] = {};
 
 
 	std::queue<Uint_32> EntityManagementSystem::released_positions;
@@ -92,18 +91,21 @@ namespace PrEngine
 			for (int _i = 0; _i < MAX_TRANSFORM_COUNT; _i++)
 			{
 				if (transform_entity_id[_i] == id) {
-					transform_active_status[_i] = false;
+					transform_entity_id[_i] = 0;
+					//transform_active_status[_i] = false;
 					break;
 				}
 			}
 			
 			if (camera_entity_id[1] == id)
-				camera_active_status[1] = false;
+				camera_entity_id[1] = 0;
+				//camera_active_status[1] = false;
 
 			for (int _i = 0; _i < MAX_SPRITE_COUNT; _i++)
 			{
 				if (sprite_entity_id[_i] == id) {
-					sprite_active_status[_i] = false;
+					sprite_entity_id[_i] = 0;
+					//sprite_active_status[_i] = false;
 					break;
 				}
 			}
@@ -112,7 +114,8 @@ namespace PrEngine
 			{
 				if (graphics_entity_id[_i] == id)
 				{
-					graphic_active_status[_i] = false;
+					graphics_entity_id[_i] = 0;
+					//graphic_active_status[_i] = false;
 					break;
 				}
 
@@ -121,13 +124,15 @@ namespace PrEngine
 			for (int _i = 0; _i < MAX_ANIMATOR_COUNT; _i++)
 			{
 				if (animator_entity_id[_i] == id) {
-					animator_active_status[_i] = false;
+					animator_entity_id[_i] = 0;
+					//animator_active_status[_i] = false;
 					break;
 				}
 			}
 
 			if (directional_light_entity_id[0] = id)
-				directional_light_active_status[0] = false;;
+				directional_light_entity_id[0] = 0;
+				//directional_light_active_status[0] = false;;
 
 			entity_count--;
 			released_positions.push(id);
@@ -174,7 +179,7 @@ namespace PrEngine
 
 		transform_order[_order] = _id;
 		transform_entity_id[_id] = entity_id;
-		transform_active_status[_id] = true;
+		//transform_active_status[_id] = true;
 		transform_children[_id].clear();
 		transform_hierarchy_level[_id] = MAX_HIERARCHY_LEVEL;
 		sort_transform_order();
@@ -194,7 +199,7 @@ namespace PrEngine
 			next_camera_pos++;
 
 		camera_entity_id[_id] = entity_id;
-		camera_active_status[_id] = true;
+		//camera_active_status[_id] = true;
 		return _id;
 	}
 
@@ -210,7 +215,7 @@ namespace PrEngine
 			next_animator_pos++;
 
 		animator_entity_id[_id] = entity_id;
-		animator_active_status[_id] = true;
+		//animator_active_status[_id] = true;
 
 		return _id;
 	}
@@ -227,7 +232,7 @@ namespace PrEngine
 			next_sprite_pos++;
 
 		sprite_entity_id[_id] = entity_id;
-		sprite_active_status[_id] = true;
+		//sprite_active_status[_id] = true;
 
 		return _id;
 	}
@@ -244,7 +249,7 @@ namespace PrEngine
 			next_graphic_pos++;
 
 		graphics_entity_id[_id] = entity_id;
-		graphic_active_status[_id] = true;
+		//graphic_active_status[_id] = true;
 
 		return _id;
 	}
@@ -261,7 +266,7 @@ namespace PrEngine
 			next_directional_light_pos++;
 
 		directional_light_entity_id[_id] = entity_id;
-		directional_light_active_status[_id] = true;
+		//directional_light_active_status[_id] = true;
 
 		return _id;
 	}
@@ -324,25 +329,25 @@ assert(transform_hierarchy_level > 0);
 		for (Uint_32 i = 1; i < next_transform_order; i++)
 		{
 			int j = transform_order[i];
-			if(transform_active_status[j])
+			if(transform_entity_id[j])
 				transforms[j].update();
 		}
 
 		for (Uint_32 i = 0; i < next_camera_pos; i++)
 		{
-			if (camera_active_status[i])
+			if (camera_entity_id[i])
 				cameras[i].update();
 		}
 
 		for (Uint_32 i = 0; i < next_directional_light_pos; i++)
 		{
-			if (directional_light_active_status[i])
+			if (directional_light_entity_id[i])
 				directional_lights[i].update();
 		}
 
 		for (Uint_32 i = 0; i < next_animator_pos; i++)
 		{
-			if (animator_active_status[i])
+			if (animator_entity_id[i])
 				animators[i].update();
 		}
     }
@@ -361,30 +366,30 @@ assert(transform_hierarchy_level > 0);
 		for (Uint_32 i = 1; i < next_transform_order; i++)
 		{
 			int j = transform_order[i];
-			if (transform_active_status[j])
+			if (transform_entity_id[j])
 				entities_in_scene[transform_entity_id[j]] = transforms[j].to_string() + ","+ std::to_string(j) + "\n";
 		}
 
 		for (Uint_32 i = 0; i < next_camera_pos; i++)
 		{
-			if (camera_active_status[i])
+			if (camera_entity_id[i])
 				entities_in_scene[camera_entity_id[i]] += cameras[i].to_string() + "\n";
 		}
 
 		for (Uint_32 i = 0; i < next_directional_light_pos; i++)
 		{
-			if (directional_light_active_status[i])
+			if (directional_light_entity_id[i])
 				entities_in_scene[directional_light_entity_id[i]] += directional_lights[i].to_string() + "\n";
 		}
 		for (Uint_32 i = 0; i < next_graphic_pos; i++)
 		{
-			if (graphic_active_status[i])
+			if (graphics_entity_id[i])
 				entities_in_scene[graphics_entity_id[i]] += graphics[i].to_string() + "\n";
 		}
 
 		for (Uint_32 i = 0; i < next_animator_pos; i++)
 		{
-			if (animator_active_status[i])
+			if (animator_entity_id[i])
 				entities_in_scene[animator_entity_id[i]] += animators[i].to_string() + "\n";
 		}
 
@@ -398,7 +403,7 @@ assert(transform_hierarchy_level > 0);
 	{
 		for (int i = 1; i < MAX_CAMERA_COUNT; i++)
 		{
-			if (camera_active_status[i])
+			if (camera_entity_id[i])
 				return i;
 		}
 		return 0;

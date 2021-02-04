@@ -1,0 +1,10 @@
+﻿  GuiLayer.cpp
+d:\prengine\prengine2d\game engine\src\guilayer.cpp(47): warning C4244: '=': conversion from 'Double_64' to 'float', possible loss of data
+d:\prengine\prengine2d\game engine\src\guilayer.cpp(130): warning C4018: '<': signed/unsigned mismatch
+SDL2_mixer.lib(SDL2_mixer.dll) : warning LNK4006: __NULL_IMPORT_DESCRIPTOR already defined in SDL2.lib(SDL2.dll); second definition ignored
+SDL2_mixer.lib(SDL2_mixer.dll) : warning LNK4221: This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library
+glew32.lib(glew32.dll) : warning LNK4006: __NULL_IMPORT_DESCRIPTOR already defined in SDL2.lib(SDL2.dll); second definition ignored
+glew32.lib(glew32.dll) : warning LNK4221: This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library
+OpenGL32.lib(OPENGL32.dll) : warning LNK4006: __NULL_IMPORT_DESCRIPTOR already defined in SDL2.lib(SDL2.dll); second definition ignored
+OpenGL32.lib(OPENGL32.dll) : warning LNK4221: This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library
+  PrEngine.vcxproj -> D:\PrEngine\PrEngine2D\Game Engine\Build\Debug-windows-x86_64\PrEngine\PrEngine.lib

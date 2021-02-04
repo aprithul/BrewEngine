@@ -1,5 +1,7 @@
 #include "GuiLayer.hpp"
 #include "Logger.hpp"
+#include "EntityManagementSystemModule.hpp"
+#include <queue>
 namespace PrEngine
 {
 
@@ -49,8 +51,8 @@ namespace PrEngine
         ImGui::NewFrame();
         static Bool_8 show = true;
         //ImGui::ShowDemoWindow(&show);
-
-		ImGui::ShowMetricsWindow();
+		draw_editor();
+		//ImGui::ShowMetricsWindow();
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData( ImGui::GetDrawData());
@@ -61,4 +63,122 @@ namespace PrEngine
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplSDL2_Shutdown();
     }
+	
+	//std::queue<Uint_32> transform_queue;
+	//void add_to_hierarchy()
+	//{
+
+	//	while (!transform_queue.empty())
+	//	{
+	//		char buffer[64];
+	//		sprintf_s(buffer, "%d", transform_queue.front());
+	//		transform_queue.pop();
+
+	//		if (ImGui::TreeNode(buffer))
+	//		{
+	//			add_to_hierarchy();
+	//			ImGui::TreePop();
+	//		}
+	//	}
+
+	//	
+	//	
+	//}
+
+	//void add_transforms(Uint_32 id_transform)
+	//{
+	//	transform_queue.push(id_transform);
+	//	Uint_32 parent_id = get_transform(id_transform).parent_transform;
+	//	if (parent_id)
+	//		add_transforms(parent_id);
+	//}
+
+	Uint_32 last_selected_transform = 0;
+	void add_child(Uint_32 id_transform)
+	{
+		char buffer[64];
+		sprintf_s(buffer, "%d", id_transform);
+		//transform_queue.pop();
+
+		static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
+		ImGuiTreeNodeFlags node_flags = base_flags;
+		if(last_selected_transform == id_transform)
+			node_flags |= ImGuiTreeNodeFlags_Selected;
+		
+		bool node_open = ImGui::TreeNodeEx(buffer, node_flags, buffer, id_transform);
+		if (ImGui::IsItemClicked())
+			last_selected_transform = id_transform;
+		if (node_open)
+		{
+			for (auto it : transform_children[id_transform])
+			{
+				add_child(it);
+			}
+			ImGui::TreePop();
+		}
+	}
+
+	void GuiLayer::draw_editor()
+	{
+		if (!ImGui::Begin("Scene Hierarchy", false))
+		{
+			ImGui::End();
+			return;
+		}
+		
+		Uint_32 max_hierarchy = 0;
+		for (int _i = 0; _i< entity_management_system->next_transform_order; _i++)
+		{
+			auto id_t = transform_order[_i];
+			if (entity_management_system->transform_entity_id[id_t])
+			{
+				if (transform_hierarchy_level[id_t] >= max_hierarchy)
+				{
+					max_hierarchy = transform_hierarchy_level[id_t];
+					add_child(id_t);
+				}
+			}
+		}
+		ImGui::End();
+
+
+		if (!ImGui::Begin("Inspector", false))
+		{
+			ImGui::End();
+			return;
+		}
+		if (last_selected_transform)
+		{
+			Vector3<float>& pos = get_transform(last_selected_transform).position;
+			float v3_p[3] = { pos.x, pos.y, pos.z };
+			//ImGui::InputFloat("input float", &pos.x, 0.01f, 1.0f, "%.3f");
+			ImGui::DragFloat3("Position", v3_p, 1.0f, -10000.0f, 10000.0f, "%.3f", 1.0f);
+			pos.x = v3_p[0];
+			pos.y = v3_p[1];
+			pos.z = v3_p[2];
+
+			Vector3<float>& rot = get_transform(last_selected_transform).rotation;
+			float v3_r[3] = { rot.x, rot.y, rot.z };
+			//ImGui::InputFloat("input float", &pos.x, 0.01f, 1.0f, "%.3f");
+			ImGui::DragFloat3("Rotation", v3_r, 1.0f, -10000.0f, 10000.0f, "%.3f", 1.0f);
+			rot.x = v3_r[0];
+			rot.y = v3_r[1];
+			rot.z = v3_r[2];
+
+			Vector3<float>& scl = get_transform(last_selected_transform).scale;
+			float v3_s[3] = { scl.x, scl.y, scl.z };
+			//ImGui::InputFloat("input float", &pos.x, 0.01f, 1.0f, "%.3f");
+			ImGui::DragFloat3("Scale", v3_s, 1.0f, -10000.0f, 10000.0f, "%.3f", 1.0f);
+			scl.x = v3_s[0];
+			scl.y = v3_s[1];
+			scl.z = v3_s[2];
+		}
+		ImGui::End();
+
+	}
+
+
+
+
+
 }

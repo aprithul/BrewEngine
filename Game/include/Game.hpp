@@ -7,6 +7,12 @@
 
 using namespace PrEngine;
 
+enum GameMode
+{
+	GAME_MODE_EDITOR,
+	GAME_MODE_PLAY
+};
+
 class Game : public Module
 {
     public:
@@ -16,6 +22,9 @@ class Game : public Module
         void start() override;
         void update() override;
         void end() override;
+
+	private:
+		GameMode game_mode;
 
 };
 #endif
