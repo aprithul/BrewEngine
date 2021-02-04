@@ -44,4 +44,10 @@
 .DS_Store
 
 .vs/
+.vscode/
 Build/
+Game/Build/
+Game Engine/Build/
+Game Engine/.vs/
+Game Engine/.vscode/
+
