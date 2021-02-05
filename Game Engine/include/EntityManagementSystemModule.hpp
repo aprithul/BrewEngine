@@ -15,12 +15,13 @@
 #include <queue>
 #include <climits>
 #include <unordered_set>
+#include <unordered_map>
 
-#define MAX_ENTITY_COUNT 131072
+#define MAX_ENTITY_COUNT 8096
 #define MAX_TRANSFORM_COUNT MAX_ENTITY_COUNT
-#define MAX_GRAPHIC_COUNT 65536
-#define MAX_SPRITE_COUNT 65536
-#define MAX_ANIMATOR_COUNT 6553
+#define MAX_GRAPHIC_COUNT MAX_ENTITY_COUNT
+//#define MAX_SPRITE_COUNT MAX_ENTITY_COUNT/2
+#define MAX_ANIMATOR_COUNT MAX_GRAPHIC_COUNT/10
 #define MAX_CAMERA_COUNT 2
 #define MAX_DIRECTIONAL_LIGHT_COUNT 2
 #define MAX_HIERARCHY_LEVEL 16
@@ -43,10 +44,11 @@ namespace PrEngine
 	// component arrays
 	extern Transform3D transforms[MAX_ENTITY_COUNT];
 	extern Camera cameras[MAX_CAMERA_COUNT];
-	extern Sprite sprites[MAX_SPRITE_COUNT];
+	//extern Sprite sprites[MAX_SPRITE_COUNT];
 	extern Graphic graphics[MAX_GRAPHIC_COUNT];
 	extern DirectionalLight directional_lights[MAX_DIRECTIONAL_LIGHT_COUNT];
 	extern Animator animators[MAX_ANIMATOR_COUNT];
+	extern std::unordered_map<ComponentType, Uint_32> entities[MAX_ENTITY_COUNT];
 	extern Bool_8 entity_validity[MAX_ENTITY_COUNT];
 
 	inline Bool_8 is_valid(Uint32* validity, Uint_32 pos);
@@ -68,7 +70,7 @@ namespace PrEngine
 		static std::queue<Uint_32> transform_released_positions;
 		static std::queue<Uint_32> transform_order_positions;
 		static std::queue<Uint_32> sprite_released_positions;
-		static std::queue<Uint_32> graphic_released_positions;
+		static std::queue<Uint_32> graphics_released_positions;
 		static std::queue<Uint_32> directional_light_released_positions;
 		static std::queue<Uint_32> animator_released_positions;
 		static std::queue<Uint_32> camera_released_positions;
@@ -83,7 +85,7 @@ namespace PrEngine
 		static Uint_32 next_animator_pos;
 		static Uint_32 next_camera_pos;
 		static Uint_32 camera_entity_id[MAX_CAMERA_COUNT];
-		static Uint_32 sprite_entity_id[MAX_SPRITE_COUNT];
+		//static Uint_32 sprite_entity_id[MAX_SPRITE_COUNT];
 		static Uint_32 graphics_entity_id[MAX_GRAPHIC_COUNT];
 		static Uint_32 directional_light_entity_id[MAX_DIRECTIONAL_LIGHT_COUNT];
 		static Uint_32 animator_entity_id[MAX_ANIMATOR_COUNT];
@@ -95,14 +97,22 @@ namespace PrEngine
 		~EntityManagementSystem();
 
 		char get_entity(Uint_32 id);
-		void delete_entity(Uint_32 id);
+		void delete_entity_transform(Uint_32 id);
 		Uint_32 make_entity();
 		Uint_32 make_camera_comp(Uint_32 entity_id);
 		Uint_32 make_graphic_comp(Uint_32 entity_id);
-		Uint_32 make_sprite_comp(Uint_32 entity_id);
+		//Uint_32 make_sprite_comp(Uint_32 entity_id);
 		Uint_32 make_animator_comp(Uint_32 entity_id);
 		Uint_32 make_directional_light_comp(Uint_32 entity_id);
 		Uint_32 make_transform_comp(Uint_32 entity_id);
+
+		Bool_8 delete_camera_comp(Uint_32 camera_id);
+		Bool_8 delete_graphic_comp(Uint_32 graphics_id);
+		Bool_8 delete_sprite_comp(Uint_32 sprite_id);
+		Bool_8 delete_animator_comp(Uint_32 animator_id);
+		Bool_8 delete_directional_light_comp(Uint_32 light_id);
+		//Uint_32 delete_transform_comp(Uint_32 transform_id);
+
 		void set_parent_transform(Uint_32 parent_transform, Uint_32& child_transform);
 		void decrease_hierarchy_level_recursively(Uint_32 transform);
 		void sort_transform_order();

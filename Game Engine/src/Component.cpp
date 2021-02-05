@@ -4,7 +4,7 @@ namespace PrEngine
 {
      const std::string CompName[COMP_COUNT_MAX] = {
         "UNKNOWN",
-        "TRANSFORM",
+        //"TRANSFORM",
         "TRANSFORM_3D",
         "SPRITE",
         "GRAPHICS",

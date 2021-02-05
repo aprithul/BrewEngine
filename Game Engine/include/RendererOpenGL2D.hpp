@@ -23,6 +23,7 @@
 
 namespace PrEngine {
 
+
     class RendererOpenGL2D : public Module
     {
 
@@ -45,7 +46,7 @@ namespace PrEngine {
 			void set_vsync(GLboolean value);
 			Bool_8 make_shader_program(const std::string& path, GLuint& shader_program);
 			GLuint make_shader( GLenum type, const std::string& source);
-			void generate_sprite_graphics(Uint_32 entity_id, const std::string& texture_file_path, const std::string& mat_name);
+			void generate_sprite_graphics(Uint_32 grpahics_id, const std::string& texture_file_path, const std::string& mat_name);
 			RenderLayer* get_layer(const std::string& layer_name);
 			//Matrix4x4<Float_32> view_matrix;
 			//Matrix4x4<Float_32> projection;
@@ -59,6 +60,9 @@ namespace PrEngine {
 			SDL_GLContext glContext;
 
     };
+
+	extern RendererOpenGL2D* renderer;
+
 }
 
 #endif /* Display_h */

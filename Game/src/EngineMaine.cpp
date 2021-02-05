@@ -20,10 +20,11 @@ Engine* setup_engine_with_parameters(Uint_32 window_width, Uint_32 window_height
 	game_engine->add_module(new EntityManagementSystem("EMS", 2));
 	game_engine->add_module(new FrameRateRegulator("Frame Rate Regulator", 100000));
 	((FrameRateRegulator*)game_engine->get_module("Frame Rate Regulator"))->set_uncapped();
+	((FrameRateRegulator*)game_engine->get_module("Frame Rate Regulator"));//->set_uncapped();
 	//((FrameRateRegulator*)game_engine->get_module("Frame Rate Regulator"))->set_frame_rate(60);
 	game_engine->add_module(new FrameRateCounter("Frame Counter", 100001));
 	game_engine->add_module(new RendererOpenGL2D(window_width, window_height, is_fullscreen, window_name, "Renderer", 99999));
-	((RendererOpenGL2D*)game_engine->get_module("Renderer"))->set_vsync(false);
+	((RendererOpenGL2D*)game_engine->get_module("Renderer"))->set_vsync(true);
 
 
 #if defined(EMSCRIPTEN) && defined(_WIN64)

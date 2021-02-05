@@ -57,6 +57,7 @@ namespace PrEngine
 		material_creation_status = 1;
         tiling = Vector2<Float_32>(1,1);
         panning = Vector2<Float_32>(0,0);
+		diffuse_color = Vector3<Float_32>{ 1,1,1 };
 
 		diffuse_texture = Texture::load_texture(diffuse_tex_path);
 		if (diffuse_texture == nullptr)

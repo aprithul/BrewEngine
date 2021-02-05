@@ -16,6 +16,99 @@
 
 namespace PrEngine {
 
+	template<typename T>
+	class Vector3;
+
+	template<typename T>
+	class Vector2
+	{
+	public:
+		T x, y;
+
+		Vector2()
+		{
+
+		}
+
+		Vector2(T x, T y)
+		{
+			this->x = x;
+			this->y = y;
+		}
+
+		Vector2(Vector3<T> v2)
+		{
+			this->x = v2.x;
+			this->y = v2.y;
+		}
+
+		~Vector2()
+		{
+
+		}
+
+		Vector2<T> operator+(const Vector2& v) const
+		{
+			return Vector2<T>(this->x + v.x, this->y + v.y);
+
+		}
+		Vector2<T> operator+=(const Vector2& v) {
+			this->x += v.x;
+			this->y += v.y;
+			return *this;//Vector2<T>( this->x, this->y);
+		}
+		Vector2 operator-(const Vector2& v) const {
+			return Vector2<T>(this->x - v.x, this->y - v.y);
+		}
+		T operator*(const Vector2& v) const {
+			return (this->x * v.x + this->y * v.y);
+		}
+
+		Vector2<T> operator^(const Vector2& v) const {
+			return Vector2<T>(this->x * v.x, this->y * v.y);
+		}
+
+
+		Vector2<Double_64> operator*(const Double_64 d) const {
+			return Vector2<Double_64>((Double_64)this->x * d, (Double_64)this->y * d);
+		}
+
+		Vector2<Float_32> operator*(const Float_32 f) const {
+			return Vector2<Float_32>((Float_32)this->x * f, (Float_32)this->y * f);
+		}
+
+		Vector2 operator/(const T v) const {
+			return Vector2<T>(this->x / v, this->y / v);
+
+		}
+
+		explicit operator Vector2<Int_32>() const { 
+			Vector2<Int_32> v = { (Int_32)x, (Int_32)y };
+			return v;
+		}
+
+		explicit operator Vector2<Float_32>() const {
+			Vector2<Float_32> v = { (Float_32)x, (Float_32)y };
+			return v;
+		}
+
+
+		Vector2 normalize() {
+			Double_64 len = length();
+			if (len <= 0.000001)
+				return (*this);
+			x /= len;
+			y /= len;
+			return (*this);
+		}
+		Float_32 length() const {
+			return sqrt(x*x + y * y);
+
+		}
+	};
+
+
+
     template<typename T>
     class Vector3
     {
@@ -28,6 +121,13 @@ namespace PrEngine {
             this->y = 0;
             this->z = 0;
         }
+
+		Vector3(Vector2<T> v2)
+		{
+			this->x = v2.x;
+			this->y = v2.y;
+			this->z = 0;
+		}
 
         Vector3(T x, T y, T z)
         {
@@ -85,6 +185,16 @@ namespace PrEngine {
 			this->y = v.y;
 			this->z = v.z;
 			return *this;
+		}
+
+		explicit operator Vector3<Int_32>() const {
+			Vector3<Int_32> v = { (Int_32)x, (Int_32)y, (Int_32)z};
+			return v;
+		}
+
+		explicit operator Vector3<Float_32>() const {
+			Vector3<Float_32> v = { (Float_32)x, (Float_32)y, (Float_32)z};
+			return v;
 		}
 
         Vector3 normalize(){

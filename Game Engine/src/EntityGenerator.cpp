@@ -9,9 +9,10 @@
 
 namespace PrEngine{
 
+	std::unordered_map<int, int> EntityGenerator::transform_id_mapping;
+
 	EntityGenerator::EntityGenerator()
 	{
-		this->renderer = (RendererOpenGL2D*)Engine::engine->get_module("Renderer");
 		transform_id_mapping[0] = 0;
 	}
 
@@ -94,7 +95,17 @@ namespace PrEngine{
 		return entity;
 	}
 
-	
+	Uint_32 EntityGenerator::make_graphics_entity(const std::string& image_file_path)
+	{
+		auto e = entity_management_system->make_entity();
+		auto t_id = entity_management_system->make_transform_comp(e);
+
+		auto g_id = entity_management_system->make_graphic_comp(e);
+		renderer->generate_sprite_graphics(g_id, image_file_path, std::string("sprite_mat_") + image_file_path);
+		graphics[g_id].id_transform = t_id;
+
+		return e;
+	}
 	void EntityGenerator::load_scenegraph(const std::string& scene_file_name) 
 	{
 		std::string scene_data = read_file(scene_file_name);

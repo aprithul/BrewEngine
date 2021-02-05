@@ -4,6 +4,7 @@
 #include "GlAssert.hpp"
 #include "Texture.hpp"
 #include "Utils.hpp"
+#include "Vector3.hpp"
 #include <sstream>
 #include <string>
 #include <GL/glew.h>
@@ -45,6 +46,7 @@ namespace PrEngine
         Shader* shader;
         Vector2<Float_32> tiling;
         Vector2<Float_32> panning;
+		Vector3<Float_32> diffuse_color;
 
 	private:
 		Material(const std::string& shader_path, const std::string& diffuse_tex_path, const std::string& name);

@@ -29,8 +29,12 @@ namespace PrEngine
     void SpriteLayer::update()
     {
         //insertion_sort(sprite_list, sprite_list.size());
+		Uint_32 camera_id = entity_management_system->get_active_camera();
+		if (!camera_id)
+			return;
+
+		Camera _camera = cameras[camera_id];
 		DirectionalLight _light = directional_lights[1];
-		Camera _camera = cameras[1];
 		Vector3<Float_32> _cam_pos = get_transform(_camera.id_transform).position;
 		Vector3<Float_32> _dir = get_transform(_light.id_transform).get_forward();
 
@@ -40,11 +44,11 @@ namespace PrEngine
 			{
 				//UpdateTransforms(transform);
 				//Matrix4x4<Float_32> mvp = (projection) * (*(grp->model)) ;
-
-				graphics[_i].element.material->Bind();
+				auto& graphic = graphics[_i];
+				graphic.element.material->Bind();
 				//std::cout<<"before: "<<grp->element.material.uniform_locations["u_MVP"]  <<std::endl;
-
-				std::unordered_map<std::string, std::pair<std::string, GLuint>>& m = graphics[_i].element.material->shader->uniform_locations;
+				Material* mat = graphic.element.material;
+				std::unordered_map<std::string, std::pair<std::string, GLuint>>& m = mat->shader->uniform_locations;
 
 
 				for (std::unordered_map<std::string, std::pair<std::string, GLuint>>::iterator it = m.begin(); it != m.end(); it++)
@@ -63,20 +67,22 @@ namespace PrEngine
 							glUniform3f(it->second.second, _dir.x, _dir.y, _dir.z))
 					}
 
-					if (it->first == "u_Ambient_Strength")
-					{
-						//LOG(LOGTYPE_ERROR, "Dir: ", std::to_string(light->direction.x));
-						GL_CALL(
-							glUniform1f(it->second.second, _light.ambient)
-						)
-					}
+					//if (it->first == "u_Ambient_Strength")
+					//{
+					//	//LOG(LOGTYPE_ERROR, "Dir: ", std::to_string(light->direction.x));
+					//	GL_CALL(
+					//		glUniform1f(it->second.second, _light.ambient)
+					//	)
+					//}
 
-					if (it->first == "u_Specular_Strength")
-					{
-						GL_CALL(
-							glUniform1f(it->second.second, _light.specular)
-						)
-					}
+					//if (it->first == "u_Specular_Strength")
+					//{
+					//	GL_CALL(
+					//		glUniform1f(it->second.second, _light.specular)
+					//	)
+					//}
+
+
 					// models and normals should be same size
 					//for(Int_32 j=0; j<grp->models.size() ; j++)
 					//{
@@ -143,6 +149,21 @@ namespace PrEngine
 					{
 						GL_CALL(
 							glUniform2f(it->second.second, graphics[_i].element.material->tiling.x, graphics[_i].element.material->tiling.y);
+						)
+					}
+
+					if (it->first == "u_Diffuse_Color")
+					{
+						GL_CALL(
+							glUniform3f(it->second.second, mat->diffuse_color.x, mat->diffuse_color.y, mat->diffuse_color.z);
+						)
+					}
+
+
+					if (it->first == "u_Outline_Color")
+					{
+						GL_CALL(
+							glUniform4f(it->second.second, graphic.outline_color.x, graphic.outline_color.y, graphic.outline_color.z, graphic.outline_alpha);
 						)
 					}
 

@@ -71,6 +71,11 @@ void Game::update()
 		entity_management_system->save_scene("scene.graph");
 		LOG(LOGTYPE_WARNING, "scene file saved");
 	}
+
+	if(input_manager->keyboard.get_key_down(SDLK_ESCAPE))
+		input_manager->was_crossed = true;
+
+
 		
 }
 

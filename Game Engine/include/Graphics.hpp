@@ -86,7 +86,9 @@ namespace PrEngine
 		void start() override;
         std::string to_string() override;
 		Uint_32 id_transform;
-    };
+		Float_32 outline_alpha;
+		Vector3<Float_32> outline_color;
+	};
 }
 
 

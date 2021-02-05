@@ -9,8 +9,12 @@
 
 namespace PrEngine {
 
+	RendererOpenGL2D* renderer = nullptr;
+
 	RendererOpenGL2D::RendererOpenGL2D(Int_32 width, Int_32 height, Bool_8 full_screen, std::string& title, std::string module_name, Int_32 priority):Module(module_name, priority)
     {
+		assert(renderer == nullptr);
+
         this->width = width;
         this->height = height;
         this->title = title;
@@ -30,11 +34,11 @@ namespace PrEngine {
         //GL_CALL(glEnable(GL_CULL_FACE)); // enalbe face culling
         GL_CALL(glCullFace(GL_BACK));    // cull the back face
         GL_CALL(glFrontFace(GL_CCW));
-        GL_CALL(glEnable(GL_BLEND))
-        GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA))
+        //GL_CALL(glEnable(GL_BLEND))
+        //GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA))
         GL_CALL(glEnable(GL_DEPTH_TEST))
         GL_CALL(glDepthFunc(GL_LESS))
-        GL_CALL(glEnable(GL_MULTISAMPLE))
+        //GL_CALL(glEnable(GL_MULTISAMPLE))
 
         if( glewInit() != GLEW_OK)
             printf("Glew not initialized properly");
@@ -64,6 +68,8 @@ namespace PrEngine {
 
         GuiLayer* gui_layer = new GuiLayer(window, &glContext);
         render_layers.push_back(gui_layer);
+
+		renderer = this;
     }
 
 
@@ -101,7 +107,7 @@ namespace PrEngine {
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS,1);
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
 
-//        glEnable(GL_DEPTH_TEST); //
+        //glEnable(GL_DEPTH_TEST);
         //glEnable(GL_FRAMEBUFFER_SRGB);  // auto gamma correction
 
     }

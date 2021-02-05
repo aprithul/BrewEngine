@@ -6,12 +6,13 @@ namespace PrEngine
 
 	Transform3D transforms[MAX_ENTITY_COUNT];
 	Camera cameras[MAX_CAMERA_COUNT];
-	Sprite sprites[MAX_SPRITE_COUNT];
+	//Sprite sprites[MAX_SPRITE_COUNT];
 	Graphic graphics[MAX_GRAPHIC_COUNT];
 	DirectionalLight directional_lights[MAX_DIRECTIONAL_LIGHT_COUNT];
 	Animator animators[MAX_ANIMATOR_COUNT];
 	Bool_8 entity_validity[MAX_ENTITY_COUNT] = {};
-
+	std::unordered_map<ComponentType, Uint_32> entities[MAX_ENTITY_COUNT];
+	
 	std::unordered_set<Uint_32> transform_children[MAX_ENTITY_COUNT];
 	Uint_32 transform_order[MAX_ENTITY_COUNT] = {};
 	Uint_32 transform_hierarchy_level[MAX_ENTITY_COUNT] = {};
@@ -28,7 +29,7 @@ namespace PrEngine
 	std::queue<Uint_32> EntityManagementSystem::transform_released_positions;
 	std::queue<Uint_32> EntityManagementSystem::transform_order_positions;
 	std::queue<Uint_32> EntityManagementSystem::sprite_released_positions;
-	std::queue<Uint_32> EntityManagementSystem::graphic_released_positions;
+	std::queue<Uint_32> EntityManagementSystem::graphics_released_positions;
 	std::queue<Uint_32> EntityManagementSystem::directional_light_released_positions;
 	std::queue<Uint_32> EntityManagementSystem::animator_released_positions;
 	std::queue<Uint_32> EntityManagementSystem::camera_released_positions;
@@ -43,7 +44,7 @@ namespace PrEngine
 	Uint_32 EntityManagementSystem::next_animator_pos;
 	Uint_32 EntityManagementSystem::next_camera_pos;
 	Uint_32 EntityManagementSystem::camera_entity_id[MAX_CAMERA_COUNT] = {};
-	Uint_32 EntityManagementSystem::sprite_entity_id[MAX_SPRITE_COUNT]={};
+	//Uint_32 EntityManagementSystem::sprite_entity_id[MAX_SPRITE_COUNT]={};
 	Uint_32 EntityManagementSystem::graphics_entity_id[MAX_GRAPHIC_COUNT]={};
 	Uint_32 EntityManagementSystem::directional_light_entity_id[MAX_DIRECTIONAL_LIGHT_COUNT]={};
 	Uint_32 EntityManagementSystem::animator_entity_id[MAX_ANIMATOR_COUNT]={};
@@ -77,67 +78,63 @@ namespace PrEngine
 		return 0;
     }
 
-	//needs total rework. Should be huge bottleneck with a lots of entities.
-    void EntityManagementSystem::delete_entity(Uint_32 id)
+	//delete entity through its transform
+    void EntityManagementSystem::delete_entity_transform(Uint_32 id_transform)
     {
-		if (entity_validity[id])
+		if (transform_entity_id[id_transform])
 		{
-			LOG(LOGTYPE_ERROR, "Requested entity couldn't be found for deleting : ", std::to_string(id));
-		}
-		else
-		{
-			entity_validity[id] = false;
-			// disable all components
-			for (int _i = 0; _i < MAX_TRANSFORM_COUNT; _i++)
+			for (auto it : transform_children[id_transform])
 			{
-				if (transform_entity_id[_i] == id) {
-					transform_entity_id[_i] = 0;
-					//transform_active_status[_i] = false;
-					break;
-				}
+				delete_entity_transform(it);
 			}
+				
+			auto ent_id = transform_entity_id[id_transform];
+			auto& ent = entities[ent_id];
 			
-			if (camera_entity_id[1] == id)
-				camera_entity_id[1] = 0;
-				//camera_active_status[1] = false;
-
-			for (int _i = 0; _i < MAX_SPRITE_COUNT; _i++)
-			{
-				if (sprite_entity_id[_i] == id) {
-					sprite_entity_id[_i] = 0;
-					//sprite_active_status[_i] = false;
-					break;
-				}
-			}
-
-			for (int _i = 0; _i < MAX_GRAPHIC_COUNT; _i++)
-			{
-				if (graphics_entity_id[_i] == id)
-				{
-					graphics_entity_id[_i] = 0;
-					//graphic_active_status[_i] = false;
-					break;
-				}
-
-			}
-
-			for (int _i = 0; _i < MAX_ANIMATOR_COUNT; _i++)
-			{
-				if (animator_entity_id[_i] == id) {
-					animator_entity_id[_i] = 0;
-					//animator_active_status[_i] = false;
-					break;
-				}
-			}
-
-			if (directional_light_entity_id[0] = id)
-				directional_light_entity_id[0] = 0;
-				//directional_light_active_status[0] = false;;
-
 			entity_count--;
-			released_positions.push(id);
-			LOG(LOGTYPE_WARNING, "Entity deleted : ", std::to_string(id));
+			released_positions.push(ent_id);
 
+			transform_entity_id[id_transform] = 0;
+			for (auto& it : transform_order)
+				if (it == id_transform)
+					it = 0;
+
+			transform_children[id_transform].clear();
+			transforms[id_transform].parent_transform = 0;
+
+			Uint_32 c_id{}, s_id{}, g_id{}, l_id{}, a_id{};
+			auto it = ent.find(COMP_CAMERA);
+			if (it != ent.end())
+				c_id = it->second;
+
+			it = ent.find(COMP_SPRITE);
+			if (it != ent.end())
+				s_id = it->second;
+
+			it = ent.find(COMP_GRAPHICS);
+			if (it != ent.end())
+				g_id = it->second;
+
+			it = ent.find(COMP_LIGHT);
+			if (it != ent.end())
+				l_id = it->second;
+
+			it = ent.find(COMP_ANIMATOR);
+			if (it != ent.end())
+				a_id = it->second;
+
+			if (c_id)
+				delete_camera_comp(c_id);
+			if (s_id)
+				delete_sprite_comp(s_id);
+			if (g_id)
+				delete_graphic_comp(g_id);
+			if (l_id)
+				delete_directional_light_comp(l_id);
+			if (a_id)
+				delete_animator_comp(a_id);
+
+			return;
 		}
     }
 
@@ -154,6 +151,7 @@ namespace PrEngine
 
 		entity_count++;
 		entity_validity[_id] = true;
+		entities[_id].clear();
 		return _id;
     }
 
@@ -179,6 +177,8 @@ namespace PrEngine
 
 		transform_order[_order] = _id;
 		transform_entity_id[_id] = entity_id;
+		entities[entity_id][COMP_TRANSFORM_3D] = _id;
+
 		//transform_active_status[_id] = true;
 		transform_children[_id].clear();
 		transform_hierarchy_level[_id] = MAX_HIERARCHY_LEVEL;
@@ -199,6 +199,8 @@ namespace PrEngine
 			next_camera_pos++;
 
 		camera_entity_id[_id] = entity_id;
+		entities[entity_id][COMP_CAMERA] = _id;
+
 		//camera_active_status[_id] = true;
 		return _id;
 	}
@@ -215,40 +217,46 @@ namespace PrEngine
 			next_animator_pos++;
 
 		animator_entity_id[_id] = entity_id;
+		entities[entity_id][COMP_ANIMATOR] = _id;
+
 		//animator_active_status[_id] = true;
 
 		return _id;
 	}
 
-	Uint_32 EntityManagementSystem::make_sprite_comp(Uint_32 entity_id)
-	{
-		Uint_32 _id = next_sprite_pos;
-		if (sprite_released_positions.empty() != true)
-		{
-			_id = sprite_released_positions.front();
-			sprite_released_positions.pop();
-		}
-		else
-			next_sprite_pos++;
+	//Uint_32 EntityManagementSystem::make_sprite_comp(Uint_32 entity_id)
+	//{
+	//	Uint_32 _id = next_sprite_pos;
+	//	if (sprite_released_positions.empty() != true)
+	//	{
+	//		_id = sprite_released_positions.front();
+	//		sprite_released_positions.pop();
+	//	}
+	//	else
+	//		next_sprite_pos++;
 
-		sprite_entity_id[_id] = entity_id;
-		//sprite_active_status[_id] = true;
+	//	sprite_entity_id[_id] = entity_id;
+	//	entities[entity_id][COMP_SPRITE] = _id;
 
-		return _id;
-	}
+	//	//sprite_active_status[_id] = true;
+
+	//	return _id;
+	//}
 
 	Uint_32 EntityManagementSystem::make_graphic_comp(Uint_32 entity_id)
 	{
 		Uint_32 _id = next_graphic_pos;
-		if (graphic_released_positions.empty() != true)
+		if (graphics_released_positions.empty() != true)
 		{
-			_id = graphic_released_positions.front();
-			graphic_released_positions.pop();
+			_id = graphics_released_positions.front();
+			graphics_released_positions.pop();
 		}
 		else
 			next_graphic_pos++;
 
 		graphics_entity_id[_id] = entity_id;
+		entities[entity_id][COMP_GRAPHICS] = _id;
+
 		//graphic_active_status[_id] = true;
 
 		return _id;
@@ -266,11 +274,96 @@ namespace PrEngine
 			next_directional_light_pos++;
 
 		directional_light_entity_id[_id] = entity_id;
+		entities[entity_id][COMP_LIGHT] = _id;
+
 		//directional_light_active_status[_id] = true;
 
 		return _id;
 	}
 	
+
+	Bool_8 EntityManagementSystem::delete_camera_comp(Uint_32 c_id)
+	{
+		if (!c_id)
+		{
+			LOG(LOGTYPE_ERROR, "camera comp : " + std::to_string(c_id) + " not valid, couldn't delete");
+			return false;
+		}
+		entities[camera_entity_id[c_id]][COMP_CAMERA] = 0;
+		camera_entity_id[c_id] = 0;
+		camera_released_positions.push(c_id);
+		return true;
+
+	}
+	Bool_8 EntityManagementSystem::delete_graphic_comp(Uint_32 g_id)
+	{
+		if (!g_id)
+		{
+			LOG(LOGTYPE_ERROR, "graphics component : " + std::to_string(g_id) + " not valid, couldn't delete");
+			return false;
+		}
+		entities[graphics_entity_id[g_id]][COMP_GRAPHICS] = 0;
+		graphics_entity_id[g_id] = 0;
+		graphics_released_positions.push(g_id);
+		return true;
+	}
+	Bool_8 EntityManagementSystem::delete_sprite_comp(Uint_32 sprite_id)
+	{
+		//entities[camera_entity_id[c_id]][COMP_CAMERA] = 0;
+		//camera_entity_id[c_id] = 0;
+		//camera_released_positions.push(c_id);
+		return false;
+	}
+	Bool_8 EntityManagementSystem::delete_animator_comp(Uint_32 a_id)
+	{
+		if (!a_id)
+		{
+			LOG(LOGTYPE_ERROR, "animator component : " + std::to_string(a_id) + " not valid, couldn't delete");
+			return false;
+		}
+
+		entities[animator_entity_id[a_id]][COMP_ANIMATOR] = 0;
+		animator_entity_id[a_id] = 0;
+		animator_released_positions.push(a_id);
+		return true;
+	}
+	Bool_8 EntityManagementSystem::delete_directional_light_comp(Uint_32 l_id)
+	{
+		if (!l_id)
+		{
+			LOG(LOGTYPE_ERROR, "directional light component : " + std::to_string(l_id) + " not valid, couldn't delete");
+			return false;
+		}
+
+		entities[directional_light_entity_id[l_id]][COMP_LIGHT] = 0;
+		directional_light_entity_id[l_id] = 0;
+		directional_light_released_positions.push(l_id);
+		return true;
+	}
+	/*Uint_32 EntityManagementSystem::delete_transform_comp(Uint_32 transform_id)
+	{
+		for (auto it : transform_children[transform_id])
+		{
+			delete_entity_transform(it);
+		}
+
+		entities[transform_entity_id[transform_id]][COMP_TRANSFORM_3D] = 0;
+		transform_entity_id[transform_id] = 0;
+
+		for (auto& it : transform_order)
+		{
+			if (it == transform_id)
+			{
+				it = 0;
+				break;
+			}
+		}
+
+		transform_children[transform_id].clear();
+		transforms[transform_id].parent_transform = 0;
+	}*/
+
+
 	void EntityManagementSystem::set_parent_transform(Uint_32 parent_transform, Uint_32& child_transform)
 	{
 		transforms[child_transform].parent_transform = parent_transform;
@@ -285,9 +378,9 @@ namespace PrEngine
 		transform_hierarchy_level[transform]--;
 assert(transform_hierarchy_level > 0);
 
-		for (auto it = transform_children[transform].begin(); it != transform_children[transform].end(); it++)
+		for (auto it : transform_children[transform])//.begin(); it != transform_children[transform].end(); it++)
 		{
-			decrease_hierarchy_level_recursively(*it);
+			decrease_hierarchy_level_recursively(it);
 		}
 	}
 

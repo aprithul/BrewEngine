@@ -113,7 +113,8 @@ namespace PrEngine
 
     Graphic::Graphic():Component(COMP_GRAPHICS)
     {
-
+		outline_color = Vector3<Float_32>{ 1,1,1 };
+		outline_alpha = 0.f;
     }
 
 	void Graphic::start()
