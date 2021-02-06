@@ -215,6 +215,44 @@ namespace PrEngine {
 			return ret;
 		}
     };
-        
+	
+	template<typename T>
+	struct Vector4
+	{
+		T x, y, z, w;
+
+		Vector4()
+		{
+			this->x = 0;
+			this->y = 0;
+			this->z = 0;
+			this->w = 0;
+		}
+
+		Vector4(T x, T y, T z, T w)
+		{
+			this->x = x;
+			this->y = y;
+			this->z = z;
+			this->w = w;
+		}
+
+		Vector4(Vector3<T> v2)
+		{
+			this->x = v2.x;
+			this->y = v2.y;
+			this->z = 0;
+			this->w = 0;
+		}
+
+		explicit operator Vector3<Float_32>()  const
+		{
+			Vector3<Float_32>v = { x, y, z };
+			return v;
+		}
+
+	};
+
+
 }
 #endif /* Vector3_hpp */

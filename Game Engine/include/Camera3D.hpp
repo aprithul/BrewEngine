@@ -23,6 +23,7 @@ namespace PrEngine
 		~Camera();
 		Uint_32 id_transform;
 
+		Vector3<Float_32> get_screen_to_world_pos(Vector2<Int_32> screen_pos);
 		void zoom_in(Float_32 zoom_speed);
 		void zoom_out(Float_32 zoom_speed);
 		void awake() override;
@@ -46,6 +47,9 @@ namespace PrEngine
 		Matrix4x4<Float_32> view_matrix;
 		Matrix4x4<Float_32> projection_matrix;
 		ProjectionType projection_type;
+
+
+
     };
 }
 #endif

@@ -1,6 +1,6 @@
 #include "Camera3D.hpp"
 #include "EntityManagementSystemModule.hpp"
-
+#include "RendererOpenGL2D.hpp"
 namespace PrEngine
 {
 
@@ -81,4 +81,17 @@ namespace PrEngine
 		else
 			return std::to_string(COMP_CAMERA) + "," + std::to_string(projection_type) + "," + std::to_string(width) + "," + std::to_string(height) + "," + std::to_string(near_) + "," + std::to_string(far_) + "," + std::to_string(fov);
 	}
+
+	Vector3<Float_32> Camera::get_screen_to_world_pos(Vector2<Int_32> screen_pos)
+	{
+		auto camera_t = transforms[id_transform];
+		Float_32 x_pos = (right - left) / renderer->width;// +camera_pos.x;
+		Float_32 y_pos = (top - bottom) / renderer->height;// +camera_pos.y;
+		x_pos = x_pos * (screen_pos.x - renderer->width / 2);
+		y_pos = -y_pos * (screen_pos.y - renderer->height / 2);
+		//auto mat = camera_t.transformation.transpose();
+		Vector4<Float_32> world_pos =  camera_t.transformation* Vector4<Float_32>{x_pos, y_pos, 0, 1};
+		return (Vector3<Float_32>)world_pos;
+	}
+
 }

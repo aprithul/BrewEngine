@@ -75,6 +75,16 @@ namespace PrEngine {
             return r;
         }
 
+		Vector4<T> operator*(const Vector4<T>& vec4) const
+		{
+			Vector4<Float_32> r;
+			r.x = (data[0] * vec4.x) + (data[1] * vec4.y) + (data[2] * vec4.z) + (data[3] * vec4.w);
+			r.y = (data[4] * vec4.x) + (data[5] * vec4.y) + (data[6] * vec4.z) + (data[7] * vec4.w);
+			r.z = (data[8] * vec4.x) + (data[9] * vec4.y) + (data[10] * vec4.z) + (data[11] * vec4.w);
+			r.w = (data[12] * vec4.x) + (data[13] * vec4.y) + (data[14] * vec4.z) + (data[15] * vec4.w);
+			return r;
+		}
+
         Vector3<T> operator*(const Vector3<T>& v) const
         {
             Vector3<T> r;
@@ -131,6 +141,8 @@ namespace PrEngine {
             }
             return r;
         }
+
+
 
         Matrix4x4<T> transpose() const
         {

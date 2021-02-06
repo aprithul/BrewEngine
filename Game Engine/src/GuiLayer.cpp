@@ -39,6 +39,7 @@ namespace PrEngine
         //ImGui::StyleColorsClassic();
     }
 
+	Uint_32 mouse_pointer_transform = 0;
 
     void GuiLayer::update()
     {
@@ -67,7 +68,16 @@ namespace PrEngine
 			auto& pos = transforms[t_id].position;
 			pos.x = rand() % 4* (rand() % 2 ? 1 : -1);
 			pos.y = rand() % 2* (rand() % 2 ? 1 : -1);
+
+			mouse_pointer_transform = t_id;
 		}
+
+		if (mouse_pointer_transform)
+		{
+			Uint_32 cam = entity_management_system->get_active_camera();
+			transforms[mouse_pointer_transform].position = cameras[cam].get_screen_to_world_pos(input_manager->mouse.position);
+		}
+
 		draw_editor();
 		ImGui::ShowMetricsWindow();
 
