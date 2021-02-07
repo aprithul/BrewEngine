@@ -95,6 +95,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="res\shaders\Shape.shader" />
     <None Include="scene.graph" />
     <None Include="test_scene.graph" />
   </ItemGroup>

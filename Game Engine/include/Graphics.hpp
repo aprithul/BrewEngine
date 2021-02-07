@@ -88,6 +88,7 @@ namespace PrEngine
 		Uint_32 id_transform;
 		Float_32 outline_alpha;
 		Vector3<Float_32> outline_color;
+		//Rect bounding_rect;
 	};
 }
 

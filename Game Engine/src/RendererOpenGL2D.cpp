@@ -250,11 +250,13 @@ namespace PrEngine {
         layout.add_attribute(attribute_2);
         layout.add_attribute(attribute_3);
 
-		graphics[graphic_id].element.material = mat;
-		graphics[graphic_id].element.vao.Generate();
-		graphics[graphic_id].element.vbo.Generate(&buffer[0], buffer.size() * sizeof(Vertex));
-		graphics[graphic_id].element.layout = layout;
-		for (std::vector<VertexAttribute>::iterator attr = graphics[graphic_id].element.layout.vertex_attributes.begin(); attr != graphics[graphic_id].element.layout.vertex_attributes.end(); attr++)
+		Graphic& graphic = graphics[graphic_id];
+		//graphic.bounding_rect = Rect{0,0, x_scale, y_scale };
+		graphic.element.material = mat;
+		graphic.element.vao.Generate();
+		graphic.element.vbo.Generate(&buffer[0], buffer.size() * sizeof(Vertex));
+		graphic.element.layout = layout;
+		for (std::vector<VertexAttribute>::iterator attr = graphic.element.layout.vertex_attributes.begin(); attr != graphic.element.layout.vertex_attributes.end(); attr++)
 		{
 			GL_CALL(
 				glEnableVertexAttribArray(attr->index))
@@ -262,16 +264,48 @@ namespace PrEngine {
 					glVertexAttribPointer(attr->index, attr->count, attr->type, attr->normalized, layout.stride, (void*)attr->offset))
 		}
 
-		graphics[graphic_id].element.ibo.Generate(&indices[0], indices.size() * sizeof(GLuint), indices.size());
-		graphics[graphic_id].element.num_of_triangles = (buffer.size() / 3);
+		graphic.element.ibo.Generate(&indices[0], indices.size() * sizeof(GLuint), indices.size());
+		graphic.element.num_of_triangles = (buffer.size() / 3);
 
-		graphics[graphic_id].element.vao.Unbind();
-		graphics[graphic_id].element.ibo.Unbind();
+		graphic.element.vao.Unbind();
+		graphic.element.ibo.Unbind();
 
-		
-		
     }
 
+
+	void RendererOpenGL2D::draw_line(Vector3<Float_32> p1, Vector3<Float_32> p2)
+	{
+		Material* mat = Material::load_material("shaders" + PATH_SEP + "Shape.shader", "default.png", std::string("sprite_mat_") + "default.png");
+		line_graphic.element.material = mat;
+		Vertex v1 = { p1.x, p1.y, 0, 0,0,0, 1.0,1.0,1.0,1.0 };
+		Vertex v2 = { p2.x, p2.y, 0, 0,0,0, 1.0,1.0,1.0,1.0 };
+		lines_buffer.push_back(v1);
+		lines_buffer.push_back(v2);
+		lines_indices.push_back(lines_buffer.size() - 2);
+		lines_indices.push_back(lines_buffer.size() - 1);
+
+		VertexLayout layout;
+		VertexAttribute attribute_0(0, 3, GL_FLOAT, GL_FALSE);
+		VertexAttribute attribute_1(1, 4, GL_FLOAT, GL_FALSE);
+		VertexAttribute attribute_2(2, 3, GL_FLOAT, GL_FALSE);
+		layout.add_attribute(attribute_0);
+		layout.add_attribute(attribute_1);
+		layout.add_attribute(attribute_2);
+
+		line_graphic.element.vao.Generate();
+		line_graphic.element.vbo.Generate(&lines_buffer[0], lines_buffer.size() * sizeof(Vertex));
+		line_graphic.element.layout = layout;
+
+		for (auto attr : line_graphic.element.layout.vertex_attributes)
+		{
+			GL_CALL(
+				glEnableVertexAttribArray(attr.index))
+				GL_CALL(
+					glVertexAttribPointer(attr.index, attr.count, attr.type, attr.normalized, layout.stride, (void*)attr.offset))
+		}
+
+		line_graphic.element.ibo.Generate(&lines_indices[0], lines_indices.size() * sizeof(GLuint), lines_indices.size());
+	}
 
 
     RenderLayer* RendererOpenGL2D::get_layer(const std::string& layer_name)

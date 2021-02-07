@@ -56,8 +56,27 @@ namespace PrEngine
         static Bool_8 show = true;
         //ImGui::ShowDemoWindow(&show);
 
+		Uint_32 cam = entity_management_system->get_active_camera();
+
+		/*selected_transform = 0;
+		for (Uint_32 _i = 0; _i < MAX_GRAPHIC_COUNT; _i++)
+		{
+			if (entity_management_system->graphics_entity_id[_i])
+			{
+				auto& g = graphics[_i];
+				auto& g_t = transforms[g.id_transform];
+				if (inside(cameras[cam].get_screen_to_world_pos(input_manager->mouse.position), g.bounding_rect, true))
+				{
+					selected_transform = g.id_transform;
+				}
+
+			}
+		}*/
 		if (input_manager->keyboard.get_key_down(SDLK_g))
 			entity_management_system->delete_entity_transform(selected_transform);
+
+		if (input_manager->keyboard.get_key_down(SDLK_l))
+			renderer->draw_line(Vector2<Float_32>{0, 0}, Vector2<Float_32>{5, 0});
 
 		if (input_manager->keyboard.get_key_down(SDLK_c))
 		{
@@ -74,7 +93,6 @@ namespace PrEngine
 
 		if (mouse_pointer_transform)
 		{
-			Uint_32 cam = entity_management_system->get_active_camera();
 			transforms[mouse_pointer_transform].position = cameras[cam].get_screen_to_world_pos(input_manager->mouse.position);
 		}
 
@@ -132,8 +150,13 @@ namespace PrEngine
 			node_flags |= ImGuiTreeNodeFlags_Selected;
 		
 		bool node_open = ImGui::TreeNodeEx(buffer, node_flags, buffer, id_transform);
+	
+		
 		if (ImGui::IsItemClicked())
 			selected_transform = id_transform;
+
+
+
 		if (node_open)
 		{
 			for (auto it : transform_children[id_transform])

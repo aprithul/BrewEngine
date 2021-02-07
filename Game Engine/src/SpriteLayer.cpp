@@ -1,4 +1,5 @@
 #include "SpriteLayer.hpp"
+#include "RendererOpenGL2D.hpp"
 
 namespace PrEngine
 {
@@ -26,9 +27,9 @@ namespace PrEngine
 		}*/
 	}
 
-    void SpriteLayer::update()
-    {
-        //insertion_sort(sprite_list, sprite_list.size());
+	void SpriteLayer::update()
+	{
+		//insertion_sort(sprite_list, sprite_list.size());
 		Uint_32 camera_id = entity_management_system->get_active_camera();
 		if (!camera_id)
 			return;
@@ -38,6 +39,42 @@ namespace PrEngine
 		Vector3<Float_32> _cam_pos = get_transform(_camera.id_transform).position;
 		Vector3<Float_32> _dir = get_transform(_light.id_transform).get_forward();
 
+
+		if (renderer->lines_buffer.size() > 0)
+		{
+			renderer->line_graphic.element.material->Bind();
+			renderer->line_graphic.element.vao.Bind();
+			renderer->line_graphic.element.ibo.Bind();
+
+			auto & u_locs = renderer->line_graphic.element.material->shader->uniform_locations;
+			for (auto& u : u_locs)
+			{
+				if (u.first == "u_View")
+				{
+					GL_CALL(
+						glUniformMatrix4fv(u.second.second, 1, GL_TRUE, _camera.view_matrix.data);
+					)
+
+				}
+
+				if (u.first == "u_Projection")
+				{
+					GL_CALL(
+						glUniformMatrix4fv(u.second.second, 1, GL_TRUE, _camera.projection_matrix.data);
+					)
+
+				}
+			}
+
+			GL_CALL(
+				glDrawElements(GL_LINES, renderer->line_graphic.element.ibo.count, GL_UNSIGNED_INT, nullptr));
+
+			renderer->line_graphic.element.vao.Unbind();
+			renderer->line_graphic.element.ibo.Unbind();
+			renderer->line_graphic.element.material->Unbind();
+		}
+
+
 		for (Uint_32 _i = 0; _i < MAX_GRAPHIC_COUNT; _i++)
 		{
 			if (EntityManagementSystem::graphics_entity_id[_i])//  is_valid(graphic_active_status, graphics[_i].entity))
@@ -45,6 +82,12 @@ namespace PrEngine
 				//UpdateTransforms(transform);
 				//Matrix4x4<Float_32> mvp = (projection) * (*(grp->model)) ;
 				auto& graphic = graphics[_i];
+				auto& transform = transforms[graphic.id_transform];
+
+				//graphic.bounding_rect.x = transform.position.x;
+				//graphic.bounding_rect.y = transform.position.y;
+
+
 				graphic.element.material->Bind();
 				//std::cout<<"before: "<<grp->element.material.uniform_locations["u_MVP"]  <<std::endl;
 				Material* mat = graphic.element.material;
@@ -53,7 +96,6 @@ namespace PrEngine
 
 				for (std::unordered_map<std::string, std::pair<std::string, GLuint>>::iterator it = m.begin(); it != m.end(); it++)
 				{
-
 					if (it->first == "u_sampler2d")
 					{
 						GL_CALL(
@@ -95,7 +137,7 @@ namespace PrEngine
 					{
 
 						GL_CALL(
-							glUniformMatrix4fv(it->second.second, 1, GL_TRUE, transforms[graphics[_i].id_transform].transformation.data))
+							glUniformMatrix4fv(it->second.second, 1, GL_TRUE, transform.transformation.data))
 					}
 
 					if (it->first == "u_View")
@@ -127,7 +169,7 @@ namespace PrEngine
 
 					if (it->first == "u_Camera_Position")
 					{
-						
+
 						GL_CALL(
 							glUniform3f(it->second.second, _cam_pos.x, _cam_pos.y, _cam_pos.z))
 					}
@@ -135,20 +177,20 @@ namespace PrEngine
 					if (it->first == "u_Normal_M")
 					{
 						GL_CALL(
-							glUniformMatrix4fv(it->second.second, 1, GL_TRUE, transforms[graphics[_i].id_transform].rotation_transformation.data))
+							glUniformMatrix4fv(it->second.second, 1, GL_TRUE, transform.rotation_transformation.data))
 					}
 
 					if (it->first == "u_Panning")
 					{
 						GL_CALL(
-							glUniform2f(it->second.second, graphics[_i].element.material->panning.x, graphics[_i].element.material->panning.y);
+							glUniform2f(it->second.second, graphic.element.material->panning.x, graphic.element.material->panning.y);
 						)
 					}
 
 					if (it->first == "u_Tiling")
 					{
 						GL_CALL(
-							glUniform2f(it->second.second, graphics[_i].element.material->tiling.x, graphics[_i].element.material->tiling.y);
+							glUniform2f(it->second.second, graphic.element.material->tiling.x, graphic.element.material->tiling.y);
 						)
 					}
 
@@ -175,17 +217,19 @@ namespace PrEngine
 					//GL_CALL(
 					//    glUniform1f((*it)->material.uniform_locations["u_red"], 1.f))
 				}
-				graphics[_i].element.vao.Bind();
-				graphics[_i].element.ibo.Bind();
+				graphic.element.vao.Bind();
+				graphic.element.ibo.Bind();
 				GL_CALL(
 					//glDrawArrays(GL_TRIANGLES,0, grp->element.num_of_triangles*3))
-					glDrawElements(GL_TRIANGLES, graphics[_i].element.ibo.count, GL_UNSIGNED_INT, nullptr));
-				graphics[_i].element.vao.Unbind();
-				graphics[_i].element.ibo.Unbind();
-				graphics[_i].element.material->Unbind();
+					glDrawElements(GL_TRIANGLES, graphic.element.ibo.count, GL_UNSIGNED_INT, nullptr));
+				graphic.element.vao.Unbind();
+				graphic.element.ibo.Unbind();
+				graphic.element.material->Unbind();
 
 			}
-        }
+		}
+
+	
 
     }
 

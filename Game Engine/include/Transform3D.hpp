@@ -22,7 +22,7 @@ namespace PrEngine{
 		Vector3<Float_32> rotation;
 		Vector3<Float_32> scale;
 		Uint_32 parent_transform;
-
+		
 		Transform3D();
 		~Transform3D() override;
 		void update() override;

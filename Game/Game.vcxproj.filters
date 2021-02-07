@@ -30,5 +30,6 @@
   <ItemGroup>
     <None Include="scene.graph" />
     <None Include="test_scene.graph" />
+    <None Include="res\shaders\Shape.shader" />
   </ItemGroup>
 </Project>

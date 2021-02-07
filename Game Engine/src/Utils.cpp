@@ -111,6 +111,24 @@ namespace PrEngine{
         return false;
     }
 
+	Bool_8 inside(Vector2<Float_32> pos, Rect& rect, Bool_8 centered)
+	{
+		if (!centered)
+		{
+			if (pos.x <= rect.x + rect.w && pos.x >= rect.x &&
+				pos.y <= rect.y + rect.h && pos.y >= rect.y)
+				return true;
+		}
+		else
+		{
+			if (pos.x <= rect.x + rect.w / 2 && pos.x >= rect.x - rect.w / 2 &&
+				pos.y <= rect.y + rect.h / 2 && pos.y >= rect.y - rect.h / 2)
+				return true;
+		}
+
+		return false;
+	}
+
 /*    Bool_8 inside(Vector2<Float_32> pos, SDL_FRect& rect, Bool_8 centered)
     {
         if(!centered)

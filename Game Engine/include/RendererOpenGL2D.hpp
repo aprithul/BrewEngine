@@ -47,6 +47,7 @@ namespace PrEngine {
 			Bool_8 make_shader_program(const std::string& path, GLuint& shader_program);
 			GLuint make_shader( GLenum type, const std::string& source);
 			void generate_sprite_graphics(Uint_32 grpahics_id, const std::string& texture_file_path, const std::string& mat_name);
+			void draw_line(Vector3<Float_32> p1, Vector3<Float_32> p2);
 			RenderLayer* get_layer(const std::string& layer_name);
 			//Matrix4x4<Float_32> view_matrix;
 			//Matrix4x4<Float_32> projection;
@@ -58,7 +59,9 @@ namespace PrEngine {
 			SDL_Window* window;
 			// the opengl context used with the window
 			SDL_GLContext glContext;
-
+			std::vector<GLuint> lines_indices;
+			std::vector<Vertex> lines_buffer;
+			Graphic line_graphic;
     };
 
 	extern RendererOpenGL2D* renderer;

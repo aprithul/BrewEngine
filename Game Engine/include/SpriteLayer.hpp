@@ -16,6 +16,7 @@ namespace PrEngine
 {
 
     void insertion_sort(std::vector<Sprite*>& arr, Int_32 n);
+	//extern RendererOpenGL2D* renderer;
 
     class SpriteLayer : public RenderLayer
     {
@@ -30,7 +31,6 @@ namespace PrEngine
             std::vector<Sprite*> sprite_list;
         private:
 			void UpdateTransforms(Transform3D* transform);
-
     };
 } // namespace Pringin
 
