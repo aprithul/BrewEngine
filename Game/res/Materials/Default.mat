@@ -1,0 +1,2 @@
+texture default.png
+shader DiffuseUnlit2D.shader

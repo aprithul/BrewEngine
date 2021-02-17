@@ -75,8 +75,19 @@ namespace PrEngine
 		if (input_manager->keyboard.get_key_down(SDLK_g))
 			entity_management_system->delete_entity_transform(selected_transform);
 
-		if (input_manager->keyboard.get_key_down(SDLK_l))
-			renderer->draw_line(Vector2<Float_32>{0, 0}, Vector2<Float_32>{5, 0});
+
+		/*if (input_manager->keyboard.get_key_down(SDLK_l))
+		{
+			static float _x = -5;
+			static float _y = -5;
+			static float _z = -5;
+			_x += 5 * (Float_32)Time::Frame_time;
+			_y += 5 * (Float_32)Time::Frame_time;
+			_z += 5 * (Float_32)Time::Frame_time;
+			renderer->draw_line(Vector2<Float_32>{0, 0}, Vector2<Float_32>{_x, -2.f}, Vector4<Float_32>{1, 0, 0, 1});
+			renderer->draw_line(Vector2<Float_32>{0, 0}, Vector2<Float_32>{100, 0}, Vector4<Float_32>{0, 1, 0, 1});
+			renderer->draw_line(Vector2<Float_32>{0, 0}, Vector2<Float_32>{-2.f, -_x}, Vector4<Float_32>{0, 0, 1, 1});
+		}*/
 
 		if (input_manager->keyboard.get_key_down(SDLK_c))
 		{

@@ -51,7 +51,8 @@ namespace PrEngine {
 
 			//texture
 			keyframe.texture = Texture::load_texture(tokens[10]);
-			LOG(LOGTYPE_GENERAL, "Texture");
+			if (!Texture::texture_create_status)
+				LOG(LOGTYPE_ERROR, "Couldn't load texture : ", tokens[10]);
 
 			frames.push_back(keyframe);
 		}

@@ -54,7 +54,10 @@ namespace PrEngine {
         std::cout<<"Vector3 size"<<sizeof(Vector3<Float_32>)<<std::endl;
 
         std::cout<<"Loading default texture"<<std::endl;
-        Texture::load_default_texture();
+        //Texture::load_default_texture();
+		Uint_32 mat = Material::load_material("shaders" + PATH_SEP + "DiffuseUnlit2D.shader", "default.jpg", "default.mat");
+		
+		assert(Material::material_creation_status); // default material has to be created for engine to work
 
         //data = stbi_load( get_resource_path("default.jpg").c_str() ,&width, &height, &no_of_channels, 0);
 
@@ -151,9 +154,12 @@ namespace PrEngine {
 
     void RendererOpenGL2D::generate_sprite_graphics(Uint_32 graphic_id, const std::string& texture_file_path,  const std::string& mat_name)
     {
-		Material* mat = Material::load_material("shaders" + PATH_SEP + "DiffuseUnlit2D.shader", texture_file_path, mat_name);
+		Uint_32 mat_id = Material::load_material("shaders" + PATH_SEP + "DiffuseUnlit2D.shader", texture_file_path, mat_name);
         // find the proper scale needed for the quad mesh
-        Texture* tex = mat->diffuse_texture;
+		assert(mat_id);
+		
+		Material* mat = Material::get_material(mat_id);
+		Texture* tex = Texture::get_texture(mat->diffuse_texture); //Material::material_library[mat_id].diffuse_texture;
         Float_32 x_scale = tex->width;
         Float_32 y_scale = tex->height;
         if(x_scale>y_scale)
@@ -252,7 +258,7 @@ namespace PrEngine {
 
 		Graphic& graphic = graphics[graphic_id];
 		//graphic.bounding_rect = Rect{0,0, x_scale, y_scale };
-		graphic.element.material = mat;
+		graphic.element.material = mat_id;
 		graphic.element.vao.Generate();
 		graphic.element.vbo.Generate(&buffer[0], buffer.size() * sizeof(Vertex));
 		graphic.element.layout = layout;
@@ -273,12 +279,14 @@ namespace PrEngine {
     }
 
 
-	void RendererOpenGL2D::draw_line(Vector3<Float_32> p1, Vector3<Float_32> p2)
+	void RendererOpenGL2D::draw_line(Vector3<Float_32> p1, Vector3<Float_32> p2, Vector4<Float_32> color)
 	{
-		Material* mat = Material::load_material("shaders" + PATH_SEP + "Shape.shader", "default.png", std::string("sprite_mat_") + "default.png");
-		line_graphic.element.material = mat;
-		Vertex v1 = { p1.x, p1.y, 0, 0,0,0, 1.0,1.0,1.0,1.0 };
-		Vertex v2 = { p2.x, p2.y, 0, 0,0,0, 1.0,1.0,1.0,1.0 };
+		Uint_32 mat_id = Material::load_material("shaders" + PATH_SEP + "Shape.shader", "default.png", std::string("sprite_mat_") + "default.png");
+		assert(mat_id);
+		Material& mat = Material::material_library[mat_id];
+		line_graphic.element.material = mat_id;
+		Vertex v1 = { p1.x, p1.y, 0,0,0,0, color.x, color.y, color.z, color.w };
+		Vertex v2 = { p2.x, p2.y, 0,0,0,0, color.x, color.y, color.z, color.w };
 		lines_buffer.push_back(v1);
 		lines_buffer.push_back(v2);
 		lines_indices.push_back(lines_buffer.size() - 2);

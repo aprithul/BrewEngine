@@ -70,6 +70,9 @@ namespace PrEngine
     Bool_8 inside(Vector2<Int_32> pos, SDL_Rect& rect, Bool_8 centered = false);
 	Bool_8 inside(Vector2<Float_32> pos, SDL_Rect& rect, Bool_8 centered = false);
 	Bool_8 inside(Vector2<Float_32> pos, Rect& rect, Bool_8 centered = false);
+
+	Uint_32 str_hash(const std::string& str);
+
 	//Bool_8 inside(Vector2<Float_32> pos, SDL_FRect& rect, Bool_8 centered = false);
 
 }

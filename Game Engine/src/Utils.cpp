@@ -30,9 +30,7 @@ namespace PrEngine{
         //platform we're running on, since Windows uses a different
         //separator than most systems
     
-        //This will hold the base resource path: Lessons/res/
-        //We give it static lifetime so that we'll only need to call
-        //SDL_GetBasePath once to get the executable path
+
         static std::string base_path;
         if (base_path.empty()){
             //SDL_GetBasePath will return NULL if something went wrong in retrieving the path
@@ -127,6 +125,17 @@ namespace PrEngine{
 		}
 
 		return false;
+	}
+
+	Uint_32 str_hash(const std::string& str)
+	{
+		Uint_32 _hash = 0;
+		for (auto& c : str)
+		{
+			_hash += c;
+		}
+
+		return _hash;
 	}
 
 /*    Bool_8 inside(Vector2<Float_32> pos, SDL_FRect& rect, Bool_8 centered)

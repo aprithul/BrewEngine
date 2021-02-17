@@ -55,7 +55,7 @@ out vec4 color;
 void main()
 {
 	vec2 pan_tile = (out_texco.xy + out_panning.xy)*out_tiling.xy;
-    vec4 texel = texture(u_sampler2d, pan_tile) * out_color * vec4(out_diffuse_color,1);// * out_light;// vec4(u_red, out_color.gba);//vec4(0.0,1.0,1.0,1.0);
+    vec4 texel = texture(u_sampler2d, pan_tile) * out_color * vec4(out_diffuse_color,1) * u_Ambient_Strength;// * out_light;// vec4(u_red, out_color.gba);//vec4(0.0,1.0,1.0,1.0);
 	if (texel.a < 0.5)
 	{
 		if (out_outline_color.a < 0.5)

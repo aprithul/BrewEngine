@@ -24,11 +24,13 @@ namespace PrEngine
     struct Texture
     {
         static std::unordered_map<std::string, TextureData> texture_data_library;
-        static std::unordered_map<std::string, Texture*> texture_library;
-        static Int_32 texture_create_status;
+        static std::vector<Texture> texture_library;
+		static std::vector<std::string> texture_names;
 
+        static Int_32 texture_create_status;
+		static inline Texture* get_texture(Uint_32 texture);
         static Texture* load_default_texture();
-        static Texture* load_texture(const std::string& path);
+        static Uint_32 load_texture(const std::string& path);
         static void delete_all_texture_data();
         static void delete_all_textures();
 
@@ -37,15 +39,27 @@ namespace PrEngine
         Int_32 height;
         Int_32 no_of_channels;
         stbi_uc* data;
-		std::string path;
+		Uint_32 path;
+		//std::string path;
 
         virtual void Bind(Int_32 slot);
         virtual void Unbind();
+		void Delete();
 
-		private:
-			Texture(const std::string& path);
-			~Texture();
+
+		Texture(const std::string& path);
+		~Texture();
     };
 
+
+	Texture* Texture::get_texture(Uint_32 _texture)
+	{
+		if (_texture < texture_library.size())
+		{
+			return &texture_library[_texture];
+		}
+		else
+			return &texture_library[0];
+	}
 }
 #endif

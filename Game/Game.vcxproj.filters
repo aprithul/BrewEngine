@@ -31,5 +31,6 @@
     <None Include="scene.graph" />
     <None Include="test_scene.graph" />
     <None Include="res\shaders\Shape.shader" />
+    <None Include="res\Materials\Default.mat" />
   </ItemGroup>
 </Project>

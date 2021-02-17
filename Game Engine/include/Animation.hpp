@@ -12,7 +12,7 @@ namespace PrEngine {
 		Vector3<Float_32> position;
 		Vector3<Float_32> rotation;
 		Vector3<Float_32> scale;
-		Texture* texture;
+		Uint_32 texture;
 		Float_32 timestamp;
 	};
 

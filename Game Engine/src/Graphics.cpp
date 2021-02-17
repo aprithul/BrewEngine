@@ -129,7 +129,8 @@ namespace PrEngine
 
     std::string Graphic::to_string()
     {
-    	return std::to_string(COMP_GRAPHICS)+","+ this->element.material->diffuse_texture->path;
+		Material* mat = Material::get_material(this->element.material);
+    	return std::to_string(COMP_GRAPHICS)+","+ Texture::texture_names[mat->diffuse_texture];
     }
 
     void GraphicsElement::Delete()
@@ -184,6 +185,5 @@ namespace PrEngine
 
         //stride += attribute.size;
         vertex_attributes.push_back(attribute);
-
     }
 }

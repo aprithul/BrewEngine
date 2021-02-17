@@ -5,13 +5,15 @@ namespace PrEngine
     Int_32 Texture::texture_create_status;
 
     std::unordered_map<std::string, TextureData> Texture::texture_data_library;
-    std::unordered_map<std::string, Texture*> Texture::texture_library;
+    std::vector<Texture> Texture::texture_library;
+	std::vector<std::string> Texture::texture_names;
 
     Texture::Texture(const std::string& path)
     {
         texture_create_status = 0;
         stbi_set_flip_vertically_on_load(true);
-		this->path = std::string(path);
+		this->path = 0;
+		//this->path = std::string(path);
         if(texture_data_library.count(path) > 0)
         {
             TextureData td = texture_data_library[path];
@@ -79,33 +81,52 @@ namespace PrEngine
 		}
     }
 
-    Texture* Texture::load_texture(const std::string& path)
+	Uint_32 Texture::load_texture(const std::string& path)
     {
-		Texture* _tex;
-		std::unordered_map<std::string, Texture*>::iterator _tex_it = Texture::texture_library.find(path);
-		if (_tex_it == Texture::texture_library.end()) // texture not in library, so create
+		//Texture* _tex;
+		//std::unordered_map<std::string, Texture*>::iterator _tex_it = Texture::texture_library.find(path);
+	
+		Uint_32 present_at = 0;
+		for (int _i = 0; _i < texture_names.size(); _i++)
 		{
-			_tex = new Texture(path.c_str());
+			if (texture_names[_i] == path)
+			{
+				present_at = _i;
+				break;
+			}
+		}
+		
+		Uint_32 texture_id = 0;
+		//if (_tex_it == Texture::texture_library.end()) // texture not in library, so create
+		if (!present_at)
+		{
+			//_tex = new Texture(path.c_str());
+			texture_library.emplace_back(path.c_str());
 			if (Texture::texture_create_status == 0)     // creating texture failed, so assign default
 			{
+				Texture* _tex = &texture_library.back();
 				delete _tex;
+				texture_library.pop_back();
 
-				_tex = load_default_texture();	//couldn't load, so try loading default
-				if (texture_create_status == 0)	//if still fails, will return nullptr
-				{
-					delete _tex;
-					_tex = nullptr;
-				}
+				//_tex = load_default_texture();	//couldn't load, so try loading default
+				//if (texture_create_status == 0)	//if still fails, will return nullptr
+				//{
+				//	delete _tex;
+				//	_tex = nullptr;
+				//}
 			}
 			else
 			{
-				Texture::texture_library[path] = _tex;
+				texture_id = texture_library.size() - 1;
+
+				texture_names.push_back(path);
+				texture_library.back().path = texture_names.size() - 1;
 			}
 		}
 		else    // texture found in library, so assign that
-			_tex = Texture::texture_library[path];
+			texture_id = present_at;
 
-    	return _tex;
+		return texture_id;
     }
 
     void Texture::delete_all_texture_data()
@@ -124,20 +145,28 @@ namespace PrEngine
     void Texture::delete_all_textures()
     {
     	LOG(LOGTYPE_GENERAL, "Deleteing all textures");
-    	for(std::unordered_map<std::string, Texture*>::iterator it = Texture::texture_library.begin(); it != Texture::texture_library.end(); it++)
+    	for(auto& tex:texture_library)
     	{
-    		LOG(LOGTYPE_GENERAL, "Deleting : ", std::to_string(it->second->id));
-    		delete it->second;
+    		LOG(LOGTYPE_GENERAL, "Deleting : ", std::to_string(tex.id));
+			tex.Delete();
+    		//delete &tex;
     	}
     	Texture::texture_library.clear();
+		Texture::texture_names.clear();
     }
+
+	void Texture::Delete()
+	{
+		Unbind();
+		GL_CALL(
+			glDeleteTextures(1, &id))
+	}
 
     Texture::~Texture()
     {
-        Unbind();
-		GL_CALL(
-			glDeleteTextures(1, &id))
-		Texture::texture_library.erase(this->path);
+
+
+		//Texture::texture_library.erase(this->path);
 
     }
 

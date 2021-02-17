@@ -1,6 +1,5 @@
 #include "SpriteLayer.hpp"
 #include "RendererOpenGL2D.hpp"
-
 namespace PrEngine
 {
 
@@ -42,36 +41,50 @@ namespace PrEngine
 
 		if (renderer->lines_buffer.size() > 0)
 		{
-			renderer->line_graphic.element.material->Bind();
-			renderer->line_graphic.element.vao.Bind();
-			renderer->line_graphic.element.ibo.Bind();
+			GraphicsElement& element = renderer->line_graphic.element;
+			Material* mat = Material::get_material(element.material);
+			if (mat == nullptr)
+			{
+				LOG(LOGTYPE_ERROR, "Couldn't find material");
+				return;
+			}
 
-			auto & u_locs = renderer->line_graphic.element.material->shader->uniform_locations;
+			mat->Bind();
+			element.vao.Bind();
+			element.ibo.Bind();
+
+			auto& u_locs = Shader::shader_library[mat->shader].uniform_locations;
 			for (auto& u : u_locs)
 			{
-				if (u.first == "u_View")
+				switch (u.first)
 				{
+				case ShaderUniformName::u_View:
 					GL_CALL(
 						glUniformMatrix4fv(u.second.second, 1, GL_TRUE, _camera.view_matrix.data);
 					)
-
-				}
-
-				if (u.first == "u_Projection")
-				{
+					break;
+				case ShaderUniformName::u_Projection:
 					GL_CALL(
 						glUniformMatrix4fv(u.second.second, 1, GL_TRUE, _camera.projection_matrix.data);
 					)
-
+					break;
+				default:
+					break;
 				}
 			}
 
 			GL_CALL(
 				glDrawElements(GL_LINES, renderer->line_graphic.element.ibo.count, GL_UNSIGNED_INT, nullptr));
 
-			renderer->line_graphic.element.vao.Unbind();
-			renderer->line_graphic.element.ibo.Unbind();
-			renderer->line_graphic.element.material->Unbind();
+			element.vao.Unbind();
+			element.ibo.Unbind();
+			mat->Unbind();
+
+			renderer->lines_buffer.clear();
+			renderer->lines_indices.clear();
+			element.vbo.Delete();
+			element.ibo.Delete();
+			element.vao.Delete();
 		}
 
 
@@ -84,69 +97,56 @@ namespace PrEngine
 				auto& graphic = graphics[_i];
 				auto& transform = transforms[graphic.id_transform];
 
+				GraphicsElement& element = graphic.element;
+				Material* mat = Material::get_material(element.material);
+				if (mat == nullptr)
+				{
+					LOG(LOGTYPE_ERROR, "Couldn't find material");
+					continue;
+				}
+
 				//graphic.bounding_rect.x = transform.position.x;
 				//graphic.bounding_rect.y = transform.position.y;
-
-
-				graphic.element.material->Bind();
 				//std::cout<<"before: "<<grp->element.material.uniform_locations["u_MVP"]  <<std::endl;
-				Material* mat = graphic.element.material;
-				std::unordered_map<std::string, std::pair<std::string, GLuint>>& m = mat->shader->uniform_locations;
-
-
-				for (std::unordered_map<std::string, std::pair<std::string, GLuint>>::iterator it = m.begin(); it != m.end(); it++)
+				
+				mat->Bind();
+				if (mat == nullptr)
 				{
-					if (it->first == "u_sampler2d")
+					LOG(LOGTYPE_ERROR, "Material is null");
+					continue;
+
+				}
+				Shader* shader = Shader::get_shader(mat->shader);
+				if (shader == nullptr)
+				{
+					LOG(LOGTYPE_ERROR, "Shader couldn't be found");
+					continue;
+				}
+				auto& uniform_loc = shader->uniform_locations;
+
+
+				for (auto& it : uniform_loc)
+				{
+
+					switch (it.first)
 					{
+					case ShaderUniformName::u_sampler2d:
 						GL_CALL(
-							glUniform1i(it->second.second, 0))
-					}
-
-					if (it->first == "u_Dir_Light")
-					{
-
+							glUniform1i(it.second.second, 0))
+						break;
+					case ShaderUniformName::u_Dir_Light:
 						GL_CALL(
-							glUniform3f(it->second.second, _dir.x, _dir.y, _dir.z))
-					}
-
-					//if (it->first == "u_Ambient_Strength")
-					//{
-					//	//LOG(LOGTYPE_ERROR, "Dir: ", std::to_string(light->direction.x));
-					//	GL_CALL(
-					//		glUniform1f(it->second.second, _light.ambient)
-					//	)
-					//}
-
-					//if (it->first == "u_Specular_Strength")
-					//{
-					//	GL_CALL(
-					//		glUniform1f(it->second.second, _light.specular)
-					//	)
-					//}
-
-
-					// models and normals should be same size
-					//for(Int_32 j=0; j<grp->models.size() ; j++)
-					//{
-
-					//Camera* cam_component = (Camera*)(camera->components[COMP_CAMERA]);
-					//Matrix4x4<Float_32> mvp = (cam_component->projection_matrix) * cam_component->view_matrix * (*(grp->models[j])) ;
-
-
-					if (it->first == "u_Model")
-					{
-
+							glUniform3f(it.second.second, _dir.x, _dir.y, _dir.z))
+						break;
+					case ShaderUniformName::u_Model:
 						GL_CALL(
-							glUniformMatrix4fv(it->second.second, 1, GL_TRUE, transform.transformation.data))
-					}
-
-					if (it->first == "u_View")
-					{
+							glUniformMatrix4fv(it.second.second, 1, GL_TRUE, transform.transformation.data))
+						break;
+					case ShaderUniformName::u_View:
 						GL_CALL(
-							glUniformMatrix4fv(it->second.second, 1, GL_TRUE, _camera.view_matrix.data))
-					}
-
-					if (it->first == "u_View_t")
+							glUniformMatrix4fv(it.second.second, 1, GL_TRUE, _camera.view_matrix.data))
+						break;
+					case ShaderUniformName::u_View_t:
 					{
 						Matrix4x4<Float_32> _view = Matrix4x4<Float_32>(_camera.view_matrix);
 						_view.data[3] = 0;
@@ -158,56 +158,45 @@ namespace PrEngine
 						_view.data[15] = 1;
 
 						GL_CALL(
-							glUniformMatrix4fv(it->second.second, 1, GL_TRUE, _view.data))
+							glUniformMatrix4fv(it.second.second, 1, GL_TRUE, _view.data))
 					}
-
-					if (it->first == "u_Projection")
-					{
+						break;
+					case ShaderUniformName::u_Projection:
 						GL_CALL(
-							glUniformMatrix4fv(it->second.second, 1, GL_TRUE, _camera.projection_matrix.data))
-					}
-
-					if (it->first == "u_Camera_Position")
-					{
-
+							glUniformMatrix4fv(it.second.second, 1, GL_TRUE, _camera.projection_matrix.data))
+						break;
+					case ShaderUniformName::u_Camera_Position:
 						GL_CALL(
-							glUniform3f(it->second.second, _cam_pos.x, _cam_pos.y, _cam_pos.z))
-					}
-
-					if (it->first == "u_Normal_M")
-					{
+							glUniform3f(it.second.second, _cam_pos.x, _cam_pos.y, _cam_pos.z))
+						break;
+					case ShaderUniformName::u_Normal_M:
 						GL_CALL(
-							glUniformMatrix4fv(it->second.second, 1, GL_TRUE, transform.rotation_transformation.data))
-					}
-
-					if (it->first == "u_Panning")
-					{
+							glUniformMatrix4fv(it.second.second, 1, GL_TRUE, transform.rotation_transformation.data))
+						break;
+					case ShaderUniformName::u_Panning:
 						GL_CALL(
-							glUniform2f(it->second.second, graphic.element.material->panning.x, graphic.element.material->panning.y);
-						)
-					}
-
-					if (it->first == "u_Tiling")
-					{
+							glUniform2f(it.second.second, mat->panning.x, mat->panning.y))
+						break;
+					case ShaderUniformName::u_Tiling:
 						GL_CALL(
-							glUniform2f(it->second.second, graphic.element.material->tiling.x, graphic.element.material->tiling.y);
-						)
-					}
-
-					if (it->first == "u_Diffuse_Color")
-					{
+							glUniform2f(it.second.second, mat->tiling.x, mat->tiling.y))
+						break;
+					case ShaderUniformName::u_Diffuse_Color:
 						GL_CALL(
-							glUniform3f(it->second.second, mat->diffuse_color.x, mat->diffuse_color.y, mat->diffuse_color.z);
-						)
-					}
-
-
-					if (it->first == "u_Outline_Color")
-					{
+							glUniform3f(it.second.second, mat->diffuse_color.x, mat->diffuse_color.y, mat->diffuse_color.z))
+						break;
+					case ShaderUniformName::u_Outline_Color:
 						GL_CALL(
-							glUniform4f(it->second.second, graphic.outline_color.x, graphic.outline_color.y, graphic.outline_color.z, graphic.outline_alpha);
-						)
+							glUniform4f(it.second.second, graphic.outline_color.x, graphic.outline_color.y, graphic.outline_color.z, graphic.outline_alpha))
+						break;
+					case ShaderUniformName::u_Ambient_Strength:
+						GL_CALL(
+							glUniform1f(it.second.second, 1.f))
+							break;
+					default:
+						break;
 					}
+
 
 
 					//}
@@ -217,14 +206,14 @@ namespace PrEngine
 					//GL_CALL(
 					//    glUniform1f((*it)->material.uniform_locations["u_red"], 1.f))
 				}
-				graphic.element.vao.Bind();
-				graphic.element.ibo.Bind();
+				element.vao.Bind();
+				element.ibo.Bind();
 				GL_CALL(
 					//glDrawArrays(GL_TRIANGLES,0, grp->element.num_of_triangles*3))
-					glDrawElements(GL_TRIANGLES, graphic.element.ibo.count, GL_UNSIGNED_INT, nullptr));
-				graphic.element.vao.Unbind();
-				graphic.element.ibo.Unbind();
-				graphic.element.material->Unbind();
+					glDrawElements(GL_TRIANGLES, element.ibo.count, GL_UNSIGNED_INT, nullptr));
+				element.vao.Unbind();
+				element.ibo.Unbind();
+				mat->Unbind();
 
 			}
 		}
