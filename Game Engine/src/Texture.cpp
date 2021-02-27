@@ -7,7 +7,7 @@ namespace PrEngine
     std::unordered_map<std::string, TextureData> Texture::texture_data_library;
     std::vector<Texture> Texture::texture_library;
 	std::vector<std::string> Texture::texture_names;
-
+	Uint_32 Texture::next_bind_unit = 0;
     Texture::Texture(const std::string& path)
     {
         texture_create_status = 0;
@@ -24,7 +24,8 @@ namespace PrEngine
         }
         else
         {
-            data = stbi_load(get_resource_path(path).c_str(),&width, &height, &no_of_channels, 0);
+			std::string resource_path = get_resource_path(path);
+            data = stbi_load(resource_path.c_str(),&width, &height, &no_of_channels, 0);
             if(data!=nullptr)
             {
                 TextureData td;
@@ -43,12 +44,16 @@ namespace PrEngine
         }
         else
         {
-            LOG(LOGTYPE_GENERAL, "Image ",std::string(path)," loaded");
 
+			
+			bind_unit = next_bind_unit;
+			next_bind_unit++;
             GL_CALL(glGenTextures(1, &id))
-            GL_CALL(glActiveTexture(GL_TEXTURE0))
+            GL_CALL(glActiveTexture(GL_TEXTURE0+bind_unit))
+				LOG(LOGTYPE_GENERAL, "Image ", std::string(path), " loaded : "+ std::to_string(bind_unit));
+
             GL_CALL(glBindTexture(GL_TEXTURE_2D, id))
-            GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR))
+            GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR))
             GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR))
             GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT))
             GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT))
@@ -61,9 +66,12 @@ namespace PrEngine
                 case 3:type = GL_RGB;break;
                 case 4:type = GL_RGBA;break;
             }
-            LOG(LOGTYPE_GENERAL, "Number of channels ", std::to_string(type));
-            GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, type, GL_UNSIGNED_BYTE, data))
-            GL_CALL(glBindTexture(GL_TEXTURE_2D, 0))
+			LOG(LOGTYPE_GENERAL, "Number of channels ", std::to_string(no_of_channels));
+			LOG(LOGTYPE_GENERAL, "Number of channels ", std::to_string(type));
+			GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, type, GL_UNSIGNED_BYTE, data))
+			GL_CALL(glGenerateMipmap(GL_TEXTURE_2D))
+
+            //GL_CALL(glBindTexture(GL_TEXTURE_2D, 0))
             texture_create_status = 1;
         }
     }
@@ -170,10 +178,10 @@ namespace PrEngine
 
     }
 
-    void Texture::Bind(Int_32 slot)
+    void Texture::Bind(Int_32 unit)
     {
         GL_CALL(
-            glActiveTexture(GL_TEXTURE0 + slot))
+            glActiveTexture(GL_TEXTURE0 + unit))
         GL_CALL(
             glBindTexture(GL_TEXTURE_2D, id))
     }

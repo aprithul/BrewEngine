@@ -55,7 +55,7 @@ namespace PrEngine {
 
         std::cout<<"Loading default texture"<<std::endl;
         //Texture::load_default_texture();
-		Uint_32 mat = Material::load_material("shaders" + PATH_SEP + "DiffuseUnlit2D.shader", "default.jpg", "default.mat");
+		Uint_32 mat = Material::load_material("Materials\\Default.mat");
 		
 		assert(Material::material_creation_status); // default material has to be created for engine to work
 
@@ -73,6 +73,11 @@ namespace PrEngine {
         render_layers.push_back(gui_layer);
 
 		renderer = this;
+
+		GLint texture_units;
+		glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &texture_units);
+		max_textures_in_batch = (Uint_32)texture_units;
+		LOG(LOGTYPE_WARNING, "texture units: "+std::to_string(max_textures_in_batch));
     }
 
 
@@ -152,87 +157,109 @@ namespace PrEngine {
             (*it)->end();
     }
 
-    void RendererOpenGL2D::generate_sprite_graphics(Uint_32 graphic_id, const std::string& texture_file_path,  const std::string& mat_name)
-    {
-		Uint_32 mat_id = Material::load_material("shaders" + PATH_SEP + "DiffuseUnlit2D.shader", texture_file_path, mat_name);
-        // find the proper scale needed for the quad mesh
-		assert(mat_id);
-		
-		Material* mat = Material::get_material(mat_id);
+	void RendererOpenGL2D::generate_batched_sprite_graphics(Uint_32 graphic_id)
+	{
+
+	}
+
+
+	void RendererOpenGL2D::generate_sprite_graphics(Uint_32 graphic_id)
+	{
+		//Uint_32 mat_id = Material::load_material("shaders" + PATH_SEP + "DiffuseUnlit2D.shader", texture_file_path, mat_name);
+		// find the proper scale needed for the quad mesh
+		Graphic& graphic = graphics[graphic_id];
+		Uint_32 material_id = graphic.element.material;
+		assert(material_id);
+
+		Material* mat = Material::get_material(material_id);
 		Texture* tex = Texture::get_texture(mat->diffuse_texture); //Material::material_library[mat_id].diffuse_texture;
-        Float_32 x_scale = tex->width;
-        Float_32 y_scale = tex->height;
-        if(x_scale>y_scale)
-        {
-        	x_scale = (x_scale/y_scale);
-        	y_scale = 1.f;
-        }
-        else
-        {
-        	y_scale = y_scale/x_scale;
-        	x_scale = 1.f;
-        }
+		Float_32 x_scale = tex->width;
+		Float_32 y_scale = tex->height;
+		if (x_scale > y_scale)
+		{
+			x_scale = (x_scale / y_scale);
+			y_scale = 1.f;
+		}
+		else
+		{
+			y_scale = y_scale / x_scale;
+			x_scale = 1.f;
+		}
 
-        std::vector<GLuint> indices;
-        std::vector<Vertex> buffer;
+		std::vector<GLuint> indices;
+		std::vector<Vertex> buffer;
 
-        #pragma region vertex declaration
-        Vertex v1;
-        v1.p_x = 0.5f*x_scale;
-        v1.p_y = 0.5f*y_scale;
-        v1.p_z = 0.0f;
-        v1.c_r = 1.0f;
-        v1.c_g = 1.0f;
-        v1.c_b = 1.0f;
-        v1.c_a = 1.0f;
-        v1.n_x = 0.0f;
-        v1.n_y = 0.0f;
-        v1.n_z = -1.0f;
-        v1.u = 1.0f;
-        v1.v = 1.0f;
+		Vertex v1={
+			0.5f*x_scale,
+			0.5f*y_scale,
+			0.0f,
 
-        Vertex v2;
-        v2.p_x = -0.5f*x_scale;
-        v2.p_y = 0.5f*y_scale;
-        v2.p_z = 0.f;
-        v2.c_r = 1.0f;
-        v2.c_g = 1.0f;
-        v2.c_b = 1.0f;
-        v2.c_a = 1.0f;
-        v2.n_x = 0.0f;
-        v2.n_y = 0.0f;
-        v2.n_z = -1.0f;
-        v2.u = 0.f;
-        v2.v = 1.0f;
+			1.0f,
+			1.0f,
+			1.0f,
+			1.0f,
 
-        Vertex v3;
-        v3.p_x = -0.5f*x_scale;
-        v3.p_y = -0.5f*y_scale;
-        v3.p_z = 0.f;
-        v3.c_r = 1.0f;
-        v3.c_g = 1.0f;
-        v3.c_b = 1.0f;
-        v3.c_a = 1.0f;
-        v3.n_x = 0.0f;
-        v3.n_y = 0.0f;
-        v3.n_z = -1.0f;
-        v3.u = 0.0f;
-        v3.v = 0.0f;
+			0.0f,
+			0.0f,
+			-1.0f,
 
-        Vertex v4;
-        v4.p_x = 0.5f*x_scale;
-        v4.p_y = -0.5f*y_scale;
-        v4.p_z = 0.f;
-        v4.c_r = 1.0f;
-        v4.c_g = 1.0f;
-        v4.c_b = 1.0f;
-        v4.c_a = 1.0f;
-        v4.n_x = 0.0f;
-        v4.n_y = 0.0f;
-        v4.n_z = -1.0f;
-        v4.u = 1.0f;
-        v4.v = 0.0f;
-        #pragma endregion
+			1.0f,
+			1.0f
+		};
+
+		Vertex v2={
+			-0.5f*x_scale,
+			0.5f*y_scale,
+			0.f,
+
+			1.0f,
+			1.0f,
+			1.0f,
+			1.0f,
+
+			0.0f,
+			0.0f,
+			-1.0f,
+			
+			0.f,
+			1.0f
+		};
+
+		Vertex v3={
+			-0.5f*x_scale,
+			-0.5f*y_scale,
+			0.f,
+			
+			1.0f,
+			1.0f,
+			1.0f,
+			1.0f,
+			
+			0.0f,
+			0.0f,
+			-1.0f,
+			
+			0.0f,
+			0.0f 
+		};
+
+		Vertex v4{
+			0.5f*x_scale,
+			-0.5f*y_scale,
+			0.f,
+			
+			1.0f,
+			1.0f,
+			1.0f,
+			1.0f,
+			
+			0.0f,
+			0.0f,
+			-1.0f,
+			
+			1.0f,
+			0.0f
+		};
 
         buffer.push_back(v1);
         buffer.push_back(v2);
@@ -256,9 +283,7 @@ namespace PrEngine {
         layout.add_attribute(attribute_2);
         layout.add_attribute(attribute_3);
 
-		Graphic& graphic = graphics[graphic_id];
 		//graphic.bounding_rect = Rect{0,0, x_scale, y_scale };
-		graphic.element.material = mat_id;
 		graphic.element.vao.Generate();
 		graphic.element.vbo.Generate(&buffer[0], buffer.size() * sizeof(Vertex));
 		graphic.element.layout = layout;
@@ -281,7 +306,7 @@ namespace PrEngine {
 
 	void RendererOpenGL2D::draw_line(Vector3<Float_32> p1, Vector3<Float_32> p2, Vector4<Float_32> color)
 	{
-		Uint_32 mat_id = Material::load_material("shaders" + PATH_SEP + "Shape.shader", "default.png", std::string("sprite_mat_") + "default.png");
+		Uint_32 mat_id = Material::load_material("default.mat");
 		assert(mat_id);
 		Material& mat = Material::material_library[mat_id];
 		line_graphic.element.material = mat_id;

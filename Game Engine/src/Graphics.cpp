@@ -46,9 +46,16 @@ namespace PrEngine
         GL_CALL( 
             glGenBuffers(1, &id))
         Bind(); 
-        GL_CALL( 
-            glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW))
-        
+		if (vertices)
+		{
+			GL_CALL(
+				glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW))
+		}
+		else
+		{
+			GL_CALL(
+				glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * 6 * 1000, nullptr, GL_STATIC_DRAW))
+		}
     }
 
     VertexBuffer::~VertexBuffer()
@@ -127,10 +134,26 @@ namespace PrEngine
         //delete material;
     }
 
+	BatchedGraphic::BatchedGraphic()
+	{
+
+	}
+
+	BatchedGraphic::~BatchedGraphic()
+	{
+
+	}
+
+
+
+
+
+
+
     std::string Graphic::to_string()
     {
-		Material* mat = Material::get_material(this->element.material);
-    	return std::to_string(COMP_GRAPHICS)+","+ Texture::texture_names[mat->diffuse_texture];
+		//Material* mat = Material::get_material(this->element.material);
+		return std::to_string(COMP_GRAPHICS) + "," + Material::material_names[element.material]+","+std::to_string(tag);// Texture::texture_names[mat->diffuse_texture];
     }
 
     void GraphicsElement::Delete()

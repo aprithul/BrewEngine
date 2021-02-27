@@ -26,7 +26,7 @@ namespace PrEngine
         static std::unordered_map<std::string, TextureData> texture_data_library;
         static std::vector<Texture> texture_library;
 		static std::vector<std::string> texture_names;
-
+		static Uint_32 next_bind_unit;
         static Int_32 texture_create_status;
 		static inline Texture* get_texture(Uint_32 texture);
         static Texture* load_default_texture();
@@ -40,6 +40,7 @@ namespace PrEngine
         Int_32 no_of_channels;
         stbi_uc* data;
 		Uint_32 path;
+		Uint_32 bind_unit;
 		//std::string path;
 
         virtual void Bind(Int_32 slot);
@@ -52,7 +53,7 @@ namespace PrEngine
     };
 
 
-	Texture* Texture::get_texture(Uint_32 _texture)
+	inline Texture* Texture::get_texture(Uint_32 _texture)
 	{
 		if (_texture < texture_library.size())
 		{

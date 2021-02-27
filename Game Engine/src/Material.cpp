@@ -140,15 +140,15 @@ namespace PrEngine
 		auto& _shader = Shader::shader_library[shader].id;
 		GL_CALL(
 			glUseProgram(_shader))
-			Texture* tex = Texture::get_texture(diffuse_texture);
-			tex->Bind(0);
+			//Texture* tex = Texture::get_texture(diffuse_texture);
+			//tex->Bind(tex->bind_unit);
     }
 
     void Material::Unbind()
     {
         GL_CALL(
             glUseProgram(0))
-			Texture::get_texture(diffuse_texture)->Unbind();
+			//Texture::get_texture(diffuse_texture)->Unbind();
     }
 
     void Material::Delete()
@@ -180,12 +180,12 @@ namespace PrEngine
         
     }
 
-	Uint_32 Material::load_material(const std::string& shader_path, const std::string& diffuse_tex_path, const std::string& name)
+	Uint_32 Material::load_material( const std::string& material_name)
 	{
 		Uint_32 present_at = 0;
 		for (int _i=0; _i<material_names.size(); _i++)
 		{
-			if (material_names[_i] == name)
+			if (material_names[_i] == material_name)
 			{
 				present_at = _i;
 				break;
@@ -196,18 +196,53 @@ namespace PrEngine
 		//std::unordered_map<Uint_32, Material*>::iterator _mat_it = Material::material_library.find(material_id);
 		if (!present_at)
 		{
-			Material::material_library.emplace_back(shader_path, diffuse_tex_path, name);
+
+			std::string texture_name = "";
+			std::string shader_name = "";
+
+			std::string material_data = read_file(get_resource_path(material_name));
+			std::stringstream mateiral_data_stream(material_data);
+			std::string material_line;
+			std::vector<std::string> material_tokens;
+
+			while (std::getline(mateiral_data_stream, material_line))
+			{
+				material_tokens.clear();
+				std::stringstream material_line_stream(material_line);
+				std::string material_token;
+				while (std::getline(material_line_stream, material_token, ' '))
+				{
+					material_tokens.push_back(material_token);
+				}
+
+				if (material_tokens[0] == "texture")
+				{
+					texture_name = material_tokens[1];
+				}
+				else if (material_tokens[0] == "shader")
+				{
+					shader_name = material_tokens[1];
+				}
+				else
+				{
+					LOG(LOGTYPE_ERROR, "Couldn't read token : " + material_tokens[0]);
+				}
+
+			}
+			assert(!material_name.empty() && !shader_name.empty());
+
+			Material::material_library.emplace_back(shader_name, texture_name, material_name);
 			if (!material_creation_status)
 			{
 				LOG(LOGTYPE_ERROR, "Material creation failed");
-				Material* mat = &Material::material_library.back();
-				delete mat;
+				//Material* mat = &Material::material_library.back();
+				//delete mat;
 				Material::material_library.pop_back();
 				//mat = nullptr;
 			}
 			else
 			{
-				Material::material_names.push_back(name);
+				Material::material_names.push_back(material_name);
 				material_id = material_library.size() - 1;
 			}
 		}
@@ -220,7 +255,7 @@ namespace PrEngine
 
     void Material::delete_all_materials()
     {
-    	LOG(LOGTYPE_GENERAL, "Deleting all materials");
+    	/*LOG(LOGTYPE_GENERAL, "Deleting all materials");
 		for (int _i = material_library.size()-1; _i>=1; _i--)
         {
 			auto& mat = material_library[_i];
@@ -228,23 +263,24 @@ namespace PrEngine
 			//material_library.pop_back();
         	mat.Delete();
         	LOG(LOGTYPE_GENERAL, "Deleted : ", name);
-        }
+        }*/
 		Material::material_library.clear();
 		Material::material_names.clear();
+
+
 	}
 
     Shader Shader::shader_program;
-
     void Shader::delete_all_shaders()
     {
-    	LOG(LOGTYPE_GENERAL, "Deleting all shaders");
+    	/*LOG(LOGTYPE_GENERAL, "Deleting all shaders");
         for(auto& it: shader_library)
         {
 			it.uniform_locations.clear();
         	GL_CALL(
         			glDeleteProgram(it.id))
 			LOG(LOGTYPE_GENERAL, "Deleted : ", std::to_string(it.id ));
-        }
+        }*/
 		Shader::shader_library.clear();
 		Shader::shader_names.clear();
 	}
@@ -291,7 +327,8 @@ namespace PrEngine
     }
 
     void Shader::parse_shader(const std::string& source)
-    {
+     {
+		LOG(LOGTYPE_GENERAL, source);
         Int_32 pos = 0;
         while((pos = source.find("uniform",pos)) != std::string::npos)
         {
@@ -365,7 +402,8 @@ namespace PrEngine
     Shader* Shader::make_shader_program(const std::string& path)
     {
 		//Uint_32 _hash = str_hash(path);
-        std::string _source = read_file(get_resource_path(path));
+		std::string resource_path = get_resource_path(path);
+        std::string _source = read_file(resource_path);
         std::stringstream shader_source;
         shader_source << _source;
         

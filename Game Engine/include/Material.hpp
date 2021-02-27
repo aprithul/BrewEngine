@@ -56,7 +56,7 @@ namespace PrEngine
         static std::vector<Material> material_library;
 		static std::vector<std::string> material_names;
 
-		static Uint_32 load_material(const std::string& shader_path, const std::string& diffuse_tex_path, const std::string& name);
+		static Uint_32 load_material(const std::string& name);
 		static Bool_8 material_creation_status;
 		static inline Material* get_material(Uint_32 mat_id);
         static void delete_all_materials();

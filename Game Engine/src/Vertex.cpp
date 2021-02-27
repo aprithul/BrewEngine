@@ -60,7 +60,7 @@ namespace PrEngine {
     }
 
 
-    Vertex::Vertex(Float_32 x, Float_32 y, Float_32 z, Float_32 nx, Float_32 ny, Float_32 nz, Float_32 r, Float_32 g, Float_32 b, Float_32 a)
+    Vertex::Vertex(Float_32 x, Float_32 y, Float_32 z, Float_32 r, Float_32 g, Float_32 b, Float_32 a, Float_32 nx, Float_32 ny, Float_32 nz)
     {
         p_x = x;
         p_y = y;
@@ -76,7 +76,7 @@ namespace PrEngine {
         v = 0.f;
     }
 
-    Vertex::Vertex(Float_32 x, Float_32 y, Float_32 z, Float_32 nx, Float_32 ny, Float_32 nz, Float_32 r, Float_32 g, Float_32 b, Float_32 a, Float_32 u, Float_32 v)
+    Vertex::Vertex(Float_32 x, Float_32 y, Float_32 z, Float_32 r, Float_32 g, Float_32 b, Float_32 a, Float_32 nx, Float_32 ny, Float_32 nz, Float_32 u, Float_32 v)
     {
         p_x = x;
         p_y = y;

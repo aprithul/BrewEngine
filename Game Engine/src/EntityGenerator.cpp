@@ -33,7 +33,7 @@ namespace PrEngine{
 		return entity;
 	}
 
-	Uint_32 EntityGenerator::make_animated_sprite_entity(const std::string& image_file_path)
+	Uint_32 EntityGenerator::make_animated_sprite_entity(const std::string& material_name)
 	{
 		Uint_32 entity = entity_management_system->make_entity();
 
@@ -45,7 +45,12 @@ namespace PrEngine{
 		get_transform(id_transform).scale = Vector3<Float_32>(1,1,1);
 
 		Uint_32 id_graphic = entity_management_system->make_graphic_comp(entity);
-		renderer->generate_sprite_graphics(id_graphic, image_file_path, std::string("sprite_mat_")+image_file_path);
+		//renderer->generate_sprite_graphics(id_graphic, image_file_path, std::string("sprite_mat_")+image_file_path);
+		Uint_32 mat_id = Material::load_material(material_name);
+		graphics[id_graphic].element.material = mat_id;
+
+		renderer->generate_sprite_graphics(id_graphic);
+
 		graphics[id_graphic].id_transform = id_transform;
 
 		Animator::load_animation("Animations" + PATH_SEP + "my.anim");
@@ -95,13 +100,19 @@ namespace PrEngine{
 		return entity;
 	}
 
-	Uint_32 EntityGenerator::make_graphics_entity(const std::string& image_file_path)
+	Uint_32 EntityGenerator::make_graphics_entity(const std::string& material_name)
 	{
 		auto e = entity_management_system->make_entity();
 		auto t_id = entity_management_system->make_transform_comp(e);
 
 		auto g_id = entity_management_system->make_graphic_comp(e);
-		renderer->generate_sprite_graphics(g_id, image_file_path, std::string("sprite_mat_") + image_file_path);
+		//renderer->generate_sprite_graphics(g_id, image_file_path, std::string("sprite_mat_") + image_file_path);
+
+		Uint_32 mat_id = Material::load_material(material_name);
+		graphics[g_id].element.material = mat_id;
+
+		renderer->generate_sprite_graphics(g_id);
+
 		graphics[g_id].id_transform = t_id;
 
 		return e;
@@ -196,9 +207,29 @@ namespace PrEngine{
 						case COMP_GRAPHICS:	
 						{
 							id_graphic = entity_management_system->make_graphic_comp(entity);
-							renderer->generate_sprite_graphics(id_graphic, tokens[1], std::string("sprite_mat_") + tokens[1]);
-							assert(id_transform != -1);
+							
+							std::string material_name = tokens[1];
+							Uint_32 mat_id = Material::load_material(material_name);
+							graphics[id_graphic].element.material = mat_id;
+						assert(id_transform != -1);
 							graphics[id_graphic].id_transform = id_transform;
+
+							RenderTag render_tag = (RenderTag)std::atoi(tokens[2].c_str());
+							switch (render_tag)
+							{
+								case RENDER_UNTAGGED:
+									renderer->generate_sprite_graphics(id_graphic);
+									break;
+								case RENDER_STATIC:
+									renderer->generate_batched_sprite_graphics(id_graphic);
+									break;
+								case RENDER_DYNAMIC:
+									break;
+							}
+
+
+
+							//braid\\tim_run\\0.gif
 
 							/*Graphic* graphics = renderer->generate_sprite_graphics(tokens[1], "sprite_mat_" + tokens[1]);
 							entity->add_componenet(graphics);*/

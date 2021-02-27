@@ -63,7 +63,7 @@ void Game::update()
 	if(input_manager->mouse.scroll!=0)
     {
         Float_32 speed = 20.f;
-        cameras[camera_id].zoom += input_manager->mouse.scroll*Time::Frame_time*speed;
+        cameras[camera_id].zoom = clamp<Float_32>(cameras[camera_id].zoom +  + (input_manager->mouse.scroll*Time::Frame_time*speed), 0.1, 1000);
     }
 
 	if (input_manager->keyboard.get_key_down(SDLK_F5))

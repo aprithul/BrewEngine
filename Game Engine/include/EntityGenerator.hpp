@@ -24,8 +24,8 @@ namespace PrEngine{
 	{
 	public:
 		EntityGenerator();
-		Uint_32 make_graphics_entity(const std::string& image_file_path);
-		Uint_32 make_animated_sprite_entity(const  std::string& image_file_path);
+		Uint_32 make_graphics_entity(const std::string& material_name);
+		Uint_32 make_animated_sprite_entity(const  std::string& material_name);
 		Uint_32 make_light_entity();
 		Uint_32 make_camera_orthographic(Uint_32 width, Uint_32 height);
 		void load_scenegraph(const std::string& scene_file_name);

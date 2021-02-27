@@ -28,8 +28,8 @@ namespace PrEngine {
         Vertex();
         Vertex(Float_32 x,Float_32 y, Float_32 z);
         Vertex(Float_32 x, Float_32 y, Float_32 z, Float_32 nx, Float_32 ny, Float_32 nz);
-        Vertex(Float_32 x, Float_32 y, Float_32 z, Float_32 nx, Float_32 ny, Float_32 nz, Float_32 r, Float_32 g, Float_32 b, Float_32 a);
-        Vertex(Float_32 x, Float_32 y, Float_32 z, Float_32 nx, Float_32 ny, Float_32 nz, Float_32 r, Float_32 g, Float_32 b, Float_32 a, Float_32 u, Float_32 v);
+        Vertex(Float_32 x, Float_32 y, Float_32 z, Float_32 r, Float_32 g, Float_32 b, Float_32 a, Float_32 nx, Float_32 ny, Float_32 nz);
+        Vertex(Float_32 x, Float_32 y, Float_32 z, Float_32 r, Float_32 g, Float_32 b, Float_32 a, Float_32 nx, Float_32 ny, Float_32 nz, Float_32 u, Float_32 v);
         Float_32 p_x;
         Float_32 p_y;
         Float_32 p_z;

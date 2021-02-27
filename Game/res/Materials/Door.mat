@@ -1,2 +1,2 @@
-texture default.png
+texture braid\door3.png
 shader shaders\DiffuseUnlit2D.shader

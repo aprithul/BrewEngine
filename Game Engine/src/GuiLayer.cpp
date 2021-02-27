@@ -91,9 +91,9 @@ namespace PrEngine
 
 		if (input_manager->keyboard.get_key_down(SDLK_c))
 		{
-			std::string image_file_path = "braid\\door3.png";
+			std::string material_name = "Materials\\Door.mat";
 			EntityGenerator eg;
-			auto e = eg.make_graphics_entity(image_file_path);
+			auto e = eg.make_graphics_entity(material_name);
 			auto t_id = entities[e][COMP_TRANSFORM_3D];
 			auto& pos = transforms[t_id].position;
 			pos.x = rand() % 4* (rand() % 2 ? 1 : -1);
@@ -172,7 +172,7 @@ namespace PrEngine
 		{
 			for (auto it : transform_children[id_transform])
 			{
-				if(entity_management_system->transform_entity_id[it])
+				if(transform_entity_id[it])
 					add_child(it);
 			}
 			ImGui::TreePop();
@@ -191,7 +191,7 @@ namespace PrEngine
 		for (int _i = 0; _i< entity_management_system->next_transform_order; _i++)
 		{
 			auto id_t = transform_order[_i];
-			if (entity_management_system->transform_entity_id[id_t])
+			if (transform_entity_id[id_t])
 			{
 				if (transform_hierarchy_level[id_t] >= max_hierarchy)
 				{
@@ -212,7 +212,7 @@ namespace PrEngine
 		if (last_selected_transform != selected_transform) // selection changed, so remove outline
 		{
 
-			auto entity = entity_management_system->transform_entity_id[last_selected_transform];
+			auto entity = transform_entity_id[last_selected_transform];
 			auto id_graphics = entities[entity][COMP_GRAPHICS];
 			auto& graphic = graphics[id_graphics];
 			graphic.outline_alpha = 0.0;
@@ -244,7 +244,7 @@ namespace PrEngine
 			scl.y = v3_s[1];
 			scl.z = v3_s[2];
 
-			auto entity = entity_management_system->transform_entity_id[selected_transform];
+			auto entity = transform_entity_id[selected_transform];
 			auto id_graphics = entities[entity][COMP_GRAPHICS];
 			auto& graphic = graphics[id_graphics];
 			graphic.outline_alpha = 1.0;

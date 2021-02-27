@@ -90,7 +90,7 @@ namespace PrEngine
 
 		for (Uint_32 _i = 0; _i < MAX_GRAPHIC_COUNT; _i++)
 		{
-			if (EntityManagementSystem::graphics_entity_id[_i])//  is_valid(graphic_active_status, graphics[_i].entity))
+			if (graphics_entity_id[_i])//  is_valid(graphic_active_status, graphics[_i].entity))
 			{
 				//UpdateTransforms(transform);
 				//Matrix4x4<Float_32> mvp = (projection) * (*(grp->model)) ;
@@ -131,8 +131,11 @@ namespace PrEngine
 					switch (it.first)
 					{
 					case ShaderUniformName::u_sampler2d:
+					{
+						Texture* tex = Texture::get_texture(mat->diffuse_texture);
 						GL_CALL(
-							glUniform1i(it.second.second, 0))
+							glUniform1i(it.second.second, tex->bind_unit))
+					}
 						break;
 					case ShaderUniformName::u_Dir_Light:
 						GL_CALL(

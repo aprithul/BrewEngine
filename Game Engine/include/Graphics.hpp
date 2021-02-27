@@ -68,27 +68,46 @@ namespace PrEngine
 
     struct GraphicsElement
     {
+		VertexLayout layout;
         VertexArray vao;
         VertexBuffer vbo;
         IndexBuffer ibo;
         Uint_32 material;
-        VertexLayout layout;
         Int_32 num_of_triangles;
         void Delete();
     };
 
+	enum RenderTag
+	{
+		RENDER_UNTAGGED,
+		RENDER_STATIC,
+		RENDER_DYNAMIC,
+
+		RENDER_TAG_COUNT
+	};
+
     struct Graphic : public Component
     {
-        GraphicsElement element;
+		GraphicsElement element;
+		Uint_32 id_transform;
+		Float_32 outline_alpha;
+		Vector3<Float_32> outline_color;
+		RenderTag tag;
 
         Graphic();// const Vertex* vertices, GLuint vertices_size, const GLuint* indices, GLuint indices_size, GLsizei indices_count, Material material,Texture texture, VertexLayout layout);
         ~Graphic();
 		void start() override;
         std::string to_string() override;
-		Uint_32 id_transform;
-		Float_32 outline_alpha;
-		Vector3<Float_32> outline_color;
+		
+
 		//Rect bounding_rect;
+	};
+
+
+	struct BatchedGraphic : public Graphic
+	{
+		BatchedGraphic();
+		~BatchedGraphic();
 	};
 }
 

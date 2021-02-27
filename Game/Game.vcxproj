@@ -96,6 +96,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="res\Materials\Default.mat" />
+    <None Include="res\Materials\Tim.mat" />
+    <None Include="res\Materials\Door.mat" />
     <None Include="res\shaders\Shape.shader" />
     <None Include="scene.graph" />
     <None Include="test_scene.graph" />

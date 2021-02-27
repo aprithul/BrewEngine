@@ -13,6 +13,13 @@ namespace PrEngine
 	Bool_8 entity_validity[MAX_ENTITY_COUNT] = {};
 	std::unordered_map<ComponentType, Uint_32> entities[MAX_ENTITY_COUNT];
 	
+	Uint_32 camera_entity_id[MAX_CAMERA_COUNT] = {};
+	//Uint_32 EntityManagementSystem::sprite_entity_id[MAX_SPRITE_COUNT]={};
+	Uint_32 graphics_entity_id[MAX_GRAPHIC_COUNT] = {};
+	Uint_32 directional_light_entity_id[MAX_DIRECTIONAL_LIGHT_COUNT] = {};
+	Uint_32 animator_entity_id[MAX_ANIMATOR_COUNT] = {};
+	Uint_32 transform_entity_id[MAX_ENTITY_COUNT] = {};
+
 	std::unordered_set<Uint_32> transform_children[MAX_ENTITY_COUNT];
 	Uint_32 transform_order[MAX_ENTITY_COUNT] = {};
 	Uint_32 transform_hierarchy_level[MAX_ENTITY_COUNT] = {};
@@ -43,12 +50,7 @@ namespace PrEngine
 	Uint_32 EntityManagementSystem::next_directional_light_pos;
 	Uint_32 EntityManagementSystem::next_animator_pos;
 	Uint_32 EntityManagementSystem::next_camera_pos;
-	Uint_32 EntityManagementSystem::camera_entity_id[MAX_CAMERA_COUNT] = {};
-	//Uint_32 EntityManagementSystem::sprite_entity_id[MAX_SPRITE_COUNT]={};
-	Uint_32 EntityManagementSystem::graphics_entity_id[MAX_GRAPHIC_COUNT]={};
-	Uint_32 EntityManagementSystem::directional_light_entity_id[MAX_DIRECTIONAL_LIGHT_COUNT]={};
-	Uint_32 EntityManagementSystem::animator_entity_id[MAX_ANIMATOR_COUNT]={};
-	Uint_32 EntityManagementSystem::transform_entity_id[MAX_ENTITY_COUNT]={};
+
 
     EntityManagementSystem::EntityManagementSystem(std::string name, Int_32 priority) : Module(name, priority)
     {

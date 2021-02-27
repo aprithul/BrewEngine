@@ -31,12 +31,7 @@ namespace PrEngine
 {
 
 	extern Bool_8 transform_dirty_flag[MAX_ENTITY_COUNT];
-	//extern Bool_8 sprite_active_status[MAX_SPRITE_COUNT];
-	//extern Bool_8 directional_light_active_status[MAX_DIRECTIONAL_LIGHT_COUNT];
-	//extern Bool_8 graphic_active_status[MAX_GRAPHIC_COUNT];
-	//extern Bool_8 camera_active_status[MAX_CAMERA_COUNT];
-	//extern Bool_8 animator_active_status[MAX_ANIMATOR_COUNT];
-	//extern Bool_8 transform_active_status[MAX_ENTITY_COUNT];
+
 	extern Uint_32 transform_order[MAX_ENTITY_COUNT]; //indices are ids. Indirection allows transforms to be updated in correct order 
 	extern Uint_32 transform_hierarchy_level[MAX_ENTITY_COUNT];
 	extern std::unordered_set<Uint_32> transform_children[MAX_ENTITY_COUNT];
@@ -50,6 +45,13 @@ namespace PrEngine
 	extern Animator animators[MAX_ANIMATOR_COUNT];
 	extern std::unordered_map<ComponentType, Uint_32> entities[MAX_ENTITY_COUNT];
 	extern Bool_8 entity_validity[MAX_ENTITY_COUNT];
+	extern Uint_32 camera_entity_id[MAX_CAMERA_COUNT];
+	//static Uint_32 sprite_entity_id[MAX_SPRITE_COUNT];
+	extern Uint_32 graphics_entity_id[MAX_GRAPHIC_COUNT];
+	extern Uint_32 directional_light_entity_id[MAX_DIRECTIONAL_LIGHT_COUNT];
+	extern Uint_32 animator_entity_id[MAX_ANIMATOR_COUNT];
+	extern Uint_32 transform_entity_id[MAX_ENTITY_COUNT];
+
 
 	inline Bool_8 is_valid(Uint32* validity, Uint_32 pos);
 	inline void set_valid(Uint32* validity, Uint_32 pos);
@@ -84,12 +86,7 @@ namespace PrEngine
 		static Uint_32 next_directional_light_pos;
 		static Uint_32 next_animator_pos;
 		static Uint_32 next_camera_pos;
-		static Uint_32 camera_entity_id[MAX_CAMERA_COUNT];
-		//static Uint_32 sprite_entity_id[MAX_SPRITE_COUNT];
-		static Uint_32 graphics_entity_id[MAX_GRAPHIC_COUNT];
-		static Uint_32 directional_light_entity_id[MAX_DIRECTIONAL_LIGHT_COUNT];
-		static Uint_32 animator_entity_id[MAX_ANIMATOR_COUNT];
-		static Uint_32 transform_entity_id[MAX_ENTITY_COUNT];
+
 
 
 
