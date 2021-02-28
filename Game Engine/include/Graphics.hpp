@@ -9,6 +9,7 @@
 #include "Matrix4x4f.hpp"
 #include "Transform3D.hpp"
 
+
 namespace PrEngine
 {
     struct VertexArray
@@ -106,7 +107,13 @@ namespace PrEngine
 
 	struct BatchedGraphic : public Graphic
 	{
-		BatchedGraphic();
+		static const Uint_32 max_vertices_in_batch = 4;// *1000; // 4 vertex per quad * 1000 quads. Arbitrarily set.
+		static const Uint_32 max_textures_in_batch = MAX_TEXTURES;
+
+		static Uint_32 current_batched_vertex_count;
+		static Uint_32 current_batched_texture_count;
+
+		BatchedGraphic(int batch_index);
 		~BatchedGraphic();
 	};
 }

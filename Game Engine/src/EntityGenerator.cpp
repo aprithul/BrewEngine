@@ -123,7 +123,7 @@ namespace PrEngine{
 		std::stringstream input(scene_data);
 		std::string entity_str;
 		std::vector<Transform3D*> loaded_transforms;
-
+		std::vector<Uint_32> batched_graphic_ids;
 
 		while (std::getline(input, entity_str, '~')) // get an entity
 		{
@@ -211,17 +211,21 @@ namespace PrEngine{
 							std::string material_name = tokens[1];
 							Uint_32 mat_id = Material::load_material(material_name);
 							graphics[id_graphic].element.material = mat_id;
+
 						assert(id_transform != -1);
 							graphics[id_graphic].id_transform = id_transform;
 
 							RenderTag render_tag = (RenderTag)std::atoi(tokens[2].c_str());
+							graphics[id_graphic].tag = render_tag;
+
 							switch (render_tag)
 							{
 								case RENDER_UNTAGGED:
 									renderer->generate_sprite_graphics(id_graphic);
 									break;
 								case RENDER_STATIC:
-									renderer->generate_batched_sprite_graphics(id_graphic);
+									batched_graphic_ids.push_back(id_graphic);
+									//renderer->generate_batched_sprite_graphics(id_graphic);
 									break;
 								case RENDER_DYNAMIC:
 									break;
@@ -260,22 +264,6 @@ namespace PrEngine{
 							if(parent_transform_id)
 								entity_management_system->set_parent_transform(parent_transform_id, id_transform);
 
-							//Transform3D* _transform = new Transform3D();
-							//_transform->set_position(std::stof(tokens[1]), std::stof(tokens[2]), std::stof(tokens[3]));
-							//_transform->set_scale(std::stof(tokens[4]), std::stof(tokens[5]), std::stof(tokens[6]));
-							//_transform->set_rotation(std::stof(tokens[7]), std::stof(tokens[8]), std::stof(tokens[9]));
-							//
-							//Int_32 id = std::stoi(tokens[10]);
-							//if (id != -1)	// when loaded from scene graph
-							//{
-							//	_transform->id = id;
-							//}
-							//else	//when created in scene
-							//{
-							//	_transform->id = entity->id;
-							//}
-							//loaded_transforms.push_back(_transform);
-							//entity->add_componenet(_transform);
 							break;
 						}
 						case COMP_UNKNOWN:
@@ -285,6 +273,9 @@ namespace PrEngine{
 				}
 			}
 		}
+
+		entity_management_system->update_transforms();
+		renderer->prepare_batches(batched_graphic_ids);
 
 		// resolve transform hierarchy
 		/*for (std::vector<Transform3D*>::iterator it = loaded_transforms.begin(); it != loaded_transforms.end(); it++)

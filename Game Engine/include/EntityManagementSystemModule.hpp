@@ -52,6 +52,8 @@ namespace PrEngine
 	extern Uint_32 animator_entity_id[MAX_ANIMATOR_COUNT];
 	extern Uint_32 transform_entity_id[MAX_ENTITY_COUNT];
 
+	extern std::vector<BatchedGraphic> batched_graphics;
+
 
 	inline Bool_8 is_valid(Uint32* validity, Uint_32 pos);
 	inline void set_valid(Uint32* validity, Uint_32 pos);
@@ -116,11 +118,23 @@ namespace PrEngine
 		Uint_32 get_active_camera();
 		void save_scene(const std::string& scene_file);
 
+		inline void update_transforms()
+		{
+			for (Uint_32 i = 1; i < next_transform_order; i++)
+			{
+				int j = transform_order[i];
+				if (transform_entity_id[j])
+					transforms[j].update();
+			}
+		}
+
 		void start() override;
 		void update() override;
 		void end() override;
     };
 	
+
+
 	extern EntityManagementSystem* entity_management_system;
 
 }

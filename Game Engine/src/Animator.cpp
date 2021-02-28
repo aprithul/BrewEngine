@@ -48,7 +48,7 @@ namespace PrEngine
 			//set_valid(transform_dirty_flag, id_transform);
 
 			Material* mat = Material::get_material(graphics[id_graphic].element.material);
-			mat->diffuse_texture = frame.texture;
+			mat->diffuse_textures[0] = frame.texture;
 			current_frame_index = (current_frame_index+1)%((Int_32)(current_animation.frames.size()));
 			
 			// if we've looped around restart timer

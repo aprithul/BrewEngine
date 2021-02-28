@@ -6,7 +6,8 @@
 //  Copyright © 2017 Aniruddha Prithul. All rights reserved.
 //
 #include "RendererOpenGL2D.hpp"
-
+#include <cmath>
+#include <set>
 namespace PrEngine {
 
 	RendererOpenGL2D* renderer = nullptr;
@@ -76,8 +77,8 @@ namespace PrEngine {
 
 		GLint texture_units;
 		glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &texture_units);
-		max_textures_in_batch = (Uint_32)texture_units;
-		LOG(LOGTYPE_WARNING, "texture units: "+std::to_string(max_textures_in_batch));
+		
+		assert(texture_units >= BatchedGraphic::max_textures_in_batch);
     }
 
 
@@ -157,10 +158,233 @@ namespace PrEngine {
             (*it)->end();
     }
 
-	void RendererOpenGL2D::generate_batched_sprite_graphics(Uint_32 graphic_id)
+	static std::vector<GLuint> indices;
+	static std::vector<Vertex> buffer;
+	static std::vector<Uint_32> batch_texture_ids;
+	static Int_32 batch_count = 0;
+
+	inline void make_batch(std::vector<Uint_32>& texture_ids)
+	{
+		VertexLayout layout;
+		VertexAttribute attribute_0(0, 3, GL_FLOAT, GL_FALSE);
+		VertexAttribute attribute_1(1, 4, GL_FLOAT, GL_FALSE);
+		VertexAttribute attribute_2(2, 3, GL_FLOAT, GL_FALSE);
+		VertexAttribute attribute_3(3, 2, GL_FLOAT, GL_FALSE);
+		VertexAttribute attribute_4(4, 1, GL_FLOAT, GL_FALSE);
+
+		layout.add_attribute(attribute_0);
+		layout.add_attribute(attribute_1);
+		layout.add_attribute(attribute_2);
+		layout.add_attribute(attribute_3);
+		layout.add_attribute(attribute_4);
+
+		batched_graphics.emplace_back(batch_count++);
+		auto& batch = batched_graphics.back();
+		
+		Material* mat = Material::get_material(batch.element.material);
+		memcpy(mat->diffuse_textures, &texture_ids[0], sizeof(Uint_32) * texture_ids.size());
+
+		batch.element.vao.Generate();
+		batch.element.vbo.Generate(&buffer[0], buffer.size() * sizeof(Vertex));
+		batch.element.layout = layout;
+
+		for (std::vector<VertexAttribute>::iterator attr = batch.element.layout.vertex_attributes.begin(); attr != batch.element.layout.vertex_attributes.end(); attr++)
+		{
+			GL_CALL(
+				glEnableVertexAttribArray(attr->index))
+				//GL_CALL(
+				glVertexAttribPointer(attr->index, attr->count, attr->type, attr->normalized, layout.stride, (void*)attr->offset);//)
+		}
+
+		batch.element.ibo.Generate(&indices[0], indices.size() * sizeof(GLuint), indices.size());
+		batch.element.num_of_triangles = (buffer.size() / 3);
+
+		batch.element.vao.Unbind();
+		batch.element.ibo.Unbind();
+
+
+		buffer.clear();
+		indices.clear();
+		batch_texture_ids.clear();
+	}
+
+
+	void process_vertecies(Uint_32 graphic_id, std::vector<Uint_32>& texture_ids)
 	{
 
+		Graphic& graphic = graphics[graphic_id];
+		Uint_32 material_id = graphic.element.material;
+		Transform3D& transform = transforms[graphic.id_transform];
+
+
+		assert(material_id);
+		Material* mat = Material::get_material(material_id);
+		Texture* tex = Texture::get_texture(mat->diffuse_textures[0]); //Material::material_library[mat_id].diffuse_texture;
+		Float_32 x_scale = tex->width;
+		Float_32 y_scale = tex->height;
+		if (x_scale > y_scale)
+		{
+			x_scale = (x_scale / y_scale);
+			y_scale = 1.f;
+		}
+		else
+		{
+			y_scale = y_scale / x_scale;
+			x_scale = 1.f;
+		}
+
+		Vector3<Float_32> p1 = transform.transformation * Vector3<Float_32>{ 0.5f*x_scale,	0.5f*y_scale, 0.0f };
+		Vector3<Float_32> p2 = transform.transformation * Vector3<Float_32>{ -0.5f*x_scale,0.5f*y_scale, 0.0f };
+		Vector3<Float_32> p3 = transform.transformation * Vector3<Float_32>{ -0.5f*x_scale,-0.5f*y_scale, 0.0f };
+		Vector3<Float_32> p4 = transform.transformation * Vector3<Float_32>{ 0.5f*x_scale,	-0.5f*y_scale, 0.0f };
+
+		// find index of texture in set
+		Uint_32 texture_id = mat->diffuse_textures[0];
+		/*auto it = std::find(texture_ids.begin(), texture_ids.end(), texture_id);
+		if (it != texture_ids.end())
+		{
+			texture_index = it - texture_ids.begin();
+		}
+		else {
+			LOG(LOGTYPE_ERROR, "Texture index not found when batching");
+		}
+		batch_texture_ids.insert(texture_id);*/
+
+		if (batch_texture_ids.size() == 0 || batch_texture_ids.back() != texture_id)
+		{
+			batch_texture_ids.push_back(texture_id);
+		}
+		float texture_index = batch_texture_ids.size()-1;
+
+		Vertex v1 = {
+			p1.x, p1.y, p1.z,
+
+			1.0f,1.0f,1.0f,1.0f,
+			
+			0.0f,
+			0.0f,
+			-1.0f,
+
+			1.0f,
+			1.0f,
+			
+			texture_index
+
+		};
+
+		Vertex v2 = {
+			p2.x, p2.y, p2.z,
+
+
+			1.0f,
+			1.0f,
+			1.0f,
+			1.0f,
+
+			0.0f,
+			0.0f,
+			-1.0f,
+
+			0.f,
+			1.0f,
+
+			texture_index
+		};
+
+		Vertex v3 = {
+			p3.x, p3.y, p3.z,
+
+
+			1.0f,
+			1.0f,
+			1.0f,
+			1.0f,
+
+			0.0f,
+			0.0f,
+			-1.0f,
+
+			0.0f,
+			0.0f,
+
+			texture_index
+		};
+
+		Vertex v4 = {
+			p4.x, p4.y, p4.z,
+
+			1.0f,
+			1.0f,
+			1.0f,
+			1.0f,
+
+			0.0f,
+			0.0f,
+			-1.0f,
+
+			1.0f,
+			0.0f,
+
+			texture_index
+		};
+
+		int _i = buffer.size();
+		indices.push_back(_i);
+		indices.push_back(_i+1);
+		indices.push_back(_i+2);
+		indices.push_back(_i+2);
+		indices.push_back(_i+3);
+		indices.push_back(_i);
+
+		buffer.push_back(v1);
+		buffer.push_back(v2);
+		buffer.push_back(v3);
+		buffer.push_back(v4);
+
+
+		if (batch_texture_ids.size() == (float)BatchedGraphic::max_textures_in_batch)
+		{
+			//std::vector<Uint_32> batch_textures(batch_texture_ids.begin(), batch_texture_ids.end());
+			make_batch(batch_texture_ids);
+		}
 	}
+
+	static bool compare(Uint_32 a, Uint_32 b )
+	{
+		auto t1 = Material::get_material(graphics[a].element.material)->diffuse_textures[0];
+		auto t2 = Material::get_material(graphics[b].element.material)->diffuse_textures[0];
+		
+		if (t1 < t2)
+			return true;
+		else
+			return false;
+	}
+
+	void RendererOpenGL2D::prepare_batches(std::vector<Uint_32> batched_graphic_ids)
+	{
+		std::sort(batched_graphic_ids.begin(), batched_graphic_ids.end(), compare);
+		
+		// get texture list
+		std::set<Uint_32> texture_ids;
+		for (auto i : batched_graphic_ids)
+		{
+			auto t = Material::get_material(graphics[i].element.material)->diffuse_textures[0];
+			texture_ids.insert(t);
+		}
+		std::vector<Uint_32> texture_id_vec(texture_ids.begin(), texture_ids.end());
+
+		for (auto i : batched_graphic_ids)
+		{
+			process_vertecies(i, texture_id_vec);
+		}
+
+		if (batch_texture_ids.size() > 0) // last batch may not have been created
+		{
+			std::vector<Uint_32> batch_textures(batch_texture_ids.begin(), batch_texture_ids.end());
+			make_batch(batch_textures);
+		}
+	}
+
 
 
 	void RendererOpenGL2D::generate_sprite_graphics(Uint_32 graphic_id)
@@ -172,7 +396,7 @@ namespace PrEngine {
 		assert(material_id);
 
 		Material* mat = Material::get_material(material_id);
-		Texture* tex = Texture::get_texture(mat->diffuse_texture); //Material::material_library[mat_id].diffuse_texture;
+		Texture* tex = Texture::get_texture(mat->diffuse_textures[0]); //Material::material_library[mat_id].diffuse_texture;
 		Float_32 x_scale = tex->width;
 		Float_32 y_scale = tex->height;
 		if (x_scale > y_scale)
@@ -243,7 +467,7 @@ namespace PrEngine {
 			0.0f 
 		};
 
-		Vertex v4{
+		Vertex v4={
 			0.5f*x_scale,
 			-0.5f*y_scale,
 			0.f,

@@ -94,7 +94,7 @@ namespace PrEngine
 		//Texture* _tex;
 		//std::unordered_map<std::string, Texture*>::iterator _tex_it = Texture::texture_library.find(path);
 	
-		Uint_32 present_at = 0;
+		Int_32 present_at = -1;
 		for (int _i = 0; _i < texture_names.size(); _i++)
 		{
 			if (texture_names[_i] == path)
@@ -106,7 +106,7 @@ namespace PrEngine
 		
 		Uint_32 texture_id = 0;
 		//if (_tex_it == Texture::texture_library.end()) // texture not in library, so create
-		if (!present_at)
+		if (present_at == -1)
 		{
 			//_tex = new Texture(path.c_str());
 			texture_library.emplace_back(path.c_str());

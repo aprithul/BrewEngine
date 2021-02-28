@@ -48,13 +48,13 @@ namespace PrEngine
         Bind(); 
 		if (vertices)
 		{
-			GL_CALL(
-				glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW))
+			//GL_CALL(
+			glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);//)
 		}
 		else
 		{
 			GL_CALL(
-				glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * 6 * 1000, nullptr, GL_STATIC_DRAW))
+				glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * BatchedGraphic::max_vertices_in_batch, nullptr, GL_STATIC_DRAW))
 		}
     }
 
@@ -130,24 +130,23 @@ namespace PrEngine
 
     Graphic::~Graphic()
     {
-        element.Delete();
+        //element.Delete();
         //delete material;
     }
 
-	BatchedGraphic::BatchedGraphic()
-	{
 
+	Uint_32 BatchedGraphic::current_batched_vertex_count = 0;
+	Uint_32 BatchedGraphic::current_batched_texture_count = 0;
+
+	BatchedGraphic::BatchedGraphic(int batch_index)
+	{
+		element.material = Material::load_material("Materials" + PATH_SEP + "Batch.mat", std::to_string(batch_index));
 	}
 
 	BatchedGraphic::~BatchedGraphic()
 	{
 
 	}
-
-
-
-
-
 
 
     std::string Graphic::to_string()

@@ -9,6 +9,9 @@
 #include <string>
 #include <GL/glew.h>
 
+#define MAX_TEXTURES 8
+
+
 namespace PrEngine
 {
 
@@ -17,6 +20,7 @@ namespace PrEngine
 		u_View,
 		u_Projection,
 		u_sampler2d,
+		u_textures,
 		u_Dir_Light,
 		u_Model,
 		u_View_t,
@@ -56,7 +60,7 @@ namespace PrEngine
         static std::vector<Material> material_library;
 		static std::vector<std::string> material_names;
 
-		static Uint_32 load_material(const std::string& name);
+		static Uint_32 load_material(const std::string& name, const std::string& name_modifier = "");
 		static Bool_8 material_creation_status;
 		static inline Material* get_material(Uint_32 mat_id);
         static void delete_all_materials();
@@ -64,13 +68,13 @@ namespace PrEngine
         //void Generate(const std::string& shader_path, const std::string& diffuse_tex_path, const std::string& name);
         void Delete();
         //std::string source_file_path;
-        Uint_32 diffuse_texture;
+		Uint_32 diffuse_textures[MAX_TEXTURES] = {}; // length depends on the total combined textures allowed by opengl
         void Bind();
         void Unbind();
         Uint_32 shader;
-        Vector2<Float_32> tiling;
-        Vector2<Float_32> panning;
 		Vector3<Float_32> diffuse_color;
+		Vector2<Float_32> tiling;
+        Vector2<Float_32> panning;
 		Material();
 		Material(const std::string& shader_path, const std::string& diffuse_tex_path, const std::string& name);
 		~Material();

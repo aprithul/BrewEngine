@@ -10,7 +10,7 @@
 
 namespace PrEngine {
 
-    Vertex::Vertex()
+    /*Vertex::Vertex()
     {
         p_x = 0.f;
         p_y = 0.f;
@@ -91,6 +91,6 @@ namespace PrEngine {
         this->u = u;
         this->v = v;
     }
-
+	*/
 
 }

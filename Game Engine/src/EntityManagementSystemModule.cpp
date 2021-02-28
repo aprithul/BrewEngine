@@ -8,6 +8,7 @@ namespace PrEngine
 	Camera cameras[MAX_CAMERA_COUNT];
 	//Sprite sprites[MAX_SPRITE_COUNT];
 	Graphic graphics[MAX_GRAPHIC_COUNT];
+	std::vector<BatchedGraphic> batched_graphics;
 	DirectionalLight directional_lights[MAX_DIRECTIONAL_LIGHT_COUNT];
 	Animator animators[MAX_ANIMATOR_COUNT];
 	Bool_8 entity_validity[MAX_ENTITY_COUNT] = {};
@@ -421,12 +422,7 @@ assert(transform_hierarchy_level > 0);
 
     void EntityManagementSystem::update()
     {
-		for (Uint_32 i = 1; i < next_transform_order; i++)
-		{
-			int j = transform_order[i];
-			if(transform_entity_id[j])
-				transforms[j].update();
-		}
+		update_transforms();
 
 		for (Uint_32 i = 0; i < next_camera_pos; i++)
 		{

@@ -32,6 +32,8 @@ namespace PrEngine
 		void end() override;     
 		std::string to_string() override;
 
+		Matrix4x4<Float_32> view_matrix;
+		Matrix4x4<Float_32> projection_matrix;
 		Float_32 fov;
 		Float_32 near_;
 		Float_32 far_; 
@@ -44,8 +46,6 @@ namespace PrEngine
 		Float_32 top;
 		Float_32 zoom;
 
-		Matrix4x4<Float_32> view_matrix;
-		Matrix4x4<Float_32> projection_matrix;
 		ProjectionType projection_type;
 
 

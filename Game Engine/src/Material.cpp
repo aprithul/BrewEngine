@@ -72,7 +72,7 @@ namespace PrEngine
 		diffuse_color = Vector3<Float_32>{ 1,1,1 };
 
 		shader = Shader::load_shader(std::string(shader_path));
-		diffuse_texture = Texture::load_texture(diffuse_tex_path);
+		diffuse_textures[0] = Texture::load_texture(diffuse_tex_path);
 
 		if (!Texture::texture_create_status || !Shader::shader_creation_status)
 			material_creation_status = 0;
@@ -140,15 +140,21 @@ namespace PrEngine
 		auto& _shader = Shader::shader_library[shader].id;
 		GL_CALL(
 			glUseProgram(_shader))
-			//Texture* tex = Texture::get_texture(diffuse_texture);
-			//tex->Bind(tex->bind_unit);
+			for (int i = 0; i < MAX_TEXTURES; i++)
+			{
+				Texture* tex = Texture::get_texture(diffuse_textures[i]);
+				tex->Bind(tex->bind_unit);
+			}
     }
 
     void Material::Unbind()
     {
         GL_CALL(
             glUseProgram(0))
-			//Texture::get_texture(diffuse_texture)->Unbind();
+			for (int i = 0; i < MAX_TEXTURES; i++)
+			{
+				Texture::get_texture(diffuse_textures[i])->Unbind();
+			}
     }
 
     void Material::Delete()
@@ -180,9 +186,9 @@ namespace PrEngine
         
     }
 
-	Uint_32 Material::load_material( const std::string& material_name)
+	Uint_32 Material::load_material( const std::string& material_name, const std::string& name_modifier)
 	{
-		Uint_32 present_at = 0;
+		Int_32 present_at = -1;
 		for (int _i=0; _i<material_names.size(); _i++)
 		{
 			if (material_names[_i] == material_name)
@@ -194,7 +200,7 @@ namespace PrEngine
 
 		Uint_32 material_id = 0;
 		//std::unordered_map<Uint_32, Material*>::iterator _mat_it = Material::material_library.find(material_id);
-		if (!present_at)
+		if (present_at == -1)
 		{
 
 			std::string texture_name = "";
@@ -242,12 +248,12 @@ namespace PrEngine
 			}
 			else
 			{
-				Material::material_names.push_back(material_name);
+				Material::material_names.push_back(material_name + name_modifier);
 				material_id = material_library.size() - 1;
 			}
 		}
 		else
-			return present_at;
+			material_id = present_at;
 		
 		return material_id;
 	}
@@ -300,6 +306,8 @@ namespace PrEngine
 			_uniform = ShaderUniformName::u_Projection;
 		else if (uniform == "u_sampler2d")
 			_uniform = ShaderUniformName::u_sampler2d;
+		else if (uniform == "u_textures")
+			_uniform = ShaderUniformName::u_textures;
 		else if (uniform == "u_Dir_Light")
 			_uniform = ShaderUniformName::u_Dir_Light;
 		else if (uniform == "u_Model")
@@ -354,6 +362,12 @@ namespace PrEngine
                 i = 0;
                 for(; !std::isspace(source[start+i]) && source[start+i]!=';'; i++);
                 u_name = source.substr(start, i);
+				std::size_t pos = u_name.find_first_of('['); // is the uniform an array
+				if (pos != -1)
+				{
+					u_name = u_name.substr(0, pos);
+				}
+
                 LOG(LOGTYPE_GENERAL, u_type, " ",u_name);
                 load_uniform_location(u_name, u_type);
             }
@@ -367,7 +381,7 @@ namespace PrEngine
 	Uint_32 Shader::load_shader(const std::string& path)
 	{
 		//Uint_32 shader_id = str_hash(path);
-		Uint_32 present_at = 0;
+		Int_32 present_at = -1;
 		for (int _i = 0; _i < shader_names.size(); _i++)
 		{
 			if (shader_names[_i] == path)
@@ -379,7 +393,7 @@ namespace PrEngine
 
 		Uint_32 shader_id = 0;
 		shader_creation_status = 1;
-		if (!present_at)
+		if (present_at == -1)
 		{
 			// create shader, probably can be shared, will check later
 			//this->source_file_path = std::string(shader_path);

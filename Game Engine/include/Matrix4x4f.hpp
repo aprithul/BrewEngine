@@ -90,15 +90,19 @@ namespace PrEngine {
             Vector3<T> r;
             r.x =   (data[(0*4)+0]*v.x)+
                     (data[(0*4)+1]*v.y)+
-                    (data[(0*4)+2]*v.z);
+                    (data[(0*4)+2]*v.z)+
+					(data[(0 * 4) + 3] * 1);
 
             r.y =   (data[(1*4)+0]*v.x)+
                     (data[(1*4)+1]*v.y)+
-                    (data[(1*4)+2]*v.z);
+                    (data[(1*4)+2]*v.z)+
+					(data[(1 * 4) + 3] * 1);
 
             r.z =   (data[(2*4)+0]*v.x)+
                     (data[(2*4)+1]*v.y)+
-                    (data[(2*4)+2]*v.z);
+                    (data[(2*4)+2]*v.z)+
+					(data[(2*4)+3]*1);
+
            
             return r;
         }
