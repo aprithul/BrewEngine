@@ -182,7 +182,11 @@ namespace PrEngine {
 		auto& batch = batched_graphics.back();
 		
 		Material* mat = Material::get_material(batch.element.material);
-		memcpy(mat->diffuse_textures, &texture_ids[0], sizeof(Uint_32) * texture_ids.size());
+		//memcpy(mat->diffuse_textures, &texture_ids[0], sizeof(Uint_32) * texture_ids.size());
+
+		// make texture array
+		mat->diffuse_textures[0] = Texture::make_texture_array(texture_ids);
+
 
 		batch.element.vao.Generate();
 		batch.element.vbo.Generate(&buffer[0], buffer.size() * sizeof(Vertex));
@@ -222,6 +226,9 @@ namespace PrEngine {
 		Texture* tex = Texture::get_texture(mat->diffuse_textures[0]); //Material::material_library[mat_id].diffuse_texture;
 		Float_32 x_scale = tex->width;
 		Float_32 y_scale = tex->height;
+		Float_32 texco_u = clamp(tex->width /(Float_32) MAX_TEXTURE_SIZE,0.1f,1.0f);
+		Float_32 texco_v = clamp(tex->height / (Float_32)MAX_TEXTURE_SIZE, 0.1f, 1.0f);
+
 		if (x_scale > y_scale)
 		{
 			x_scale = (x_scale / y_scale);
@@ -240,6 +247,7 @@ namespace PrEngine {
 
 		// find index of texture in set
 		Uint_32 texture_id = mat->diffuse_textures[0];
+		
 		/*auto it = std::find(texture_ids.begin(), texture_ids.end(), texture_id);
 		if (it != texture_ids.end())
 		{
@@ -256,6 +264,7 @@ namespace PrEngine {
 		}
 		float texture_index = batch_texture_ids.size()-1;
 
+
 		Vertex v1 = {
 			p1.x, p1.y, p1.z,
 
@@ -265,8 +274,8 @@ namespace PrEngine {
 			0.0f,
 			-1.0f,
 
-			1.0f,
-			1.0f,
+			texco_u,
+			texco_v,
 			
 			texture_index
 
@@ -286,7 +295,7 @@ namespace PrEngine {
 			-1.0f,
 
 			0.f,
-			1.0f,
+			texco_v,
 
 			texture_index
 		};
@@ -322,7 +331,7 @@ namespace PrEngine {
 			0.0f,
 			-1.0f,
 
-			1.0f,
+			texco_u,
 			0.0f,
 
 			texture_index

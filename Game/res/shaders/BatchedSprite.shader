@@ -42,7 +42,7 @@ void main()
 #version 330 core
 
 //uniform float u_red;
-uniform sampler2D u_textures[8];
+uniform sampler2DArray u_sampler2d;// [8];
 uniform float u_Ambient_Strength;
 uniform vec3 u_Camera_Position;
 
@@ -60,9 +60,11 @@ void main()
 {
 	vec2 pan_tile = (out_texco.xy + out_panning.xy)*out_tiling.xy;
 	int _ind = int(out_mat_id);
-	vec4 _color = texture(u_textures[_ind], pan_tile) * out_color * vec4(out_diffuse_color, 1) * u_Ambient_Strength;// * out_light;// vec4(u_red, out_color.gba);//vec4(0.0,1.0,1.0,1.0);
+	
+	//vec4 _color = texture(u_textures[_ind], pan_tile) * out_color * vec4(out_diffuse_color, 1) * u_Ambient_Strength;// * out_light;// vec4(u_red, out_color.gba);//vec4(0.0,1.0,1.0,1.0);
+	vec4 _color = texture(u_sampler2d, vec3(out_texco.x, out_texco.y, _ind));// *out_color * vec4(out_diffuse_color, 1) * u_Ambient_Strength;// * out_light;// vec4(u_red, out_color.gba);//vec4(0.0,1.0,1.0,1.0);
 	if (_color.a < 0.5)
 		discard;
 	else
-		color = _color;
+		color = _color;// vec4(1, 1, 1, 1);
 }

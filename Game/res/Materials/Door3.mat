@@ -1,2 +1,2 @@
-texture braid\door3.png
+texture braid\tim_run\3.gif
 shader shaders\DiffuseUnlit2D.shader

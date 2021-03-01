@@ -124,7 +124,7 @@ namespace PrEngine{
 		std::string entity_str;
 		std::vector<Transform3D*> loaded_transforms;
 		std::vector<Uint_32> batched_graphic_ids;
-
+		std::vector<Uint_32> unbatched_grpahic_ids;
 		while (std::getline(input, entity_str, '~')) // get an entity
 		{
 			std::stringstream ent(entity_str);

@@ -44,12 +44,7 @@ namespace PrEngine
 		//std::cout<<"before: "<<grp->element.material.uniform_locations["u_MVP"]  <<std::endl;
 
 		mat->Bind();
-		if (mat == nullptr)
-		{
-			LOG(LOGTYPE_ERROR, "Material is null");
-			return;
-
-		}
+		
 		Shader* shader = Shader::get_shader(mat->shader);
 		if (shader == nullptr)
 		{
@@ -67,13 +62,13 @@ namespace PrEngine
 			case ShaderUniformName::u_sampler2d:
 			{
 				Texture* tex = Texture::get_texture(mat->diffuse_textures[0]);
-				GL_CALL(
-					glUniform1i(it.second.second, tex->bind_unit))
+				//GL_CALL(
+				glUniform1i(it.second.second, tex->bind_unit);//)
 			}
 			break;
 			case ShaderUniformName::u_textures:	//happens with batche graphic, batche graphi will have array of texture ids
 			{
-				GLint texture_bind_units[MAX_TEXTURES] = {};
+				/*GLint texture_bind_units[MAX_TEXTURES] = {};
 				int _count = 0;
 				for (int _i = 0; _i < MAX_TEXTURES; _i++)
 				{
@@ -88,7 +83,7 @@ namespace PrEngine
 				}
 
 				//GL_CALL(
-				glUniform1iv(it.second.second, _count, texture_bind_units);//)
+				glUniform1iv(it.second.second, _count, texture_bind_units);//)*/
 			}
 			break;
 			case ShaderUniformName::u_Dir_Light:
@@ -187,7 +182,7 @@ namespace PrEngine
 		Vector3<Float_32> _cam_pos = get_transform(_camera.id_transform).position;
 		Vector3<Float_32> _dir = get_transform(_light.id_transform).get_forward();
 
-
+		
 		if (renderer->lines_buffer.size() > 0)
 		{
 			GraphicsElement& element = renderer->line_graphic.element;
@@ -252,10 +247,11 @@ namespace PrEngine
 				
 			}
 		}
-
+		
 		for (auto& b : batched_graphics)
 		{
 			render_graphic(b, transforms[0], _camera, _light, _cam_pos, _dir); // transforms[0] is an 'identity' transformation
+			break;
 		}
 
 		//LOG(LOGTYPE_WARNING, "Draw calls : ", std::to_string(draw_calls));

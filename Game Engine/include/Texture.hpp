@@ -8,6 +8,8 @@
 #include <vector>
 #include <string>
 
+#define MAX_TEXTURE_SIZE 512
+
 namespace PrEngine
 {
 
@@ -33,8 +35,10 @@ namespace PrEngine
         static Uint_32 load_texture(const std::string& path);
         static void delete_all_texture_data();
         static void delete_all_textures();
+		static Uint_32 make_texture_array(const std::vector<Uint_32> diffuse_textures);
 
         GLuint id;
+		Int_32 bind_target;
         Int_32 width;
         Int_32 height;
         Int_32 no_of_channels;
@@ -48,7 +52,8 @@ namespace PrEngine
 		void Delete();
 
 
-		Texture(const std::string& path);
+		Texture(const std::string& path, Int_32 target);
+		Texture(const std::vector<Uint_32> diffuse_textures, Int_32 target);
 		~Texture();
     };
 

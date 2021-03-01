@@ -9,7 +9,7 @@
 #include <string>
 #include <GL/glew.h>
 
-#define MAX_TEXTURES 8
+#define MAX_TEXTURES 16
 
 
 namespace PrEngine

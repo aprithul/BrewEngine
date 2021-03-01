@@ -1,2 +1,2 @@
-texture braid\mimic1.png
+texture stonetile.png
 shader shaders\DiffuseUnlit2D.shader

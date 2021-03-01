@@ -140,11 +140,11 @@ namespace PrEngine
 		auto& _shader = Shader::shader_library[shader].id;
 		GL_CALL(
 			glUseProgram(_shader))
-			for (int i = 0; i < MAX_TEXTURES; i++)
-			{
-				Texture* tex = Texture::get_texture(diffuse_textures[i]);
+			//for (int i = 0; i < MAX_TEXTURES; i++)
+			//{
+				Texture* tex = Texture::get_texture(diffuse_textures[0]);
 				tex->Bind(tex->bind_unit);
-			}
+			//}
     }
 
     void Material::Unbind()
