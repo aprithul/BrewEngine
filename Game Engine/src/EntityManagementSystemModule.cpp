@@ -472,17 +472,19 @@ assert(transform_hierarchy_level > 0);
 			if (directional_light_entity_id[i])
 				entities_in_scene[directional_light_entity_id[i]] += directional_lights[i].to_string() + "\n";
 		}
+		for (Uint_32 i = 0; i < next_animator_pos; i++)
+		{
+			if (animator_entity_id[i])
+				entities_in_scene[animator_entity_id[i]] += animators[i].to_string() + "\n";
+		}
+
 		for (Uint_32 i = 0; i < next_graphic_pos; i++)
 		{
 			if (graphics_entity_id[i])
 				entities_in_scene[graphics_entity_id[i]] += graphics[i].to_string() + "\n";
 		}
 
-		for (Uint_32 i = 0; i < next_animator_pos; i++)
-		{
-			if (animator_entity_id[i])
-				entities_in_scene[animator_entity_id[i]] += animators[i].to_string() + "\n";
-		}
+
 
 		for (auto it : entities_in_scene)
 		{

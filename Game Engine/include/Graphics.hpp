@@ -30,7 +30,7 @@ namespace PrEngine
         ~VertexBuffer();
         void Bind();
         void Unbind();
-        void Generate(const Vertex* vertices, GLuint size);
+        void Generate(const Vertex* vertices, GLuint size, Uint_32 usage);
         void Delete();
     };
 
@@ -90,10 +90,12 @@ namespace PrEngine
     struct Graphic : public Component
     {
 		GraphicsElement element;
+		Vector3<Float_32> outline_color;
 		Uint_32 id_transform;
 		Float_32 outline_alpha;
-		Vector3<Float_32> outline_color;
+		Uint_32 id_animator;
 		RenderTag tag;
+
 
         Graphic();// const Vertex* vertices, GLuint vertices_size, const GLuint* indices, GLuint indices_size, GLsizei indices_count, Material material,Texture texture, VertexLayout layout);
         ~Graphic();
@@ -107,11 +109,13 @@ namespace PrEngine
 
 	struct BatchedGraphic : public Graphic
 	{
-		static const Uint_32 max_vertices_in_batch = 4;// *1000; // 4 vertex per quad * 1000 quads. Arbitrarily set.
+		static const Uint_32 max_vertices_in_batch = 4*1000; // 4 vertex per quad * 1000 quads. Arbitrarily set.
 		static const Uint_32 max_textures_in_batch = MAX_TEXTURES;
 
 		static Uint_32 current_batched_vertex_count;
 		static Uint_32 current_batched_texture_count;
+		std::unordered_map<Uint_32, Uint_32> texture_to_index;
+		std::vector<Uint_32> graphic_ids;
 
 		BatchedGraphic(int batch_index);
 		~BatchedGraphic();

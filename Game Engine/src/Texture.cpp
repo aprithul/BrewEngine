@@ -126,7 +126,7 @@ namespace PrEngine
 		}
     }*/
 
-	Uint_32 Texture::make_texture_array(const std::vector<Uint_32> diffuse_textures)
+	Uint_32 Texture::make_array_texture(const std::vector<Uint_32> diffuse_textures)
 	{
 		texture_library.emplace_back(diffuse_textures, GL_TEXTURE_2D_ARRAY);
 		Uint_32 texture_id = texture_library.size() - 1;

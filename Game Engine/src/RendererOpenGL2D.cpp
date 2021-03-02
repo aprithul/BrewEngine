@@ -12,6 +12,7 @@ namespace PrEngine {
 
 	RendererOpenGL2D* renderer = nullptr;
 
+
 	RendererOpenGL2D::RendererOpenGL2D(Int_32 width, Int_32 height, Bool_8 full_screen, std::string& title, std::string module_name, Int_32 priority):Module(module_name, priority)
     {
 		assert(renderer == nullptr);
@@ -158,12 +159,15 @@ namespace PrEngine {
             (*it)->end();
     }
 
-	static std::vector<GLuint> indices;
-	static std::vector<Vertex> buffer;
-	static std::vector<Uint_32> batch_texture_ids;
-	static Int_32 batch_count = 0;
+	std::vector<GLuint> indices;
+	std::vector<Vertex> buffer;
+	std::vector<Uint_32> batch_texture_ids;
+	std::set<Uint_32> batch_textures_set;
+	std::vector<Uint_32> batch_graphic_ids;
+	Int_32 batch_count = 0;
+	Uint_32 index = 0;
 
-	inline void make_batch(std::vector<Uint_32>& texture_ids)
+	inline void make_batch(std::vector<Uint_32>& texture_ids, Uint_32 usage)
 	{
 		VertexLayout layout;
 		VertexAttribute attribute_0(0, 3, GL_FLOAT, GL_FALSE);
@@ -180,16 +184,37 @@ namespace PrEngine {
 
 		batched_graphics.emplace_back(batch_count++);
 		auto& batch = batched_graphics.back();
+		if (usage == GL_STATIC_DRAW)
+			batch.tag = RENDER_STATIC;
+		else if (usage == GL_DYNAMIC_DRAW)
+		{
+			batch.tag = RENDER_DYNAMIC;
+			batch.graphic_ids = batch_graphic_ids;
+			// store texture indices for dynamic vbo 
+			for (int _i = 0; _i < texture_ids.size(); _i++)
+			{
+				batch.texture_to_index[texture_ids[_i]] = _i;
+			}
+			
+		}
 		
 		Material* mat = Material::get_material(batch.element.material);
 		//memcpy(mat->diffuse_textures, &texture_ids[0], sizeof(Uint_32) * texture_ids.size());
 
-		// make texture array
-		mat->diffuse_textures[0] = Texture::make_texture_array(texture_ids);
-
+		// make array texture
+		mat->diffuse_textures[0] = Texture::make_array_texture(texture_ids);
 
 		batch.element.vao.Generate();
-		batch.element.vbo.Generate(&buffer[0], buffer.size() * sizeof(Vertex));
+
+		if (usage == GL_STATIC_DRAW)
+		{
+			batch.element.vbo.Generate(&buffer[0], buffer.size() * sizeof(Vertex), GL_STATIC_DRAW);
+		}
+		else
+		{
+			batch.element.vbo.Generate(nullptr, sizeof(Vertex) * BatchedGraphic::max_vertices_in_batch, GL_DYNAMIC_DRAW);
+		}
+
 		batch.element.layout = layout;
 
 		for (std::vector<VertexAttribute>::iterator attr = batch.element.layout.vertex_attributes.begin(); attr != batch.element.layout.vertex_attributes.end(); attr++)
@@ -210,152 +235,188 @@ namespace PrEngine {
 		buffer.clear();
 		indices.clear();
 		batch_texture_ids.clear();
+		batch_textures_set.clear();
+		batch_graphic_ids.clear();
+		index = 0;
 	}
 
 
-	void process_vertecies(Uint_32 graphic_id, std::vector<Uint_32>& texture_ids)
+	void process_vertecies(Uint_32 graphic_id, Uint_32 usage)
 	{
 
-		Graphic& graphic = graphics[graphic_id];
-		Uint_32 material_id = graphic.element.material;
-		Transform3D& transform = transforms[graphic.id_transform];
+		indices.push_back(index);
+		indices.push_back(index + 1);
+		indices.push_back(index + 2);
+		indices.push_back(index + 2);
+		indices.push_back(index + 3);
+		indices.push_back(index);
+		index += 4;
 
-
-		assert(material_id);
-		Material* mat = Material::get_material(material_id);
-		Texture* tex = Texture::get_texture(mat->diffuse_textures[0]); //Material::material_library[mat_id].diffuse_texture;
-		Float_32 x_scale = tex->width;
-		Float_32 y_scale = tex->height;
-		Float_32 texco_u = clamp(tex->width /(Float_32) MAX_TEXTURE_SIZE,0.1f,1.0f);
-		Float_32 texco_v = clamp(tex->height / (Float_32)MAX_TEXTURE_SIZE, 0.1f, 1.0f);
-
-		if (x_scale > y_scale)
+		if (usage == GL_STATIC_DRAW)
 		{
-			x_scale = (x_scale / y_scale);
-			y_scale = 1.f;
+			Graphic& graphic = graphics[graphic_id];
+
+			Uint_32 material_id = graphic.element.material;
+			assert(material_id);
+			Material* mat = Material::get_material(material_id);
+			Uint_32 texture_id = mat->diffuse_textures[0];
+			if (batch_texture_ids.size() == 0 || batch_texture_ids.back() != texture_id)
+			{
+				batch_texture_ids.push_back(texture_id);
+			}
+			float texture_index = batch_texture_ids.size() - 1;
+
+
+			Texture* tex = Texture::get_texture(mat->diffuse_textures[0]); //Material::material_library[mat_id].diffuse_texture;
+			Float_32 x_scale = tex->width;
+			Float_32 y_scale = tex->height;
+			Float_32 texco_u = clamp(tex->width / (Float_32)MAX_TEXTURE_SIZE, 0.1f, 1.0f);
+			Float_32 texco_v = clamp(tex->height / (Float_32)MAX_TEXTURE_SIZE, 0.1f, 1.0f);
+
+			if (x_scale > y_scale)
+			{
+				x_scale = (x_scale / y_scale);
+				y_scale = 1.f;
+			}
+			else
+			{
+				y_scale = y_scale / x_scale;
+				x_scale = 1.f;
+			}
+
+			Transform3D& transform = transforms[graphic.id_transform];
+			Vector3<Float_32> p1 = transform.transformation * Vector3<Float_32>{ 0.5f*x_scale, 0.5f*y_scale, 0.0f };
+			Vector3<Float_32> p2 = transform.transformation * Vector3<Float_32>{ -0.5f*x_scale, 0.5f*y_scale, 0.0f };
+			Vector3<Float_32> p3 = transform.transformation * Vector3<Float_32>{ -0.5f*x_scale, -0.5f*y_scale, 0.0f };
+			Vector3<Float_32> p4 = transform.transformation * Vector3<Float_32>{ 0.5f*x_scale, -0.5f*y_scale, 0.0f };
+
+			// find index of texture in set
+			
+
+			/*auto it = std::find(texture_ids.begin(), texture_ids.end(), texture_id);
+			if (it != texture_ids.end())
+			{
+				texture_index = it - texture_ids.begin();
+			}
+			else {
+				LOG(LOGTYPE_ERROR, "Texture index not found when batching");
+			}
+			batch_texture_ids.insert(texture_id);*/
+
+			
+
+			Vertex v1 = {
+				p1.x, p1.y, p1.z,
+
+				1.0f,1.0f,1.0f,1.0f,
+
+				0.0f,
+				0.0f,
+				-1.0f,
+
+				texco_u,
+				texco_v,
+
+				texture_index
+
+			};
+
+			Vertex v2 = {
+				p2.x, p2.y, p2.z,
+
+
+				1.0f,
+				1.0f,
+				1.0f,
+				1.0f,
+
+				0.0f,
+				0.0f,
+				-1.0f,
+
+				0.f,
+				texco_v,
+
+				texture_index
+			};
+
+			Vertex v3 = {
+				p3.x, p3.y, p3.z,
+
+
+				1.0f,
+				1.0f,
+				1.0f,
+				1.0f,
+
+				0.0f,
+				0.0f,
+				-1.0f,
+
+				0.0f,
+				0.0f,
+
+				texture_index
+			};
+
+			Vertex v4 = {
+				p4.x, p4.y, p4.z,
+
+				1.0f,
+				1.0f,
+				1.0f,
+				1.0f,
+
+				0.0f,
+				0.0f,
+				-1.0f,
+
+				texco_u,
+				0.0f,
+
+				texture_index
+			};
+
+			buffer.push_back(v1);
+			buffer.push_back(v2);
+			buffer.push_back(v3);
+			buffer.push_back(v4);
+
+			if (batch_texture_ids.size() == (float)BatchedGraphic::max_textures_in_batch)
+			{
+				//std::vector<Uint_32> batch_textures(batch_texture_ids.begin(), batch_texture_ids.end());
+				make_batch(batch_texture_ids, usage);
+			}
+
 		}
-		else
+		else if (usage == GL_DYNAMIC_DRAW)
 		{
-			y_scale = y_scale / x_scale;
-			x_scale = 1.f;
+			batch_graphic_ids.push_back(graphic_id);
+			Uint_32 id_animator = graphics[graphic_id].id_animator;
+			if (id_animator)
+			{
+				Animation& animation = animators[id_animator].animation;
+				for (Keyframe& frame : animation.frames)
+				{
+					batch_textures_set.insert(frame.texture);
+				}
+			}
+			else
+			{
+				auto t = Material::get_material(graphics[graphic_id].element.material)->diffuse_textures[0];
+				batch_textures_set.insert(t);
+			}
+
+			if (batch_textures_set.size() >= (float)BatchedGraphic::max_textures_in_batch)
+			{
+				std::vector<Uint_32> batch_textures(batch_textures_set.begin(), batch_textures_set.end());
+				make_batch(batch_textures, usage);
+			}
 		}
-
-		Vector3<Float_32> p1 = transform.transformation * Vector3<Float_32>{ 0.5f*x_scale,	0.5f*y_scale, 0.0f };
-		Vector3<Float_32> p2 = transform.transformation * Vector3<Float_32>{ -0.5f*x_scale,0.5f*y_scale, 0.0f };
-		Vector3<Float_32> p3 = transform.transformation * Vector3<Float_32>{ -0.5f*x_scale,-0.5f*y_scale, 0.0f };
-		Vector3<Float_32> p4 = transform.transformation * Vector3<Float_32>{ 0.5f*x_scale,	-0.5f*y_scale, 0.0f };
-
-		// find index of texture in set
-		Uint_32 texture_id = mat->diffuse_textures[0];
 		
-		/*auto it = std::find(texture_ids.begin(), texture_ids.end(), texture_id);
-		if (it != texture_ids.end())
-		{
-			texture_index = it - texture_ids.begin();
-		}
-		else {
-			LOG(LOGTYPE_ERROR, "Texture index not found when batching");
-		}
-		batch_texture_ids.insert(texture_id);*/
-
-		if (batch_texture_ids.size() == 0 || batch_texture_ids.back() != texture_id)
-		{
-			batch_texture_ids.push_back(texture_id);
-		}
-		float texture_index = batch_texture_ids.size()-1;
 
 
-		Vertex v1 = {
-			p1.x, p1.y, p1.z,
-
-			1.0f,1.0f,1.0f,1.0f,
-			
-			0.0f,
-			0.0f,
-			-1.0f,
-
-			texco_u,
-			texco_v,
-			
-			texture_index
-
-		};
-
-		Vertex v2 = {
-			p2.x, p2.y, p2.z,
-
-
-			1.0f,
-			1.0f,
-			1.0f,
-			1.0f,
-
-			0.0f,
-			0.0f,
-			-1.0f,
-
-			0.f,
-			texco_v,
-
-			texture_index
-		};
-
-		Vertex v3 = {
-			p3.x, p3.y, p3.z,
-
-
-			1.0f,
-			1.0f,
-			1.0f,
-			1.0f,
-
-			0.0f,
-			0.0f,
-			-1.0f,
-
-			0.0f,
-			0.0f,
-
-			texture_index
-		};
-
-		Vertex v4 = {
-			p4.x, p4.y, p4.z,
-
-			1.0f,
-			1.0f,
-			1.0f,
-			1.0f,
-
-			0.0f,
-			0.0f,
-			-1.0f,
-
-			texco_u,
-			0.0f,
-
-			texture_index
-		};
-
-		int _i = buffer.size();
-		indices.push_back(_i);
-		indices.push_back(_i+1);
-		indices.push_back(_i+2);
-		indices.push_back(_i+2);
-		indices.push_back(_i+3);
-		indices.push_back(_i);
-
-		buffer.push_back(v1);
-		buffer.push_back(v2);
-		buffer.push_back(v3);
-		buffer.push_back(v4);
-
-
-		if (batch_texture_ids.size() == (float)BatchedGraphic::max_textures_in_batch)
-		{
-			//std::vector<Uint_32> batch_textures(batch_texture_ids.begin(), batch_texture_ids.end());
-			make_batch(batch_texture_ids);
-		}
+		
 	}
 
 	static bool compare(Uint_32 a, Uint_32 b )
@@ -369,28 +430,91 @@ namespace PrEngine {
 			return false;
 	}
 
-	void RendererOpenGL2D::prepare_batches(std::vector<Uint_32> batched_graphic_ids)
+	//void RendererOpenGL2D::prepare_dynmic_batches(std::vector<Uint_32> batched_graphic_ids)
+	//{
+	//	// get all unique textures from all animations
+	//	std::set<Uint_32> texture_ids;
+	//	for (Uint_32 i : batched_graphic_ids)
+	//	{
+	//		Uint_32 id_animator = graphics[i].id_animator;
+	//		if (id_animator)
+	//		{
+	//			Animation& animation = animators[id_animator].animation;
+	//			for (Keyframe& frame : animation.frames)
+	//			{
+	//				texture_ids.insert(frame.texture);
+	//			}
+	//		}
+	//	}
+	//	std::vector<Uint_32> texture_id_vec(texture_ids.begin(), texture_ids.end());
+
+	//	for (auto i : batched_graphic_ids)
+	//	{
+	//		process_vertecies(i, texture_id_vec, GL_DYNAMIC_DRAW);
+	//	}
+
+	//	if (batch_texture_ids.size() > 0) // last batch may not have been created
+	//	{
+	//		std::vector<Uint_32> batch_textures(batch_texture_ids.begin(), batch_texture_ids.end());
+	//		make_batch(batch_textures, GL_DYNAMIC_READ);
+	//	}
+	//}
+
+
+	void RendererOpenGL2D::prepare_batches(std::vector<Uint_32> batched_graphic_ids, Uint_32 usage)
 	{
 		std::sort(batched_graphic_ids.begin(), batched_graphic_ids.end(), compare);
 		
 		// get texture list
-		std::set<Uint_32> texture_ids;
-		for (auto i : batched_graphic_ids)
+		/*std::set<Uint_32> texture_ids;
+		if (usage == GL_STATIC_DRAW)
 		{
-			auto t = Material::get_material(graphics[i].element.material)->diffuse_textures[0];
-			texture_ids.insert(t);
+			for (auto i : batched_graphic_ids)
+			{
+				auto t = Material::get_material(graphics[i].element.material)->diffuse_textures[0];
+				texture_ids.insert(t);
+			}
 		}
-		std::vector<Uint_32> texture_id_vec(texture_ids.begin(), texture_ids.end());
+		else
+		{
+			for (Uint_32 i : batched_graphic_ids)
+			{
+				Uint_32 id_animator = graphics[i].id_animator;
+				if (id_animator)
+				{
+					Animation& animation = animators[id_animator].animation;
+					for (Keyframe& frame : animation.frames)
+					{
+						texture_ids.insert(frame.texture);
+					}
+				}
+				else
+				{
+					auto t = Material::get_material(graphics[i].element.material)->diffuse_textures[0];
+					texture_ids.insert(t);
+				}
+
+			}
+		}
+		std::vector<Uint_32> texture_id_vec(texture_ids.begin(), texture_ids.end());*/
 
 		for (auto i : batched_graphic_ids)
 		{
-			process_vertecies(i, texture_id_vec);
+			process_vertecies(i, usage);
 		}
 
+		// static
 		if (batch_texture_ids.size() > 0) // last batch may not have been created
 		{
 			std::vector<Uint_32> batch_textures(batch_texture_ids.begin(), batch_texture_ids.end());
-			make_batch(batch_textures);
+			make_batch(batch_textures, usage);
+		}
+
+		// dynamic
+		if (batch_textures_set.size() > 0)
+		{
+			std::vector<Uint_32> batch_textures(batch_textures_set.begin(), batch_textures_set.end());
+			make_batch(batch_textures, usage);
 		}
 	}
 
@@ -518,7 +642,7 @@ namespace PrEngine {
 
 		//graphic.bounding_rect = Rect{0,0, x_scale, y_scale };
 		graphic.element.vao.Generate();
-		graphic.element.vbo.Generate(&buffer[0], buffer.size() * sizeof(Vertex));
+		graphic.element.vbo.Generate(&buffer[0], buffer.size() * sizeof(Vertex), GL_STATIC_DRAW);
 		graphic.element.layout = layout;
 		for (std::vector<VertexAttribute>::iterator attr = graphic.element.layout.vertex_attributes.begin(); attr != graphic.element.layout.vertex_attributes.end(); attr++)
 		{
@@ -559,7 +683,7 @@ namespace PrEngine {
 		layout.add_attribute(attribute_2);
 
 		line_graphic.element.vao.Generate();
-		line_graphic.element.vbo.Generate(&lines_buffer[0], lines_buffer.size() * sizeof(Vertex));
+		line_graphic.element.vbo.Generate(&lines_buffer[0], lines_buffer.size() * sizeof(Vertex), GL_STATIC_DRAW);
 		line_graphic.element.layout = layout;
 
 		for (auto attr : line_graphic.element.layout.vertex_attributes)

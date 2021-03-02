@@ -23,10 +23,8 @@
 
 namespace PrEngine {
 
-    class RendererOpenGL2D : public Module
+    struct RendererOpenGL2D : public Module
     {
-
-		public:
 			std::vector<RenderLayer*> render_layers;
 			std::vector<Graphic> static_batches;
 
@@ -50,7 +48,8 @@ namespace PrEngine {
 			void generate_sprite_graphics(Uint_32 graphic_id);
 			void draw_line(Vector3<Float_32> p1, Vector3<Float_32> p2, Vector4<Float_32> color);
 			RenderLayer* get_layer(const std::string& layer_name);
-			void prepare_batches(std::vector<Uint_32> batched_grphic_ids);
+			void prepare_batches(std::vector<Uint_32> batched_grphic_ids, Uint_32 usage);
+			//void prepare_dynmic_batches(std::vector<Uint_32> batched_grphic_ids);
 			//Matrix4x4<Float_32> view_matrix;
 			//Matrix4x4<Float_32> projection;
 
@@ -64,9 +63,11 @@ namespace PrEngine {
 			std::vector<GLuint> lines_indices;
 			std::vector<Vertex> lines_buffer;
 			Graphic line_graphic;
+			//static std::unordered_map<Uint_32, Uint_32> texture_to_index;
     };
 
 	extern RendererOpenGL2D* renderer;
+
 
 }
 

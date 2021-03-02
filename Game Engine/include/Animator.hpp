@@ -23,11 +23,11 @@ namespace PrEngine{
 		Animator();
 		~Animator();
 		Int_32 current_frame_index;
-		Animation current_animation;
+		Animation animation;
 		Float_32 animation_speed;
 		Float_32 animator_time;
 		Uint_32 id_transform;
-		Uint_32 id_graphic;
+		//Uint_32 id_graphic;
 
 		void start() override;
 		void play();
@@ -36,11 +36,10 @@ namespace PrEngine{
 		void update() override;
 		std::string to_string() override;
 
-		static void load_animation(std::string& animation_file);
-		static std::unordered_map<std::string, Animation> animations;
-
-		
+		static Bool_8 load_animation(std::string& animation_file);
+		static std::unordered_map<std::string, Animation> animations_library;
 	};
+
 }
 
 

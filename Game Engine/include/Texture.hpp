@@ -35,7 +35,7 @@ namespace PrEngine
         static Uint_32 load_texture(const std::string& path);
         static void delete_all_texture_data();
         static void delete_all_textures();
-		static Uint_32 make_texture_array(const std::vector<Uint_32> diffuse_textures);
+		static Uint_32 make_array_texture(const std::vector<Uint_32> diffuse_textures);
 
         GLuint id;
 		Int_32 bind_target;

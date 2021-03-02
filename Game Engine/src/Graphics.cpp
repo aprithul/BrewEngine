@@ -41,21 +41,13 @@ namespace PrEngine
     {
     }
 
-    void VertexBuffer::Generate(const Vertex* vertices, GLuint size)
+    void VertexBuffer::Generate(const Vertex* vertices, GLuint size, Uint_32 usage)
     {
         GL_CALL( 
             glGenBuffers(1, &id))
         Bind(); 
-		if (vertices)
-		{
-			//GL_CALL(
-			glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);//)
-		}
-		else
-		{
-			GL_CALL(
-				glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * BatchedGraphic::max_vertices_in_batch, nullptr, GL_STATIC_DRAW))
-		}
+		glBufferData(GL_ARRAY_BUFFER, size, vertices, usage);//)
+
     }
 
     VertexBuffer::~VertexBuffer()
@@ -122,6 +114,8 @@ namespace PrEngine
     {
 		outline_color = Vector3<Float_32>{ 1,1,1 };
 		outline_alpha = 0.f;
+		id_animator = 0;
+		id_transform = 0;
     }
 
 	void Graphic::start()

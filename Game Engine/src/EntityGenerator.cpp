@@ -55,10 +55,10 @@ namespace PrEngine{
 
 		Animator::load_animation("Animations" + PATH_SEP + "my.anim");
 		Uint_32 id_animator = entity_management_system->make_animator_comp(entity);
-		Animation anim = Animator::animations.begin()->second;
-		animators[id_animator].current_animation = anim;
+		Animation anim = Animator::animations_library.begin()->second;
+		animators[id_animator].animation = anim;
 		animators[id_animator].id_transform = id_transform;
-		animators[id_animator].id_graphic = id_graphic;
+		//animators[id_animator].id_graphic = id_graphic;
 
 		//sprites[id].add_to_renderer(renderer);
 
@@ -123,7 +123,9 @@ namespace PrEngine{
 		std::stringstream input(scene_data);
 		std::string entity_str;
 		std::vector<Transform3D*> loaded_transforms;
-		std::vector<Uint_32> batched_graphic_ids;
+		std::vector<Uint_32> static_batched_graphic_ids;
+		std::vector<Uint_32> dynamic_batched_graphic_ids;
+
 		std::vector<Uint_32> unbatched_grpahic_ids;
 		while (std::getline(input, entity_str, '~')) // get an entity
 		{
@@ -132,8 +134,9 @@ namespace PrEngine{
 			std::string entity_name = "-.-";
 			//Entity* entity = EntityManagementSystem::entity_management_system->make_entity(entity_name);
 			Uint_32 entity = entity_management_system->make_entity();
-			Uint_32 id_transform = -1;
-			Uint_32 id_graphic = -1;
+			Uint_32 id_transform = 0;
+			Uint_32 id_graphic = 0;
+			Uint_32 id_animator = 0;
 			while (std::getline(ent, comp_str)) // get a componenet in the entity
 			{
 				std::stringstream comp(comp_str);
@@ -159,15 +162,20 @@ namespace PrEngine{
 						}*/
 						case COMP_ANIMATOR:
 						{	
+							if (Animator::load_animation(tokens[1]))
+							{
+								id_animator = entity_management_system->make_animator_comp(entity);
+								animators[id_animator].animation = Animator::animations_library[tokens[1]];
 
-							Animator::load_animation(tokens[1]);
-							Uint_32 id_animator = entity_management_system->make_animator_comp(entity);
-							animators[id_animator].current_animation = Animator::animations.begin()->second;
-							assert(id_transform != -1);
-							animators[id_animator].id_transform = id_transform;
-							assert(id_graphic != -1);
-							animators[id_animator].id_graphic = id_graphic;
+								assert(id_transform);
+								animators[id_animator].id_transform = id_transform;
+							}
+							else
+								LOG(LOGTYPE_ERROR, "Couldn't create animator");
+							//assert(id_graphic);
+							//animators[id_animator].id_graphic = id_graphic;
 
+							
 							/*Animator* animator = new Animator();
 							for (Int_32 i = 1; i < tokens.size(); i++)
 							{
@@ -187,7 +195,7 @@ namespace PrEngine{
 
 							Uint_32 id_camera = entity_management_system->make_camera_comp(entity);
 							cameras[id_camera].set_orthographic(l, r, b, t, n, f);
-							assert(id_transform != -1);
+							assert(id_transform);
 							cameras[id_camera].id_transform = id_transform;
 
 							/*if (std::stoi(tokens[1]) == ORTHOGRAPHIC)
@@ -212,8 +220,9 @@ namespace PrEngine{
 							Uint_32 mat_id = Material::load_material(material_name);
 							graphics[id_graphic].element.material = mat_id;
 
-						assert(id_transform != -1);
+						assert(id_transform);
 							graphics[id_graphic].id_transform = id_transform;
+							graphics[id_graphic].id_animator = id_animator;
 
 							RenderTag render_tag = (RenderTag)std::atoi(tokens[2].c_str());
 							graphics[id_graphic].tag = render_tag;
@@ -224,10 +233,12 @@ namespace PrEngine{
 									renderer->generate_sprite_graphics(id_graphic);
 									break;
 								case RENDER_STATIC:
-									batched_graphic_ids.push_back(id_graphic);
+									static_batched_graphic_ids.push_back(id_graphic);
 									//renderer->generate_batched_sprite_graphics(id_graphic);
 									break;
 								case RENDER_DYNAMIC:
+									renderer->generate_sprite_graphics(id_graphic);
+									dynamic_batched_graphic_ids.push_back(id_graphic);
 									break;
 							}
 
@@ -244,7 +255,7 @@ namespace PrEngine{
 							Uint_32 id_dir_light = entity_management_system->make_directional_light_comp(entity);
 							directional_lights[id_dir_light].specular = 0.5f;
 							directional_lights[id_dir_light].ambient = 0.3f;
-							assert(id_transform != -1);
+							assert(id_transform);
 							directional_lights[id_dir_light].id_transform = id_transform;
 
 							/*DirectionalLight* light = new DirectionalLight(std::stof(tokens[1]), std::stof(tokens[2]));
@@ -275,8 +286,9 @@ namespace PrEngine{
 		}
 
 		entity_management_system->update_transforms();
-		renderer->prepare_batches(batched_graphic_ids);
-
+		renderer->prepare_batches(static_batched_graphic_ids, GL_STATIC_DRAW);
+		renderer->prepare_batches(dynamic_batched_graphic_ids, GL_DYNAMIC_DRAW);
+		//renderer->prepare_dynmic_batches(dynamic_batched_graphic_ids);
 		// resolve transform hierarchy
 		/*for (std::vector<Transform3D*>::iterator it = loaded_transforms.begin(); it != loaded_transforms.end(); it++)
 		{

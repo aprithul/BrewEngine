@@ -23,6 +23,8 @@ namespace PrEngine {
 		~Animation();
 		std::string clip_name;
 		std::vector<Keyframe> frames;
+
+		static Bool_8 animation_load_status;
 	};
 }
 #endif

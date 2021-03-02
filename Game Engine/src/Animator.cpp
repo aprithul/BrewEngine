@@ -12,7 +12,7 @@
 namespace PrEngine
 {
 
-	std::unordered_map<std::string, Animation> Animator::animations;
+	std::unordered_map<std::string, Animation> Animator::animations_library;
 
 	Animator::Animator():Component(COMP_ANIMATOR)
 	{
@@ -35,7 +35,7 @@ namespace PrEngine
 	void Animator::update()
 	{
 		animator_time += Time::Frame_time;
-		Keyframe frame = current_animation.frames[current_frame_index];
+		Keyframe frame = animation.frames[current_frame_index];
 		if (frame.timestamp <= animator_time * animation_speed)
 		{
 			//transform->translate(frame.position);
@@ -47,9 +47,9 @@ namespace PrEngine
 			transform_dirty_flag[id_transform] = true;
 			//set_valid(transform_dirty_flag, id_transform);
 
-			Material* mat = Material::get_material(graphics[id_graphic].element.material);
-			mat->diffuse_textures[0] = frame.texture;
-			current_frame_index = (current_frame_index+1)%((Int_32)(current_animation.frames.size()));
+			//Material* mat = Material::get_material(graphics[id_graphic].element.material);
+			//mat->diffuse_textures[0] = frame.texture;
+			current_frame_index = (current_frame_index+1)%((Int_32)(animation.frames.size()));
 			
 			// if we've looped around restart timer
 			if (current_frame_index == 0)
@@ -59,15 +59,19 @@ namespace PrEngine
 		}
 	}
 
-	void Animator::load_animation(std::string& file_name)
+	Bool_8 Animator::load_animation(std::string& file_name)
 	{
-		animations.emplace(file_name, file_name);
+		animations_library.emplace(file_name, file_name);
+		if(!Animation::animation_load_status)
+			LOG(LOGTYPE_ERROR, file_name, " : animation loading failed");
+
+		return Animation::animation_load_status;
 	}
 
 	std::string Animator::to_string()
 	{
 		std::string text = std::to_string(COMP_ANIMATOR);
-		for (std::unordered_map<std::string, Animation>::iterator it = animations.begin(); it != animations.end(); it++)
+		for (std::unordered_map<std::string, Animation>::iterator it = animations_library.begin(); it != animations_library.end(); it++)
 		{
 			text += "," + it->second.clip_name;
 		}

@@ -48,5 +48,6 @@
     <None Include="res\Materials\Door10.mat" />
     <None Include="res\Materials\Door11.mat" />
     <None Include="res\Materials\Door12.mat" />
+    <None Include="res\Animations\run.anim" />
   </ItemGroup>
 </Project>
