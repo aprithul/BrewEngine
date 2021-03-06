@@ -66,7 +66,7 @@ namespace PrEngine
 		next_transform_pos = 1;
 		next_transform_order = 1;
     	entity_count = 0;
-
+		
         entity_management_system = this;
     }
 
@@ -367,8 +367,18 @@ namespace PrEngine
 	}*/
 
 
-	void EntityManagementSystem::set_parent_transform(Uint_32 parent_transform, Uint_32& child_transform)
+	void EntityManagementSystem::set_parent_transform(Uint_32 parent_transform, Uint_32 child_transform)
 	{
+		if (parent_transform == child_transform)
+			return;
+		Uint_32 prev_parent = transforms[child_transform].parent_transform;
+		if (prev_parent)
+		{
+			transform_children[prev_parent].erase(child_transform);
+			//auto _i = transform_children[parent_transform].find(child_transform);
+			//if (_i == transform_children[parent_transform].end())
+			//	LOG(LOGTYPE_ERROR, "HELLO");
+		}
 		transforms[child_transform].parent_transform = parent_transform;
 		transform_children[parent_transform].insert(child_transform);
 		decrease_hierarchy_level_recursively(child_transform);
@@ -385,6 +395,7 @@ assert(transform_hierarchy_level > 0);
 		{
 			decrease_hierarchy_level_recursively(it);
 		}
+		return;
 	}
 
 	bool comp(Uint_32 i, Uint_32 j)

@@ -151,9 +151,9 @@ namespace PrEngine
     {
         GL_CALL(
             glUseProgram(0))
-			for (int i = 0; i < MAX_TEXTURES; i++)
+			//for (int i = 0; i < MAX_TEXTURES; i++)
 			{
-				Texture::get_texture(diffuse_textures[i])->Unbind();
+				Texture::get_texture(diffuse_textures[0])->Unbind();
 			}
     }
 

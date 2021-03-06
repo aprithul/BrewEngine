@@ -8,6 +8,7 @@ namespace PrEngine
 {
 	Uint_32 selected_transform = 0;
 	Uint_32 last_selected_transform = 0;
+	
     GuiLayer::GuiLayer(SDL_Window* sdl_window, SDL_GLContext* gl_context):window(sdl_window),gl_context(gl_context)
     {
         this->name = "GUI";
@@ -109,7 +110,7 @@ namespace PrEngine
 
 		draw_editor();
 		ImGui::ShowMetricsWindow();
-
+//		ImGui::ShowDemoWindow();
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData( ImGui::GetDrawData());
     }
@@ -166,6 +167,27 @@ namespace PrEngine
 		if (ImGui::IsItemClicked())
 			selected_transform = id_transform;
 
+		//if (input_manager->mouse.get_mouse_button(SDL_BUTTON_LEFT) && selected_transform)
+		//{
+			if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+			{
+				ImGui::SetDragDropPayload("SCENE_HIERARCHY", &selected_transform, sizeof(Uint_32));
+				ImGui::Text("Copy %d", selected_transform);
+				ImGui::EndDragDropSource();
+			}
+			if (ImGui::BeginDragDropTarget())
+			{
+				const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("SCENE_HIERARCHY");
+				if (payload)
+				{
+					IM_ASSERT(payload->DataSize == sizeof(Uint_32));
+					Uint_32 dragged_transform_id = *(const int*)payload->Data;
+					entity_management_system->set_parent_transform(id_transform, dragged_transform_id);
+				}
+				ImGui::EndDragDropTarget();
+			}
+
+		//}
 
 
 		if (node_open)
@@ -179,6 +201,10 @@ namespace PrEngine
 		}
 	}
 
+
+	Float_32 drag_amount;
+	Float_32 drag_limit = 20;
+	Vector2<Int_32> drag_start;
 	void GuiLayer::draw_editor()
 	{
 		if (!ImGui::Begin("Scene Hierarchy", false))
@@ -197,10 +223,12 @@ namespace PrEngine
 				{
 					max_hierarchy = transform_hierarchy_level[id_t];
 					add_child(id_t);
+					
 				}
 			}
 		}
 		ImGui::End();
+
 
 
 		if (!ImGui::Begin("Inspector", false))

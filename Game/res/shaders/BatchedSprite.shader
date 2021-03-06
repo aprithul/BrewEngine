@@ -6,10 +6,10 @@ layout(location = 2) in vec4 _normal;
 layout(location = 3) in vec2 texco;
 layout(location = 4) in float mat_id;
 
-uniform mat4 u_Model;
+//uniform mat4 u_Model;
 uniform mat4 u_View;
 uniform mat4 u_Projection;
-uniform mat4 u_Normal_M;
+//uniform mat4 u_Normal_M;
 uniform vec3 u_Diffuse_Color;
 uniform vec4 u_Outline_Color;
 uniform vec2 u_Tiling;
@@ -27,8 +27,9 @@ out vec2 out_panning;
 
 void main()
 {
-	gl_Position = u_Projection * u_View * u_Model * position;
-	world_pos = vec3(u_Model * position);
+	//gl_Position = u_Projection * u_View * u_Model * position;
+	gl_Position = u_Projection * u_View * position;
+	//world_pos = vec3(u_Model * position);
 	out_color = _color;
 	out_mat_id = mat_id;
 	out_diffuse_color = u_Diffuse_Color;
@@ -44,7 +45,7 @@ void main()
 //uniform float u_red;
 uniform sampler2DArray u_sampler2d;// [8];
 uniform float u_Ambient_Strength;
-uniform vec3 u_Camera_Position;
+//uniform vec3 u_Camera_Position;
 
 in vec4 out_color;
 in vec3 out_diffuse_color;
@@ -67,4 +68,5 @@ void main()
 		discard;
 	else
 		color = _color;// vec4(1, 1, 1, 1);
+
 }

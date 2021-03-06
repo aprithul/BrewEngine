@@ -52,7 +52,7 @@ namespace PrEngine
 		void Delete();
 
 
-		Texture(const std::string& path, Int_32 target);
+		Texture(const std::string& path, Int_32 target, Bool_8 create_gl_texture = true);
 		Texture(const std::vector<Uint_32> diffuse_textures, Int_32 target);
 		~Texture();
     };

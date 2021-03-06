@@ -17,6 +17,8 @@
 #include <unordered_set>
 #include <unordered_map>
 
+#define EDITOR_MODE
+
 #define MAX_ENTITY_COUNT 8096
 #define MAX_TRANSFORM_COUNT MAX_ENTITY_COUNT
 #define MAX_GRAPHIC_COUNT MAX_ENTITY_COUNT
@@ -34,6 +36,7 @@ namespace PrEngine
 
 	extern Uint_32 transform_order[MAX_ENTITY_COUNT]; //indices are ids. Indirection allows transforms to be updated in correct order 
 	extern Uint_32 transform_hierarchy_level[MAX_ENTITY_COUNT];
+	//extern std::unordered_set<Uint_32> transform_children[MAX_ENTITY_COUNT];
 	extern std::unordered_set<Uint_32> transform_children[MAX_ENTITY_COUNT];
 
 	// component arrays
@@ -112,7 +115,7 @@ namespace PrEngine
 		Bool_8 delete_directional_light_comp(Uint_32 light_id);
 		//Uint_32 delete_transform_comp(Uint_32 transform_id);
 
-		void set_parent_transform(Uint_32 parent_transform, Uint_32& child_transform);
+		void set_parent_transform(Uint_32 parent_transform, Uint_32 child_transform);
 		void decrease_hierarchy_level_recursively(Uint_32 transform);
 		void sort_transform_order();
 		Uint_32 get_active_camera();

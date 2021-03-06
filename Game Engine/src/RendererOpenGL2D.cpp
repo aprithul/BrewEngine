@@ -11,7 +11,8 @@
 namespace PrEngine {
 
 	RendererOpenGL2D* renderer = nullptr;
-
+	GLint max_layers;
+	GLint max_texture_units = 0;
 
 	RendererOpenGL2D::RendererOpenGL2D(Int_32 width, Int_32 height, Bool_8 full_screen, std::string& title, std::string module_name, Int_32 priority):Module(module_name, priority)
     {
@@ -76,10 +77,9 @@ namespace PrEngine {
 
 		renderer = this;
 
-		GLint texture_units;
-		glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &texture_units);
 		
-		assert(texture_units >= BatchedGraphic::max_textures_in_batch);
+		glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &max_texture_units);
+		glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &max_layers);	//max depth of array textures
     }
 
 
@@ -382,7 +382,7 @@ namespace PrEngine {
 			buffer.push_back(v3);
 			buffer.push_back(v4);
 
-			if (batch_texture_ids.size() == (float)BatchedGraphic::max_textures_in_batch)
+			if (batch_texture_ids.size() == max_layers)
 			{
 				//std::vector<Uint_32> batch_textures(batch_texture_ids.begin(), batch_texture_ids.end());
 				make_batch(batch_texture_ids, usage);
@@ -407,7 +407,7 @@ namespace PrEngine {
 				batch_textures_set.insert(t);
 			}
 
-			if (batch_textures_set.size() >= (float)BatchedGraphic::max_textures_in_batch)
+			if (batch_textures_set.size() >= max_layers)
 			{
 				std::vector<Uint_32> batch_textures(batch_textures_set.begin(), batch_textures_set.end());
 				make_batch(batch_textures, usage);

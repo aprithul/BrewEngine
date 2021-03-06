@@ -105,6 +105,14 @@ namespace PrEngine {
 			return sqrt(x*x + y * y);
 
 		}
+
+		static Float_32 distance(Vector2<T> a, Vector2<T> b)
+		{
+			Float_32 dist = 0;
+			dist = (a.x - b.x)*(a.x - b.x) + (a.y - b.y)*(a.y - b.y);
+			dist = std::sqrt(dist);
+			return dist;
+		}
 	};
 
 
@@ -213,6 +221,14 @@ namespace PrEngine {
 		{
 			std::string ret = std::to_string(x) + "," + std::to_string(y) + "," + std::to_string(z);
 			return ret;
+		}
+
+		static Float_32 distance(Vector3<T> a, Vector3<T> b)
+		{
+			Float_32 dist = 0;
+			dist = (a.x - b.x)*(a.x - b.x) + (a.y - b.y)*(a.y - b.y) + (a.z - b.z)*(a.z - b.z);
+			dist = std::sqrt(dist);
+			return dist;
 		}
     };
 	

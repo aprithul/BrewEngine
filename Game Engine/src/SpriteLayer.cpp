@@ -2,7 +2,7 @@
 #include "RendererOpenGL2D.hpp"
 namespace PrEngine
 {
-
+	extern GLint max_texture_units;
     SpriteLayer::SpriteLayer()
     {
         this->name = "Sprite";
@@ -43,14 +43,21 @@ namespace PrEngine
 		//graphic.bounding_rect.y = transform.position.y;
 		//std::cout<<"before: "<<grp->element.material.uniform_locations["u_MVP"]  <<std::endl;
 
+		// only bind texture for the last texture unit. Ideally we want to have fewer units in use
+		// to avoid binding all together. Assumption is that textures are bound at consturction and
+		// remain bound
+		Texture* tex = Texture::get_texture(mat->diffuse_textures[0]);
+		//if (tex->bind_unit == max_texture_units - 1)
 		mat->Bind();
-		
+
+		//glActiveTexture(GL_TEXTURE0 + tex->bind_unit);
 		Shader* shader = Shader::get_shader(mat->shader);
 		if (shader == nullptr)
 		{
 			LOG(LOGTYPE_ERROR, "Shader couldn't be found");
 			return;
 		}
+		//glUseProgram(shader->id);
 		auto& uniform_loc = shader->uniform_locations;
 
 
@@ -86,14 +93,14 @@ namespace PrEngine
 				glUniform1iv(it.second.second, _count, texture_bind_units);//)*/
 			}
 			break;
-			case ShaderUniformName::u_Dir_Light:
+			/*case ShaderUniformName::u_Dir_Light:
 				GL_CALL(
 					glUniform3f(it.second.second, _dir.x, _dir.y, _dir.z))
 					break;
 			case ShaderUniformName::u_Model:
 				GL_CALL(
 					glUniformMatrix4fv(it.second.second, 1, GL_TRUE, transform.transformation.data))
-					break;
+					break;*/
 			case ShaderUniformName::u_View:
 				GL_CALL(
 					glUniformMatrix4fv(it.second.second, 1, GL_TRUE, _camera.view_matrix.data))
@@ -117,14 +124,14 @@ namespace PrEngine
 				GL_CALL(
 					glUniformMatrix4fv(it.second.second, 1, GL_TRUE, _camera.projection_matrix.data))
 					break;
-			case ShaderUniformName::u_Camera_Position:
+			/*case ShaderUniformName::u_Camera_Position:
 				GL_CALL(
 					glUniform3f(it.second.second, _cam_pos.x, _cam_pos.y, _cam_pos.z))
 					break;
 			case ShaderUniformName::u_Normal_M:
 				GL_CALL(
 					glUniformMatrix4fv(it.second.second, 1, GL_TRUE, transform.rotation_transformation.data))
-					break;
+					break;*/
 			case ShaderUniformName::u_Panning:
 				GL_CALL(
 					glUniform2f(it.second.second, mat->panning.x, mat->panning.y))
@@ -165,7 +172,7 @@ namespace PrEngine
 			glDrawElements(GL_TRIANGLES, element.ibo.count, GL_UNSIGNED_INT, nullptr));
 		element.vao.Unbind();
 		element.ibo.Unbind();
-		mat->Unbind();
+		//mat->Unbind();
 
 	}
 
@@ -183,7 +190,7 @@ namespace PrEngine
 		Vector3<Float_32> _dir = get_transform(_light.id_transform).get_forward();
 
 		
-		if (renderer->lines_buffer.size() > 0)
+		/*if (renderer->lines_buffer.size() > 0)
 		{
 			GraphicsElement& element = renderer->line_graphic.element;
 			Material* mat = Material::get_material(element.material);
@@ -230,7 +237,7 @@ namespace PrEngine
 			element.ibo.Delete();
 			element.vao.Delete();
 		}
-
+*/
 
 		//for (Uint_32 _i = 0; _i < MAX_GRAPHIC_COUNT; _i++)
 		//{
@@ -274,7 +281,7 @@ namespace PrEngine
 
 					}
 					texture_index = batch.texture_to_index[texture_id];
-					LOG(LOGTYPE_WARNING, std::to_string(texture_index));
+					//LOG(LOGTYPE_WARNING, std::to_string(texture_index));
 					Texture* tex = Texture::get_texture(texture_id); //Material::material_library[mat_id].diffuse_texture;
 					Float_32 x_scale = tex->width;
 					Float_32 y_scale = tex->height;

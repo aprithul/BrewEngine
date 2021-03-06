@@ -1,5 +1,6 @@
 #include "Texture.hpp"
 #include "Utils.hpp"
+#include "EntityManagementSystemModule.hpp"
 namespace PrEngine
 {
     Int_32 Texture::texture_create_status;
@@ -8,11 +9,19 @@ namespace PrEngine
     std::vector<Texture> Texture::texture_library;
 	std::vector<std::string> Texture::texture_names;
 	Uint_32 Texture::next_bind_unit = 0;
-    Texture::Texture(const std::string& path, Int_32 target)
+	extern GLint max_texture_units;
+
+    Texture::Texture(const std::string& path, Int_32 target, Bool_8 create_gl_texture)
     {
+		bind_target = target;
+		bind_unit = 0;
+		id = 0;
         texture_create_status = 0;
         stbi_set_flip_vertically_on_load(true);
 		this->path = 0;
+
+
+
 		//this->path = std::string(path);
         if(texture_data_library.count(path) > 0)
         {
@@ -45,33 +54,36 @@ namespace PrEngine
         else
         {
 
-			
-			bind_unit = next_bind_unit;
-			bind_target = target;
-			next_bind_unit++;
-            GL_CALL(glGenTextures(1, &id))
-            GL_CALL(glActiveTexture(GL_TEXTURE0+bind_unit))
-				LOG(LOGTYPE_GENERAL, "Image ", std::string(path), " loaded : "+ std::to_string(bind_unit));
+			if (create_gl_texture)
+			{
+				bind_unit = next_bind_unit;
+				if (next_bind_unit < max_texture_units - 1)
+					next_bind_unit++;
 
-            GL_CALL(glBindTexture(bind_target, id))
-            GL_CALL(glTexParameteri(bind_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR))
-            GL_CALL(glTexParameteri(bind_target, GL_TEXTURE_MAG_FILTER, GL_LINEAR))
-            GL_CALL(glTexParameteri(bind_target, GL_TEXTURE_WRAP_S, GL_REPEAT))
-            GL_CALL(glTexParameteri(bind_target, GL_TEXTURE_WRAP_T, GL_REPEAT))
-            
-            GLenum type = GL_RGBA;
-            switch(no_of_channels)
-            {
-                case 1:type = GL_R;break;
-                case 2:type = GL_RG;break;
-                case 3:type = GL_RGB;break;
-                case 4:type = GL_RGBA;break;
-            }
-			LOG(LOGTYPE_GENERAL, "Number of channels ", std::to_string(no_of_channels));
-			LOG(LOGTYPE_GENERAL, "Number of channels ", std::to_string(type));
-			GL_CALL(glTexImage2D(bind_target, 0, type, width, height, 0, type, GL_UNSIGNED_BYTE, data))
-			GL_CALL(glGenerateMipmap(bind_target))
+				//next_bind_unit++;
+				GL_CALL(glGenTextures(1, &id))
+				GL_CALL(glActiveTexture(GL_TEXTURE0 + bind_unit))
+				LOG(LOGTYPE_GENERAL, "Image ", std::string(path), " loaded : " + std::to_string(bind_unit));
 
+				GL_CALL(glBindTexture(bind_target, id))
+				GL_CALL(glTexParameteri(bind_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR))
+				GL_CALL(glTexParameteri(bind_target, GL_TEXTURE_MAG_FILTER, GL_LINEAR))
+				GL_CALL(glTexParameteri(bind_target, GL_TEXTURE_WRAP_S, GL_REPEAT))
+				GL_CALL(glTexParameteri(bind_target, GL_TEXTURE_WRAP_T, GL_REPEAT))
+
+				GLenum type = GL_RGBA;
+				switch (no_of_channels)
+				{
+					case 1:type = GL_R; break;
+					case 2:type = GL_RG; break;
+					case 3:type = GL_RGB; break;
+					case 4:type = GL_RGBA; break;
+				}
+				LOG(LOGTYPE_GENERAL, "Number of channels ", std::to_string(no_of_channels));
+				LOG(LOGTYPE_GENERAL, "Number of channels ", std::to_string(type));
+				GL_CALL(glTexImage2D(bind_target, 0, type, width, height, 0, type, GL_UNSIGNED_BYTE, data))
+				GL_CALL(glGenerateMipmap(bind_target))
+			}
             //GL_CALL(glBindTexture(GL_TEXTURE_2D, 0))
             texture_create_status = 1;
         }
@@ -82,6 +94,7 @@ namespace PrEngine
 	{
 		Texture* _t = Texture::get_texture(diffuse_textures[0]);
 		Uint_32 _size = _t->width* _t->height*_t->no_of_channels;
+		bind_target = target;
 
 		GLuint texture = 0;
 
@@ -89,11 +102,15 @@ namespace PrEngine
 		GLsizei height = MAX_TEXTURE_SIZE;
 		GLsizei layerCount = diffuse_textures.size();
 		GLsizei mipLevelCount = 4;
-		bind_target = GL_TEXTURE_2D_ARRAY;
-		bind_unit = 0;
+		//bind_target = GL_TEXTURE_2D_ARRAY;
+		bind_unit = next_bind_unit;
+		if (next_bind_unit < max_texture_units - 1)
+			next_bind_unit++;
 
 		glGenTextures(1, &id);
+		glActiveTexture(GL_TEXTURE0 + bind_unit);
 		glBindTexture(bind_target, id);
+
 		// Allocate the storage.
 		glTexStorage3D(bind_target, mipLevelCount, GL_RGBA8, width, height, layerCount);
 		for (int i = 0; i < diffuse_textures.size(); i++)
@@ -110,6 +127,7 @@ namespace PrEngine
 		glTexParameteri(bind_target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(bind_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(bind_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glBindTexture(bind_target, 0);
 
 
 	}
@@ -155,7 +173,14 @@ namespace PrEngine
 		if (present_at == -1)
 		{
 			//_tex = new Texture(path.c_str());
-			texture_library.emplace_back(path.c_str(), GL_TEXTURE_2D);
+#ifdef EDITOR_MODE
+			texture_library.emplace_back(path.c_str(), GL_TEXTURE_2D, true);
+#else
+			texture_library.emplace_back(path.c_str(), GL_TEXTURE_2D, false);
+
+#endif // DEBUG
+
+
 			if (Texture::texture_create_status == 0)     // creating texture failed, so assign default
 			{
 				Texture* _tex = &texture_library.back();

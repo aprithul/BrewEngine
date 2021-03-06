@@ -25,7 +25,6 @@ namespace PrEngine{
 		Int_32 current_frame_index;
 		Animation animation;
 		Float_32 animation_speed;
-		Float_32 animator_time;
 		Uint_32 id_transform;
 		//Uint_32 id_graphic;
 

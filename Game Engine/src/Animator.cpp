@@ -18,7 +18,6 @@ namespace PrEngine
 	{
 		animation_speed = 1.f;
 		current_frame_index = 0;
-		animator_time = 0;
 	}
 
 	Animator::~Animator()
@@ -34,9 +33,11 @@ namespace PrEngine
 	
 	void Animator::update()
 	{
-		animator_time += Time::Frame_time;
+		static Float_32 frame_time = 0;
+		frame_time += Time::Frame_time;
 		Keyframe frame = animation.frames[current_frame_index];
-		if (frame.timestamp <= animator_time * animation_speed)
+		
+		if (frame.timestamp <= frame_time * animation_speed)
 		{
 			//transform->translate(frame.position);
 			
@@ -50,12 +51,7 @@ namespace PrEngine
 			//Material* mat = Material::get_material(graphics[id_graphic].element.material);
 			//mat->diffuse_textures[0] = frame.texture;
 			current_frame_index = (current_frame_index+1)%((Int_32)(animation.frames.size()));
-			
-			// if we've looped around restart timer
-			if (current_frame_index == 0)
-			{
-				animator_time = 0;
-			}
+			frame_time = 0;
 		}
 	}
 

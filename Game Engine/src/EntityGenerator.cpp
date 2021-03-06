@@ -2,7 +2,7 @@
  * EntityGenerator.cpp
  *
  *  Created on: Sep 15, 2020
- *      Author: cobre
+ *      Author: Aniruddha Prithul
  */
 
 #include "EntityGenerator.hpp"
@@ -225,19 +225,24 @@ namespace PrEngine{
 							graphics[id_graphic].id_animator = id_animator;
 
 							RenderTag render_tag = (RenderTag)std::atoi(tokens[2].c_str());
+#ifdef EDITOR_MODE
+							render_tag = RENDER_DYNAMIC;
+#endif
+
 							graphics[id_graphic].tag = render_tag;
 
 							switch (render_tag)
 							{
-								case RENDER_UNTAGGED:
-									renderer->generate_sprite_graphics(id_graphic);
+								case RENDER_UNTAGGED:	// removing this will mess up the scene graph file
+									//renderer->generate_sprite_graphics(id_graphic);
+									assert(1);
 									break;
 								case RENDER_STATIC:
 									static_batched_graphic_ids.push_back(id_graphic);
 									//renderer->generate_batched_sprite_graphics(id_graphic);
 									break;
 								case RENDER_DYNAMIC:
-									renderer->generate_sprite_graphics(id_graphic);
+									//renderer->generate_sprite_graphics(id_graphic);
 									dynamic_batched_graphic_ids.push_back(id_graphic);
 									break;
 							}
