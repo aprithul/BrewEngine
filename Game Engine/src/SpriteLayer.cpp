@@ -27,7 +27,7 @@ namespace PrEngine
 	}
 
 	int draw_calls = 0;
-	inline void render_graphic(Graphic& graphic, Transform3D& transform, Camera& _camera, DirectionalLight& _light, Vector3<Float_32> _cam_pos, Vector3<Float_32> _dir)
+	inline void render_graphic(Graphic& graphic, Matrix4x4<Float_32>& transformation, Camera& _camera, DirectionalLight& _light, Vector3<Float_32> _cam_pos, Vector3<Float_32> _dir)
 	{
 		
 		draw_calls++;
@@ -96,11 +96,11 @@ namespace PrEngine
 			/*case ShaderUniformName::u_Dir_Light:
 				GL_CALL(
 					glUniform3f(it.second.second, _dir.x, _dir.y, _dir.z))
-					break;
+					break;*/
 			case ShaderUniformName::u_Model:
 				GL_CALL(
-					glUniformMatrix4fv(it.second.second, 1, GL_TRUE, transform.transformation.data))
-					break;*/
+					glUniformMatrix4fv(it.second.second, 1, GL_TRUE, transformation.data))
+					break;
 			case ShaderUniformName::u_View:
 				GL_CALL(
 					glUniformMatrix4fv(it.second.second, 1, GL_TRUE, _camera.view_matrix.data))
@@ -239,21 +239,21 @@ namespace PrEngine
 		}
 */
 
-		//for (Uint_32 _i = 0; _i < MAX_GRAPHIC_COUNT; _i++)
-		//{
-		//	if (graphics_entity_id[_i])//  is_valid(graphic_active_status, graphics[_i].entity))
-		//	{
-		//		//UpdateTransforms(transform);
-		//		//Matrix4x4<Float_32> mvp = (projection) * (*(grp->model)) ;
-		//		auto& graphic = graphics[_i];
-		//		if (graphic.tag == RENDER_STATIC)
-		//			continue;
+		for (Uint_32 _i = 0; _i < MAX_GRAPHIC_COUNT; _i++)
+		{
+			if (graphics_entity_id[_i])//  is_valid(graphic_active_status, graphics[_i].entity))
+			{
+				//UpdateTransforms(transform);
+				//Matrix4x4<Float_32> mvp = (projection) * (*(grp->model)) ;
+				auto& graphic = graphics[_i];
+				if (graphic.tag != RENDER_UNTAGGED)
+					continue;
 
-		//		auto& transform = transforms[graphic.id_transform];
-		//		render_graphic(graphic, transform, _camera, _light, _cam_pos, _dir);
-		//		
-		//	}
-		//}
+				auto& transform = transforms[graphic.id_transform];
+				render_graphic(graphic, transform.transformation, _camera, _light, _cam_pos, _dir);
+				
+			}
+		}
 		
 		for (auto& batch : batched_graphics)
 		{
@@ -271,9 +271,11 @@ namespace PrEngine
 
 					Uint_32 animator_id = graphic.id_animator;
 					Uint_32 texture_id = 0;
+					Matrix4x4<Float_32> anim_tr = Matrix4x4<Float_32>::identity();
 					if (animator_id)
 					{
 						Animator& anim = animators[animator_id];
+						anim_tr = anim.translation*anim.rotation*anim.scale;
 						texture_id = anim.animation.frames[anim.current_frame_index].texture;
 					}
 					else {
@@ -300,10 +302,10 @@ namespace PrEngine
 					}
 
 					Transform3D& transform = transforms[graphic.id_transform];
-					Vector3<Float_32> p1 = transform.transformation * Vector3<Float_32>{ 0.5f*x_scale, 0.5f*y_scale, 0.0f };
-					Vector3<Float_32> p2 = transform.transformation * Vector3<Float_32>{ -0.5f*x_scale, 0.5f*y_scale, 0.0f };
-					Vector3<Float_32> p3 = transform.transformation * Vector3<Float_32>{ -0.5f*x_scale, -0.5f*y_scale, 0.0f };
-					Vector3<Float_32> p4 = transform.transformation * Vector3<Float_32>{ 0.5f*x_scale, -0.5f*y_scale, 0.0f };
+					Vector3<Float_32> p1 = transform.transformation * anim_tr * Vector3<Float_32>{ 0.5f*x_scale, 0.5f*y_scale, 0.0f };
+					Vector3<Float_32> p2 = transform.transformation * anim_tr * Vector3<Float_32>{ -0.5f*x_scale, 0.5f*y_scale, 0.0f };
+					Vector3<Float_32> p3 = transform.transformation * anim_tr * Vector3<Float_32>{ -0.5f*x_scale, -0.5f*y_scale, 0.0f };
+					Vector3<Float_32> p4 = transform.transformation * anim_tr * Vector3<Float_32>{ 0.5f*x_scale, -0.5f*y_scale, 0.0f };
 
 					Vertex v1 = {
 						p1.x, p1.y, p1.z,
@@ -389,7 +391,10 @@ namespace PrEngine
 
 			}
 
-			render_graphic(batch, transforms[0], _camera, _light, _cam_pos, _dir); // transforms[0] is an 'identity' transformation
+			auto& t = transforms[batch.id_transform].transformation;
+			//if (batch.id_animator)
+			//	t = animators[batch.id_animator].translation * t;
+			render_graphic(batch, t, _camera, _light, _cam_pos, _dir); // transforms[0] is an 'identity' transformation
 		}
 
 		//LOG(LOGTYPE_WARNING, "Draw calls : ", std::to_string(draw_calls));

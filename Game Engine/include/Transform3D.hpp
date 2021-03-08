@@ -35,7 +35,11 @@ namespace PrEngine{
 		const Vector3<Float_32> get_forward();
 		const Vector3<Float_32> get_right();
 		const Vector3<Float_32> get_up();
-	
+
+		Vector3<Float_32> get_global_position();
+		Vector3<Float_32> get_global_rotation();
+		Vector3<Float_32> get_global_to_local_position(Vector3<Float_32> global_pos);
+		Vector3<Float_32> get_global_to_local_rotation(Vector3<Float_32> global_rot);
     };
 
 	extern Transform3D transforms[];

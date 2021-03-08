@@ -58,7 +58,7 @@ namespace PrEngine {
 
         std::cout<<"Loading default texture"<<std::endl;
         //Texture::load_default_texture();
-		Uint_32 mat = Material::load_material("Materials\\Default.mat");
+		Uint_32 mat = Material::load_material("Materials\\Default.mat", true);
 		
 		assert(Material::material_creation_status); // default material has to be created for engine to work
 
@@ -182,8 +182,11 @@ namespace PrEngine {
 		layout.add_attribute(attribute_3);
 		layout.add_attribute(attribute_4);
 
-		batched_graphics.emplace_back(batch_count++);
+		batched_graphics.emplace_back();
 		auto& batch = batched_graphics.back();
+		batch.element.material = Material::load_material("Materials" + PATH_SEP + "Batch.mat", false, std::to_string(batch_count++));
+		batch.id_transform = 0;	// use identity unless modified later ( eg. animations)
+
 		if (usage == GL_STATIC_DRAW)
 			batch.tag = RENDER_STATIC;
 		else if (usage == GL_DYNAMIC_DRAW)
@@ -663,7 +666,7 @@ namespace PrEngine {
 
 	void RendererOpenGL2D::draw_line(Vector3<Float_32> p1, Vector3<Float_32> p2, Vector4<Float_32> color)
 	{
-		Uint_32 mat_id = Material::load_material("default.mat");
+		Uint_32 mat_id = Material::load_material("default.mat", true);
 		assert(mat_id);
 		Material& mat = Material::material_library[mat_id];
 		line_graphic.element.material = mat_id;

@@ -102,5 +102,51 @@ namespace  PrEngine
 
 		return text;
     }
+
+
+	Vector3<Float_32> Transform3D::get_global_position()
+	{
+		//Vector3<Float_32> parent_pos;
+		Matrix4x4<Float_32> parent_t = Matrix4x4<Float_32>::identity();
+		if (parent_transform)
+			parent_t = transforms[parent_transform].transformation;
+		auto pos = parent_t * position;
+		return pos;
+	}
+
+	Vector3<Float_32> Transform3D::get_global_rotation()
+	{
+		Vector3<Float_32> parent_rotation;
+		if (parent_transform)
+			parent_rotation = transforms[parent_transform].get_global_rotation();
+
+		return parent_rotation + rotation;
+	}
+
+	Vector3<Float_32> Transform3D::get_global_to_local_position(Vector3<Float_32> global_pos)
+	{
+		Matrix4x4<Float_32> parent_t = Matrix4x4<Float_32>::identity();
+		Vector3<Float_32> parent_gp;
+		if (parent_transform)
+		{
+			parent_gp = transforms[parent_transform].get_global_position();
+			parent_t = transforms[parent_transform].transformation;
+		}
+
+		Vector3<Float_32> local_pos = parent_t.transpose() * (global_pos - parent_gp);
+		return local_pos;
+	}
+
+	Vector3<Float_32> Transform3D::get_global_to_local_rotation(Vector3<Float_32> global_rot)
+	{
+		Vector3<Float_32> parent_rot;
+		if (parent_transform)
+			parent_rot = transforms[parent_transform].get_global_rotation();
+
+		Vector3<Float_32> local_rot = global_rot - parent_rot;
+		return local_rot;
+	}
+
+
 	
 }

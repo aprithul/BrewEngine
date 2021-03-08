@@ -132,9 +132,8 @@ namespace PrEngine
 	Uint_32 BatchedGraphic::current_batched_vertex_count = 0;
 	Uint_32 BatchedGraphic::current_batched_texture_count = 0;
 
-	BatchedGraphic::BatchedGraphic(int batch_index)
+	BatchedGraphic::BatchedGraphic()
 	{
-		element.material = Material::load_material("Materials" + PATH_SEP + "Batch.mat", std::to_string(batch_index));
 	}
 
 	BatchedGraphic::~BatchedGraphic()

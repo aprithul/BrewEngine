@@ -46,7 +46,7 @@ namespace PrEngine{
 
 		Uint_32 id_graphic = entity_management_system->make_graphic_comp(entity);
 		//renderer->generate_sprite_graphics(id_graphic, image_file_path, std::string("sprite_mat_")+image_file_path);
-		Uint_32 mat_id = Material::load_material(material_name);
+		Uint_32 mat_id = Material::load_material(material_name, true);
 		graphics[id_graphic].element.material = mat_id;
 
 		renderer->generate_sprite_graphics(id_graphic);
@@ -108,7 +108,7 @@ namespace PrEngine{
 		auto g_id = entity_management_system->make_graphic_comp(e);
 		//renderer->generate_sprite_graphics(g_id, image_file_path, std::string("sprite_mat_") + image_file_path);
 
-		Uint_32 mat_id = Material::load_material(material_name);
+		Uint_32 mat_id = Material::load_material(material_name, true);
 		graphics[g_id].element.material = mat_id;
 
 		renderer->generate_sprite_graphics(g_id);
@@ -168,6 +168,11 @@ namespace PrEngine{
 								animators[id_animator].animation = Animator::animations_library[tokens[1]];
 
 								assert(id_transform);
+				
+								/*Uint_32 entity_2 = entity_management_system->make_entity();
+								Uint_32 id_transform_2 = entity_management_system->make_transform_comp(entity_2);
+								entity_management_system->set_parent_transform(id_transform, id_transform_2);
+								id_transform = id_transform_2;*/
 								animators[id_animator].id_transform = id_transform;
 							}
 							else
@@ -216,26 +221,47 @@ namespace PrEngine{
 						{
 							id_graphic = entity_management_system->make_graphic_comp(entity);
 							
+							RenderTag render_tag = (RenderTag)std::atoi(tokens[2].c_str());
+#ifdef EDITOR_MODE
+							//if (render_tag == RENDER_STATIC) render_tag = RENDER_DYNAMIC;
+							render_tag = RENDER_UNTAGGED;
+#endif
+							if (id_animator)
+								render_tag = RENDER_DYNAMIC;
+
+							graphics[id_graphic].tag = render_tag;
 							std::string material_name = tokens[1];
-							Uint_32 mat_id = Material::load_material(material_name);
+							Bool_8 create_gl_texture = render_tag == RENDER_UNTAGGED;
+							if (create_gl_texture)
+								LOG(LOGTYPE_GENERAL,"");
+							Uint_32 mat_id = Material::load_material(material_name, create_gl_texture);
 							graphics[id_graphic].element.material = mat_id;
 
 						assert(id_transform);
 							graphics[id_graphic].id_transform = id_transform;
 							graphics[id_graphic].id_animator = id_animator;
 
-							RenderTag render_tag = (RenderTag)std::atoi(tokens[2].c_str());
-#ifdef EDITOR_MODE
-							render_tag = RENDER_DYNAMIC;
-#endif
-
-							graphics[id_graphic].tag = render_tag;
-
 							switch (render_tag)
 							{
-								case RENDER_UNTAGGED:	// removing this will mess up the scene graph file
-									//renderer->generate_sprite_graphics(id_graphic);
-									assert(1);
+								case RENDER_UNTAGGED:	
+								{	//renderer->generate_sprite_graphics(id_graphic);
+
+									// we always batch animationn frames
+									//if (id_animator)
+									//{
+									//	//entity_management_system->update_transforms();
+									//	//animators[id_animator].animation.frames;
+									//	std::vector<Uint_32> anim_graphic;
+									//	anim_graphic.push_back(id_graphic);
+									//	renderer->prepare_batches(anim_graphic, GL_DYNAMIC_DRAW);
+									//	batched_graphics.back().id_transform = id_transform;
+									//	batched_graphics.back().id_animator = id_animator;
+									//}
+									//else
+										renderer->generate_sprite_graphics(id_graphic);
+
+
+								}
 									break;
 								case RENDER_STATIC:
 									static_batched_graphic_ids.push_back(id_graphic);
@@ -269,7 +295,6 @@ namespace PrEngine{
 						}	
 						case COMP_TRANSFORM_3D:
 						{
-
 							id_transform = entity_management_system->make_transform_comp(entity);
 							LOG(LOGTYPE_WARNING, std::to_string(id_transform));
 							transform_id_mapping[std::stoi(tokens[11])] = id_transform;	//mapping for finding parents
@@ -279,7 +304,7 @@ namespace PrEngine{
 							Uint32 parent_transform_id =  transform_id_mapping[std::stoi(tokens[10])];	
 							if(parent_transform_id)
 								entity_management_system->set_parent_transform(parent_transform_id, id_transform);
-
+							get_transform(id_transform).update_transformation();
 							break;
 						}
 						case COMP_UNKNOWN:

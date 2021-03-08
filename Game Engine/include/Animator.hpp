@@ -18,14 +18,30 @@
 #include <string>
 #include <unordered_map>
 namespace PrEngine{
+
+	enum ANIM_FLAGS
+	{
+		ANIM_TRANSLATE,
+		ANIM_ROTATE,
+		ANIM_SCALE,
+
+		ANIM_COUNT
+	};
+
 	struct Animator : public Component
 	{
 		Animator();
 		~Animator();
-		Int_32 current_frame_index;
 		Animation animation;
+
+		Matrix4x4<Float_32> translation;// = Matrix4x4<Float_32>::identity();
+		Matrix4x4<Float_32> rotation;// = Matrix4x4<Float_32>::identity();
+		Matrix4x4<Float_32> scale;// = Matrix4x4<Float_32>::identity();
+
+		Int_32 current_frame_index;
 		Float_32 animation_speed;
 		Uint_32 id_transform;
+
 		//Uint_32 id_graphic;
 
 		void start() override;
@@ -42,4 +58,4 @@ namespace PrEngine{
 }
 
 
-#endif /* INCLUDE_ANIMATOR_HPP_ */
+#endif

@@ -31,7 +31,6 @@ namespace PrEngine
 		u_Diffuse_Color,
 		u_Outline_Color,
 		u_Ambient_Strength,
-
 		u_count
 	};
 
@@ -60,7 +59,7 @@ namespace PrEngine
         static std::vector<Material> material_library;
 		static std::vector<std::string> material_names;
 
-		static Uint_32 load_material(const std::string& name, const std::string& name_modifier = "");
+		static Uint_32 load_material(const std::string& name, Bool_8 create_gl_texture, const std::string& name_modifier = "");
 		static Bool_8 material_creation_status;
 		static inline Material* get_material(Uint_32 mat_id);
         static void delete_all_materials();
@@ -76,7 +75,7 @@ namespace PrEngine
 		Vector2<Float_32> tiling;
         Vector2<Float_32> panning;
 		Material();
-		Material(const std::string& shader_path, const std::string& diffuse_tex_path, const std::string& name);
+		Material(Uint_32 shader, Uint_32 texture, const std::string& name);
 		~Material();
 
     };

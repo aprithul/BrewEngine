@@ -11,7 +11,37 @@ namespace PrEngine
 	Uint_32 Texture::next_bind_unit = 0;
 	extern GLint max_texture_units;
 
-    Texture::Texture(const std::string& path, Int_32 target, Bool_8 create_gl_texture)
+	void Texture::create_gl_texture()
+	{
+		bind_unit = next_bind_unit;
+		//if (next_bind_unit < max_texture_units - 1)
+		//	next_bind_unit++;
+
+		//next_bind_unit++;
+		GL_CALL(glGenTextures(1, &id))
+			GL_CALL(glActiveTexture(GL_TEXTURE0 + bind_unit))
+
+		GL_CALL(glBindTexture(bind_target, id))
+			GL_CALL(glTexParameteri(bind_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR))
+			GL_CALL(glTexParameteri(bind_target, GL_TEXTURE_MAG_FILTER, GL_LINEAR))
+			GL_CALL(glTexParameteri(bind_target, GL_TEXTURE_WRAP_S, GL_REPEAT))
+			GL_CALL(glTexParameteri(bind_target, GL_TEXTURE_WRAP_T, GL_REPEAT))
+
+			GLenum type = GL_RGBA;
+		switch (no_of_channels)
+		{
+		case 1:type = GL_R; break;
+		case 2:type = GL_RG; break;
+		case 3:type = GL_RGB; break;
+		case 4:type = GL_RGBA; break;
+		}
+		LOG(LOGTYPE_GENERAL, "Number of channels ", std::to_string(no_of_channels));
+		LOG(LOGTYPE_GENERAL, "Number of channels ", std::to_string(type));
+		GL_CALL(glTexImage2D(bind_target, 0, GL_RGBA8, width, height, 0, type, GL_UNSIGNED_BYTE, data))
+		GL_CALL(glGenerateMipmap(bind_target))
+	}
+
+    Texture::Texture(const std::string& path, Int_32 target, Bool_8 do_create_gl_texture)
     {
 		bind_target = target;
 		bind_unit = 0;
@@ -35,6 +65,8 @@ namespace PrEngine
         {
 			std::string resource_path = get_resource_path(path);
             data = stbi_load(resource_path.c_str(),&width, &height, &no_of_channels, 4);
+			LOG(LOGTYPE_GENERAL, "Image ", std::string(path), " loaded : " + std::to_string(bind_unit));
+
             if(data!=nullptr)
             {
                 TextureData td;
@@ -54,36 +86,8 @@ namespace PrEngine
         else
         {
 
-			if (create_gl_texture)
-			{
-				bind_unit = next_bind_unit;
-				if (next_bind_unit < max_texture_units - 1)
-					next_bind_unit++;
-
-				//next_bind_unit++;
-				GL_CALL(glGenTextures(1, &id))
-				GL_CALL(glActiveTexture(GL_TEXTURE0 + bind_unit))
-				LOG(LOGTYPE_GENERAL, "Image ", std::string(path), " loaded : " + std::to_string(bind_unit));
-
-				GL_CALL(glBindTexture(bind_target, id))
-				GL_CALL(glTexParameteri(bind_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR))
-				GL_CALL(glTexParameteri(bind_target, GL_TEXTURE_MAG_FILTER, GL_LINEAR))
-				GL_CALL(glTexParameteri(bind_target, GL_TEXTURE_WRAP_S, GL_REPEAT))
-				GL_CALL(glTexParameteri(bind_target, GL_TEXTURE_WRAP_T, GL_REPEAT))
-
-				GLenum type = GL_RGBA;
-				switch (no_of_channels)
-				{
-					case 1:type = GL_R; break;
-					case 2:type = GL_RG; break;
-					case 3:type = GL_RGB; break;
-					case 4:type = GL_RGBA; break;
-				}
-				LOG(LOGTYPE_GENERAL, "Number of channels ", std::to_string(no_of_channels));
-				LOG(LOGTYPE_GENERAL, "Number of channels ", std::to_string(type));
-				GL_CALL(glTexImage2D(bind_target, 0, type, width, height, 0, type, GL_UNSIGNED_BYTE, data))
-				GL_CALL(glGenerateMipmap(bind_target))
-			}
+			if (do_create_gl_texture)
+				create_gl_texture();
             //GL_CALL(glBindTexture(GL_TEXTURE_2D, 0))
             texture_create_status = 1;
         }
@@ -128,8 +132,6 @@ namespace PrEngine
 		glTexParameteri(bind_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(bind_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glBindTexture(bind_target, 0);
-
-
 	}
 /*
     Texture* Texture::load_default_texture()
@@ -153,7 +155,7 @@ namespace PrEngine
 		return texture_id;
 	}
 
-	Uint_32 Texture::load_texture(const std::string& path)
+	Uint_32 Texture::load_texture(const std::string& path, Bool_8 do_create_gl_texture)
     {
 		//Texture* _tex;
 		//std::unordered_map<std::string, Texture*>::iterator _tex_it = Texture::texture_library.find(path);
@@ -167,18 +169,18 @@ namespace PrEngine
 				break;
 			}
 		}
-		
+
 		Uint_32 texture_id = 0;
 		//if (_tex_it == Texture::texture_library.end()) // texture not in library, so create
 		if (present_at == -1)
 		{
 			//_tex = new Texture(path.c_str());
-#ifdef EDITOR_MODE
-			texture_library.emplace_back(path.c_str(), GL_TEXTURE_2D, true);
-#else
-			texture_library.emplace_back(path.c_str(), GL_TEXTURE_2D, false);
+//#ifdef EDITOR_MODE
+			texture_library.emplace_back(path.c_str(), GL_TEXTURE_2D, do_create_gl_texture);
+			//#else
+			//			texture_library.emplace_back(path.c_str(), GL_TEXTURE_2D, false);
 
-#endif // DEBUG
+			//#endif // DEBUG
 
 
 			if (Texture::texture_create_status == 0)     // creating texture failed, so assign default
@@ -202,7 +204,12 @@ namespace PrEngine
 				texture_library.back().path = texture_names.size() - 1;
 			}
 		}
-		else    // texture found in library, so assign that
+		else if (do_create_gl_texture && !texture_library[present_at].id)    // texture found in library, so assign that
+		{
+			texture_library[present_at].create_gl_texture();
+			texture_id = present_at;
+		}
+		else
 			texture_id = present_at;
 
 		return texture_id;

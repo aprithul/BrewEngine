@@ -58,7 +58,7 @@ namespace PrEngine
         //ImGui::ShowDemoWindow(&show);
 
 		Uint_32 cam = entity_management_system->get_active_camera();
-
+		Vector2<Float_32> mouse_pos_ws = cameras[cam].get_screen_to_world_pos(input_manager->mouse.position);
 		/*selected_transform = 0;
 		for (Uint_32 _i = 0; _i < MAX_GRAPHIC_COUNT; _i++)
 		{
@@ -105,7 +105,7 @@ namespace PrEngine
 
 		if (mouse_pointer_transform)
 		{
-			transforms[mouse_pointer_transform].position = cameras[cam].get_screen_to_world_pos(input_manager->mouse.position);
+			transforms[mouse_pointer_transform].position = mouse_pos_ws;
 		}
 
 		draw_editor();
@@ -213,13 +213,15 @@ namespace PrEngine
 			return;
 		}
 		
+		
+
 		Uint_32 max_hierarchy = 0;
 		for (int _i = 0; _i< entity_management_system->next_transform_order; _i++)
 		{
 			auto id_t = transform_order[_i];
 			if (transform_entity_id[id_t])
 			{
-				if (transform_hierarchy_level[id_t] >= max_hierarchy)
+				if (transform_hierarchy_level[id_t] == MAX_HIERARCHY_LEVEL)// max_hierarchy)
 				{
 					max_hierarchy = transform_hierarchy_level[id_t];
 					add_child(id_t);
@@ -227,6 +229,20 @@ namespace PrEngine
 				}
 			}
 		}
+
+		const ImGuiPayload* payload = ImGui::GetDragDropPayload();
+		if (input_manager->mouse.get_mouse_button_up(1) && payload)
+		{
+			if (payload && !payload->Delivery)
+			{
+				IM_ASSERT(payload->DataSize == sizeof(Uint_32));
+				Uint_32 dragged_transform_id = *(const int*)payload->Data;
+				entity_management_system->set_parent_transform(0, dragged_transform_id);
+				//transforms[dragged_transform_id].parent_transform = 0;
+			}
+			//ImGui::EndDragDropTarget();
+		}
+
 		ImGui::End();
 
 
@@ -248,21 +264,23 @@ namespace PrEngine
 
 		if (selected_transform)
 		{
-			Vector3<float>& pos = get_transform(selected_transform).position;
+			Vector3<float>& pos = transforms[selected_transform].position;// .get_global_position();
 			float v3_p[3] = { pos.x, pos.y, pos.z };
 			//ImGui::InputFloat("input float", &pos.x, 0.01f, 1.0f, "%.3f");
 			ImGui::DragFloat3("Position", v3_p, 1.0f, -10000.0f, 10000.0f, "%.3f", 1.0f);
 			pos.x = v3_p[0];
 			pos.y = v3_p[1];
 			pos.z = v3_p[2];
+			//transforms[selected_transform].position = transforms[selected_transform].get_global_to_local_position(pos);
 
-			Vector3<float>& rot = get_transform(selected_transform).rotation;
+			Vector3<float>& rot = get_transform(selected_transform).rotation;// get_global_rotation();
 			float v3_r[3] = { rot.x, rot.y, rot.z };
 			//ImGui::InputFloat("input float", &pos.x, 0.01f, 1.0f, "%.3f");
 			ImGui::DragFloat3("Rotation", v3_r, 1.0f, -10000.0f, 10000.0f, "%.3f", 1.0f);
 			rot.x = v3_r[0];
 			rot.y = v3_r[1];
 			rot.z = v3_r[2];
+			//transforms[selected_transform].rotation = transforms[selected_transform].get_global_to_local_rotation(rot);
 
 			Vector3<float>& scl = get_transform(selected_transform).scale;
 			float v3_s[3] = { scl.x, scl.y, scl.z };
@@ -275,14 +293,11 @@ namespace PrEngine
 			auto entity = transform_entity_id[selected_transform];
 			auto id_graphics = entities[entity][COMP_GRAPHICS];
 			auto& graphic = graphics[id_graphics];
+			auto& mat = Material::material_library[graphic.element.material];
 			graphic.outline_alpha = 1.0;
 			last_selected_transform = selected_transform;
 
-			Vector2<Float_32> v1 = { 1.0f,1.0f};
-			Vector3<Int_32> v2 = { 1, 1, 1};
-			Vector2<Float_32> v3 = (Vector3<Float_32>)v2 + (Vector2<Float_32>)v1;
 
-			
 		}
 		ImGui::End();
 

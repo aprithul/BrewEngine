@@ -61,14 +61,14 @@ void main()
 		if (out_outline_color.a < 0.5)
 			discard;
 
-		vec2 thickness = 1.0 / vec2(textureSize(u_sampler2d, 0)) * 2;
+		vec2 thickness = 1.0 / vec2(textureSize(u_sampler2d, 0)) * 3;
 
 		vec4 top = texture(u_sampler2d, vec2(pan_tile.x, pan_tile.y + thickness.y));
 		vec4 bottom = texture(u_sampler2d, vec2(pan_tile.x, pan_tile.y - thickness.y));
 		vec4 left = texture(u_sampler2d, vec2(pan_tile.x - thickness.x, pan_tile.y));
 		vec4 right = texture(u_sampler2d, vec2(pan_tile.x + thickness.x, pan_tile.y));
 
-		if (top.a > 0.9 || bottom.a > 0.9 || left.a > 0.9 || right.a > 0.9)
+		if (top.a > 0.99 || bottom.a > 0.99 || left.a > 0.99 || right.a > 0.99)
 			color = out_outline_color;
 		else
 			discard;

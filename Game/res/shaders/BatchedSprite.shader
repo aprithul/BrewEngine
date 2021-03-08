@@ -63,10 +63,34 @@ void main()
 	int _ind = int(out_mat_id);
 	
 	//vec4 _color = texture(u_textures[_ind], pan_tile) * out_color * vec4(out_diffuse_color, 1) * u_Ambient_Strength;// * out_light;// vec4(u_red, out_color.gba);//vec4(0.0,1.0,1.0,1.0);
-	vec4 _color = texture(u_sampler2d, vec3(out_texco.x, out_texco.y, _ind));// *out_color * vec4(out_diffuse_color, 1) * u_Ambient_Strength;// * out_light;// vec4(u_red, out_color.gba);//vec4(0.0,1.0,1.0,1.0);
-	if (_color.a < 0.5)
-		discard;
+	vec4 texel = texture(u_sampler2d, vec3(out_texco.x, out_texco.y, _ind))*vec4(out_diffuse_color, 1);// *out_color * vec4(out_diffuse_color, 1) * u_Ambient_Strength;// * out_light;// vec4(u_red, out_color.gba);//vec4(0.0,1.0,1.0,1.0);
+	//if (_color.a < 0.5)
+	//	discard;
+	//else
+	//	color = _color;// vec4(1, 1, 1, 1);
+
+	if (texel.a < 0.5)
+	{
+		if (out_outline_color.a < 0.5)
+			discard;
+
+		vec2 thickness = vec2(0.001, 0.001);// 1.0 / vec2(textureSize(u_sampler2d, 0)) * 2;
+
+		vec4 top = texture(u_sampler2d, vec3(pan_tile.x, pan_tile.y + thickness.y, _ind));
+		vec4 bottom = texture(u_sampler2d, vec3(pan_tile.x, pan_tile.y - thickness.y, _ind));
+		vec4 left = texture(u_sampler2d, vec3(pan_tile.x - thickness.x, pan_tile.y, _ind));
+		vec4 right = texture(u_sampler2d, vec3(pan_tile.x + thickness.x, pan_tile.y, _ind));
+
+		if (top.a > 0.9 || bottom.a > 0.9 || left.a > 0.9 || right.a > 0.9)
+			color = out_outline_color;
+		else
+			discard;
+
+	}
 	else
-		color = _color;// vec4(1, 1, 1, 1);
+		color = texel;
+
+
+
 
 }

@@ -26,6 +26,7 @@ namespace PrEngine {
 
 			LOG(LOGTYPE_GENERAL, get_resource_path(clip_name));
 
+			bool is_first_line = true;
 			while (std::getline(data_stream, keyframe_data, '\n')) // get an entity
 			{
 				std::stringstream keyframe_stream(keyframe_data);
@@ -35,35 +36,44 @@ namespace PrEngine {
 				{
 					tokens.push_back(token);
 				}
+				if (is_first_line)
+				{
+					anim_flags[0] = std::stod(tokens[0]);
+					anim_flags[1] = std::stod(tokens[1]);
+					anim_flags[2] = std::stod(tokens[2]);
+					is_first_line = false;
+				}
+				else
+				{
+					Keyframe keyframe;
+					// timestamp
+					keyframe.timestamp = std::stof(tokens[0]);
+					LOG(LOGTYPE_GENERAL, "loaded timestamp");
+					//position
+					keyframe.position.x = std::stof(tokens[1]);
+					keyframe.position.y = std::stof(tokens[2]);
+					keyframe.position.z = std::stof(tokens[3]);
+					LOG(LOGTYPE_GENERAL, "loaded position");
 
-				Keyframe keyframe;
-				// timestamp
-				keyframe.timestamp = std::stof(tokens[0]);
-				LOG(LOGTYPE_GENERAL, "loaded timestamp");
-				//position
-				keyframe.position.x = std::stof(tokens[1]);
-				keyframe.position.y = std::stof(tokens[2]);
-				keyframe.position.z = std::stof(tokens[3]);
-				LOG(LOGTYPE_GENERAL, "loaded position");
+					//scale
+					keyframe.scale.x = std::stof(tokens[4]);
+					keyframe.scale.y = std::stof(tokens[5]);
+					keyframe.scale.z = std::stof(tokens[6]);
+					LOG(LOGTYPE_GENERAL, "loaded scale");
 
-				//scale
-				keyframe.scale.x = std::stof(tokens[4]);
-				keyframe.scale.y = std::stof(tokens[5]);
-				keyframe.scale.z = std::stof(tokens[6]);
-				LOG(LOGTYPE_GENERAL, "loaded scale");
+					//rotation
+					keyframe.rotation.x = std::stof(tokens[7]);
+					keyframe.rotation.y = std::stof(tokens[8]);
+					keyframe.rotation.z = std::stof(tokens[9]);
+					LOG(LOGTYPE_GENERAL, "loaded rotation");
 
-				//rotation
-				keyframe.rotation.x = std::stof(tokens[7]);
-				keyframe.rotation.y = std::stof(tokens[8]);
-				keyframe.rotation.z = std::stof(tokens[9]);
-				LOG(LOGTYPE_GENERAL, "loaded rotation");
+					//texture
+					keyframe.texture = Texture::load_texture(tokens[10], false);
+					if (!Texture::texture_create_status)
+						LOG(LOGTYPE_ERROR, "Couldn't load texture : ", tokens[10]);
 
-				//texture
-				keyframe.texture = Texture::load_texture(tokens[10]);
-				if (!Texture::texture_create_status)
-					LOG(LOGTYPE_ERROR, "Couldn't load texture : ", tokens[10]);
-
-				frames.push_back(keyframe);
+					frames.push_back(keyframe);
+				}
 			}
 		}
 

@@ -63,19 +63,17 @@ namespace PrEngine
 		shader = 0;
 	}
 
-    Material::Material(const std::string& shader_path, const std::string& diffuse_tex_path,  const std::string& name)
-    {
+	Material::Material(Uint_32 shader, Uint_32 texture, const std::string& name)
+	{
         // only create new texture on gpu if texture doesn't exist already
-		material_creation_status = 1;
+		//material_creation_status = 1;
         tiling = Vector2<Float_32>(1,1);
         panning = Vector2<Float_32>(0,0);
 		diffuse_color = Vector3<Float_32>{ 1,1,1 };
 
-		shader = Shader::load_shader(std::string(shader_path));
-		diffuse_textures[0] = Texture::load_texture(diffuse_tex_path);
 
-		if (!Texture::texture_create_status || !Shader::shader_creation_status)
-			material_creation_status = 0;
+		this->shader = shader;
+		this->diffuse_textures[0] = texture;
 		
 		// material id == 0 is invalid 
 		// so start with an extra item so we can use material id as index to array
@@ -186,7 +184,7 @@ namespace PrEngine
         
     }
 
-	Uint_32 Material::load_material( const std::string& material_name, const std::string& name_modifier)
+	Uint_32 Material::load_material( const std::string& material_name, Bool_8 create_gl_texture, const std::string& name_modifier)
 	{
 		Int_32 present_at = -1;
 		for (int _i=0; _i<material_names.size(); _i++)
@@ -237,7 +235,13 @@ namespace PrEngine
 			}
 			assert(!material_name.empty() && !shader_name.empty());
 
-			Material::material_library.emplace_back(shader_name, texture_name, material_name);
+			material_creation_status = 1;
+
+			Uint_32 shader = Shader::load_shader(std::string(shader_name));
+			Uint_32 diffuse_texture = Texture::load_texture(texture_name, create_gl_texture);
+			if (!Texture::texture_create_status || !Shader::shader_creation_status)
+				material_creation_status = 0;
+
 			if (!material_creation_status)
 			{
 				LOG(LOGTYPE_ERROR, "Material creation failed");
@@ -248,6 +252,8 @@ namespace PrEngine
 			}
 			else
 			{
+				Material::material_library.emplace_back(shader, diffuse_texture, material_name);
+
 				Material::material_names.push_back(material_name + name_modifier);
 				material_id = material_library.size() - 1;
 			}

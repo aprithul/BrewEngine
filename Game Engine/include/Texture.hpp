@@ -32,7 +32,7 @@ namespace PrEngine
         static Int_32 texture_create_status;
 		static inline Texture* get_texture(Uint_32 texture);
         static Texture* load_default_texture();
-        static Uint_32 load_texture(const std::string& path);
+        static Uint_32 load_texture(const std::string& path, Bool_8 do_create_gl_texture);
         static void delete_all_texture_data();
         static void delete_all_textures();
 		static Uint_32 make_array_texture(const std::vector<Uint_32> diffuse_textures);
@@ -51,8 +51,8 @@ namespace PrEngine
         virtual void Unbind();
 		void Delete();
 
-
-		Texture(const std::string& path, Int_32 target, Bool_8 create_gl_texture = true);
+		void create_gl_texture();
+		Texture(const std::string& path, Int_32 target, Bool_8 do_create_gl_texture);
 		Texture(const std::vector<Uint_32> diffuse_textures, Int_32 target);
 		~Texture();
     };

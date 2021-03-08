@@ -117,7 +117,7 @@ namespace PrEngine
 		std::unordered_map<Uint_32, Uint_32> texture_to_index;
 		std::vector<Uint_32> graphic_ids;
 
-		BatchedGraphic(int batch_index);
+		BatchedGraphic();
 		~BatchedGraphic();
 	};
 }

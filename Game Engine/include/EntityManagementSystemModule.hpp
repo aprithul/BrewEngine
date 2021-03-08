@@ -116,7 +116,7 @@ namespace PrEngine
 		//Uint_32 delete_transform_comp(Uint_32 transform_id);
 
 		void set_parent_transform(Uint_32 parent_transform, Uint_32 child_transform);
-		void decrease_hierarchy_level_recursively(Uint_32 transform);
+		void change_hierarchy_level_recursively(Uint_32 transform, Int_32 level);
 		void sort_transform_order();
 		Uint_32 get_active_camera();
 		void save_scene(const std::string& scene_file);

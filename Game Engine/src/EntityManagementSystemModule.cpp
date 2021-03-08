@@ -67,6 +67,8 @@ namespace PrEngine
 		next_transform_order = 1;
     	entity_count = 0;
 		
+		transform_hierarchy_level[0] = MAX_HIERARCHY_LEVEL + 1;
+
         entity_management_system = this;
     }
 
@@ -369,7 +371,24 @@ namespace PrEngine
 
 	void EntityManagementSystem::set_parent_transform(Uint_32 parent_transform, Uint_32 child_transform)
 	{
-		if (parent_transform == child_transform)
+		//if (!parent_transform)
+		//{
+		//	Uint_32 prev_parent = transforms[child_transform].parent_transform;
+		//	if (prev_parent)
+		//	{
+		//		transform_children[prev_parent].erase(child_transform);
+		//		//auto _i = transform_children[parent_transform].find(child_transform);
+		//		//if (_i == transform_children[parent_transform].end())
+		//		//	LOG(LOGTYPE_ERROR, "HELLO");
+		//	}
+
+		//	transforms[child_transform].parent_transform = 0;
+		//	decrease_hierarchy_level_recursively(child_transform);
+		//	sort_transform_order();
+		//	return;
+		//}
+
+		if (parent_transform == child_transform || parent_transform == transforms[child_transform].parent_transform)
 			return;
 		Uint_32 prev_parent = transforms[child_transform].parent_transform;
 		if (prev_parent)
@@ -379,21 +398,60 @@ namespace PrEngine
 			//if (_i == transform_children[parent_transform].end())
 			//	LOG(LOGTYPE_ERROR, "HELLO");
 		}
+
+		//
+		
+		Matrix4x4<Float_32>& p_t = transforms[parent_transform].transformation;
+		Matrix4x4<Float_32>& c_t = transforms[child_transform].transformation;
+
+		Vector3<Float_32> pos_p(p_t.data[3],p_t.data[7], p_t.data[11]);
+		/*Vector3<Float_32> pos_c(c_t.data[3], c_t.data[7], c_t.data[11]);
+
+		Vector3<Float_32> rot_p(p_t.data[3], p_t.data[7], p_t.data[11]);
+		Vector3<Float_32> rot_c(c_t.data[3], c_t.data[7], c_t.data[11]);*/
+
+
+		Transform3D& child_t = transforms[child_transform];
+		Transform3D& parent_t = transforms[parent_transform];
+
+		// maintain global rotation
+		child_t.rotation = child_t.get_global_rotation() - parent_t.get_global_rotation();
+		
+		// maintain global position
+		Vector3<Float_32> c_gp = child_t.get_global_position();
+		Vector3<Float_32> p_gp = parent_t.get_global_position();
+		child_t.position = parent_t.transformation.transpose() * ( c_gp - pos_p);
+
+		//child_t.position = c_gp - p_gp;// child_t.get_global_position() - parent_t.get_global_position();
+
+
+		//child_t.rotation = transforms[child_transform].rotation - transforms[parent_transform].rotation;
+		//child_t.rotation = 
+		//child_t.update_transformation(); //
+		//child_t.transformation = (parent_t.rotation_transformation).transpose() * child_t.transformation;
+
+
+		//Int_32 mod = transform_hierarchy_level[prev_parent]
+		//				> transform_hierarchy_level[parent_transform] ? -1 : 1;
 		transforms[child_transform].parent_transform = parent_transform;
 		transform_children[parent_transform].insert(child_transform);
-		decrease_hierarchy_level_recursively(child_transform);
+		
+		Int_32 level = transform_hierarchy_level[parent_transform] - 1;
+		change_hierarchy_level_recursively(child_transform, level);
 		sort_transform_order();
 		return;
 	}
 
-	void EntityManagementSystem::decrease_hierarchy_level_recursively(Uint_32 transform)
+	void EntityManagementSystem::change_hierarchy_level_recursively(Uint_32 transform, Int_32 level)
 	{
-		transform_hierarchy_level[transform]--;
-assert(transform_hierarchy_level > 0);
+		
+
+		transform_hierarchy_level[transform] = level;
+assert(level > 0);
 
 		for (auto it : transform_children[transform])//.begin(); it != transform_children[transform].end(); it++)
 		{
-			decrease_hierarchy_level_recursively(it);
+			change_hierarchy_level_recursively(it, level-1);
 		}
 		return;
 	}
