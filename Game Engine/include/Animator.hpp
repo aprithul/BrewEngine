@@ -17,6 +17,9 @@
 #include "Animation.hpp"
 #include <string>
 #include <unordered_map>
+
+#define MAX_ANIMATIONS 8
+
 namespace PrEngine{
 
 	enum ANIM_FLAGS
@@ -32,15 +35,16 @@ namespace PrEngine{
 	{
 		Animator();
 		~Animator();
-		Animation animation;
 
 		Matrix4x4<Float_32> translation;// = Matrix4x4<Float_32>::identity();
 		Matrix4x4<Float_32> rotation;// = Matrix4x4<Float_32>::identity();
 		Matrix4x4<Float_32> scale;// = Matrix4x4<Float_32>::identity();
-
-		Int_32 current_frame_index;
 		Float_32 animation_speed;
 		Uint_32 id_transform;
+		Uint_32 animation_ids[8]; // we can hold a max of 8 animations
+		Int_32 cur_anim;	// the current active animation
+		Int_32 current_frame_index;
+		Bool_8 anim_flags[3] = {};
 
 		//Uint_32 id_graphic;
 
@@ -50,9 +54,13 @@ namespace PrEngine{
 		void stop();
 		void update() override;
 		std::string to_string() override;
+		inline Animation& get_current_animation()
+		{
+			return animations_library[animation_ids[cur_anim]];
+		}
 
-		static Bool_8 load_animation(std::string& animation_file);
-		static std::unordered_map<std::string, Animation> animations_library;
+		static Uint_32 load_animation(std::string& animation_file);
+		static std::vector<Animation> animations_library;
 	};
 
 }

@@ -12,7 +12,7 @@
 namespace PrEngine
 {
 
-	std::unordered_map<std::string, Animation> Animator::animations_library;
+	std::vector<Animation> Animator::animations_library;
 
 	Animator::Animator():Component(COMP_ANIMATOR)
 	{
@@ -35,6 +35,7 @@ namespace PrEngine
 	{
 		static Float_32 frame_time = 0;
 		frame_time += Time::Frame_time;
+		Animation& animation = get_current_animation();
 		Keyframe frame = animation.frames[current_frame_index];
 		
 		if (frame.timestamp <= frame_time * animation_speed)
@@ -42,7 +43,7 @@ namespace PrEngine
 			//transform->translate(frame.position);
 			
 			translation = Matrix4x4<Float_32>::identity();
-			if (animation.anim_flags[ANIM_TRANSLATE])
+			if (anim_flags[ANIM_TRANSLATE])
 			{
 				translation.set(0, 3, frame.position.x);
 				translation.set(1, 3, frame.position.y);
@@ -50,7 +51,7 @@ namespace PrEngine
 			}
 
 			rotation = Matrix4x4<Float_32>::identity();
-			if (animation.anim_flags[ANIM_ROTATE])
+			if (anim_flags[ANIM_ROTATE])
 			{
 				Float_32 a = frame.rotation.x * PI / 180.f;
 				Float_32 b = frame.rotation.y * PI / 180.f;
@@ -78,7 +79,7 @@ namespace PrEngine
 			}
 
 			scale = Matrix4x4<Float_32>::identity();
-			if (animation.anim_flags[ANIM_SCALE])
+			if (anim_flags[ANIM_SCALE])
 			{
 				scale.set(0, 0, frame.scale.x);
 				scale.set(1, 1, frame.scale.y);
@@ -100,24 +101,45 @@ namespace PrEngine
 		}
 	}
 
-	Bool_8 Animator::load_animation(std::string& file_name)
+	Uint_32 Animator::load_animation(std::string& file_name)
 	{
-		animations_library.emplace(file_name, file_name);
-		if(!Animation::animation_load_status)
-			LOG(LOGTYPE_ERROR, file_name, " : animation loading failed");
+		Animation::animation_load_status = 1;
+		Int_32 present_at = -1;
+		for (int _i = 0; _i < animations_library.size(); _i++)
+		{
+			if (animations_library[_i].clip_name == file_name)
+			{
+				present_at = _i;
+				break;
+			}
+		}
 
-		return Animation::animation_load_status;
+		Uint_32 animation_pos = present_at;
+		if (present_at == -1)
+		{
+			animations_library.emplace_back(file_name);
+			animation_pos = animations_library.size() - 1;
+			if (!Animation::animation_load_status)
+				LOG(LOGTYPE_ERROR, file_name, " : animation loading failed");
+		}
+
+		return animation_pos;
 	}
 
 	std::string Animator::to_string()
 	{
 		std::string text = std::to_string(COMP_ANIMATOR);
-		for (std::unordered_map<std::string, Animation>::iterator it = animations_library.begin(); it != animations_library.end(); it++)
+		text += ","+std::to_string(cur_anim)+","+std::to_string(anim_flags[0])+"," + std::to_string(anim_flags[1])+"," + std::to_string(anim_flags[2]);
+		for (int _i=0; _i < MAX_ANIMATIONS ; _i++)
 		{
-			text += "," + it->second.clip_name;
+			if(animation_ids[_i])
+				text += ","+ animations_library[animation_ids[_i]].clip_name;
 		}
 		return text;
 	}
+
+
+
 
 
 

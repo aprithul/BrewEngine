@@ -398,7 +398,7 @@ namespace PrEngine {
 			Uint_32 id_animator = graphics[graphic_id].id_animator;
 			if (id_animator)
 			{
-				Animation& animation = animators[id_animator].animation;
+				Animation& animation = animators[id_animator].get_current_animation();
 				for (Keyframe& frame : animation.frames)
 				{
 					batch_textures_set.insert(frame.texture);

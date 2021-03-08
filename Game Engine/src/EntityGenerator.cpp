@@ -55,9 +55,9 @@ namespace PrEngine{
 
 		Animator::load_animation("Animations" + PATH_SEP + "my.anim");
 		Uint_32 id_animator = entity_management_system->make_animator_comp(entity);
-		Animation anim = Animator::animations_library.begin()->second;
-		animators[id_animator].animation = anim;
-		animators[id_animator].id_transform = id_transform;
+		//Animation anim = Animator::animations_library.begin()->second;
+		//animators[id_animator].animation = anim;
+		//animators[id_animator].id_transform = id_transform;
 		//animators[id_animator].id_graphic = id_graphic;
 
 		//sprites[id].add_to_renderer(renderer);
@@ -119,6 +119,9 @@ namespace PrEngine{
 	}
 	void EntityGenerator::load_scenegraph(const std::string& scene_file_name) 
 	{
+		std::string _empty_animation_name = "NULL ANIM";
+		Animator::animations_library.emplace_back(_empty_animation_name);
+
 		std::string scene_data = read_file(scene_file_name);
 		std::stringstream input(scene_data);
 		std::string entity_str;
@@ -162,21 +165,30 @@ namespace PrEngine{
 						}*/
 						case COMP_ANIMATOR:
 						{	
-							if (Animator::load_animation(tokens[1]))
-							{
-								id_animator = entity_management_system->make_animator_comp(entity);
-								animators[id_animator].animation = Animator::animations_library[tokens[1]];
+							id_animator = entity_management_system->make_animator_comp(entity);
+							animators[id_animator].cur_anim = std::stod(tokens[1]);
+							animators[id_animator].anim_flags[0] = std::stod(tokens[2]);
+							animators[id_animator].anim_flags[1] = std::stod(tokens[3]);
+							animators[id_animator].anim_flags[2] = std::stod(tokens[4]);
 
-								assert(id_transform);
-				
-								/*Uint_32 entity_2 = entity_management_system->make_entity();
-								Uint_32 id_transform_2 = entity_management_system->make_transform_comp(entity_2);
-								entity_management_system->set_parent_transform(id_transform, id_transform_2);
-								id_transform = id_transform_2;*/
-								animators[id_animator].id_transform = id_transform;
+						assert(id_transform);
+							animators[id_animator].id_transform = id_transform;
+							for (int t_i = 5; t_i < tokens.size(); t_i++)
+							{
+								Uint_32 a_id = 0;
+								if (a_id = Animator::load_animation(tokens[t_i]))
+								{
+									animators[id_animator].animation_ids[t_i - 5] = a_id;// Animator::animations_library.size() - 1;
+
+									/*Uint_32 entity_2 = entity_management_system->make_entity();
+									Uint_32 id_transform_2 = entity_management_system->make_transform_comp(entity_2);
+									entity_management_system->set_parent_transform(id_transform, id_transform_2);
+									id_transform = id_transform_2;*/
+									
+								}
+								else
+									LOG(LOGTYPE_ERROR, "Couldn't create animator");
 							}
-							else
-								LOG(LOGTYPE_ERROR, "Couldn't create animator");
 							//assert(id_graphic);
 							//animators[id_animator].id_graphic = id_graphic;
 
@@ -298,9 +310,9 @@ namespace PrEngine{
 							id_transform = entity_management_system->make_transform_comp(entity);
 							LOG(LOGTYPE_WARNING, std::to_string(id_transform));
 							transform_id_mapping[std::stoi(tokens[11])] = id_transform;	//mapping for finding parents
-							get_transform(id_transform).position = Vector3<Float_32>(std::stof(tokens[1]), std::stof(tokens[2]), std::stof(tokens[3]));
-							get_transform(id_transform).scale = Vector3<Float_32>(std::stof(tokens[4]), std::stof(tokens[5]), std::stof(tokens[6]));
-							get_transform(id_transform).rotation = Vector3<Float_32>(std::stof(tokens[7]), std::stof(tokens[8]), std::stof(tokens[9]));
+							transforms[id_transform].position = Vector3<Float_32>(std::stof(tokens[1]), std::stof(tokens[2]), std::stof(tokens[3]));
+							transforms[id_transform].scale = Vector3<Float_32>(std::stof(tokens[4]), std::stof(tokens[5]), std::stof(tokens[6]));
+							transforms[id_transform].rotation = Vector3<Float_32>(std::stof(tokens[7]), std::stof(tokens[8]), std::stof(tokens[9]));
 							Uint32 parent_transform_id =  transform_id_mapping[std::stoi(tokens[10])];	
 							if(parent_transform_id)
 								entity_management_system->set_parent_transform(parent_transform_id, id_transform);

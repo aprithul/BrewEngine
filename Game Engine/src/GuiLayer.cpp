@@ -253,6 +253,7 @@ namespace PrEngine
 			return;
 		}
 
+		/*Transform*/
 		if (last_selected_transform != selected_transform) // selection changed, so remove outline
 		{
 
@@ -264,33 +265,35 @@ namespace PrEngine
 
 		if (selected_transform)
 		{
-			Vector3<float>& pos = transforms[selected_transform].position;// .get_global_position();
-			float v3_p[3] = { pos.x, pos.y, pos.z };
-			//ImGui::InputFloat("input float", &pos.x, 0.01f, 1.0f, "%.3f");
-			ImGui::DragFloat3("Position", v3_p, 1.0f, -10000.0f, 10000.0f, "%.3f", 1.0f);
-			pos.x = v3_p[0];
-			pos.y = v3_p[1];
-			pos.z = v3_p[2];
-			//transforms[selected_transform].position = transforms[selected_transform].get_global_to_local_position(pos);
+			Uint_32 entity = transform_entity_id[selected_transform];
+			if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
+			{
+				Vector3<float>& pos = transforms[selected_transform].position;// .get_global_position();
+				float v3_p[3] = { pos.x, pos.y, pos.z };
+				//ImGui::InputFloat("input float", &pos.x, 0.01f, 1.0f, "%.3f");
+				ImGui::DragFloat3("Position", v3_p, 1.0f, -10000.0f, 10000.0f, "%.3f", 1.0f);
+				pos.x = v3_p[0];
+				pos.y = v3_p[1];
+				pos.z = v3_p[2];
+				//transforms[selected_transform].position = transforms[selected_transform].get_global_to_local_position(pos);
 
-			Vector3<float>& rot = get_transform(selected_transform).rotation;// get_global_rotation();
-			float v3_r[3] = { rot.x, rot.y, rot.z };
-			//ImGui::InputFloat("input float", &pos.x, 0.01f, 1.0f, "%.3f");
-			ImGui::DragFloat3("Rotation", v3_r, 1.0f, -10000.0f, 10000.0f, "%.3f", 1.0f);
-			rot.x = v3_r[0];
-			rot.y = v3_r[1];
-			rot.z = v3_r[2];
-			//transforms[selected_transform].rotation = transforms[selected_transform].get_global_to_local_rotation(rot);
+				Vector3<float>& rot = get_transform(selected_transform).rotation;// get_global_rotation();
+				float v3_r[3] = { rot.x, rot.y, rot.z };
+				//ImGui::InputFloat("input float", &pos.x, 0.01f, 1.0f, "%.3f");
+				ImGui::DragFloat3("Rotation", v3_r, 1.0f, -10000.0f, 10000.0f, "%.3f", 1.0f);
+				rot.x = v3_r[0];
+				rot.y = v3_r[1];
+				rot.z = v3_r[2];
+				//transforms[selected_transform].rotation = transforms[selected_transform].get_global_to_local_rotation(rot);
 
-			Vector3<float>& scl = get_transform(selected_transform).scale;
-			float v3_s[3] = { scl.x, scl.y, scl.z };
-			//ImGui::InputFloat("input float", &pos.x, 0.01f, 1.0f, "%.3f");
-			ImGui::DragFloat3("Scale", v3_s, 1.0f, -10000.0f, 10000.0f, "%.3f", 1.0f);
-			scl.x = v3_s[0];
-			scl.y = v3_s[1];
-			scl.z = v3_s[2];
-
-			auto entity = transform_entity_id[selected_transform];
+				Vector3<float>& scl = get_transform(selected_transform).scale;
+				float v3_s[3] = { scl.x, scl.y, scl.z };
+				//ImGui::InputFloat("input float", &pos.x, 0.01f, 1.0f, "%.3f");
+				ImGui::DragFloat3("Scale", v3_s, 1.0f, -10000.0f, 10000.0f, "%.3f", 1.0f);
+				scl.x = v3_s[0];
+				scl.y = v3_s[1];
+				scl.z = v3_s[2];
+			}
 			auto id_graphics = entities[entity][COMP_GRAPHICS];
 			auto& graphic = graphics[id_graphics];
 			auto& mat = Material::material_library[graphic.element.material];
@@ -298,7 +301,86 @@ namespace PrEngine
 			last_selected_transform = selected_transform;
 
 
+			auto& ent = entities[entity];
+			if (ent[COMP_GRAPHICS])
+			{
+				if (ImGui::CollapsingHeader("Graphics", ImGuiTreeNodeFlags_DefaultOpen))
+				{
+
+				}
+			}
+
+			if (ent[COMP_LIGHT])
+			{
+				if (ImGui::CollapsingHeader("Light", ImGuiTreeNodeFlags_DefaultOpen))
+				{
+
+				}
+			}
+
+			if (ent[COMP_CAMERA])
+			{
+				if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_DefaultOpen))
+				{
+
+				}
+			}
+
+			if (ent[COMP_ANIMATOR])
+			{
+				if (ImGui::CollapsingHeader("Animator", ImGuiTreeNodeFlags_DefaultOpen))
+				{
+					
+					Uint_32 id_animator = ent[COMP_ANIMATOR];
+					Animator& animator = animators[id_animator];
+					ImGui::DragFloat("Animation Speed", &animator.animation_speed,0.05f,0.0f,5.0f);
+					ImGui::InputInt("Current Animation", &animator.cur_anim);
+					if (ImGui::BeginDragDropTarget())
+					{
+						const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Animation");
+						if (payload)
+						{
+							IM_ASSERT(payload->DataSize == sizeof(Int_32));
+							animator.cur_anim = *(const int*)payload->Data;
+						}
+						ImGui::EndDragDropTarget();
+					}
+					ImGui::Checkbox("Translate", &animator.anim_flags[ANIM_TRANSLATE]);
+					ImGui::Checkbox("Rotate", &animator.anim_flags[ANIM_ROTATE]);
+					ImGui::Checkbox("Scale", &animator.anim_flags[ANIM_SCALE]);
+
+					Int_32 no_of_animations = 0;
+					for (int _i = 0; _i < 8; _i++)
+					{
+						Uint_32 _id = animator.animation_ids[_i];
+						if (_id)
+						{
+							no_of_animations++;
+							Animation& animation = Animator::animations_library[_id];
+							std::string _node_label = std::to_string(_i)+"_"+ animation.clip_name;
+							if (ImGui::TreeNode(_node_label.c_str()))
+							{
+								ImGui::TreePop();
+							}
+							if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+							{
+								ImGui::SetDragDropPayload("Animation", &_i, sizeof(Int_32));
+								ImGui::Text(_node_label.c_str());
+								ImGui::EndDragDropSource();
+							}
+						}
+
+						animator.cur_anim = clamp<Int_32>(animator.cur_anim, 0, no_of_animations);
+					}
+
+				}
+			}
 		}
+
+		
+
+
+
 		ImGui::End();
 
 	}

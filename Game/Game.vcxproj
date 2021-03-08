@@ -96,6 +96,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="res\Animations\run.anim" />
+    <None Include="res\Animations\run_duplicate.anim" />
     <None Include="res\Materials\Batch.mat" />
     <None Include="res\Materials\Default.mat" />
     <None Include="res\Materials\Door1.mat" />

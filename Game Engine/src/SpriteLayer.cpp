@@ -276,7 +276,7 @@ namespace PrEngine
 					{
 						Animator& anim = animators[animator_id];
 						anim_tr = anim.translation*anim.rotation*anim.scale;
-						texture_id = anim.animation.frames[anim.current_frame_index].texture;
+						texture_id = anim.get_current_animation().frames[anim.current_frame_index].texture;
 					}
 					else {
 						texture_id = mat->diffuse_textures[0];

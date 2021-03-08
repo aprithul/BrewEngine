@@ -38,6 +38,7 @@ namespace PrEngine{
 
 		Vector3<Float_32> get_global_position();
 		Vector3<Float_32> get_global_rotation();
+		Vector3<Float_32> get_global_scale();
 		Vector3<Float_32> get_global_to_local_position(Vector3<Float_32> global_pos);
 		Vector3<Float_32> get_global_to_local_rotation(Vector3<Float_32> global_rot);
     };

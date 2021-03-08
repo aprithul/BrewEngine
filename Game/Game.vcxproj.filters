@@ -49,5 +49,6 @@
     <None Include="res\Materials\Door11.mat" />
     <None Include="res\Materials\Door12.mat" />
     <None Include="res\Animations\run.anim" />
+    <None Include="res\Animations\run_duplicate.anim" />
   </ItemGroup>
 </Project>

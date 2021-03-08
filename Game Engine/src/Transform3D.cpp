@@ -95,9 +95,13 @@ namespace  PrEngine
     std::string Transform3D::to_string()
     {
     	std::string text = std::to_string(COMP_TRANSFORM_3D)+",";
-		text += std::to_string(position.x) + "," + std::to_string(position.y) + "," + std::to_string(position.z) + ",";
+
+		Vector3<Float_32> _position = get_global_position();
+		Vector3<Float_32> _rotation = get_global_rotation();
+
+		text += std::to_string(_position.x) + "," + std::to_string(_position.y) + "," + std::to_string(_position.z) + ",";
 		text += std::to_string(scale.x) + "," + std::to_string(scale.y) + "," + std::to_string(scale.z) + ",";
-		text += std::to_string(rotation.x) + "," + std::to_string(rotation.y) + "," + std::to_string(rotation.z) + ",";
+		text += std::to_string(_rotation.x) + "," + std::to_string(_rotation.y) + "," + std::to_string(_rotation.z) + ",";
 		text += std::to_string(parent_transform);
 
 		return text;
@@ -112,6 +116,16 @@ namespace  PrEngine
 			parent_t = transforms[parent_transform].transformation;
 		auto pos = parent_t * position;
 		return pos;
+	}
+
+	Vector3<Float_32> Transform3D::get_global_scale()
+	{
+		//Vector3<Float_32> parent_pos;
+		Matrix4x4<Float_32> parent_t = Matrix4x4<Float_32>::identity();
+		if (parent_transform)
+			parent_t = transforms[parent_transform].transformation;
+		auto _scale = parent_t * scale;
+		return _scale;
 	}
 
 	Vector3<Float_32> Transform3D::get_global_rotation()
