@@ -117,8 +117,34 @@ namespace PrEngine{
 
 		return e;
 	}
+
+#ifdef  EDITOR_MODE
+
+
+	void load_all_resrources()
+	{
+
+	}
+#endif //  EDITOR_MODE
+
+
 	void EntityGenerator::load_scenegraph(const std::string& scene_file_name) 
 	{
+#ifdef _WIN32
+		{
+			std::vector<std::string> material_directories;
+			std::string dir = get_resource_path("");// +"Materials" + PATH_SEP;
+			get_files_in_dir(dir, ".mat", material_directories);
+			for (auto& p : material_directories)
+			{
+				auto mat_path = p.substr(dir.size());
+				Material::load_material(mat_path, false);
+			}
+		}
+		
+
+#endif // _WIN32
+
 		std::string _empty_animation_name = "NULL ANIM";
 		Animator::animations_library.emplace_back(_empty_animation_name);
 
@@ -234,6 +260,7 @@ namespace PrEngine{
 							id_graphic = entity_management_system->make_graphic_comp(entity);
 							
 							RenderTag render_tag = (RenderTag)std::atoi(tokens[2].c_str());
+							RenderTag future_render_tag = render_tag;
 #ifdef EDITOR_MODE
 							//if (render_tag == RENDER_STATIC) render_tag = RENDER_DYNAMIC;
 							render_tag = RENDER_UNTAGGED;
@@ -242,6 +269,7 @@ namespace PrEngine{
 								render_tag = RENDER_DYNAMIC;
 
 							graphics[id_graphic].tag = render_tag;
+							graphics[id_graphic].future_tag = future_render_tag;
 							std::string material_name = tokens[1];
 							Bool_8 create_gl_texture = render_tag == RENDER_UNTAGGED;
 							if (create_gl_texture)

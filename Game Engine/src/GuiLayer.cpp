@@ -110,7 +110,7 @@ namespace PrEngine
 
 		draw_editor();
 		ImGui::ShowMetricsWindow();
-//		ImGui::ShowDemoWindow();
+		ImGui::ShowDemoWindow();
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData( ImGui::GetDrawData());
     }
@@ -201,52 +201,23 @@ namespace PrEngine
 		}
 	}
 
+	void draw_scene_hierarchy();
+	void draw_inspector_window();
+	void draw_asset_window();
+
 
 	Float_32 drag_amount;
 	Float_32 drag_limit = 20;
 	Vector2<Int_32> drag_start;
 	void GuiLayer::draw_editor()
 	{
-		if (!ImGui::Begin("Scene Hierarchy", false))
-		{
-			ImGui::End();
-			return;
-		}
-		
-		
+		draw_scene_hierarchy();
+		draw_inspector_window();
+		draw_asset_window();
+	}
 
-		Uint_32 max_hierarchy = 0;
-		for (int _i = 0; _i< entity_management_system->next_transform_order; _i++)
-		{
-			auto id_t = transform_order[_i];
-			if (transform_entity_id[id_t])
-			{
-				if (transform_hierarchy_level[id_t] == MAX_HIERARCHY_LEVEL)// max_hierarchy)
-				{
-					max_hierarchy = transform_hierarchy_level[id_t];
-					add_child(id_t);
-					
-				}
-			}
-		}
-
-		const ImGuiPayload* payload = ImGui::GetDragDropPayload();
-		if (input_manager->mouse.get_mouse_button_up(1) && payload)
-		{
-			if (payload && !payload->Delivery)
-			{
-				IM_ASSERT(payload->DataSize == sizeof(Uint_32));
-				Uint_32 dragged_transform_id = *(const int*)payload->Data;
-				entity_management_system->set_parent_transform(0, dragged_transform_id);
-				//transforms[dragged_transform_id].parent_transform = 0;
-			}
-			//ImGui::EndDragDropTarget();
-		}
-
-		ImGui::End();
-
-
-
+	void draw_inspector_window()
+	{
 		if (!ImGui::Begin("Inspector", false))
 		{
 			ImGui::End();
@@ -306,7 +277,33 @@ namespace PrEngine
 			{
 				if (ImGui::CollapsingHeader("Graphics", ImGuiTreeNodeFlags_DefaultOpen))
 				{
+					Graphic& g = graphics[ent[COMP_GRAPHICS]];
+					//static Int_32 _tag = (Int_32)g.tag;
+					ImGui::Combo("Render Mode", &g.future_tag, "Untagged\0Static\0Dynamic\0", 3);
+					//g.tag = (RenderTag)_tag;
 
+					ImGui::SetNextItemOpen(true);
+					if (ImGui::TreeNode("Material"))
+					{
+						Uint_32 mat_id = g.element.material;
+						if (mat_id)
+						{
+							std::string& mat_name = Material::material_names[mat_id];
+							ImGui::Text(mat_name.c_str());
+							if (ImGui::BeginDragDropTarget())
+							{
+								const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Material");
+								if (payload)
+								{
+									IM_ASSERT(payload->DataSize == sizeof(Int_32));
+									g.element.material = *(const int*)payload->Data;
+								}
+								ImGui::EndDragDropTarget();
+
+							}
+						}
+						ImGui::TreePop();
+					}
 				}
 			}
 
@@ -330,10 +327,10 @@ namespace PrEngine
 			{
 				if (ImGui::CollapsingHeader("Animator", ImGuiTreeNodeFlags_DefaultOpen))
 				{
-					
+
 					Uint_32 id_animator = ent[COMP_ANIMATOR];
 					Animator& animator = animators[id_animator];
-					ImGui::DragFloat("Animation Speed", &animator.animation_speed,0.05f,0.0f,5.0f);
+					ImGui::DragFloat("Animation Speed", &animator.animation_speed, 0.05f, 0.0f, 5.0f);
 					ImGui::InputInt("Current Animation", &animator.cur_anim);
 					if (ImGui::BeginDragDropTarget())
 					{
@@ -357,7 +354,7 @@ namespace PrEngine
 						{
 							no_of_animations++;
 							Animation& animation = Animator::animations_library[_id];
-							std::string _node_label = std::to_string(_i)+"_"+ animation.clip_name;
+							std::string _node_label = std::to_string(_i) + "_" + animation.clip_name;
 							if (ImGui::TreeNode(_node_label.c_str()))
 							{
 								ImGui::TreePop();
@@ -377,16 +374,145 @@ namespace PrEngine
 			}
 		}
 
-		
+		ImGui::End();
+	}
+
+	void draw_scene_hierarchy()
+	{
+		if (!ImGui::Begin("Scene Hierarchy", false))
+		{
+			ImGui::End();
+			return;
+		}
 
 
+
+		Uint_32 max_hierarchy = 0;
+		for (int _i = 0; _i < entity_management_system->next_transform_order; _i++)
+		{
+			auto id_t = transform_order[_i];
+			if (transform_entity_id[id_t])
+			{
+				if (transform_hierarchy_level[id_t] == MAX_HIERARCHY_LEVEL)// max_hierarchy)
+				{
+					max_hierarchy = transform_hierarchy_level[id_t];
+					add_child(id_t);
+
+				}
+			}
+		}
+
+		const ImGuiPayload* payload = ImGui::GetDragDropPayload();
+		if (input_manager->mouse.get_mouse_button_up(1) && payload)
+		{
+			if (payload && !payload->Delivery)
+			{
+				IM_ASSERT(payload->DataSize == sizeof(Uint_32));
+				Uint_32 dragged_transform_id = *(const int*)payload->Data;
+				entity_management_system->set_parent_transform(0, dragged_transform_id);
+				//transforms[dragged_transform_id].parent_transform = 0;
+			}
+			//ImGui::EndDragDropTarget();
+		}
 
 		ImGui::End();
 
 	}
 
+	void draw_asset_window()
+	{
+		if (!ImGui::Begin("Assets", false))
+		{
+			ImGui::End();
+			return;
+		}
+		static int selected = 0;
+		const char* labels[4] = { "Material", "Shaders", "Textures", "Animations" };
 
+		ImGui::Columns(2, "Asset columns", false);  // 2-ways, no border
 
+		for (int i = 0; i < 4; i++)
+		{
+			if (ImGui::Selectable(labels[i], selected == i))
+			{
+				selected = i;
+			}
+		}
 
+		ImGui::NextColumn();
+		ImGui::BeginChild("Scrollable panel");
+		static int selected_col_2 = 0;
 
+		if (selected == 0)
+		{
+			for (int j = 1; j < Material::material_names.size(); j++)
+			{
+				if (ImGui::Selectable(Material::material_names[j].c_str(), selected_col_2 == j))
+				{
+					selected_col_2 = j;
+				}
+
+				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+				{
+					ImGui::SetDragDropPayload("Material", &j, sizeof(Int_32));
+					ImGui::Text(Material::material_names[j].c_str());
+					ImGui::EndDragDropSource();
+				}
+			}
+		}
+		else if (selected == 1)
+		{
+			for (int j = 0; j < Shader::shader_names.size(); j++)
+			{
+				if (ImGui::Selectable(Shader::shader_names[j].c_str(), selected_col_2 == j))
+				{
+					selected_col_2 = j;
+				}
+
+				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+				{
+					ImGui::SetDragDropPayload("Shader", &selected_col_2, sizeof(Int_32));
+					ImGui::Text(Shader::shader_names[j].c_str());
+					ImGui::EndDragDropSource();
+				}
+			}
+		}
+		else if (selected == 2)
+		{
+			for (int j = 0; j < Texture::texture_names.size(); j++)
+			{
+				if (ImGui::Selectable(Texture::texture_names[j].c_str(), selected_col_2 == j))
+				{
+					selected_col_2 = j;
+				}
+
+				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+				{
+					ImGui::SetDragDropPayload("Texture", &selected_col_2, sizeof(Int_32));
+					ImGui::Text(Texture::texture_names[j].c_str());
+					ImGui::EndDragDropSource();
+				}
+			}
+		}
+		else if (selected == 3)
+		{
+			for (int j = 0; j < Animator::animations_library.size(); j++)
+			{
+				if (ImGui::Selectable(Animator::animations_library[j].clip_name.c_str(), selected_col_2 == j))
+				{
+					selected_col_2 = j;
+				}
+
+				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+				{
+					ImGui::SetDragDropPayload("Animation", &selected_col_2, sizeof(Int_32));
+					ImGui::Text(Animator::animations_library[j].clip_name.c_str());
+					ImGui::EndDragDropSource();
+				}
+			}
+		}
+
+		ImGui::EndChild();
+		ImGui::End();
+	}
 }

@@ -26,6 +26,7 @@
     <ClCompile Include="src\main.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\Game Engine\src\EditorUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="scene.graph" />
@@ -50,5 +51,11 @@
     <None Include="res\Materials\Door12.mat" />
     <None Include="res\Animations\run.anim" />
     <None Include="res\Animations\run_duplicate.anim" />
+    <None Include="res\Materials\Extra\Door3312.mat" />
+    <None Include="res\Materials\Extra\EXEXtra\Door33123333.mat" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="res\Materials\Extra\dummy.txt" />
+    <Text Include="res\Materials\Extra\EXEXtra\dummy.txt" />
   </ItemGroup>
 </Project>

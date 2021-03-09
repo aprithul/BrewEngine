@@ -145,7 +145,7 @@ namespace PrEngine
     std::string Graphic::to_string()
     {
 		//Material* mat = Material::get_material(this->element.material);
-		return std::to_string(COMP_GRAPHICS) + "," + Material::material_names[element.material]+","+std::to_string(tag);// Texture::texture_names[mat->diffuse_texture];
+		return std::to_string(COMP_GRAPHICS) + "," + Material::material_names[element.material]+","+std::to_string(future_tag);// Texture::texture_names[mat->diffuse_texture];
     }
 
     void GraphicsElement::Delete()

@@ -184,7 +184,7 @@ namespace PrEngine
         
     }
 
-	Uint_32 Material::load_material( const std::string& material_name, Bool_8 create_gl_texture, const std::string& name_modifier)
+	Uint_32 Material::load_material( const std::string& material_name, Bool_8 do_make_gl_texture, const std::string& name_modifier)
 	{
 		Int_32 present_at = -1;
 		for (int _i=0; _i<material_names.size(); _i++)
@@ -197,12 +197,13 @@ namespace PrEngine
 		}
 
 		Uint_32 material_id = 0;
+		std::string texture_name = "";
+		std::string shader_name = "";
 		//std::unordered_map<Uint_32, Material*>::iterator _mat_it = Material::material_library.find(material_id);
 		if (present_at == -1)
 		{
 
-			std::string texture_name = "";
-			std::string shader_name = "";
+
 
 			std::string material_data = read_file(get_resource_path(material_name));
 			std::stringstream mateiral_data_stream(material_data);
@@ -233,12 +234,13 @@ namespace PrEngine
 				}
 
 			}
+
 			assert(!material_name.empty() && !shader_name.empty());
 
 			material_creation_status = 1;
 
 			Uint_32 shader = Shader::load_shader(std::string(shader_name));
-			Uint_32 diffuse_texture = Texture::load_texture(texture_name, create_gl_texture);
+			Uint_32 diffuse_texture = Texture::load_texture(texture_name, do_make_gl_texture);
 			if (!Texture::texture_create_status || !Shader::shader_creation_status)
 				material_creation_status = 0;
 
@@ -257,6 +259,14 @@ namespace PrEngine
 				Material::material_names.push_back(material_name + name_modifier);
 				material_id = material_library.size() - 1;
 			}
+		}
+		else if (do_make_gl_texture)
+		{
+			Uint_32 diffuse_texture = Texture::load_texture(texture_name, do_make_gl_texture);
+			if (Texture::texture_create_status)
+				Material::material_library[present_at].diffuse_textures[0] = diffuse_texture;
+			else
+				LOG(LOGTYPE_ERROR, "Failed to crate gl texture");
 		}
 		else
 			material_id = present_at;

@@ -95,6 +95,7 @@ namespace PrEngine
 		Float_32 outline_alpha;
 		Uint_32 id_animator;
 		RenderTag tag;
+		Int_32 future_tag;
 
 
         Graphic();// const Vertex* vertices, GLuint vertices_size, const GLuint* indices, GLuint indices_size, GLsizei indices_count, Material material,Texture texture, VertexLayout layout);
