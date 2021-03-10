@@ -42,7 +42,8 @@ namespace PrEngine{
 		Float_32 animation_speed;
 		Uint_32 id_transform;
 		Uint_32 animation_ids[8]; // we can hold a max of 8 animations
-		Int_32 cur_anim;	// the current active animation
+		Uint_32 animation_count;
+		Int_32 cur_anim_ind;	// the current active animation
 		Int_32 current_frame_index;
 		Bool_8 anim_flags[3] = {};
 
@@ -54,9 +55,10 @@ namespace PrEngine{
 		void stop();
 		void update() override;
 		std::string to_string() override;
+		void add_animation(Uint_32 animtion_id);
 		inline Animation& get_current_animation()
 		{
-			return animations_library[animation_ids[cur_anim]];
+			return animations_library[animation_ids[cur_anim_ind]];
 		}
 
 		static Uint_32 load_animation(std::string& animation_file);

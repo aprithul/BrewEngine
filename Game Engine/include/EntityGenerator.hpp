@@ -14,7 +14,6 @@
 #include "Graphics.hpp"
 #include "Transform3D.hpp"
 #include "Sprite.hpp"
-#include "EditorUtils.hpp"
 #include <stdlib.h>
 #include <sstream>
 #include <string>

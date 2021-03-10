@@ -4,11 +4,25 @@
 #include "RendererOpenGL2D.hpp"
 #include <queue>
 #include "EntityGenerator.hpp"
+#include "EditorUtils.hpp"
+
 namespace PrEngine
 {
 	Uint_32 selected_transform = 0;
 	Uint_32 last_selected_transform = 0;
-	
+	std::vector<std::string> material_directories;
+	std::vector<std::string> shader_directories;
+	std::vector<std::string> texture_directories;
+	std::vector<std::string> animation_directories;
+
+	void load_materials();
+	void load_shaders();
+	void load_textures();
+	void load_animations();
+	void draw_scene_hierarchy();
+	void draw_inspector_window();
+	void draw_asset_window();
+
     GuiLayer::GuiLayer(SDL_Window* sdl_window, SDL_GLContext* gl_context):window(sdl_window),gl_context(gl_context)
     {
         this->name = "GUI";
@@ -38,6 +52,11 @@ namespace PrEngine
         //inspector initialization
         inspector_active = true;
         //ImGui::StyleColorsClassic();
+		
+		load_materials();
+		load_textures();
+		load_animations();
+		load_shaders();
     }
 
 	Uint_32 mouse_pointer_transform = 0;
@@ -201,11 +220,6 @@ namespace PrEngine
 		}
 	}
 
-	void draw_scene_hierarchy();
-	void draw_inspector_window();
-	void draw_asset_window();
-
-
 	Float_32 drag_amount;
 	Float_32 drag_limit = 20;
 	Vector2<Int_32> drag_start;
@@ -227,7 +241,6 @@ namespace PrEngine
 		/*Transform*/
 		if (last_selected_transform != selected_transform) // selection changed, so remove outline
 		{
-
 			auto entity = transform_entity_id[last_selected_transform];
 			auto id_graphics = entities[entity][COMP_GRAPHICS];
 			auto& graphic = graphics[id_graphics];
@@ -271,7 +284,6 @@ namespace PrEngine
 			graphic.outline_alpha = 1.0;
 			last_selected_transform = selected_transform;
 
-
 			auto& ent = entities[entity];
 			if (ent[COMP_GRAPHICS])
 			{
@@ -296,7 +308,12 @@ namespace PrEngine
 								if (payload)
 								{
 									IM_ASSERT(payload->DataSize == sizeof(Int_32));
-									g.element.material = *(const int*)payload->Data;
+									auto p = material_directories[*(const Int_32*)payload->Data];
+									Uint_32 mat_id = Material::load_material(p, true);
+									if (mat_id)
+										g.element.material = mat_id;// *(const int*)payload->Data;
+									else
+										LOG(LOGTYPE_ERROR, "material couldn't be created");
 								}
 								ImGui::EndDragDropTarget();
 
@@ -331,14 +348,17 @@ namespace PrEngine
 					Uint_32 id_animator = ent[COMP_ANIMATOR];
 					Animator& animator = animators[id_animator];
 					ImGui::DragFloat("Animation Speed", &animator.animation_speed, 0.05f, 0.0f, 5.0f);
-					ImGui::InputInt("Current Animation", &animator.cur_anim);
+					ImGui::InputInt("Current Animation", &animator.cur_anim_ind);
 					if (ImGui::BeginDragDropTarget())
 					{
 						const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Animation");
 						if (payload)
 						{
 							IM_ASSERT(payload->DataSize == sizeof(Int_32));
-							animator.cur_anim = *(const int*)payload->Data;
+							Uint_32 anim_index = *(const Int_32*)payload->Data;
+							//Uint_32 anim_id = Animator::load_animation(animation_directories[*(const Int_32*)payload->Data]);
+								//animator.add_animation(anim_id);
+							animator.cur_anim_ind = anim_index;// *(const int*)payload->Data;
 						}
 						ImGui::EndDragDropTarget();
 					}
@@ -346,14 +366,13 @@ namespace PrEngine
 					ImGui::Checkbox("Rotate", &animator.anim_flags[ANIM_ROTATE]);
 					ImGui::Checkbox("Scale", &animator.anim_flags[ANIM_SCALE]);
 
-					Int_32 no_of_animations = 0;
-					for (int _i = 0; _i < 8; _i++)
+					ImGui::BeginChild("Animations",ImVec2(0,0),true,0);
+
+					//Int_32 no_of_animations = 0;
+					for (int _i = 0; _i < animator.animation_count; _i++)
 					{
-						Uint_32 _id = animator.animation_ids[_i];
-						if (_id)
-						{
-							no_of_animations++;
-							Animation& animation = Animator::animations_library[_id];
+							//no_of_animations++;
+							Animation& animation = Animator::animations_library[animator.animation_ids[_i]];
 							std::string _node_label = std::to_string(_i) + "_" + animation.clip_name;
 							if (ImGui::TreeNode(_node_label.c_str()))
 							{
@@ -361,15 +380,42 @@ namespace PrEngine
 							}
 							if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
 							{
+								/*Uint_32 anim = 0;
+								for (int k = 0; k < animation_directories.size(); k++)
+								{
+									if (animation_directories[k] == animation.clip_name)
+										anim = k;
+								}*/
+
 								ImGui::SetDragDropPayload("Animation", &_i, sizeof(Int_32));
 								ImGui::Text(_node_label.c_str());
 								ImGui::EndDragDropSource();
 							}
+
+					}
+					ImGui::EndChild();
+
+					if (ImGui::BeginDragDropTarget())
+					{
+						
+						const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Animation Asset");
+						if (payload)
+						{
+							Uint_32 anim_i = Animator::load_animation(animation_directories[*(const Int_32*)payload->Data]);
+							if (anim_i)
+							{
+								animator.add_animation(anim_i);
+							}
+							else
+							{
+								LOG(LOGTYPE_ERROR, "Animation couldn't be loaded");
+							}
+
 						}
 
-						animator.cur_anim = clamp<Int_32>(animator.cur_anim, 0, no_of_animations);
 					}
 
+					animator.cur_anim_ind = clamp<Int_32>(animator.cur_anim_ind, 0, animator.animation_count-1);
 				}
 			}
 		}
@@ -419,6 +465,55 @@ namespace PrEngine
 
 	}
 
+	void load_materials()
+	{
+		std::string dir = get_resource_path("");// +"Materials" + PATH_SEP;
+		get_files_in_dir(dir, ".mat", material_directories);
+		for (int i=0; i<material_directories.size(); i++)
+		{
+			auto p = material_directories[i].substr(dir.size());
+			material_directories[i] = p;
+			//Material::load_material(mat_path, false);
+		}
+	}
+
+	void load_shaders()
+	{
+		std::string dir = get_resource_path("");// +"Materials" + PATH_SEP;
+		get_files_in_dir(dir, ".shader", shader_directories);
+		for (int i = 0; i < shader_directories.size(); i++)
+		{
+			auto p = shader_directories[i].substr(dir.size());
+			shader_directories[i] = p;
+			//Material::load_material(mat_path, false);
+		}
+	}
+
+	void load_textures()
+	{
+		std::string dir = get_resource_path("");// +"Materials" + PATH_SEP;
+		get_files_in_dir(dir, ".png", texture_directories);
+		get_files_in_dir(dir, ".jpg", texture_directories);
+		for (int i = 0; i < texture_directories.size(); i++)
+		{
+			auto p = texture_directories[i].substr(dir.size());
+			texture_directories[i] = p;
+			//Material::load_material(mat_path, false);
+		}
+	}
+
+	void load_animations()
+	{
+		std::string dir = get_resource_path("");// +"Materials" + PATH_SEP;
+		get_files_in_dir(dir, ".anim", animation_directories);
+		for (int i = 0; i < animation_directories.size(); i++)
+		{
+			auto p = animation_directories[i].substr(dir.size());
+			animation_directories[i] = p;
+			//Material::load_material(mat_path, false);
+		}
+	}
+
 	void draw_asset_window()
 	{
 		if (!ImGui::Begin("Assets", false))
@@ -445,9 +540,9 @@ namespace PrEngine
 
 		if (selected == 0)
 		{
-			for (int j = 1; j < Material::material_names.size(); j++)
+			for (int j = 0; j < material_directories.size(); j++)
 			{
-				if (ImGui::Selectable(Material::material_names[j].c_str(), selected_col_2 == j))
+				if (ImGui::Selectable(material_directories[j].c_str(), selected_col_2 == j))
 				{
 					selected_col_2 = j;
 				}
@@ -455,58 +550,58 @@ namespace PrEngine
 				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
 				{
 					ImGui::SetDragDropPayload("Material", &j, sizeof(Int_32));
-					ImGui::Text(Material::material_names[j].c_str());
+					ImGui::Text(material_directories[j].c_str());
 					ImGui::EndDragDropSource();
 				}
 			}
 		}
 		else if (selected == 1)
 		{
-			for (int j = 0; j < Shader::shader_names.size(); j++)
+			for (int j = 0; j < shader_directories.size(); j++)
 			{
-				if (ImGui::Selectable(Shader::shader_names[j].c_str(), selected_col_2 == j))
+				if (ImGui::Selectable(shader_directories[j].c_str(), selected_col_2 == j))
 				{
 					selected_col_2 = j;
 				}
 
 				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
 				{
-					ImGui::SetDragDropPayload("Shader", &selected_col_2, sizeof(Int_32));
-					ImGui::Text(Shader::shader_names[j].c_str());
+					ImGui::SetDragDropPayload("Shader", &j, sizeof(Int_32));
+					ImGui::Text(shader_directories[j].c_str());
 					ImGui::EndDragDropSource();
 				}
 			}
 		}
 		else if (selected == 2)
 		{
-			for (int j = 0; j < Texture::texture_names.size(); j++)
+			for (int j = 0; j < texture_directories.size(); j++)
 			{
-				if (ImGui::Selectable(Texture::texture_names[j].c_str(), selected_col_2 == j))
+				if (ImGui::Selectable(texture_directories[j].c_str(), selected_col_2 == j))
 				{
 					selected_col_2 = j;
 				}
 
 				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
 				{
-					ImGui::SetDragDropPayload("Texture", &selected_col_2, sizeof(Int_32));
-					ImGui::Text(Texture::texture_names[j].c_str());
+					ImGui::SetDragDropPayload("Texture", &j, sizeof(Int_32));
+					ImGui::Text(texture_directories[j].c_str());
 					ImGui::EndDragDropSource();
 				}
 			}
 		}
 		else if (selected == 3)
 		{
-			for (int j = 0; j < Animator::animations_library.size(); j++)
+			for (int j = 0; j < animation_directories.size(); j++)
 			{
-				if (ImGui::Selectable(Animator::animations_library[j].clip_name.c_str(), selected_col_2 == j))
+				if (ImGui::Selectable(animation_directories[j].c_str(), selected_col_2 == j))
 				{
 					selected_col_2 = j;
 				}
 
 				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
 				{
-					ImGui::SetDragDropPayload("Animation", &selected_col_2, sizeof(Int_32));
-					ImGui::Text(Animator::animations_library[j].clip_name.c_str());
+					ImGui::SetDragDropPayload("Animation Asset", &j, sizeof(Int_32));
+					ImGui::Text(animation_directories[j].c_str());
 					ImGui::EndDragDropSource();
 				}
 			}

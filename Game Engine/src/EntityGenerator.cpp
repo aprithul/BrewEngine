@@ -130,20 +130,6 @@ namespace PrEngine{
 
 	void EntityGenerator::load_scenegraph(const std::string& scene_file_name) 
 	{
-#ifdef _WIN32
-		{
-			std::vector<std::string> material_directories;
-			std::string dir = get_resource_path("");// +"Materials" + PATH_SEP;
-			get_files_in_dir(dir, ".mat", material_directories);
-			for (auto& p : material_directories)
-			{
-				auto mat_path = p.substr(dir.size());
-				Material::load_material(mat_path, false);
-			}
-		}
-		
-
-#endif // _WIN32
 
 		std::string _empty_animation_name = "NULL ANIM";
 		Animator::animations_library.emplace_back(_empty_animation_name);
@@ -192,7 +178,7 @@ namespace PrEngine{
 						case COMP_ANIMATOR:
 						{	
 							id_animator = entity_management_system->make_animator_comp(entity);
-							animators[id_animator].cur_anim = std::stod(tokens[1]);
+							animators[id_animator].cur_anim_ind = std::stod(tokens[1]);
 							animators[id_animator].anim_flags[0] = std::stod(tokens[2]);
 							animators[id_animator].anim_flags[1] = std::stod(tokens[3]);
 							animators[id_animator].anim_flags[2] = std::stod(tokens[4]);
@@ -204,8 +190,7 @@ namespace PrEngine{
 								Uint_32 a_id = 0;
 								if (a_id = Animator::load_animation(tokens[t_i]))
 								{
-									animators[id_animator].animation_ids[t_i - 5] = a_id;// Animator::animations_library.size() - 1;
-
+									animators[id_animator].add_animation(a_id);// Animator::animations_library.size() - 1;
 									/*Uint_32 entity_2 = entity_management_system->make_entity();
 									Uint_32 id_transform_2 = entity_management_system->make_transform_comp(entity_2);
 									entity_management_system->set_parent_transform(id_transform, id_transform_2);

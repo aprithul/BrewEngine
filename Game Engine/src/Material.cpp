@@ -197,13 +197,11 @@ namespace PrEngine
 		}
 
 		Uint_32 material_id = 0;
-		std::string texture_name = "";
-		std::string shader_name = "";
 		//std::unordered_map<Uint_32, Material*>::iterator _mat_it = Material::material_library.find(material_id);
-		if (present_at == -1)
+		if (do_make_gl_texture || present_at == -1)
 		{
-
-
+			std::string texture_name = "";
+			std::string shader_name = "";
 
 			std::string material_data = read_file(get_resource_path(material_name));
 			std::stringstream mateiral_data_stream(material_data);
@@ -235,38 +233,29 @@ namespace PrEngine
 
 			}
 
-			assert(!material_name.empty() && !shader_name.empty());
+			if (texture_name.empty() || shader_name.empty())
+			{
+				material_creation_status = 0;
+				LOG(LOGTYPE_ERROR, "Material definition incomplete");
+				return material_id;
+			}
 
 			material_creation_status = 1;
-
 			Uint_32 shader = Shader::load_shader(std::string(shader_name));
 			Uint_32 diffuse_texture = Texture::load_texture(texture_name, do_make_gl_texture);
 			if (!Texture::texture_create_status || !Shader::shader_creation_status)
-				material_creation_status = 0;
-
-			if (!material_creation_status)
 			{
-				LOG(LOGTYPE_ERROR, "Material creation failed");
-				//Material* mat = &Material::material_library.back();
-				//delete mat;
-				Material::material_library.pop_back();
-				//mat = nullptr;
+				material_creation_status = 0;
+				LOG(LOGTYPE_ERROR, "Material creation failed, error creating texture or shader");
 			}
-			else
+			else if (present_at == -1)
 			{
 				Material::material_library.emplace_back(shader, diffuse_texture, material_name);
-
 				Material::material_names.push_back(material_name + name_modifier);
 				material_id = material_library.size() - 1;
 			}
-		}
-		else if (do_make_gl_texture)
-		{
-			Uint_32 diffuse_texture = Texture::load_texture(texture_name, do_make_gl_texture);
-			if (Texture::texture_create_status)
-				Material::material_library[present_at].diffuse_textures[0] = diffuse_texture;
 			else
-				LOG(LOGTYPE_ERROR, "Failed to crate gl texture");
+				material_id = present_at;
 		}
 		else
 			material_id = present_at;

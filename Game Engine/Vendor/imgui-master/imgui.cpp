@@ -9703,7 +9703,7 @@ static void MetricsHelpMarker(const char* desc)
 
 void ImGui::ShowMetricsWindow(bool* p_open)
 {
-    if (!ImGui::Begin("Dear ImGui Metrics", p_open))
+    if (!ImGui::Begin("Render Metrics", p_open))
     {
         ImGui::End();
         return;

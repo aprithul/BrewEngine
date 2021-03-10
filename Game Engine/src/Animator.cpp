@@ -18,6 +18,7 @@ namespace PrEngine
 	{
 		animation_speed = 1.f;
 		current_frame_index = 0;
+		animation_count = 0;
 	}
 
 	Animator::~Animator()
@@ -101,6 +102,22 @@ namespace PrEngine
 		}
 	}
 
+	void Animator::add_animation(Uint_32 animation_id)
+	{
+		for (Uint_32 a : animation_ids)
+		{
+			if (a == animation_id)
+				return;
+		}
+		
+		if (animation_count < MAX_ANIMATIONS)
+		{
+			animation_ids[animation_count] = animation_id;
+			animation_count++;
+		}
+		else
+			LOG(LOGTYPE_ERROR, "Max number of animations already added to animator");
+	}
 	Uint_32 Animator::load_animation(std::string& file_name)
 	{
 		Animation::animation_load_status = 1;
@@ -129,7 +146,7 @@ namespace PrEngine
 	std::string Animator::to_string()
 	{
 		std::string text = std::to_string(COMP_ANIMATOR);
-		text += ","+std::to_string(cur_anim)+","+std::to_string(anim_flags[0])+"," + std::to_string(anim_flags[1])+"," + std::to_string(anim_flags[2]);
+		text += ","+std::to_string(cur_anim_ind)+","+std::to_string(anim_flags[0])+"," + std::to_string(anim_flags[1])+"," + std::to_string(anim_flags[2]);
 		for (int _i=0; _i < MAX_ANIMATIONS ; _i++)
 		{
 			if(animation_ids[_i])
