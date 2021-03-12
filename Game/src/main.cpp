@@ -40,7 +40,6 @@ Int_32 make_engine_and_start_game(){
 		
 		//for (int i = 0; i < MAX_GRAPHIC_COUNT / 10; i++)
 		//{
-		entity_generator->load_scenegraph("scene.graph");
 		/*auto p = entity_generator->make_animated_sprite_entity(file_path);
 		auto c = entity_generator->make_animated_sprite_entity(file_path);
 		entity_management_system->set_parent_transform(p, c);
@@ -55,6 +54,8 @@ Int_32 make_engine_and_start_game(){
 		//entity_generator->make_light_entity();
 
 		game_engine->start();
+		entity_generator->load_scenegraph("scene.graph");
+
 		//show_file_structure( get_resource_path(""),"");
 	#ifndef EMSCRIPTEN
 		game_engine->update();

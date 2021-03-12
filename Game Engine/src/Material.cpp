@@ -336,7 +336,7 @@ namespace PrEngine
 		else
 			assert(0);
         
-		shader_program.uniform_locations[_uniform] = {type, loc};
+		shader_program.uniform_locations[(int)_uniform] = loc;
     }
 
     void Shader::parse_shader(const std::string& source)
@@ -450,7 +450,8 @@ namespace PrEngine
         }
 
         shader_program.id = glCreateProgram();
-        shader_program.uniform_locations.clear();
+		for (Uint_32 _i = 0; _i < (int)ShaderUniformName::u_count; _i++)
+			shader_program.uniform_locations[_i] = -1;
 
         if(shader_program.id == 0)
         {

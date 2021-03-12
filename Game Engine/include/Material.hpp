@@ -9,7 +9,7 @@
 #include <string>
 #include <GL/glew.h>
 
-#define MAX_TEXTURES 16
+#define MAX_TEXTURES 8
 
 
 namespace PrEngine
@@ -34,16 +34,16 @@ namespace PrEngine
 		u_count
 	};
 
-    struct Shader
+    struct Shader	//60 bytes ( 4 + 4*u_count)
     {
+		GLuint id;
+		GLint uniform_locations[(int)ShaderUniformName::u_count] = {};
+		void Delete();
+
+
 		static std::vector<Shader> shader_library;
 		static std::vector<std::string> shader_names;
-
 		static Bool_8 shader_creation_status;
-
-        GLuint id;
-        std::unordered_map<ShaderUniformName, std::pair<std::string, GLuint>> uniform_locations;
-        void Delete();
 		static Uint_32 load_shader(const std::string& path);
 		static inline Shader* get_shader(Uint_32 _shader);
         static Shader* make_shader_program(const std::string& path);
@@ -54,29 +54,31 @@ namespace PrEngine
 		static void parse_shader(const std::string& source);
     };
 
-    struct Material
+    struct Material //64 bytes
     {
+		Vector3<Float_32> diffuse_color;
+		Vector2<Float_32> tiling;
+		Vector2<Float_32> panning;
+		Uint_32 diffuse_textures[MAX_TEXTURES] = {}; // length depends on the total combined textures allowed by opengl
+		Uint_32 shader;
+
+		Material();
+		Material(Uint_32 shader, Uint_32 texture, const std::string& name);
+		~Material();
+		void Delete();
+		void Bind();
+		void Unbind();
+
+
         static std::vector<Material> material_library;
 		static std::vector<std::string> material_names;
-
 		static Uint_32 load_material(const std::string& name, Bool_8 create_gl_texture, const std::string& name_modifier = "");
 		static Bool_8 material_creation_status;
 		static inline Material* get_material(Uint_32 mat_id);
         static void delete_all_materials();
         //Material(const std::string& shader_path, const std::vector<std::string>& cubemap_tex_path,const std::string& name);
         //void Generate(const std::string& shader_path, const std::string& diffuse_tex_path, const std::string& name);
-        void Delete();
-        //std::string source_file_path;
-		Uint_32 diffuse_textures[MAX_TEXTURES] = {}; // length depends on the total combined textures allowed by opengl
-        void Bind();
-        void Unbind();
-        Uint_32 shader;
-		Vector3<Float_32> diffuse_color;
-		Vector2<Float_32> tiling;
-        Vector2<Float_32> panning;
-		Material();
-		Material(Uint_32 shader, Uint_32 texture, const std::string& name);
-		~Material();
+
 
     };
 

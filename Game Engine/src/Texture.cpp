@@ -11,6 +11,18 @@ namespace PrEngine
 	Uint_32 Texture::next_bind_unit = 0;
 	extern GLint max_texture_units;
 
+	Texture::Texture()
+	{
+		data = nullptr;
+		id = 0;
+		//path = 0;
+		bind_unit = 0;
+		bind_target = 0;
+		width = 0;
+		height = 0;
+		no_of_channels = 0;
+	}
+
 	void Texture::create_gl_texture()
 	{
 		bind_unit = next_bind_unit;
@@ -48,7 +60,7 @@ namespace PrEngine
 		id = 0;
         texture_create_status = 0;
         stbi_set_flip_vertically_on_load(true);
-		this->path = 0;
+		//this->path = 0;
 
 
 
@@ -151,7 +163,7 @@ namespace PrEngine
 		texture_library.emplace_back(diffuse_textures, GL_TEXTURE_2D_ARRAY);
 		Uint_32 texture_id = texture_library.size() - 1;
 		texture_names.push_back("texture array");
-		texture_library.back().path = texture_names.size() - 1;
+		//texture_library.back().path = texture_names.size() - 1;
 		return texture_id;
 	}
 
@@ -201,7 +213,7 @@ namespace PrEngine
 				texture_id = texture_library.size() - 1;
 
 				texture_names.push_back(path);
-				texture_library.back().path = texture_names.size() - 1;
+				//texture_library.back().path = texture_names.size() - 1;
 			}
 		}
 		else if (do_create_gl_texture && !texture_library[present_at].id)    // texture found in library, so assign that

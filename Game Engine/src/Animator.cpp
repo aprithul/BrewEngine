@@ -13,6 +13,7 @@ namespace PrEngine
 {
 
 	std::vector<Animation> Animator::animations_library;
+	std::vector<std::string> Animator::animation_clip_names;
 
 	Animator::Animator():Component(COMP_ANIMATOR)
 	{
@@ -122,9 +123,9 @@ namespace PrEngine
 	{
 		Animation::animation_load_status = 1;
 		Int_32 present_at = -1;
-		for (int _i = 0; _i < animations_library.size(); _i++)
+		for (int _i = 0; _i < animation_clip_names.size(); _i++)
 		{
-			if (animations_library[_i].clip_name == file_name)
+			if (animation_clip_names[_i] == file_name)
 			{
 				present_at = _i;
 				break;
@@ -135,9 +136,8 @@ namespace PrEngine
 		if (present_at == -1)
 		{
 			animations_library.emplace_back(file_name);
+			animation_clip_names.push_back(file_name);
 			animation_pos = animations_library.size() - 1;
-			if (!Animation::animation_load_status)
-				LOG(LOGTYPE_ERROR, file_name, " : animation loading failed");
 		}
 
 		return animation_pos;
@@ -150,7 +150,7 @@ namespace PrEngine
 		for (int _i=0; _i < MAX_ANIMATIONS ; _i++)
 		{
 			if(animation_ids[_i])
-				text += ","+ animations_library[animation_ids[_i]].clip_name;
+				text += ","+ animation_clip_names[animation_ids[_i]];
 		}
 		return text;
 	}

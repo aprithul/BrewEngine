@@ -58,102 +58,106 @@ namespace PrEngine
 			return;
 		}
 		//glUseProgram(shader->id);
-		auto& uniform_loc = shader->uniform_locations;
+		GLint* uniform_loc = shader->uniform_locations;
 
 
-		for (auto& it : uniform_loc)
+		for (Uint_32 _i = 0; _i<(Int_32)ShaderUniformName::u_count; _i++)
 		{
-
-			switch (it.first)
+			ShaderUniformName _name = (ShaderUniformName)_i;
+			GLuint _loc = uniform_loc[_i];
+			if (_loc >= 0)
 			{
-			case ShaderUniformName::u_sampler2d:
-			{
-				Texture* tex = Texture::get_texture(mat->diffuse_textures[0]);
-				//GL_CALL(
-				glUniform1i(it.second.second, tex->bind_unit);//)
-			}
-			break;
-			case ShaderUniformName::u_textures:	//happens with batche graphic, batche graphi will have array of texture ids
-			{
-				/*GLint texture_bind_units[MAX_TEXTURES] = {};
-				int _count = 0;
-				for (int _i = 0; _i < MAX_TEXTURES; _i++)
+				switch (_name)
 				{
-					//if (mat->diffuse_textures[_i] != 0)
+					case ShaderUniformName::u_sampler2d:
 					{
-						Texture* tex = Texture::get_texture(mat->diffuse_textures[_i]);
-						texture_bind_units[_i] = tex->bind_unit;
-						_count++;
+						Texture* tex = Texture::get_texture(mat->diffuse_textures[0]);
+						//GL_CALL(
+						glUniform1i(_loc, tex->bind_unit);//)
 					}
-					//else
-					//	break;
+					break;
+					case ShaderUniformName::u_textures:	//happens with batche graphic, batche graphi will have array of texture ids
+					{
+						/*GLint texture_bind_units[MAX_TEXTURES] = {};
+						int _count = 0;
+						for (int _i = 0; _i < MAX_TEXTURES; _i++)
+						{
+							//if (mat->diffuse_textures[_i] != 0)
+							{
+								Texture* tex = Texture::get_texture(mat->diffuse_textures[_i]);
+								texture_bind_units[_i] = tex->bind_unit;
+								_count++;
+							}
+							//else
+							//	break;
+						}
+
+						//GL_CALL(
+						glUniform1iv(it.second.second, _count, texture_bind_units);//)*/
+					}
+					break;
+					/*case ShaderUniformName::u_Dir_Light:
+						GL_CALL(
+							glUniform3f(it.second.second, _dir.x, _dir.y, _dir.z))
+							break;*/
+					case ShaderUniformName::u_Model:
+						GL_CALL(
+							glUniformMatrix4fv(_loc, 1, GL_TRUE, transformation.data))
+							break;
+					case ShaderUniformName::u_View:
+						GL_CALL(
+							glUniformMatrix4fv(_loc, 1, GL_TRUE, _camera.view_matrix.data))
+							break;
+					case ShaderUniformName::u_View_t:
+					{
+						Matrix4x4<Float_32> _view = Matrix4x4<Float_32>(_camera.view_matrix);
+						_view.data[3] = 0;
+						_view.data[7] = 0;
+						_view.data[11] = 0;
+						_view.data[12] = 0;
+						_view.data[13] = 0;
+						_view.data[14] = 0;
+						_view.data[15] = 1;
+
+						GL_CALL(
+							glUniformMatrix4fv(_loc, 1, GL_TRUE, _view.data))
+					}
+					break;
+					case ShaderUniformName::u_Projection:
+						GL_CALL(
+							glUniformMatrix4fv(_loc, 1, GL_TRUE, _camera.projection_matrix.data))
+							break;
+						/*case ShaderUniformName::u_Camera_Position:
+							GL_CALL(
+								glUniform3f(it.second.second, _cam_pos.x, _cam_pos.y, _cam_pos.z))
+								break;
+						case ShaderUniformName::u_Normal_M:
+							GL_CALL(
+								glUniformMatrix4fv(it.second.second, 1, GL_TRUE, transform.rotation_transformation.data))
+								break;*/
+					case ShaderUniformName::u_Panning:
+						GL_CALL(
+							glUniform2f(_loc, mat->panning.x, mat->panning.y))
+							break;
+					case ShaderUniformName::u_Tiling:
+						GL_CALL(
+							glUniform2f(_loc, mat->tiling.x, mat->tiling.y))
+							break;
+					case ShaderUniformName::u_Diffuse_Color:
+						GL_CALL(
+							glUniform3f(_loc, mat->diffuse_color.x, mat->diffuse_color.y, mat->diffuse_color.z))
+							break;
+					case ShaderUniformName::u_Outline_Color:
+						GL_CALL(
+							glUniform4f(_loc, graphic.outline_color.x, graphic.outline_color.y, graphic.outline_color.z, graphic.outline_alpha))
+							break;
+					case ShaderUniformName::u_Ambient_Strength:
+						GL_CALL(
+							glUniform1f(_loc, 1.f))
+							break;
+					default:
+						break;
 				}
-
-				//GL_CALL(
-				glUniform1iv(it.second.second, _count, texture_bind_units);//)*/
-			}
-			break;
-			/*case ShaderUniformName::u_Dir_Light:
-				GL_CALL(
-					glUniform3f(it.second.second, _dir.x, _dir.y, _dir.z))
-					break;*/
-			case ShaderUniformName::u_Model:
-				GL_CALL(
-					glUniformMatrix4fv(it.second.second, 1, GL_TRUE, transformation.data))
-					break;
-			case ShaderUniformName::u_View:
-				GL_CALL(
-					glUniformMatrix4fv(it.second.second, 1, GL_TRUE, _camera.view_matrix.data))
-					break;
-			case ShaderUniformName::u_View_t:
-			{
-				Matrix4x4<Float_32> _view = Matrix4x4<Float_32>(_camera.view_matrix);
-				_view.data[3] = 0;
-				_view.data[7] = 0;
-				_view.data[11] = 0;
-				_view.data[12] = 0;
-				_view.data[13] = 0;
-				_view.data[14] = 0;
-				_view.data[15] = 1;
-
-				GL_CALL(
-					glUniformMatrix4fv(it.second.second, 1, GL_TRUE, _view.data))
-			}
-			break;
-			case ShaderUniformName::u_Projection:
-				GL_CALL(
-					glUniformMatrix4fv(it.second.second, 1, GL_TRUE, _camera.projection_matrix.data))
-					break;
-			/*case ShaderUniformName::u_Camera_Position:
-				GL_CALL(
-					glUniform3f(it.second.second, _cam_pos.x, _cam_pos.y, _cam_pos.z))
-					break;
-			case ShaderUniformName::u_Normal_M:
-				GL_CALL(
-					glUniformMatrix4fv(it.second.second, 1, GL_TRUE, transform.rotation_transformation.data))
-					break;*/
-			case ShaderUniformName::u_Panning:
-				GL_CALL(
-					glUniform2f(it.second.second, mat->panning.x, mat->panning.y))
-					break;
-			case ShaderUniformName::u_Tiling:
-				GL_CALL(
-					glUniform2f(it.second.second, mat->tiling.x, mat->tiling.y))
-					break;
-			case ShaderUniformName::u_Diffuse_Color:
-				GL_CALL(
-					glUniform3f(it.second.second, mat->diffuse_color.x, mat->diffuse_color.y, mat->diffuse_color.z))
-					break;
-			case ShaderUniformName::u_Outline_Color:
-				GL_CALL(
-					glUniform4f(it.second.second, graphic.outline_color.x, graphic.outline_color.y, graphic.outline_color.z, graphic.outline_alpha))
-					break;
-			case ShaderUniformName::u_Ambient_Strength:
-				GL_CALL(
-					glUniform1f(it.second.second, 1.f))
-					break;
-			default:
-				break;
 			}
 
 

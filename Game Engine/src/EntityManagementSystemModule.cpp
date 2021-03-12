@@ -471,7 +471,10 @@ assert(level > 0);
 
     void EntityManagementSystem::start()
     {
-
+		std::string _empty_animation_name = "NULL ANIM";
+		Animator::load_animation(_empty_animation_name);
+//		Animator::animations_library.emplace_back(_empty_animation_name);
+//		Animator::animation_clip_names.push_back(_empty_animation_name);
     }
 
 	inline Bool_8 is_valid(Uint32* validity, Uint_32 pos)

@@ -220,8 +220,9 @@ namespace PrEngine {
 
 		batch.element.layout = layout;
 
-		for (std::vector<VertexAttribute>::iterator attr = batch.element.layout.vertex_attributes.begin(); attr != batch.element.layout.vertex_attributes.end(); attr++)
+		for (Uint_32 _i=0; _i < batch.element.layout.next_attrib; _i++)// != batch.element.layout.vertex_attributes.end(); attr++)
 		{
+			VertexAttribute* attr = &(batch.element.layout.vertex_attributes[_i]);
 			GL_CALL(
 				glEnableVertexAttribArray(attr->index))
 				//GL_CALL(
@@ -647,8 +648,9 @@ namespace PrEngine {
 		graphic.element.vao.Generate();
 		graphic.element.vbo.Generate(&buffer[0], buffer.size() * sizeof(Vertex), GL_STATIC_DRAW);
 		graphic.element.layout = layout;
-		for (std::vector<VertexAttribute>::iterator attr = graphic.element.layout.vertex_attributes.begin(); attr != graphic.element.layout.vertex_attributes.end(); attr++)
+		for (Uint_32 _i = 0; _i < graphic.element.layout.next_attrib; _i++)
 		{
+			VertexAttribute* attr = &graphic.element.layout.vertex_attributes[_i];
 			GL_CALL(
 				glEnableVertexAttribArray(attr->index))
 				GL_CALL(

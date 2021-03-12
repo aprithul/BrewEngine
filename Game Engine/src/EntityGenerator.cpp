@@ -127,12 +127,9 @@ namespace PrEngine{
 	}
 #endif //  EDITOR_MODE
 
-
 	void EntityGenerator::load_scenegraph(const std::string& scene_file_name) 
 	{
-
-		std::string _empty_animation_name = "NULL ANIM";
-		Animator::animations_library.emplace_back(_empty_animation_name);
+		auto s = sizeof(Material);
 
 		std::string scene_data = read_file(scene_file_name);
 		std::stringstream input(scene_data);

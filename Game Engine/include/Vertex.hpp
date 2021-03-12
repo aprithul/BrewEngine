@@ -23,7 +23,7 @@
 namespace PrEngine {
 
     
-    struct Vertex
+    struct Vertex // 52 bytes
     {
         Float_32 p_x;
         Float_32 p_y;

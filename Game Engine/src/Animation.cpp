@@ -6,13 +6,11 @@ namespace PrEngine {
 
 	Animation::Animation() 
 	{
-		clip_name = "";
 	}
 
 	Animation::Animation(std::string& animation_name)
 	{
-		this->clip_name = std::string(animation_name);
-		std::string data = read_file(get_resource_path(clip_name));
+		std::string data = read_file(get_resource_path(animation_name));
 
 		if (data.empty())
 			animation_load_status = 0;
@@ -24,7 +22,7 @@ namespace PrEngine {
 			std::stringstream data_stream(data);
 			std::string keyframe_data;
 
-			LOG(LOGTYPE_GENERAL, get_resource_path(clip_name));
+			LOG(LOGTYPE_GENERAL, get_resource_path(animation_name));
 
 			while (std::getline(data_stream, keyframe_data, '\n')) // get an entity
 			{

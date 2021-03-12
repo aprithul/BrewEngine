@@ -9,6 +9,7 @@
 #include "Matrix4x4f.hpp"
 #include "Transform3D.hpp"
 
+#define MAX_VERT_ATTRIB 5
 
 namespace PrEngine
 {
@@ -46,35 +47,36 @@ namespace PrEngine
         void Delete();
     };
 
-    struct VertexAttribute
+    struct VertexAttribute // 24 bytes
         {
             GLuint index;     
             GLuint count;
             Int_32 type;
-            GLboolean normalized;
             GLsizei offset;
-
             GLsizei size;
+			GLboolean normalized;
 
+			VertexAttribute();
             VertexAttribute(GLuint index, GLuint count, Int_32 type, GLboolean normalized);
     };
 
-    struct VertexLayout
+    struct VertexLayout	// 128 bytes
     {
-        VertexLayout();
-        GLsizei stride;
-        std::vector<VertexAttribute> vertex_attributes;
+		VertexAttribute vertex_attributes[MAX_VERT_ATTRIB]; // 120 bytes   24*MAX_VERT_ATTRIB
+		GLsizei stride;
+		Uint_32 next_attrib = 0;
+		VertexLayout();
         void add_attribute(VertexAttribute& attribute);
     };
 
-    struct GraphicsElement
+    struct GraphicsElement	//152 bytes
     {
-		VertexLayout layout;
-        VertexArray vao;
-        VertexBuffer vbo;
-        IndexBuffer ibo;
-        Uint_32 material;
-        Int_32 num_of_triangles;
+		VertexLayout layout;	// 128
+		IndexBuffer ibo;		// 8
+		VertexArray vao;		// 4
+        VertexBuffer vbo;		// 4
+        Uint_32 material;		// 4
+        Int_32 num_of_triangles;// 4
         void Delete();
     };
 
@@ -87,15 +89,15 @@ namespace PrEngine
 		RENDER_TAG_COUNT
 	};
 
-    struct Graphic : public Component
+    struct Graphic : public Component	// 184 bytes
     {
-		GraphicsElement element;
-		Vector3<Float_32> outline_color;
-		Uint_32 id_transform;
-		Float_32 outline_alpha;
-		Uint_32 id_animator;
-		RenderTag tag;
-		Int_32 future_tag;
+		GraphicsElement element;			//152
+		Vector3<Float_32> outline_color;	//12
+		Float_32 outline_alpha;				//4
+		Uint_32 id_transform;				//4
+		Uint_32 id_animator;				//4
+		Int_32 future_tag;					//4
+		RenderTag tag;						//4
 
 
         Graphic();// const Vertex* vertices, GLuint vertices_size, const GLuint* indices, GLuint indices_size, GLsizei indices_count, Material material,Texture texture, VertexLayout layout);
@@ -110,14 +112,14 @@ namespace PrEngine
 
 	struct BatchedGraphic : public Graphic
 	{
-		static const Uint_32 max_vertices_in_batch = 4*1000; // 4 vertex per quad * 1000 quads. Arbitrarily set.
-		static const Uint_32 max_textures_in_batch = MAX_TEXTURES;
-
-		static Uint_32 current_batched_vertex_count;
-		static Uint_32 current_batched_texture_count;
 		std::unordered_map<Uint_32, Uint_32> texture_to_index;
 		std::vector<Uint_32> graphic_ids;
 
+		static const Uint_32 max_vertices_in_batch = 4 * 1000; // 4 vertex per quad * 1000 quads. Arbitrarily set.
+		static const Uint_32 max_textures_in_batch = MAX_TEXTURES;
+		static Uint_32 current_batched_vertex_count;
+		static Uint_32 current_batched_texture_count;
+		
 		BatchedGraphic();
 		~BatchedGraphic();
 	};

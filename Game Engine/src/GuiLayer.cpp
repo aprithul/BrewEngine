@@ -373,7 +373,7 @@ namespace PrEngine
 					{
 							//no_of_animations++;
 							Animation& animation = Animator::animations_library[animator.animation_ids[_i]];
-							std::string _node_label = std::to_string(_i) + "_" + animation.clip_name;
+							std::string _node_label = std::to_string(_i) + "_" + Animator::animation_clip_names[animator.animation_ids[_i]];
 							if (ImGui::TreeNode(_node_label.c_str()))
 							{
 								ImGui::TreePop();

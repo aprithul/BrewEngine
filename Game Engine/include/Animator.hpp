@@ -63,6 +63,7 @@ namespace PrEngine{
 
 		static Uint_32 load_animation(std::string& animation_file);
 		static std::vector<Animation> animations_library;
+		static std::vector<std::string> animation_clip_names;
 	};
 
 }

@@ -162,6 +162,16 @@ namespace PrEngine
         stride = sizeof(Vertex);
     }
 
+	VertexAttribute::VertexAttribute()
+	{
+		this->index = 0;
+		this->count = 0;
+		this->type = 0;
+		this->normalized = 0;
+		this->offset = 0;
+		this->size = 0;
+	}
+
     VertexAttribute::VertexAttribute(GLuint index, GLuint count, Int_32 type, GLboolean normalized)
     {
         this->index = index;
@@ -174,9 +184,9 @@ namespace PrEngine
 
     void VertexLayout::add_attribute(VertexAttribute& attribute)
     {
-        if(vertex_attributes.size() >= 1)
+        if(next_attrib >= 1)
         {
-            attribute.offset = (vertex_attributes.back().size + vertex_attributes.back().offset);
+            attribute.offset = (vertex_attributes[next_attrib-1].size + vertex_attributes[next_attrib-1].offset);
         }
 
         switch (attribute.type)
@@ -199,6 +209,7 @@ namespace PrEngine
         }
 
         //stride += attribute.size;
-        vertex_attributes.push_back(attribute);
+        vertex_attributes[next_attrib]=attribute;
+		next_attrib++;
     }
 }
