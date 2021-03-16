@@ -117,11 +117,11 @@
     <None Include="res\Materials\Shape.mat" />
     <None Include="res\Materials\Tim.mat" />
     <None Include="res\Materials\Door.mat" />
+    <None Include="res\Scenes\scene.graph" />
     <None Include="res\Scenes\simplescene.graph" />
+    <None Include="res\Scenes\test_scene.graph" />
     <None Include="res\shaders\BatchedSprite.shader" />
     <None Include="res\shaders\Shape.shader" />
-    <None Include="scene.graph" />
-    <None Include="test_scene.graph" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="res\Materials\Extra\dummy.txt" />

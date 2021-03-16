@@ -30,7 +30,7 @@ Int_32 make_engine_and_start_game(){
 	// create a new game engine instance
 	do
 	{
-		PrEngine::Engine* game_engine = setup_engine_with_parameters(1280, 720,"PrEngine Demo", false);
+		PrEngine::Engine* game_engine = setup_engine_with_parameters(1440, 900,"PrEngine", false);
 		game_engine->add_module(new Game("game module", 3)); //All 'gameplay' code managed by game module 
 															// priority = 3 means that game module is added after Time, Input and EntityManagementSystem modules
 

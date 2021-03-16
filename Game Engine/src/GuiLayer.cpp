@@ -15,7 +15,7 @@ namespace PrEngine
 	std::vector<std::string> shader_directories;
 	std::vector<std::string> texture_directories;
 	std::vector<std::string> animation_directories;
-
+	
 	void load_materials();
 	void load_shaders();
 	void load_textures();
@@ -23,6 +23,7 @@ namespace PrEngine
 	void draw_scene_hierarchy();
 	void draw_inspector_window();
 	void draw_asset_window();
+	void draw_debug_window(Float_32 fps);
 	void draw_editor(SDL_Window* window);
 
     GuiLayer::GuiLayer(SDL_Window* sdl_window, SDL_GLContext* gl_context):window(sdl_window),gl_context(gl_context)
@@ -50,7 +51,6 @@ namespace PrEngine
         // Setup Dear ImGui style
         ImGui::StyleColorsDark();
         ImGui_ImplOpenGL3_Init("#version 410");
-        
         //inspector initialization
         inspector_active = true;
         //ImGui::StyleColorsClassic();
@@ -61,7 +61,6 @@ namespace PrEngine
 		load_shaders();
     }
 
-	Uint_32 mouse_pointer_transform = 0;
 
     void GuiLayer::update()
     {
@@ -69,7 +68,7 @@ namespace PrEngine
        
 #ifdef EDITOR_MODE
 		draw_editor(window);
-		ImGui::ShowMetricsWindow();
+		//ImGui::ShowMetricsWindow();
 		//ImGui::ShowDemoWindow();
 		
 
@@ -149,6 +148,7 @@ namespace PrEngine
 	Vector2<Float_32> mouse_pos_ws;
 	//Vector2<Float_32> mouse_pos_vs;
 	Vector2<Int_32> mouse_pos_ss;
+	Uint_32 drag_transform;
 	float v_x, v_y, v_w, v_h;
 	inline void draw_editor(SDL_Window* window)
 	{
@@ -165,24 +165,33 @@ namespace PrEngine
 		static Bool_8 show = true;
 
 
+		// editor input section
+		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		Uint_32 cam = entity_management_system->get_active_camera();
-		
+		Uint_32 cam_transform = cameras[cam].id_transform;
 		//mouse_pos_ws = cameras[cam].get_screen_to_world_pos(input_manager->mouse.position);
 		mouse_pos_ws = cameras[cam].get_screen_to_world_pos(input_manager->mouse.position);
 		//mouse_pos_vs = Vector2<Float_32>{ clamp<Float_32>(input_manager->mouse.position.x - v_x, 0, v_w) ,
 		//	clamp<Float_32>(renderer->height - (input_manager->mouse.position.y - v_y), 0, v_h) };
 		mouse_pos_ss = Vector2<Int_32>{ input_manager->mouse.position.x, (renderer->height - input_manager->mouse.position.y) };
-		ImGui::Text(("Mouse Pos (WS): " + mouse_pos_ws.to_string()).c_str());
-		ImGui::Text(("Mouse Pos (SS): " + mouse_pos_ss.to_string()).c_str());
-		//ImGui::Text(("Mouse Pos (VS): " + mouse_pos_vs.to_string()).c_str());
-
+		
 		// entity selection by clicking sprite
+		static Vector2<Float_32> selection_offset;
 		if (input_manager->mouse.get_mouse_button_down(1))
 		{
 			Uint_32 clicked_on = physics_module->point_in_any_shape(mouse_pos_ws);
 			if (clicked_on)
 			{
-				selected_transform = clicked_on;
+				if (selected_transform == clicked_on)	// 
+				{
+					drag_transform = selected_transform;
+					selection_offset = transforms[drag_transform].position - mouse_pos_ws;
+				}
+				else
+				{
+					selected_transform = clicked_on;
+					drag_transform = 0;
+				}
 			}
 			else
 			{
@@ -191,10 +200,10 @@ namespace PrEngine
 				if (physics_module->point_in_AABB(mouse_pos_ss, r))
 				{
 					selected_transform = 0;
+					drag_transform = 0;
 				}
 			}
 		}
-
 		// draw rect around selected entity
 		if (selected_transform)
 		{
@@ -211,18 +220,52 @@ namespace PrEngine
 				}
 			}
 		}
-
-		if (mouse_pointer_transform)
+		//drag tarnsform with mouse pointer
+		if (drag_transform)
 		{
-			transforms[mouse_pointer_transform].position = mouse_pos_ws;
+			if (input_manager->mouse.get_mouse_button(1))
+			{
+				Vector3<Float_32>& drag_transform_pos = transforms[drag_transform].position;
+				drag_transform_pos.x = mouse_pos_ws.x + selection_offset.x;
+				drag_transform_pos.y = mouse_pos_ws.y + selection_offset.y;
+			}
+			else
+				drag_transform = 0;
+		}
+		
+		
+		Float_32 cam_pan_min_speed = 4.f;
+		Float_32 cam_pan_max_speed = 10.f;
+		Float_32 cam_pan_speed = cam_pan_min_speed;
+		if (input_manager->keyboard.get_key(SDLK_LSHIFT))
+			cam_pan_speed = cam_pan_max_speed;
+
+		Vector3<Float_32> pos = transforms[cam_transform].position;
+		if (input_manager->keyboard.get_key(SDLK_w))
+			pos.y = pos.y + (Time::Frame_time*cam_pan_speed);
+		if (input_manager->keyboard.get_key(SDLK_s))
+			pos.y = pos.y - (Time::Frame_time*cam_pan_speed);
+		if (input_manager->keyboard.get_key(SDLK_d))
+			pos.x = pos.x + (Time::Frame_time*cam_pan_speed);
+		if (input_manager->keyboard.get_key(SDLK_a))
+			pos.x = pos.x - (Time::Frame_time*cam_pan_speed);
+		transforms[cam_transform].position = pos;
+
+		if (input_manager->mouse.scroll != 0)
+		{
+			Float_32 speed = 20.f;
+			cameras[cam].zoom = clamp<Float_32>(cameras[cam].zoom + +(input_manager->mouse.scroll*Time::Frame_time*speed), 0.1, 1000);
 		}
 
 		if (input_manager->keyboard.get_key_down(SDLK_DELETE))
 			entity_management_system->delete_entity_transform(selected_transform);
+		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 		draw_scene_hierarchy();
 		draw_inspector_window();
 		draw_asset_window();
+		draw_debug_window(io.Framerate);
 
 		Uint_32 cam_id = entity_management_system->get_active_camera();
 		if (cam_id)
@@ -253,15 +296,6 @@ namespace PrEngine
 
 		v_w = ImGui::GetWindowPos().x - v_x;
 
-
-		/*Transform*/
-		if (last_selected_transform != selected_transform) // selection changed, so remove outline
-		{
-			auto entity = transform_entity_id[last_selected_transform];
-			auto id_graphics = entities[entity][COMP_GRAPHICS];
-			auto& graphic = graphics[id_graphics];
-			graphic.outline_alpha = 0.0;
-		}
 
 		if (selected_transform)
 		{
@@ -294,10 +328,6 @@ namespace PrEngine
 				scl.y = v3_s[1];
 				scl.z = v3_s[2];
 			}
-			auto id_graphics = entities[entity][COMP_GRAPHICS];
-			auto& graphic = graphics[id_graphics];
-			auto& mat = Material::material_library[graphic.element.material];
-			graphic.outline_alpha = 1.0;
 			last_selected_transform = selected_transform;
 
 			auto& ent = entities[entity];
@@ -541,6 +571,14 @@ namespace PrEngine
 
 		v_y = renderer->height - ImGui::GetWindowPos().y;// -ImGui::GetWindowHeight());// ImGui::GetWindowPos().y;// (renderer->height - (ImGui::GetWindowPos().y - ImGui::GetWindowHeight()));
 		v_h = renderer->height - ImGui::GetWindowHeight();
+		
+		ImVec2 _pos = ImGui::GetWindowPos();
+		ImVec2 _size = ImGui::GetWindowSize();
+		_pos.x = v_x;
+		ImGui::SetWindowPos(_pos);
+		_size.x = v_w;
+		ImGui::SetWindowSize(_size);
+		
 		static int selected = 0;
 		const char* labels[4] = { "Material", "Shaders", "Textures", "Animations" };
 
@@ -628,6 +666,25 @@ namespace PrEngine
 		}
 
 		ImGui::EndChild();
+		ImGui::End();
+	}
+
+	inline void draw_debug_window(Float_32 fps)
+	{
+		if(!ImGui::Begin("Info: ", false))//, ImGuiWindowFlags_NoMove))
+		{
+			ImGui::End();
+			return;
+		}
+		ImVec2 _pos = ImGui::GetWindowPos();
+		ImVec2 _size = ImGui::GetWindowSize();
+		_pos.x = v_x + v_w - _size.x;
+		ImGui::SetWindowPos(_pos);
+
+		ImGui::Text("(%.1f FPS)", fps);
+		ImGui::Text(("(WS): " + mouse_pos_ws.to_string()).c_str());
+		ImGui::Text(("(SS): " + mouse_pos_ss.to_string()).c_str());
+
 		ImGui::End();
 	}
 }
