@@ -10,6 +10,7 @@ namespace PrEngine
 	Graphic graphics[MAX_GRAPHIC_COUNT];
 	std::vector<BatchedGraphic> batched_graphics;
 	DirectionalLight directional_lights[MAX_DIRECTIONAL_LIGHT_COUNT];
+	Collider colliders[MAX_COLLIDER_COUNT];
 	Animator animators[MAX_ANIMATOR_COUNT];
 	Bool_8 entity_validity[MAX_ENTITY_COUNT] = {};
 	std::unordered_map<ComponentType, Uint_32> entities[MAX_ENTITY_COUNT];
@@ -19,6 +20,7 @@ namespace PrEngine
 	Uint_32 graphics_entity_id[MAX_GRAPHIC_COUNT] = {};
 	Uint_32 directional_light_entity_id[MAX_DIRECTIONAL_LIGHT_COUNT] = {};
 	Uint_32 animator_entity_id[MAX_ANIMATOR_COUNT] = {};
+	Uint_32 collider_entity_id[MAX_COLLIDER_COUNT] = {};
 	Uint_32 transform_entity_id[MAX_ENTITY_COUNT] = {};
 
 	std::unordered_set<Uint_32> transform_children[MAX_ENTITY_COUNT];
@@ -40,6 +42,7 @@ namespace PrEngine
 	std::queue<Uint_32> EntityManagementSystem::graphics_released_positions;
 	std::queue<Uint_32> EntityManagementSystem::directional_light_released_positions;
 	std::queue<Uint_32> EntityManagementSystem::animator_released_positions;
+	std::queue<Uint_32> EntityManagementSystem::collider_released_positions;
 	std::queue<Uint_32> EntityManagementSystem::camera_released_positions;
 
 	Uint_32 EntityManagementSystem::entity_count;
@@ -50,6 +53,7 @@ namespace PrEngine
 	Uint_32 EntityManagementSystem::next_graphic_pos;
 	Uint_32 EntityManagementSystem::next_directional_light_pos;
 	Uint_32 EntityManagementSystem::next_animator_pos;
+	Uint_32 EntityManagementSystem::next_collider_pos;
 	Uint_32 EntityManagementSystem::next_camera_pos;
 
 
@@ -65,7 +69,8 @@ namespace PrEngine
 		next_sprite_pos = 1;
 		next_transform_pos = 1;
 		next_transform_order = 1;
-    	entity_count = 0;
+		next_collider_pos = 1;
+		entity_count = 0;
 		
 		transform_hierarchy_level[0] = MAX_HIERARCHY_LEVEL + 1;
 
@@ -210,6 +215,24 @@ namespace PrEngine
 		return _id;
 	}
 
+	Uint_32 EntityManagementSystem::make_collider_comp(Uint_32 entity_id)
+	{
+		Uint_32 _id = next_collider_pos;
+		if (collider_released_positions.empty() != true)
+		{
+			_id = collider_released_positions.front();
+			collider_released_positions.pop();
+		}
+		else
+			next_collider_pos++;
+
+		collider_entity_id[_id] = entity_id;
+		entities[entity_id][COMP_COLLIDER] = _id;
+
+		//camera_active_status[_id] = true;
+		return _id;
+	}
+
 	Uint_32 EntityManagementSystem::make_animator_comp(Uint_32 entity_id)
 	{
 		Uint_32 _id = next_animator_pos;
@@ -297,6 +320,19 @@ namespace PrEngine
 		entities[camera_entity_id[c_id]][COMP_CAMERA] = 0;
 		camera_entity_id[c_id] = 0;
 		camera_released_positions.push(c_id);
+		return true;
+
+	}
+	Bool_8 EntityManagementSystem::delete_collider_comp(Uint_32 col_id)
+	{
+		if (!col_id)
+		{
+			LOG(LOGTYPE_ERROR, "Collider comp : " + std::to_string(col_id) + " not valid, couldn't delete");
+			return false;
+		}
+		entities[collider_entity_id[col_id]][COMP_COLLIDER] = 0;
+		collider_entity_id[col_id] = 0;
+		collider_released_positions.push(col_id);
 		return true;
 
 	}
@@ -471,8 +507,7 @@ assert(level > 0);
 
     void EntityManagementSystem::start()
     {
-		std::string _empty_animation_name = "NULL ANIM";
-		Animator::load_animation(_empty_animation_name);
+
 //		Animator::animations_library.emplace_back(_empty_animation_name);
 //		Animator::animation_clip_names.push_back(_empty_animation_name);
     }
@@ -523,7 +558,6 @@ assert(level > 0);
 	void EntityManagementSystem::save_scene(const std::string& scene_file)
 	{
 		write_to_file("", scene_file, 0, 0); //clears file
-
 		std::unordered_map<int, std::string> entities_in_scene;
 
 		for (Uint_32 i = 1; i < next_transform_order; i++)
@@ -553,7 +587,11 @@ assert(level > 0);
 		for (Uint_32 i = 0; i < next_graphic_pos; i++)
 		{
 			if (graphics_entity_id[i])
-				entities_in_scene[graphics_entity_id[i]] += graphics[i].to_string() + "\n";
+			{
+				auto ed = Graphic::editor_data[i];
+				entities_in_scene[graphics_entity_id[i]] += graphics[i].to_string() + "," + std::to_string(ed.future_tag)
+					+ "," + std::to_string(ed.scale) + "\n";
+			}
 		}
 
 

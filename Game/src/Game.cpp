@@ -66,11 +66,6 @@ void Game::update()
         cameras[camera_id].zoom = clamp<Float_32>(cameras[camera_id].zoom +  + (input_manager->mouse.scroll*Time::Frame_time*speed), 0.1, 1000);
     }
 
-	if (input_manager->keyboard.get_key_down(SDLK_F5))
-	{
-		entity_management_system->save_scene("scene.graph");
-		LOG(LOGTYPE_WARNING, "scene file saved");
-	}
 
 	if(input_manager->keyboard.get_key_down(SDLK_ESCAPE))
 		input_manager->was_crossed = true;

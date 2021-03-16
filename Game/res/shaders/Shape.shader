@@ -2,8 +2,6 @@
 #version 330 core
 layout(location = 0) in vec4 position;
 layout(location = 1) in vec4 _color;
-layout(location = 2) in vec4 _normal;
-layout(location = 3) in vec2 texco;
 
 uniform mat4 u_View;
 uniform mat4 u_Projection;

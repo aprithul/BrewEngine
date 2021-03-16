@@ -5,6 +5,7 @@
 #include <queue>
 #include "EntityGenerator.hpp"
 #include "EditorUtils.hpp"
+#include "PhysicsModule.hpp"
 
 namespace PrEngine
 {
@@ -22,6 +23,7 @@ namespace PrEngine
 	void draw_scene_hierarchy();
 	void draw_inspector_window();
 	void draw_asset_window();
+	void draw_editor(SDL_Window* window);
 
     GuiLayer::GuiLayer(SDL_Window* sdl_window, SDL_GLContext* gl_context):window(sdl_window),gl_context(gl_context)
     {
@@ -64,74 +66,23 @@ namespace PrEngine
     void GuiLayer::update()
     {
         IM_ASSERT(ImGui::GetCurrentContext() != NULL && "Missing dear imgui context. Refer to examples app!"); // Exceptionally add an extra assert here for people confused with initial dear imgui setup
-        
-        ImGuiIO& io = ImGui::GetIO();
-        //io.DisplaySize = ImVec2( 1440, 900);
-        //io.DisplayFramebufferScale
-        io.DeltaTime = Time::Frame_time;
-        
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplSDL2_NewFrame(window);
-        ImGui::NewFrame();
-        static Bool_8 show = true;
-        //ImGui::ShowDemoWindow(&show);
-
-		Uint_32 cam = entity_management_system->get_active_camera();
-		Vector2<Float_32> mouse_pos_ws = cameras[cam].get_screen_to_world_pos(input_manager->mouse.position);
-		/*selected_transform = 0;
-		for (Uint_32 _i = 0; _i < MAX_GRAPHIC_COUNT; _i++)
-		{
-			if (entity_management_system->graphics_entity_id[_i])
-			{
-				auto& g = graphics[_i];
-				auto& g_t = transforms[g.id_transform];
-				if (inside(cameras[cam].get_screen_to_world_pos(input_manager->mouse.position), g.bounding_rect, true))
-				{
-					selected_transform = g.id_transform;
-				}
-
-			}
-		}*/
-		if (input_manager->keyboard.get_key_down(SDLK_g))
-			entity_management_system->delete_entity_transform(selected_transform);
-
-
-		/*if (input_manager->keyboard.get_key_down(SDLK_l))
-		{
-			static float _x = -5;
-			static float _y = -5;
-			static float _z = -5;
-			_x += 5 * (Float_32)Time::Frame_time;
-			_y += 5 * (Float_32)Time::Frame_time;
-			_z += 5 * (Float_32)Time::Frame_time;
-			renderer->draw_line(Vector2<Float_32>{0, 0}, Vector2<Float_32>{_x, -2.f}, Vector4<Float_32>{1, 0, 0, 1});
-			renderer->draw_line(Vector2<Float_32>{0, 0}, Vector2<Float_32>{100, 0}, Vector4<Float_32>{0, 1, 0, 1});
-			renderer->draw_line(Vector2<Float_32>{0, 0}, Vector2<Float_32>{-2.f, -_x}, Vector4<Float_32>{0, 0, 1, 1});
-		}*/
-
-		if (input_manager->keyboard.get_key_down(SDLK_c))
-		{
-			std::string material_name = "Materials\\Door.mat";
-			EntityGenerator eg;
-			auto e = eg.make_graphics_entity(material_name);
-			auto t_id = entities[e][COMP_TRANSFORM_3D];
-			auto& pos = transforms[t_id].position;
-			pos.x = rand() % 4* (rand() % 2 ? 1 : -1);
-			pos.y = rand() % 2* (rand() % 2 ? 1 : -1);
-
-			mouse_pointer_transform = t_id;
-		}
-
-		if (mouse_pointer_transform)
-		{
-			transforms[mouse_pointer_transform].position = mouse_pos_ws;
-		}
-
-		draw_editor();
+       
+#ifdef EDITOR_MODE
+		draw_editor(window);
 		ImGui::ShowMetricsWindow();
-		ImGui::ShowDemoWindow();
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData( ImGui::GetDrawData());
+		//ImGui::ShowDemoWindow();
+		
+
+		if (input_manager->keyboard.get_key_down(SDLK_F5))
+		{
+			entity_management_system->save_scene(get_resource_path("Scenes"+PATH_SEP+"simplescene.graph"));
+			LOG(LOGTYPE_WARNING, "scene file saved");
+		}
+
+#endif // EDITOR_MODE
+
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
 
     void GuiLayer::end()
@@ -140,34 +91,6 @@ namespace PrEngine
         ImGui_ImplSDL2_Shutdown();
     }
 	
-	//std::queue<Uint_32> transform_queue;
-	//void add_to_hierarchy()
-	//{
-
-	//	while (!transform_queue.empty())
-	//	{
-	//		char buffer[64];
-	//		sprintf_s(buffer, "%d", transform_queue.front());
-	//		transform_queue.pop();
-
-	//		if (ImGui::TreeNode(buffer))
-	//		{
-	//			add_to_hierarchy();
-	//			ImGui::TreePop();
-	//		}
-	//	}
-
-	//	
-	//	
-	//}
-
-	//void add_transforms(Uint_32 id_transform)
-	//{
-	//	transform_queue.push(id_transform);
-	//	Uint_32 parent_id = get_transform(id_transform).parent_transform;
-	//	if (parent_id)
-	//		add_transforms(parent_id);
-	//}
 
 	void add_child(Uint_32 id_transform)
 	{
@@ -223,20 +146,113 @@ namespace PrEngine
 	Float_32 drag_amount;
 	Float_32 drag_limit = 20;
 	Vector2<Int_32> drag_start;
-	void GuiLayer::draw_editor()
+	Vector2<Float_32> mouse_pos_ws;
+	//Vector2<Float_32> mouse_pos_vs;
+	Vector2<Int_32> mouse_pos_ss;
+	float v_x, v_y, v_w, v_h;
+	inline void draw_editor(SDL_Window* window)
 	{
+		//axis lines
+		renderer->draw_line(Vector3<Float_32>{0, 0, 0}, Vector3<Float_32>{100, 0, 0}, Vector4<Float_32>{1, 0, 0, 1});
+		renderer->draw_line(Vector3<Float_32>{0, 0, 0}, Vector3<Float_32>{0, 100, 0}, Vector4<Float_32>{0, 1, 0, 1});
+
+		// imgui stuff
+		ImGuiIO& io = ImGui::GetIO();
+		io.DeltaTime = Time::Frame_time;
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplSDL2_NewFrame(window);
+		ImGui::NewFrame();
+		static Bool_8 show = true;
+
+
+		Uint_32 cam = entity_management_system->get_active_camera();
+		
+		//mouse_pos_ws = cameras[cam].get_screen_to_world_pos(input_manager->mouse.position);
+		mouse_pos_ws = cameras[cam].get_screen_to_world_pos(input_manager->mouse.position);
+		//mouse_pos_vs = Vector2<Float_32>{ clamp<Float_32>(input_manager->mouse.position.x - v_x, 0, v_w) ,
+		//	clamp<Float_32>(renderer->height - (input_manager->mouse.position.y - v_y), 0, v_h) };
+		mouse_pos_ss = Vector2<Int_32>{ input_manager->mouse.position.x, (renderer->height - input_manager->mouse.position.y) };
+		ImGui::Text(("Mouse Pos (WS): " + mouse_pos_ws.to_string()).c_str());
+		ImGui::Text(("Mouse Pos (SS): " + mouse_pos_ss.to_string()).c_str());
+		//ImGui::Text(("Mouse Pos (VS): " + mouse_pos_vs.to_string()).c_str());
+
+		// entity selection by clicking sprite
+		if (input_manager->mouse.get_mouse_button_down(1))
+		{
+			Uint_32 clicked_on = physics_module->point_in_any_shape(mouse_pos_ws);
+			if (clicked_on)
+			{
+				selected_transform = clicked_on;
+			}
+			else
+			{
+				// check if click was inside viewport
+				Rect r{ v_x, v_y, v_w, v_h };
+				if (physics_module->point_in_AABB(mouse_pos_ss, r))
+				{
+					selected_transform = 0;
+				}
+			}
+		}
+
+		// draw rect around selected entity
+		if (selected_transform)
+		{
+			Uint_32 collider_id = entities[transform_entity_id[selected_transform]][COMP_COLLIDER];
+			Transform3D& _transform = transforms[selected_transform];
+			if (collider_id)
+			{
+				Collider& collider = colliders[collider_id];
+				for (int _i = 0; _i < 4; _i++)
+				{
+					Vector3<Float_32> p1 = _transform.transformation * collider.collision_shape.points[_i];
+					Vector3<Float_32> p2 = _transform.transformation * collider.collision_shape.points[(_i + 1) % 4];
+					renderer->draw_line(p1, p2, Vector4<Float_32>{0.8, 0.5, 0, 1});
+				}
+			}
+		}
+
+		if (mouse_pointer_transform)
+		{
+			transforms[mouse_pointer_transform].position = mouse_pos_ws;
+		}
+
+		if (input_manager->keyboard.get_key_down(SDLK_DELETE))
+			entity_management_system->delete_entity_transform(selected_transform);
+
 		draw_scene_hierarchy();
 		draw_inspector_window();
 		draw_asset_window();
+
+		Uint_32 cam_id = entity_management_system->get_active_camera();
+		if (cam_id)
+		{
+			Camera& cam = cameras[cam_id];
+			Float_32 v_ar = v_w / v_h;
+			Float_32 cam_w = cam.right - cam.left;
+			Float_32 cam_h = cam.top - cam.bottom;
+			cam.h_mod = (v_ar*cam_h) / cam_w;
+
+			//cam.v_mod = (cam_w / (v_ar*cam_h));
+			renderer->update_viewport_size(v_x, v_y, v_w, v_h);
+		}
+
+		renderer->viewport_pos.x = v_x;
+		renderer->viewport_pos.y = v_y;
+		renderer->viewport_size.x = v_w;
+		renderer->viewport_size.y = v_h;
 	}
 
-	void draw_inspector_window()
+	inline void draw_inspector_window()
 	{
-		if (!ImGui::Begin("Inspector", false))
+		if (!ImGui::Begin("Inspector", false, ImGuiWindowFlags_NoMove))
 		{
 			ImGui::End();
 			return;
 		}
+
+		v_w = ImGui::GetWindowPos().x - v_x;
+
 
 		/*Transform*/
 		if (last_selected_transform != selected_transform) // selection changed, so remove outline
@@ -289,9 +305,10 @@ namespace PrEngine
 			{
 				if (ImGui::CollapsingHeader("Graphics", ImGuiTreeNodeFlags_DefaultOpen))
 				{
-					Graphic& g = graphics[ent[COMP_GRAPHICS]];
+					Uint_32 graphic_id = ent[COMP_GRAPHICS];
+					Graphic& g = graphics[graphic_id];
 					//static Int_32 _tag = (Int_32)g.tag;
-					ImGui::Combo("Render Mode", &g.future_tag, "Untagged\0Static\0Dynamic\0", 3);
+					ImGui::Combo("Render Mode", &Graphic::editor_data[graphic_id].future_tag, "Untagged\0Static\0Dynamic\0", 3);
 					//g.tag = (RenderTag)_tag;
 
 					ImGui::SetNextItemOpen(true);
@@ -423,15 +440,15 @@ namespace PrEngine
 		ImGui::End();
 	}
 
-	void draw_scene_hierarchy()
+	inline void draw_scene_hierarchy()
 	{
-		if (!ImGui::Begin("Scene Hierarchy", false))
+		if (!ImGui::Begin("Scene Hierarchy", false, ImGuiWindowFlags_NoMove))
 		{
 			ImGui::End();
 			return;
 		}
 
-
+		v_x = ImGui::GetWindowPos().x + ImGui::GetWindowWidth();
 
 		Uint_32 max_hierarchy = 0;
 		for (int _i = 0; _i < entity_management_system->next_transform_order; _i++)
@@ -465,7 +482,7 @@ namespace PrEngine
 
 	}
 
-	void load_materials()
+	inline void load_materials()
 	{
 		std::string dir = get_resource_path("");// +"Materials" + PATH_SEP;
 		get_files_in_dir(dir, ".mat", material_directories);
@@ -477,7 +494,7 @@ namespace PrEngine
 		}
 	}
 
-	void load_shaders()
+	inline void load_shaders()
 	{
 		std::string dir = get_resource_path("");// +"Materials" + PATH_SEP;
 		get_files_in_dir(dir, ".shader", shader_directories);
@@ -489,7 +506,7 @@ namespace PrEngine
 		}
 	}
 
-	void load_textures()
+	inline void load_textures()
 	{
 		std::string dir = get_resource_path("");// +"Materials" + PATH_SEP;
 		get_files_in_dir(dir, ".png", texture_directories);
@@ -502,7 +519,7 @@ namespace PrEngine
 		}
 	}
 
-	void load_animations()
+	inline void load_animations()
 	{
 		std::string dir = get_resource_path("");// +"Materials" + PATH_SEP;
 		get_files_in_dir(dir, ".anim", animation_directories);
@@ -514,13 +531,16 @@ namespace PrEngine
 		}
 	}
 
-	void draw_asset_window()
+	inline void draw_asset_window()
 	{
-		if (!ImGui::Begin("Assets", false))
+		if (!ImGui::Begin("Assets", false, ImGuiWindowFlags_NoMove))
 		{
 			ImGui::End();
 			return;
 		}
+
+		v_y = renderer->height - ImGui::GetWindowPos().y;// -ImGui::GetWindowHeight());// ImGui::GetWindowPos().y;// (renderer->height - (ImGui::GetWindowPos().y - ImGui::GetWindowHeight()));
+		v_h = renderer->height - ImGui::GetWindowHeight();
 		static int selected = 0;
 		const char* labels[4] = { "Material", "Shaders", "Textures", "Animations" };
 

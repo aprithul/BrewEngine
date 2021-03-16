@@ -28,7 +28,7 @@ namespace PrEngine
             
             // inspector
             Bool_8 inspector_active;
-			void draw_editor();
+			//void draw_editor();
 
 
     };

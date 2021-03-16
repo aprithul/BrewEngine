@@ -110,6 +110,10 @@ namespace PrEngine
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
     }
 
+	std::unordered_map<Uint_32, GraphicEditorData> Graphic::editor_data;
+	std::unordered_map < Uint_32, Vector3<Float_32>[4]> Graphic::vertex_data;
+
+
     Graphic::Graphic():Component(COMP_GRAPHICS)
     {
 		outline_color = Vector3<Float_32>{ 1,1,1 };
@@ -145,7 +149,7 @@ namespace PrEngine
     std::string Graphic::to_string()
     {
 		//Material* mat = Material::get_material(this->element.material);
-		return std::to_string(COMP_GRAPHICS) + "," + Material::material_names[element.material]+","+std::to_string(future_tag);// Texture::texture_names[mat->diffuse_texture];
+		return std::to_string(COMP_GRAPHICS) + "," + Material::material_names[element.material];// +"," + std::to_string(future_tag);// Texture::texture_names[mat->diffuse_texture];
     }
 
     void GraphicsElement::Delete()

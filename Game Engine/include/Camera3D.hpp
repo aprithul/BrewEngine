@@ -46,6 +46,8 @@ namespace PrEngine
 		Float_32 top;
 		Float_32 zoom;
 
+		Float_32 h_mod;
+
 		ProjectionType projection_type;
 
 

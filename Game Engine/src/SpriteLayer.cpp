@@ -190,11 +190,11 @@ namespace PrEngine
 
 		Camera _camera = cameras[camera_id];
 		DirectionalLight _light = directional_lights[1];
-		Vector3<Float_32> _cam_pos = get_transform(_camera.id_transform).position;
+		Vector3<Float_32> _cam_pos = transforms[_camera.id_transform].position;
 		Vector3<Float_32> _dir = get_transform(_light.id_transform).get_forward();
 
 		
-		/*if (renderer->lines_buffer.size() > 0)
+		if (renderer->lines_buffer.size() > 0)
 		{
 			GraphicsElement& element = renderer->line_graphic.element;
 			Material* mat = Material::get_material(element.material);
@@ -208,23 +208,35 @@ namespace PrEngine
 			element.vao.Bind();
 			element.ibo.Bind();
 
-			auto& u_locs = Shader::shader_library[mat->shader].uniform_locations;
-			for (auto& u : u_locs)
+			GLint* uniform_loc = Shader::shader_library[mat->shader].uniform_locations;
+
+
+			for (Uint_32 _i = 0; _i < (Int_32)ShaderUniformName::u_count; _i++)
 			{
-				switch (u.first)
+				ShaderUniformName _name = (ShaderUniformName)_i;
+				GLuint _loc = uniform_loc[_i];
+				if (_loc >= 0)
 				{
-				case ShaderUniformName::u_View:
-					GL_CALL(
-						glUniformMatrix4fv(u.second.second, 1, GL_TRUE, _camera.view_matrix.data);
-					)
-					break;
-				case ShaderUniformName::u_Projection:
-					GL_CALL(
-						glUniformMatrix4fv(u.second.second, 1, GL_TRUE, _camera.projection_matrix.data);
-					)
-					break;
-				default:
-					break;
+					switch (_name)
+					{
+					/*case ShaderUniformName::u_Model:
+						GL_CALL(
+							glUniformMatrix4fv(_loc, 1, GL_TRUE, Matrix4x4<Float_32>::identity().data);
+						)
+							break;*/
+					case ShaderUniformName::u_View:
+						GL_CALL(
+							glUniformMatrix4fv(_loc, 1, GL_TRUE, _camera.view_matrix.data);
+						)
+							break;
+					case ShaderUniformName::u_Projection:
+						GL_CALL(
+							glUniformMatrix4fv(_loc, 1, GL_TRUE, _camera.projection_matrix.data);
+						)
+							break;
+					default:
+						break;
+					}
 				}
 			}
 
@@ -241,7 +253,7 @@ namespace PrEngine
 			element.ibo.Delete();
 			element.vao.Delete();
 		}
-*/
+
 
 		for (Uint_32 _i = 0; _i < MAX_GRAPHIC_COUNT; _i++)
 		{
@@ -304,12 +316,27 @@ namespace PrEngine
 						y_scale = y_scale / x_scale;
 						x_scale = 1.f;
 					}
+					GraphicEditorData ged = Graphic::editor_data[g_id];
+					x_scale *= ged.scale;
+					y_scale *= ged.scale;
 
 					Transform3D& transform = transforms[graphic.id_transform];
 					Vector3<Float_32> p1 = transform.transformation * anim_tr * Vector3<Float_32>{ 0.5f*x_scale, 0.5f*y_scale, 0.0f };
 					Vector3<Float_32> p2 = transform.transformation * anim_tr * Vector3<Float_32>{ -0.5f*x_scale, 0.5f*y_scale, 0.0f };
 					Vector3<Float_32> p3 = transform.transformation * anim_tr * Vector3<Float_32>{ -0.5f*x_scale, -0.5f*y_scale, 0.0f };
 					Vector3<Float_32> p4 = transform.transformation * anim_tr * Vector3<Float_32>{ 0.5f*x_scale, -0.5f*y_scale, 0.0f };
+
+
+					// save vertex data for collider
+					// no need to modify every frame, 
+					// needs changing
+				/*	Graphic::vertex_data[g_id][0] = p1;
+					Graphic::vertex_data[g_id][1] = p2;
+					Graphic::vertex_data[g_id][2] = p3;
+					Graphic::vertex_data[g_id][3] = p4;*/
+					//----------------------------------//
+
+
 
 					Vertex v1 = {
 						p1.x, p1.y, p1.z,

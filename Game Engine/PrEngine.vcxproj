@@ -86,7 +86,9 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\Collider.hpp" />
     <ClInclude Include="include\EditorUtils.hpp" />
+    <ClInclude Include="include\PhysicsModule.hpp" />
     <ClInclude Include="Vendor\imgui-master\imconfig.h" />
     <ClInclude Include="Vendor\imgui-master\imgui.h" />
     <ClInclude Include="Vendor\imgui-master\imgui_impl_opengl3.h" />
@@ -139,7 +141,9 @@
     <ClInclude Include="include\Vertex.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Collider.cpp" />
     <ClCompile Include="src\EditorUtils.cpp" />
+    <ClCompile Include="src\PhysicsModule.cpp" />
     <ClCompile Include="Vendor\imgui-master\imgui.cpp" />
     <ClCompile Include="Vendor\imgui-master\imgui_demo.cpp" />
     <ClCompile Include="Vendor\imgui-master\imgui_draw.cpp" />

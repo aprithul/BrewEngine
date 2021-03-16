@@ -180,6 +180,12 @@
     <ClInclude Include="include\EditorUtils.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\PhysicsModule.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Collider.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Vendor\imgui-master\imgui.cpp">
@@ -312,6 +318,12 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\EditorUtils.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PhysicsModule.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Collider.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

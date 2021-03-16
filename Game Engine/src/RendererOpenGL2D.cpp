@@ -21,6 +21,15 @@ namespace PrEngine {
         this->width = width;
         this->height = height;
         this->title = title;
+		this->viewport_pos.x = 0;
+		this->viewport_pos.y = 0;
+		this->viewport_size.x = width;
+		this->viewport_size.y = height;
+
+		/*this->viewport_x = width * 0.7 / 6;
+		this->viewport_y = height / 4;
+		this->viewport_width = width * 4.3 / 6;
+		this->viewport_height = height * 3 / 4;*/
         //light_direction =
         // initialize sdl and opengl related settings for graphics
         init();
@@ -98,6 +107,13 @@ namespace PrEngine {
         SDL_Quit();
 
     }
+
+
+
+	void RendererOpenGL2D::update_viewport_size(int x, int y, int width, int height)
+	{
+		glViewport(x, y, width, height);
+	}
 
     void RendererOpenGL2D::init()
     {
@@ -256,46 +272,57 @@ namespace PrEngine {
 		indices.push_back(index);
 		index += 4;
 
+
+		Graphic& graphic = graphics[graphic_id];
+		Uint_32 material_id = graphic.element.material;
+		assert(material_id);
+		Material* mat = Material::get_material(material_id);
+		Texture* tex = Texture::get_texture(mat->diffuse_textures[0]); //Material::material_library[mat_id].diffuse_texture;
+		Float_32 x_scale = tex->width;
+		Float_32 y_scale = tex->height;
+		Float_32 texco_u = clamp(tex->width / (Float_32)MAX_TEXTURE_SIZE, 0.1f, 1.0f);
+		Float_32 texco_v = clamp(tex->height / (Float_32)MAX_TEXTURE_SIZE, 0.1f, 1.0f);
+
+		if (x_scale > y_scale)
+		{
+			x_scale = (x_scale / y_scale);
+			y_scale = 1.f;
+		}
+		else
+		{
+			y_scale = y_scale / x_scale;
+			x_scale = 1.f;
+		}
+		GraphicEditorData ged = Graphic::editor_data[graphic_id];
+		x_scale *= ged.scale;
+		y_scale *= ged.scale;
+
+		Transform3D& transform = transforms[graphic.id_transform];
+		Vector3<Float_32> p1 =  Vector3<Float_32>{ 0.5f*x_scale, 0.5f*y_scale, 0.0f };
+		Vector3<Float_32> p2 =  Vector3<Float_32>{ -0.5f*x_scale, 0.5f*y_scale, 0.0f };
+		Vector3<Float_32> p3 =  Vector3<Float_32>{ -0.5f*x_scale, -0.5f*y_scale, 0.0f };
+		Vector3<Float_32> p4 =  Vector3<Float_32>{ 0.5f*x_scale, -0.5f*y_scale, 0.0f };
+
+		// save vertex data for collider
+		Graphic::vertex_data[graphic_id][0] = p1;
+		Graphic::vertex_data[graphic_id][1] = p2;
+		Graphic::vertex_data[graphic_id][2] = p3;
+		Graphic::vertex_data[graphic_id][3] = p4;
+
 		if (usage == GL_STATIC_DRAW)
 		{
-			Graphic& graphic = graphics[graphic_id];
+			p1 = transform.transformation * p1;
+			p2 = transform.transformation * p2;
+			p3 = transform.transformation * p3;
+			p4 = transform.transformation * p4;
 
-			Uint_32 material_id = graphic.element.material;
-			assert(material_id);
-			Material* mat = Material::get_material(material_id);
 			Uint_32 texture_id = mat->diffuse_textures[0];
 			if (batch_texture_ids.size() == 0 || batch_texture_ids.back() != texture_id)
 			{
 				batch_texture_ids.push_back(texture_id);
 			}
 			float texture_index = batch_texture_ids.size() - 1;
-
-
-			Texture* tex = Texture::get_texture(mat->diffuse_textures[0]); //Material::material_library[mat_id].diffuse_texture;
-			Float_32 x_scale = tex->width;
-			Float_32 y_scale = tex->height;
-			Float_32 texco_u = clamp(tex->width / (Float_32)MAX_TEXTURE_SIZE, 0.1f, 1.0f);
-			Float_32 texco_v = clamp(tex->height / (Float_32)MAX_TEXTURE_SIZE, 0.1f, 1.0f);
-
-			if (x_scale > y_scale)
-			{
-				x_scale = (x_scale / y_scale);
-				y_scale = 1.f;
-			}
-			else
-			{
-				y_scale = y_scale / x_scale;
-				x_scale = 1.f;
-			}
-
-			Transform3D& transform = transforms[graphic.id_transform];
-			Vector3<Float_32> p1 = transform.transformation * Vector3<Float_32>{ 0.5f*x_scale, 0.5f*y_scale, 0.0f };
-			Vector3<Float_32> p2 = transform.transformation * Vector3<Float_32>{ -0.5f*x_scale, 0.5f*y_scale, 0.0f };
-			Vector3<Float_32> p3 = transform.transformation * Vector3<Float_32>{ -0.5f*x_scale, -0.5f*y_scale, 0.0f };
-			Vector3<Float_32> p4 = transform.transformation * Vector3<Float_32>{ 0.5f*x_scale, -0.5f*y_scale, 0.0f };
-
 			// find index of texture in set
-			
 
 			/*auto it = std::find(texture_ids.begin(), texture_ids.end(), texture_id);
 			if (it != texture_ids.end())
@@ -306,8 +333,6 @@ namespace PrEngine {
 				LOG(LOGTYPE_ERROR, "Texture index not found when batching");
 			}
 			batch_texture_ids.insert(texture_id);*/
-
-			
 
 			Vertex v1 = {
 				p1.x, p1.y, p1.z,
@@ -546,6 +571,9 @@ namespace PrEngine {
 			y_scale = y_scale / x_scale;
 			x_scale = 1.f;
 		}
+		Float_32 import_scale = Graphic::editor_data[graphic_id].scale;
+		x_scale *= import_scale;
+		y_scale *= import_scale;
 
 		std::vector<GLuint> indices;
 		std::vector<Vertex> buffer;
@@ -627,6 +655,13 @@ namespace PrEngine {
         buffer.push_back(v3);
         buffer.push_back(v4);
 
+		// save vertex data for collider
+		Graphic::vertex_data[graphic_id][0] = Vector3<Float_32>{ v1.p_x, v1.p_y, v1.p_z };
+		Graphic::vertex_data[graphic_id][1] = Vector3<Float_32>{ v2.p_x, v2.p_y, v2.p_z };
+		Graphic::vertex_data[graphic_id][2] = Vector3<Float_32>{ v3.p_x, v3.p_y, v3.p_z };
+		Graphic::vertex_data[graphic_id][3] = Vector3<Float_32>{ v4.p_x, v4.p_y, v4.p_z };
+
+
         indices.push_back(0);
         indices.push_back(1);
         indices.push_back(2);
@@ -668,12 +703,12 @@ namespace PrEngine {
 
 	void RendererOpenGL2D::draw_line(Vector3<Float_32> p1, Vector3<Float_32> p2, Vector4<Float_32> color)
 	{
-		Uint_32 mat_id = Material::load_material("default.mat", true);
-		assert(mat_id);
+		Uint_32 mat_id = Material::load_material("Materials"+PATH_SEP+"shape.mat", true);
+		//assert(mat_id);
 		Material& mat = Material::material_library[mat_id];
 		line_graphic.element.material = mat_id;
-		Vertex v1 = { p1.x, p1.y, 0,0,0,0, color.x, color.y, color.z, color.w };
-		Vertex v2 = { p2.x, p2.y, 0,0,0,0, color.x, color.y, color.z, color.w };
+		Vertex v1 = { p1.x, p1.y, 0,  color.x, color.y, color.z, color.w, 0,0,0, 0,0, 0 };
+		Vertex v2 = { p2.x, p2.y, 0, color.x, color.y, color.z, color.w, 0,0,0, 0,0, 0 };
 		lines_buffer.push_back(v1);
 		lines_buffer.push_back(v2);
 		lines_indices.push_back(lines_buffer.size() - 2);
@@ -683,9 +718,13 @@ namespace PrEngine {
 		VertexAttribute attribute_0(0, 3, GL_FLOAT, GL_FALSE);
 		VertexAttribute attribute_1(1, 4, GL_FLOAT, GL_FALSE);
 		VertexAttribute attribute_2(2, 3, GL_FLOAT, GL_FALSE);
+		VertexAttribute attribute_3(3, 2, GL_FLOAT, GL_FALSE);
+		VertexAttribute attribute_4(3, 1, GL_FLOAT, GL_FALSE);
 		layout.add_attribute(attribute_0);
 		layout.add_attribute(attribute_1);
 		layout.add_attribute(attribute_2);
+		layout.add_attribute(attribute_3);
+		layout.add_attribute(attribute_4);
 
 		line_graphic.element.vao.Generate();
 		line_graphic.element.vbo.Generate(&lines_buffer[0], lines_buffer.size() * sizeof(Vertex), GL_STATIC_DRAW);

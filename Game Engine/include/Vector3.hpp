@@ -8,9 +8,10 @@
 
 #ifndef Vector3_HPP
 #define Vector3_HPP
-
+#define PI 3.14159
+#define MIN_VEC_LEN 0.001
 #include <stdio.h>
-#include "math.h"
+#include <cmath>
 #include "Types.hpp"
 #include <string>
 
@@ -44,7 +45,8 @@ namespace PrEngine {
 
 		~Vector2()
 		{
-
+			this->x = 0;
+			this->y = 0;
 		}
 
 		Vector2<T> operator+(const Vector2& v) const
@@ -69,13 +71,10 @@ namespace PrEngine {
 		}
 
 
-		Vector2<Double_64> operator*(const Double_64 d) const {
-			return Vector2<Double_64>((Double_64)this->x * d, (Double_64)this->y * d);
+		Vector2<T> operator*(const T d) const {
+			return Vector2<T>((T)this->x * d, (T)this->y * d);
 		}
 
-		Vector2<Float_32> operator*(const Float_32 f) const {
-			return Vector2<Float_32>((Float_32)this->x * f, (Float_32)this->y * f);
-		}
 
 		Vector2 operator/(const T v) const {
 			return Vector2<T>(this->x / v, this->y / v);
@@ -95,10 +94,17 @@ namespace PrEngine {
 
 		Vector2 normalize() {
 			Double_64 len = length();
-			if (len <= 0.000001)
-				return (*this);
-			x /= len;
-			y /= len;
+			if (len < MIN_VEC_LEN)
+			{
+				x = 0;
+				y = 0;
+			}
+			else
+			{
+				x /= len;
+				y /= len;
+			}
+
 			return (*this);
 		}
 		Float_32 length() const {
@@ -113,6 +119,34 @@ namespace PrEngine {
 			dist = std::sqrt(dist);
 			return dist;
 		}
+
+		static Float_32 angle(Vector2<T> dir_1, Vector2<T> dir_2)
+		{
+			//if (dir_1.x < 0.0001)dir_1.x = 0;
+			//if (dir_1.y < 0.0001)dir_1.y = 0;
+			Vector3<Float_32> dir_1_3 = dir_1;
+			Vector3<Float_32> dir_2_3 = dir_2;
+			Vector3<Float_32> _dir_3 = dir_1_3 ^ dir_2_3;
+
+			dir_1.normalize();
+			dir_2.normalize();
+			Float_32 _val = dir_1 * dir_2;
+			Float_32 a = std::acosf(dir_1 * dir_2)*(180.f / PI);
+			Int_32 _sign = std::signbit(_dir_3.z) ? 1 : -1;
+			Float_32 _angle = std::fmodf((360.f - (_sign  * a)), 360.f);
+			return _angle;
+		}
+
+		std::string to_string()
+		{
+			char buffer[128];
+			Float_32 x_f = this->x;
+			Float_32 y_f = this->y;
+			sprintf(buffer, "%.3f , %.3f\n", x_f, y_f);
+			return std::string(buffer);
+		}
+		
+
 	};
 
 
@@ -167,7 +201,9 @@ namespace PrEngine {
         }
 
         Vector3<T> operator^(const Vector3& v) const{
-            return Vector3<T>(this->x * v.x, this->y * v.y, this->z * v.z);
+            return Vector3<T>( (this->y * v.z - this->z * v.y), 
+								-( this->x * v.z - this->z * v.x),
+									(this->x * v.y - this->y * v.x));
         }
 
 

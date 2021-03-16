@@ -12,8 +12,8 @@
 namespace PrEngine
 {
 
-	std::vector<Animation> Animator::animations_library;
-	std::vector<std::string> Animator::animation_clip_names;
+	std::vector<Animation> Animator::animations_library = { Animation() };
+	std::vector<std::string> Animator::animation_clip_names = { "NULL ANIM" };
 
 	Animator::Animator():Component(COMP_ANIMATOR)
 	{
@@ -154,13 +154,6 @@ namespace PrEngine
 		}
 		return text;
 	}
-
-
-
-
-
-
-
 }
 
 

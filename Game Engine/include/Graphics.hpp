@@ -8,7 +8,7 @@
 #include "Vertex.hpp"
 #include "Matrix4x4f.hpp"
 #include "Transform3D.hpp"
-
+#include <unordered_map>
 #define MAX_VERT_ATTRIB 5
 
 namespace PrEngine
@@ -89,14 +89,22 @@ namespace PrEngine
 		RENDER_TAG_COUNT
 	};
 
+	struct GraphicEditorData // data only required for loading and saving
+	{
+		Float_32 scale;
+		Int_32 future_tag;
+	};
+
     struct Graphic : public Component	// 184 bytes
     {
+		static std::unordered_map<Uint_32, GraphicEditorData> editor_data;
+		static std::unordered_map < Uint_32, Vector3<Float_32>[4]> vertex_data;
+
 		GraphicsElement element;			//152
 		Vector3<Float_32> outline_color;	//12
 		Float_32 outline_alpha;				//4
 		Uint_32 id_transform;				//4
 		Uint_32 id_animator;				//4
-		Int_32 future_tag;					//4
 		RenderTag tag;						//4
 
 
@@ -112,6 +120,7 @@ namespace PrEngine
 
 	struct BatchedGraphic : public Graphic
 	{
+
 		std::unordered_map<Uint_32, Uint_32> texture_to_index;
 		std::vector<Uint_32> graphic_ids;
 
@@ -123,6 +132,7 @@ namespace PrEngine
 		BatchedGraphic();
 		~BatchedGraphic();
 	};
+
 }
 
 

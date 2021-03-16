@@ -53,6 +53,8 @@
     <None Include="res\Animations\run_duplicate.anim" />
     <None Include="res\Materials\Extra\Door3312.mat" />
     <None Include="res\Materials\Extra\EXEXtra\Door33123333.mat" />
+    <None Include="res\Materials\Shape.mat" />
+    <None Include="res\Scenes\simplescene.graph" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="res\Materials\Extra\dummy.txt" />

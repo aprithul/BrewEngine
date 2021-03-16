@@ -6,6 +6,7 @@ namespace PrEngine {
 
 	Animation::Animation() 
 	{
+		
 	}
 
 	Animation::Animation(std::string& animation_name)

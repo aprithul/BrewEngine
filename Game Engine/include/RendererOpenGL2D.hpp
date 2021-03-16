@@ -31,11 +31,17 @@ namespace PrEngine {
 			// display attributes
 			Int_32 height;
 			Int_32 width;
+
+			// viewport attributes
+			Vector2<Float_32> viewport_pos;
+			Vector2<Float_32> viewport_size;
+
 			std::string title;
 
 			// constructor/ destructors
 			RendererOpenGL2D(Int_32 width, Int_32 height, Bool_8 full_screen, std::string& title, std::string module_name,Int_32 priority);
 			~RendererOpenGL2D();
+			void update_viewport_size(int x, int y, int width, int height);
 			void init();
 			// clears the display with the color specified
 			void Clear(Float_32 r, Float_32 g, Float_32 b, Float_32 a);

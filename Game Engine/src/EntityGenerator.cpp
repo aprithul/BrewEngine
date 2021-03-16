@@ -146,9 +146,9 @@ namespace PrEngine{
 			std::string entity_name = "-.-";
 			//Entity* entity = EntityManagementSystem::entity_management_system->make_entity(entity_name);
 			Uint_32 entity = entity_management_system->make_entity();
-			Uint_32 id_transform = 0;
-			Uint_32 id_graphic = 0;
-			Uint_32 id_animator = 0;
+			Uint_32 transform_id = 0;
+			Uint_32 graphic_id = 0;
+			Uint_32 animator_id = 0;
 			while (std::getline(ent, comp_str)) // get a componenet in the entity
 			{
 				std::stringstream comp(comp_str);
@@ -174,20 +174,20 @@ namespace PrEngine{
 						}*/
 						case COMP_ANIMATOR:
 						{	
-							id_animator = entity_management_system->make_animator_comp(entity);
-							animators[id_animator].cur_anim_ind = std::stod(tokens[1]);
-							animators[id_animator].anim_flags[0] = std::stod(tokens[2]);
-							animators[id_animator].anim_flags[1] = std::stod(tokens[3]);
-							animators[id_animator].anim_flags[2] = std::stod(tokens[4]);
+							animator_id = entity_management_system->make_animator_comp(entity);
+							animators[animator_id].cur_anim_ind = std::stod(tokens[1]);
+							animators[animator_id].anim_flags[0] = std::stod(tokens[2]);
+							animators[animator_id].anim_flags[1] = std::stod(tokens[3]);
+							animators[animator_id].anim_flags[2] = std::stod(tokens[4]);
 
-						assert(id_transform);
-							animators[id_animator].id_transform = id_transform;
+						assert(transform_id);
+							animators[animator_id].id_transform = transform_id;
 							for (int t_i = 5; t_i < tokens.size(); t_i++)
 							{
 								Uint_32 a_id = 0;
 								if (a_id = Animator::load_animation(tokens[t_i]))
 								{
-									animators[id_animator].add_animation(a_id);// Animator::animations_library.size() - 1;
+									animators[animator_id].add_animation(a_id);// Animator::animations_library.size() - 1;
 									/*Uint_32 entity_2 = entity_management_system->make_entity();
 									Uint_32 id_transform_2 = entity_management_system->make_transform_comp(entity_2);
 									entity_management_system->set_parent_transform(id_transform, id_transform_2);
@@ -199,8 +199,6 @@ namespace PrEngine{
 							}
 							//assert(id_graphic);
 							//animators[id_animator].id_graphic = id_graphic;
-
-							
 							/*Animator* animator = new Animator();
 							for (Int_32 i = 1; i < tokens.size(); i++)
 							{
@@ -220,8 +218,8 @@ namespace PrEngine{
 
 							Uint_32 id_camera = entity_management_system->make_camera_comp(entity);
 							cameras[id_camera].set_orthographic(l, r, b, t, n, f);
-							assert(id_transform);
-							cameras[id_camera].id_transform = id_transform;
+							assert(transform_id);
+							cameras[id_camera].id_transform = transform_id;
 
 							/*if (std::stoi(tokens[1]) == ORTHOGRAPHIC)
 							{
@@ -239,29 +237,36 @@ namespace PrEngine{
 						}
 						case COMP_GRAPHICS:	
 						{
-							id_graphic = entity_management_system->make_graphic_comp(entity);
-							
+							graphic_id = entity_management_system->make_graphic_comp(entity);
+
 							RenderTag render_tag = (RenderTag)std::atoi(tokens[2].c_str());
 							RenderTag future_render_tag = render_tag;
-#ifdef EDITOR_MODE
+							Graphic::editor_data[graphic_id] = { (Float_32)std::atof(tokens[3].c_str()), future_render_tag };
+#ifdef EDITOR_MODE	
 							//if (render_tag == RENDER_STATIC) render_tag = RENDER_DYNAMIC;
 							render_tag = RENDER_UNTAGGED;
 #endif
-							if (id_animator)
+							if (animator_id)
 								render_tag = RENDER_DYNAMIC;
 
-							graphics[id_graphic].tag = render_tag;
-							graphics[id_graphic].future_tag = future_render_tag;
+							graphics[graphic_id].tag = render_tag;
+							//graphics[id_graphic].future_tag = future_render_tag;
 							std::string material_name = tokens[1];
 							Bool_8 create_gl_texture = render_tag == RENDER_UNTAGGED;
 							if (create_gl_texture)
 								LOG(LOGTYPE_GENERAL,"");
 							Uint_32 mat_id = Material::load_material(material_name, create_gl_texture);
-							graphics[id_graphic].element.material = mat_id;
+							graphics[graphic_id].element.material = mat_id;
 
-						assert(id_transform);
-							graphics[id_graphic].id_transform = id_transform;
-							graphics[id_graphic].id_animator = id_animator;
+						assert(transform_id);
+							graphics[graphic_id].id_transform = transform_id;
+							graphics[graphic_id].id_animator = animator_id;
+
+							// to be moved
+							Uint_32 id_collider = entity_management_system->make_collider_comp(entity);
+							colliders[id_collider].graphic_id = graphic_id;
+							colliders[id_collider].transform_id = transform_id;
+
 
 							switch (render_tag)
 							{
@@ -280,18 +285,18 @@ namespace PrEngine{
 									//	batched_graphics.back().id_animator = id_animator;
 									//}
 									//else
-										renderer->generate_sprite_graphics(id_graphic);
+										renderer->generate_sprite_graphics(graphic_id);
 
 
 								}
 									break;
 								case RENDER_STATIC:
-									static_batched_graphic_ids.push_back(id_graphic);
+									static_batched_graphic_ids.push_back(graphic_id);
 									//renderer->generate_batched_sprite_graphics(id_graphic);
 									break;
 								case RENDER_DYNAMIC:
 									//renderer->generate_sprite_graphics(id_graphic);
-									dynamic_batched_graphic_ids.push_back(id_graphic);
+									dynamic_batched_graphic_ids.push_back(graphic_id);
 									break;
 							}
 
@@ -308,8 +313,8 @@ namespace PrEngine{
 							Uint_32 id_dir_light = entity_management_system->make_directional_light_comp(entity);
 							directional_lights[id_dir_light].specular = 0.5f;
 							directional_lights[id_dir_light].ambient = 0.3f;
-							assert(id_transform);
-							directional_lights[id_dir_light].id_transform = id_transform;
+							assert(transform_id);
+							directional_lights[id_dir_light].id_transform = transform_id;
 
 							/*DirectionalLight* light = new DirectionalLight(std::stof(tokens[1]), std::stof(tokens[2]));
 							entity->add_componenet(light);*/
@@ -317,16 +322,16 @@ namespace PrEngine{
 						}	
 						case COMP_TRANSFORM_3D:
 						{
-							id_transform = entity_management_system->make_transform_comp(entity);
-							LOG(LOGTYPE_WARNING, std::to_string(id_transform));
-							transform_id_mapping[std::stoi(tokens[11])] = id_transform;	//mapping for finding parents
-							transforms[id_transform].position = Vector3<Float_32>(std::stof(tokens[1]), std::stof(tokens[2]), std::stof(tokens[3]));
-							transforms[id_transform].scale = Vector3<Float_32>(std::stof(tokens[4]), std::stof(tokens[5]), std::stof(tokens[6]));
-							transforms[id_transform].rotation = Vector3<Float_32>(std::stof(tokens[7]), std::stof(tokens[8]), std::stof(tokens[9]));
+							transform_id = entity_management_system->make_transform_comp(entity);
+							LOG(LOGTYPE_WARNING, std::to_string(transform_id));
+							transform_id_mapping[std::stoi(tokens[11])] = transform_id;	//mapping for finding parents
+							transforms[transform_id].position = Vector3<Float_32>(std::stof(tokens[1]), std::stof(tokens[2]), std::stof(tokens[3]));
+							transforms[transform_id].scale = Vector3<Float_32>(std::stof(tokens[4]), std::stof(tokens[5]), std::stof(tokens[6]));
+							transforms[transform_id].rotation = Vector3<Float_32>(std::stof(tokens[7]), std::stof(tokens[8]), std::stof(tokens[9]));
 							Uint32 parent_transform_id =  transform_id_mapping[std::stoi(tokens[10])];	
 							if(parent_transform_id)
-								entity_management_system->set_parent_transform(parent_transform_id, id_transform);
-							get_transform(id_transform).update_transformation();
+								entity_management_system->set_parent_transform(parent_transform_id, transform_id);
+							get_transform(transform_id).update_transformation();
 							break;
 						}
 						case COMP_UNKNOWN:

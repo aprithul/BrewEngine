@@ -501,6 +501,7 @@ namespace PrEngine {
         key_binding[SDLK_LSHIFT] = SDLK_LSHIFT;
         key_binding[SDLK_SPACE] = SDLK_SPACE;
         key_binding[SDLK_LCTRL] = SDLK_LCTRL;
+		key_binding[SDLK_DELETE] = SDLK_DELETE;
 
     }
 

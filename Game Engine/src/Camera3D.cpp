@@ -6,7 +6,7 @@ namespace PrEngine
 
 	Camera::Camera():Component(COMP_CAMERA)
 	{
-
+		this->h_mod = 1;
 	}
 
     void Camera::set_perspective(Float_32 width, Float_32 height, Float_32 near_, Float_32 far_, Float_32 fov)
@@ -65,7 +65,7 @@ namespace PrEngine
         if(projection_type==PERSPECTIVE)
             projection_matrix = Matrix4x4<Float_32>::perspective(near_, far_,width, height, fov);
         else
-            projection_matrix = Matrix4x4<Float_32>::ortho(left*zoom, right*zoom, bottom*zoom, top*zoom, near_, far_);
+            projection_matrix = Matrix4x4<Float_32>::ortho(h_mod*left*zoom, h_mod*right*zoom, bottom*zoom, top*zoom, near_, far_);
             //projection_matrix = Matrix4x4<Float_32>::ortho(0, width,0, height, near_, far_);
     }
 
@@ -85,10 +85,19 @@ namespace PrEngine
 	Vector3<Float_32> Camera::get_screen_to_world_pos(Vector2<Int_32> screen_pos)
 	{
 		auto camera_t = transforms[id_transform];
-		Float_32 x_pos = (right - left) / renderer->width;// +camera_pos.x;
-		Float_32 y_pos = (top - bottom) / renderer->height;// +camera_pos.y;
-		x_pos = x_pos * (screen_pos.x - renderer->width / 2);
-		y_pos = -y_pos * (screen_pos.y - renderer->height / 2);
+		Float_32 x_pos = h_mod*zoom*(right - left) / renderer->viewport_size.x;// +camera_pos.x;
+		Float_32 y_pos = zoom*(top - bottom) / renderer->viewport_size.y;// +camera_pos.y;
+
+		//in viewport co ordinate
+		Vector3<Float_32> pos_in_viewport = Vector2<Float_32>{ clamp<Float_32>(screen_pos.x - renderer->viewport_pos.x, 0, renderer->viewport_size.x) ,
+			clamp<Float_32>((renderer->height - screen_pos.y) - renderer->viewport_pos.y, 0, renderer->viewport_size.y) };
+
+		Float_32 v_x = pos_in_viewport.x - renderer->viewport_size.x / 2;
+		Float_32 v_y = pos_in_viewport.y - renderer->viewport_size.y / 2;
+
+		//Float_32 centered = (screen_pos.x - renderer->viewport_size.x / 2);
+		x_pos = x_pos * v_x;
+		y_pos = y_pos * v_y;// (screen_pos.y - renderer->viewport_size.y / 2);
 		//auto mat = camera_t.transformation.transpose();
 		Vector4<Float_32> world_pos =  camera_t.transformation* Vector4<Float_32>{x_pos, y_pos, 0, 1};
 		return (Vector3<Float_32>)world_pos;

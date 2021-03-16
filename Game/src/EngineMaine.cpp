@@ -2,6 +2,7 @@
 #include "FrameRateRegulatorModule.hpp"
 #include "FrameRateCounterModule.hpp"
 #include "RendererOpenGL2D.hpp"
+#include "PhysicsModule.hpp"
 #include "Game.hpp"
 #if defined(EMSCRIPTEN) && defined(_WIN64)
 #include "NetworkManager.hpp"
@@ -18,6 +19,7 @@ Engine* setup_engine_with_parameters(Uint_32 window_width, Uint_32 window_height
 	game_engine->add_module(new Time("Time", 0));
 	game_engine->add_module(new InputManager("Input", 1));
 	game_engine->add_module(new EntityManagementSystem("EMS", 2));
+	game_engine->add_module(new PhysicsModule("Physics", 4));
 	game_engine->add_module(new FrameRateRegulator("Frame Rate Regulator", 100000));
 	((FrameRateRegulator*)game_engine->get_module("Frame Rate Regulator"))->set_uncapped();
 	((FrameRateRegulator*)game_engine->get_module("Frame Rate Regulator"));//->set_uncapped();

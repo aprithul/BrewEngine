@@ -18,6 +18,7 @@ namespace PrEngine
         COMP_LIGHT,
         COMP_CAMERA,
 		COMP_ANIMATOR,
+		COMP_COLLIDER,
         COMP_COUNT_MAX,
     };
     extern const std::string CompName[COMP_COUNT_MAX];
