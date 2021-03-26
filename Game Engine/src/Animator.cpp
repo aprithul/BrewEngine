@@ -20,6 +20,7 @@ namespace PrEngine
 		animation_speed = 1.f;
 		current_frame_index = 0;
 		animation_count = 0;
+		frame_time = 0;
 	}
 
 	Animator::~Animator()
@@ -35,7 +36,7 @@ namespace PrEngine
 	
 	void Animator::update()
 	{
-		static Float_32 frame_time = 0;
+		//frame_time = 0;
 		frame_time += Time::Frame_time;
 		Animation& animation = get_current_animation();
 		Keyframe frame = animation.frames[current_frame_index];

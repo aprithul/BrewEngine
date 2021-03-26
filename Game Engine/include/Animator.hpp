@@ -46,7 +46,7 @@ namespace PrEngine{
 		Int_32 cur_anim_ind;	// the current active animation
 		Int_32 current_frame_index;
 		Bool_8 anim_flags[3] = {};
-
+		Float_32 frame_time;
 		//Uint_32 id_graphic;
 
 		void start() override;
