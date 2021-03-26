@@ -6,6 +6,7 @@
 //  Copyright © 2017 Aniruddha Prithul. All rights reserved.
 //
 #include "RendererOpenGL2D.hpp"
+#include "Math.hpp"
 #include <cmath>
 #include <set>
 namespace PrEngine {
@@ -83,6 +84,10 @@ namespace PrEngine {
 
         GuiLayer* gui_layer = new GuiLayer(window, &glContext);
         render_layers.push_back(gui_layer);
+
+		ShapesLayer* shapes_layer = new ShapesLayer();
+		render_layers.push_back(shapes_layer);
+
 
 		renderer = this;
 
@@ -740,6 +745,20 @@ namespace PrEngine {
 
 		line_graphic.element.ibo.Generate(&lines_indices[0], lines_indices.size() * sizeof(GLuint), lines_indices.size());
 	}
+
+	void RendererOpenGL2D::draw_rect(Rect<Float_32> rect, Vector4<Float_32> color)
+	{
+		Vector3<Float_32> p1{ rect.x,rect.y,0};
+		Vector3<Float_32> p2{ rect.x,rect.y+rect.h,0 };
+		Vector3<Float_32> p3{ rect.x+rect.w,rect.y+rect.h, 0 };
+		Vector3<Float_32> p4{ rect.x+rect.w,rect.y ,0};
+		renderer->draw_line(p1, p2, color);
+		renderer->draw_line(p2, p3, color);
+		renderer->draw_line(p3, p4, color);
+		renderer->draw_line(p4, p1, color);
+	}
+
+
 
 
     RenderLayer* RendererOpenGL2D::get_layer(const std::string& layer_name)

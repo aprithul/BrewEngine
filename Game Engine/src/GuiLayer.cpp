@@ -6,6 +6,7 @@
 #include "EntityGenerator.hpp"
 #include "EditorUtils.hpp"
 #include "PhysicsModule.hpp"
+#include "Math.hpp"
 
 namespace PrEngine
 {
@@ -147,7 +148,7 @@ namespace PrEngine
 	Vector2<Int_32> drag_start;
 	Vector2<Float_32> mouse_pos_ws;
 	//Vector2<Float_32> mouse_pos_vs;
-	Vector2<Int_32> mouse_pos_ss;
+	Vector2<Float_32> mouse_pos_ss;
 	Uint_32 drag_transform;
 	float v_x, v_y, v_w, v_h;
 	inline void draw_editor(SDL_Window* window)
@@ -173,7 +174,9 @@ namespace PrEngine
 		mouse_pos_ws = cameras[cam].get_screen_to_world_pos(input_manager->mouse.position);
 		//mouse_pos_vs = Vector2<Float_32>{ clamp<Float_32>(input_manager->mouse.position.x - v_x, 0, v_w) ,
 		//	clamp<Float_32>(renderer->height - (input_manager->mouse.position.y - v_y), 0, v_h) };
-		mouse_pos_ss = Vector2<Int_32>{ input_manager->mouse.position.x, (renderer->height - input_manager->mouse.position.y) };
+
+		// narrowing shouldn't cause problem in screen space (limited space)
+		mouse_pos_ss = Vector2<Float_32>{ (Float_32)input_manager->mouse.position.x, (Float_32)(renderer->height - input_manager->mouse.position.y) };
 		
 		// entity selection by clicking sprite
 		static Vector2<Float_32> selection_offset;
@@ -196,8 +199,8 @@ namespace PrEngine
 			else
 			{
 				// check if click was inside viewport
-				Rect r{ v_x, v_y, v_w, v_h };
-				if (physics_module->point_in_AABB(mouse_pos_ss, r))
+				Rect<Float_32> r{ v_x, v_y, v_w, v_h };
+				if (point_in_AABB(mouse_pos_ss, r))
 				{
 					selected_transform = 0;
 					drag_transform = 0;
@@ -212,12 +215,17 @@ namespace PrEngine
 			if (collider_id)
 			{
 				Collider& collider = colliders[collider_id];
+				Rect<Float_32> rect = points_to_rect_with_transform(collider.collision_shape.points, _transform.transformation);
+				Vector4<Float_32> color{ 0.8, 0.5, 0, 1 };
+				renderer->draw_rect(rect, color);
+/*
 				for (int _i = 0; _i < 4; _i++)
 				{
 					Vector3<Float_32> p1 = _transform.transformation * collider.collision_shape.points[_i];
 					Vector3<Float_32> p2 = _transform.transformation * collider.collision_shape.points[(_i + 1) % 4];
-					renderer->draw_line(p1, p2, Vector4<Float_32>{0.8, 0.5, 0, 1});
+					renderer->draw_line(p1, p2, color);
 				}
+*/
 			}
 		}
 		//drag tarnsform with mouse pointer

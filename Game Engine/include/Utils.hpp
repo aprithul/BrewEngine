@@ -27,51 +27,16 @@ namespace PrEngine
     extern void write_to_file(const std::string& text, const std::string& file_name, Bool_8 binary, Bool_8 append);
     extern std::string get_resource_path(const std::string &subDir = ""); 
     
-    struct Rect
+	template <typename T>
+	struct Rect
     {
-        Float_32 x;
-        Float_32 y;
-        Float_32 w;
-        Float_32 h;
-        
-        Rect(Float_32 x,Float_32 y,Float_32 w,Float_32 h);
-        Rect();
+        T x;
+        T y;
+        T w;
+        T h;
     };
     
 
-    template<typename T>
-    T clamp(T value, T low, T high)
-    {
-        if(value > high)
-            return high;
-        if(value<low)
-            return low;
-        else
-            return value;
-    }
-
-    template<typename T>
-    Int_32 sign(T v)
-    {
-        if(v >= 0)
-            return 1;
-        else return -1;
-    }
-
-    template<typename T>
-    T abs(T v)
-    {
-        if(v > 0)
-            return v;
-        else if (v < 0)
-            return -v;
-        else
-            return 0;
-    }
-
-    Bool_8 inside(Vector2<Int_32> pos, SDL_Rect& rect, Bool_8 centered = false);
-	Bool_8 inside(Vector2<Float_32> pos, SDL_Rect& rect, Bool_8 centered = false);
-	Bool_8 inside(Vector2<Float_32> pos, Rect& rect, Bool_8 centered = false);
 
 	Uint_32 str_hash(const std::string& str);
 

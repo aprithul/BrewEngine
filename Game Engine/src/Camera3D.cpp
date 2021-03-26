@@ -1,6 +1,7 @@
 #include "Camera3D.hpp"
 #include "EntityManagementSystemModule.hpp"
 #include "RendererOpenGL2D.hpp"
+#include "Math.hpp"
 namespace PrEngine
 {
 

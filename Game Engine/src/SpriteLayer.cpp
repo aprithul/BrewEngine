@@ -1,5 +1,6 @@
 #include "SpriteLayer.hpp"
 #include "RendererOpenGL2D.hpp"
+#include "Math.hpp"
 namespace PrEngine
 {
 	extern GLint max_texture_units;

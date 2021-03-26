@@ -6,7 +6,7 @@
 //
 
 #include "InputModule.hpp"
-
+#include "Math.hpp"
 namespace PrEngine {
 
     InputManager* input_manager = nullptr;

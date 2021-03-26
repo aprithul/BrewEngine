@@ -1,4 +1,5 @@
 #include "EntityManagementSystemModule.hpp"
+#include "PhysicsModule.hpp"
 #include <algorithm>
 namespace PrEngine
 {
@@ -548,6 +549,34 @@ assert(level > 0);
 			if (animator_entity_id[i])
 				animators[i].update();
 		}
+
+		// find collision
+		for (Uint_32 i = 0; i < next_collider_pos; i++)
+		{
+			if (collider_entity_id[i])
+			{
+				Uint_32 t_id_i = colliders[i].transform_id;
+				if (!t_id_i)continue;
+				Rect<Float_32> r1 = points_to_rect_with_transform(colliders[i].collision_shape.points, transforms[t_id_i].transformation);
+
+				for (Uint_32 j = i+1; j < next_collider_pos; j++)
+				{
+					if (collider_entity_id[j])
+					{
+						Uint_32 t_id_j = colliders[j].transform_id;
+						if (!t_id_j)continue;
+						Rect<Float_32> r2 = points_to_rect_with_transform(colliders[j].collision_shape.points, transforms[t_id_j].transformation);
+						
+						if (intersect_AABB_AABB(r1, r2))
+						{
+							physics_module->contacts.push_back(Contact{ i, j });
+						}
+					}
+				}
+
+			}
+		}
+
     }
 
     void EntityManagementSystem::end()

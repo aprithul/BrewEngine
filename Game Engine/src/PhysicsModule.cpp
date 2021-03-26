@@ -5,7 +5,7 @@ namespace PrEngine {
 
 	PhysicsModule* physics_module = nullptr;
 
-	//std::vector<CollisionShape2D> PhysicsModule::collision_shapes;
+	std::vector<Contact> PhysicsModule::contacts;
 
 	PhysicsModule::PhysicsModule(std::string name, Int_32 priority) :Module(name, priority)
 	{
@@ -62,14 +62,7 @@ namespace PrEngine {
 
 	}
 
-	Bool_8 PhysicsModule::point_in_AABB(Vector2<Int_32> p, Rect& rect)
-	{
-		if (p.x > rect.x && p.x < rect.x + rect.w
-			&& p.y > rect.y && p.y < rect.y + rect.h)
-			return true;
-		else
-			return false;
-	}
+
 
 
 	Uint_32 PhysicsModule::point_in_any_shape(Vector2<Float_32> p)
@@ -125,14 +118,24 @@ namespace PrEngine {
 
 	void PhysicsModule::update()
 	{
-
-		/*for (Uint_32 _i = 0; _i < collision_shapes.size(); _i++)
+		for (int _i = 0; _i < contacts.size(); _i++)
 		{
-			for (Uint_32 _j = 1; _j < collision_shapes.size(); _j++)
-			{
+			Uint_32 col_a = contacts[_i].collider_a;
+			Uint_32 tr_a = colliders[col_a].transform_id;
+			Uint_32 col_b = contacts[_i].collider_b;
+			Uint_32 tr_b = colliders[col_b].transform_id;
 
-			}
-		}*/
+			assert(tr_a && tr_b);
+
+			Vector4<Float_32> red_color{ 1.0, 0, 0, 1.0 };
+			Rect<Float_32> a = points_to_rect_with_transform(colliders[col_a].collision_shape.points, transforms[tr_a].transformation);
+			Rect<Float_32> b = points_to_rect_with_transform(colliders[col_b].collision_shape.points, transforms[tr_b].transformation);
+			renderer->draw_rect(a, red_color);
+			renderer->draw_rect(b, red_color);
+		}
+
+		// all consumed
+		contacts.clear();
 	}
 
 
