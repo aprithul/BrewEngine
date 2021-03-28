@@ -1,11 +1,12 @@
 #ifndef COLLIDER_HPP
 #define COLLIDER_HPP
+#include <assert.h>
 #include "Component.hpp"
 #include "Vector3.hpp"
 #include "Math.hpp"
 #include "Utils.hpp"
 #include "Matrix4x4f.hpp"
-
+#include "Transform3D.hpp"
 namespace PrEngine {
 	
 	enum Shape2DTypes
@@ -20,8 +21,9 @@ namespace PrEngine {
 
 	struct CollisionShape2D
 	{
-		Vector2<Float_32> points[4];
+		Vector2<Float_32> points[16];
 		Shape2DTypes type;
+		int point_count;
 	};
 
 
@@ -97,7 +99,7 @@ namespace PrEngine {
 
 	inline Bool_8 point_in_shape(Vector2<Float_32>* points, Uint_32 count, Vector2<Float_32> p)
 	{
-		// simplex in 2d is triangle
+		// at least 3 points needed to contain another point
 		if (count < 3)
 			return false;
 
@@ -129,7 +131,7 @@ namespace PrEngine {
 		Vector2<Float_32> l1_p2 = p;
 
 		Int_32 intersection_count = 0;
-		// check intersectin with every edge of shape
+		// check intersections with every edge of shape
 		for (int _i = 0; _i < count; _i++)
 		{
 			// two points of line 2 ( an edge of shape)
@@ -148,6 +150,142 @@ namespace PrEngine {
 		return false;
 
 	}
+
+	inline Float_32 solve_line(Vector2<Float_32> v1, Vector2<Float_32> v2, Vector2<Float_32> p)
+	{
+		Float_32 A = v1.y - v2.y;
+		Float_32 B = v1.x - v2.x;
+		Float_32 C = v1.x * v2.y - v2.x*v1.y;
+
+		// solve line 1 for the two points in line 2
+		return A * p.x + B * p.y + C;
+
+	}
+
+	inline Vector2<Float_32> support(Vector2<Float_32> dir, Collider& col_A, Collider& col_B)
+	{
+		//assert(col_A.transform_id && col_B.transform_id);
+
+		// find max point in A along dir
+		Vector2<Float_32> A_max;
+		Float_32 max_proj = -std::numeric_limits<Float_32>::infinity();
+		for (Uint_32 i = 0; i < col_A.collision_shape.point_count; i++)
+		{
+			Vector2<Float_32> point = (transforms[col_A.transform_id].transformation * col_A.collision_shape.points[i]);
+			Float_32 proj = dir * point;
+			if (proj > max_proj)
+			{
+				max_proj = proj;
+				A_max = point;
+			}
+		}
+
+		// find max point in B along  (-dir)
+		Vector2<Float_32> B_max;
+		max_proj = -std::numeric_limits<Float_32>::infinity();
+		for (Uint_32 i = 0; i < col_B.collision_shape.point_count; i++)
+		{
+			Vector2<Float_32> point = (transforms[col_B.transform_id].transformation * col_B.collision_shape.points[i]);
+			Float_32 proj = -dir * point;
+			if (proj > max_proj)
+			{
+				max_proj = proj;
+				B_max = point;
+			}
+		}
+
+
+		return A_max - B_max;
+	}
+
+	inline Bool_8 do_simplex(std::vector<Vector2<Float_32>>& simplex, Vector2<Float_32>& dir)
+	{
+		static Vector2<Float_32> origin{ 0,0 };
+		if (simplex.size() == 3)	//we got a triangle. so check if it contains origin
+		{
+			// for side A of triangle
+			Vector3<Float_32> vec1 = simplex[2] - simplex[1];
+			Vector3<Float_32> vec2 = -simplex[1];
+			Vector3<Float_32> perp = (vec1^vec2) ^ vec1;
+
+			Float_32 _dotA = perp * (simplex[0]-simplex[2]);
+
+			if (_dotA < 0) // in A region
+			{
+				dir = perp;
+				simplex.erase(simplex.begin());
+				return false;
+			}
+
+			//------------------------------------------------
+
+			// for side B of triangle
+			vec1 = simplex[2] - simplex[0];
+			vec2 = -simplex[0];
+			perp = (vec1^vec2) ^ vec1;
+
+			Float_32 _dotB = perp * (simplex[1]- simplex[2]);
+
+			if (_dotB < 0) // in B region
+			{
+				dir = perp;
+				simplex.erase(simplex.begin()+1);
+				return false;
+			}
+
+			///
+			//else inside triangle
+			return true;
+
+
+
+		}
+		else if (simplex.size() == 2)
+		{
+			Vector3<Float_32> vec1 = -simplex[1];
+			Vector3<Float_32> vec2 = simplex[0] - simplex[1];
+			//Float_32 _dot = vec1 * vec2;
+			//if (_dot > 0)	// new direction is normal to vec2 in the direction of origin
+			//{
+				Vector3<Float_32> perp = (vec2^vec1) ^ vec2;
+				dir = perp.normalize();
+				return false;
+			//}
+			//else
+			//{
+			//	dir = vec1;
+			//	simplex.clear();
+			//	simplex.push_back(-vec1);	// only keep the last point
+			//}
+
+		}
+	}
+
+	inline Bool_8 intersect_GJK(Collider& col_A, Collider& col_B)
+	{
+		static Vector2<Float_32> origin{ 0,0 };
+
+		std::vector<Vector2<Float_32>> simplex;
+		Vector2<Float_32> dir{ 1,0 };
+		Vector2<Float_32> p = support(dir, col_A, col_B);
+		simplex.push_back(p);
+		
+		dir = - p;
+
+		do {
+			p = support(dir, col_A, col_B);
+
+			Float_32 _dot = dir * p;
+			if (_dot < 0) // extreme point in direction of origin doesn't reach origin. so can't intersect
+				return false;
+			simplex.push_back(p);
+			if (do_simplex(simplex, dir))
+				return true;
+
+		} while (true);
+
+	}
+
 
 	inline Rect<Float_32> points_to_rect(Vector2<Float_32>* points)
 	{

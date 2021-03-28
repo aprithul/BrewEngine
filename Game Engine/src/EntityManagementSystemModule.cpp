@@ -567,10 +567,15 @@ assert(level > 0);
 						if (!t_id_j)continue;
 						Rect<Float_32> r2 = points_to_rect_with_transform(colliders[j].collision_shape.points, transforms[t_id_j].transformation);
 						
-						if (intersect_AABB_AABB(r1, r2))
+						if (intersect_GJK(colliders[i], colliders[j]))
 						{
 							physics_module->contacts.push_back(Contact{ i, j });
 						}
+/*
+						if (intersect_AABB_AABB(r1, r2))
+						{
+							physics_module->contacts.push_back(Contact{ i, j });
+						}*/
 					}
 				}
 

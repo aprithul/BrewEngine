@@ -34,6 +34,7 @@ namespace PrEngine {
 					col_points[2] = g_points[2];
 					col_points[3] = g_points[3];
 					colliders[_i].collision_shape.type = SHAPE_RECT;
+					colliders[_i].collision_shape.point_count = 4;
 				}
 				else
 				{
@@ -43,6 +44,8 @@ namespace PrEngine {
 					col_points[2] = Vector2<Float_32>{  1,-1 };
 					col_points[3] = Vector2<Float_32>{ -1,-1 };
 					colliders[_i].collision_shape.type = SHAPE_RECT;
+					colliders[_i].collision_shape.point_count = 4;
+
 				}
 			}
 		}
@@ -128,10 +131,10 @@ namespace PrEngine {
 			assert(tr_a && tr_b);
 
 			Vector4<Float_32> red_color{ 1.0, 0, 0, 1.0 };
-			Rect<Float_32> a = points_to_rect_with_transform(colliders[col_a].collision_shape.points, transforms[tr_a].transformation);
-			Rect<Float_32> b = points_to_rect_with_transform(colliders[col_b].collision_shape.points, transforms[tr_b].transformation);
-			renderer->draw_rect(a, red_color);
-			renderer->draw_rect(b, red_color);
+			Rect<Float_32> a = points_to_rect(colliders[col_a].collision_shape.points);//, transforms[tr_a].transformation);
+			Rect<Float_32> b = points_to_rect(colliders[col_b].collision_shape.points);//, transforms[tr_b].transformation);
+			renderer->draw_rect_with_transform(a, red_color, transforms[tr_a].transformation);
+			renderer->draw_rect_with_transform(b, red_color, transforms[tr_b].transformation);
 		}
 
 		// all consumed

@@ -758,6 +758,22 @@ namespace PrEngine {
 		renderer->draw_line(p4, p1, color);
 	}
 
+	void RendererOpenGL2D::draw_rect_with_transform(Rect<Float_32> rect, Vector4<Float_32> color, Matrix4x4<Float_32> transformation)
+	{
+		Vector3<Float_32> p1{ rect.x,rect.y,0 };
+		p1 = transformation * p1;
+		Vector3<Float_32> p2{ rect.x,rect.y + rect.h,0 };
+		p2 = transformation * p2;
+		Vector3<Float_32> p3{ rect.x + rect.w,rect.y + rect.h, 0 };
+		p3 = transformation * p3;
+		Vector3<Float_32> p4{ rect.x + rect.w,rect.y ,0 };
+		p4 = transformation * p4;
+		renderer->draw_line(p1, p2, color);
+		renderer->draw_line(p2, p3, color);
+		renderer->draw_line(p3, p4, color);
+		renderer->draw_line(p4, p1, color);
+	}
+
 
 
 

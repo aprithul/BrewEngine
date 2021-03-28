@@ -62,6 +62,11 @@ namespace PrEngine {
 		Vector2 operator-(const Vector2& v) const {
 			return Vector2<T>(this->x - v.x, this->y - v.y);
 		}
+
+		Vector2<T> operator-() const {
+			return Vector2<T>{-this->x, -this->y};
+		}
+
 		T operator*(const Vector2& v) const {
 			return (this->x * v.x + this->y * v.y);
 		}
@@ -242,11 +247,21 @@ namespace PrEngine {
 		}
 
         Vector3 normalize(){
-        Double_64 len = length();
-        x /= len;
-        y /= len;
-        z /= len;
-        return (*this);
+			Double_64 len = length();
+			if (len < MIN_VEC_LEN)
+			{
+				x = 0;
+				y = 0;
+				z = 0;
+			}
+			else
+			{
+				x /= len;
+				y /= len;
+				z /= len;
+			}
+
+			return (*this);
         }
         Float_32 length() const{
         return sqrt( x*x + y*y + z*z);

@@ -215,9 +215,9 @@ namespace PrEngine
 			if (collider_id)
 			{
 				Collider& collider = colliders[collider_id];
-				Rect<Float_32> rect = points_to_rect_with_transform(collider.collision_shape.points, _transform.transformation);
+				Rect<Float_32> rect = points_to_rect(collider.collision_shape.points);
 				Vector4<Float_32> color{ 0.8, 0.5, 0, 1 };
-				renderer->draw_rect(rect, color);
+				renderer->draw_rect_with_transform(rect, color, _transform.transformation);
 /*
 				for (int _i = 0; _i < 4; _i++)
 				{
