@@ -9,7 +9,7 @@
 #ifndef Vector3_HPP
 #define Vector3_HPP
 #define PI 3.14159
-#define MIN_VEC_LEN 0.001
+#define MIN_VEC_LEN 0.000001
 #include <stdio.h>
 #include <cmath>
 #include "Types.hpp"
@@ -198,9 +198,22 @@ namespace PrEngine {
             this->z += v.z;
             return *this;//Vector3<T>( this->x, this->y);
         }
+
+		Vector3<T> operator-=(const Vector3& v) {
+			this->x -= v.x;
+			this->y -= v.y;
+			this->z -= v.z;
+			return *this;//Vector3<T>( this->x, this->y);
+		}
+
         Vector3 operator-(const Vector3& v) const{
             return Vector3<T>( this->x - v.x, this->y - v.y, this->z - v.z);
         }
+
+		Vector3<T> operator-() const {
+			return Vector3<T>(-this->x, -this->y, -this->z);
+		}
+
         T operator*(const Vector3& v) const{
             return (this->x * v.x + this->y * v.y + this->z * v.z);
         }
@@ -267,6 +280,12 @@ namespace PrEngine {
         return sqrt( x*x + y*y + z*z);
 
         }
+
+		Float_32 sqrd_length() const {
+			return x*x + y * y + z * z;
+
+		}
+
 
 		std::string to_string()
 		{

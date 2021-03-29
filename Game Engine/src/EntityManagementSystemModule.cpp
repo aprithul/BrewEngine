@@ -569,7 +569,8 @@ assert(level > 0);
 						
 						if (intersect_GJK(colliders[i], colliders[j]))
 						{
-							physics_module->contacts.push_back(Contact{ i, j });
+							Vector2<Float_32> col_pen_vec = do_EPA(colliders[i], colliders[j]);
+							physics_module->contacts.push_back(Contact{ col_pen_vec, i, j });
 						}
 /*
 						if (intersect_AABB_AABB(r1, r2))

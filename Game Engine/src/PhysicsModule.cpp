@@ -131,10 +131,20 @@ namespace PrEngine {
 			assert(tr_a && tr_b);
 
 			Vector4<Float_32> red_color{ 1.0, 0, 0, 1.0 };
+			Vector4<Float_32> yellow_color{ 0.0, 1, 1, 1.0 };
 			Rect<Float_32> a = points_to_rect(colliders[col_a].collision_shape.points);//, transforms[tr_a].transformation);
 			Rect<Float_32> b = points_to_rect(colliders[col_b].collision_shape.points);//, transforms[tr_b].transformation);
 			renderer->draw_rect_with_transform(a, red_color, transforms[tr_a].transformation);
 			renderer->draw_rect_with_transform(b, red_color, transforms[tr_b].transformation);
+			renderer->draw_line(transforms[tr_b].position, transforms[tr_b].position + contacts[_i].depth, yellow_color);
+
+			transforms[tr_a].position -= (contacts[_i].depth*0.55);
+			transforms[tr_a].update_transformation();
+			transforms[tr_b].position += (contacts[_i].depth*0.55);
+			transforms[tr_b].update_transformation();
+
+			//LOG(LOGTYPE_GENERAL, std::to_string(contacts[_i].depth.length()));
+
 		}
 
 		// all consumed
