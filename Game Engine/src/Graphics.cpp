@@ -128,7 +128,7 @@ namespace PrEngine
 
     Graphic::~Graphic()
     {
-        //element.Delete();
+        element.Delete();
         //delete material;
     }
 

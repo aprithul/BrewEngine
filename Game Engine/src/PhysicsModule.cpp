@@ -139,9 +139,9 @@ namespace PrEngine {
 			renderer->draw_line(transforms[tr_b].position, transforms[tr_b].position + contacts[_i].depth, yellow_color);
 
 			transforms[tr_a].position -= (contacts[_i].depth*0.55);
-			transforms[tr_a].update_transformation();
+			//transforms[tr_a].update_transformation();
 			transforms[tr_b].position += (contacts[_i].depth*0.55);
-			transforms[tr_b].update_transformation();
+			//transforms[tr_b].update_transformation();
 
 			//LOG(LOGTYPE_GENERAL, std::to_string(contacts[_i].depth.length()));
 

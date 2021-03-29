@@ -708,42 +708,8 @@ namespace PrEngine {
 
 	void RendererOpenGL2D::draw_line(Vector3<Float_32> p1, Vector3<Float_32> p2, Vector4<Float_32> color)
 	{
-		Uint_32 mat_id = Material::load_material("Materials"+PATH_SEP+"shape.mat", true);
-		//assert(mat_id);
-		Material& mat = Material::material_library[mat_id];
-		line_graphic.element.material = mat_id;
-		Vertex v1 = { p1.x, p1.y, 0,  color.x, color.y, color.z, color.w, 0,0,0, 0,0, 0 };
-		Vertex v2 = { p2.x, p2.y, 0, color.x, color.y, color.z, color.w, 0,0,0, 0,0, 0 };
-		lines_buffer.push_back(v1);
-		lines_buffer.push_back(v2);
-		lines_indices.push_back(lines_buffer.size() - 2);
-		lines_indices.push_back(lines_buffer.size() - 1);
-
-		VertexLayout layout;
-		VertexAttribute attribute_0(0, 3, GL_FLOAT, GL_FALSE);
-		VertexAttribute attribute_1(1, 4, GL_FLOAT, GL_FALSE);
-		VertexAttribute attribute_2(2, 3, GL_FLOAT, GL_FALSE);
-		VertexAttribute attribute_3(3, 2, GL_FLOAT, GL_FALSE);
-		VertexAttribute attribute_4(3, 1, GL_FLOAT, GL_FALSE);
-		layout.add_attribute(attribute_0);
-		layout.add_attribute(attribute_1);
-		layout.add_attribute(attribute_2);
-		layout.add_attribute(attribute_3);
-		layout.add_attribute(attribute_4);
-
-		line_graphic.element.vao.Generate();
-		line_graphic.element.vbo.Generate(&lines_buffer[0], lines_buffer.size() * sizeof(Vertex), GL_STATIC_DRAW);
-		line_graphic.element.layout = layout;
-
-		for (auto attr : line_graphic.element.layout.vertex_attributes)
-		{
-			GL_CALL(
-				glEnableVertexAttribArray(attr.index))
-				GL_CALL(
-					glVertexAttribPointer(attr.index, attr.count, attr.type, attr.normalized, layout.stride, (void*)attr.offset))
-		}
-
-		line_graphic.element.ibo.Generate(&lines_indices[0], lines_indices.size() * sizeof(GLuint), lines_indices.size());
+		//return;
+		lines.push_back({ p1,p2,color });
 	}
 
 	void RendererOpenGL2D::draw_rect(Rect<Float_32> rect, Vector4<Float_32> color)

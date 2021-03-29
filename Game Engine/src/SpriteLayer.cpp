@@ -194,66 +194,66 @@ namespace PrEngine
 		Vector3<Float_32> _cam_pos = transforms[_camera.id_transform].position;
 		Vector3<Float_32> _dir = get_transform(_light.id_transform).get_forward();
 
-		
-		if (renderer->lines_buffer.size() > 0)
-		{
-			GraphicsElement& element = renderer->line_graphic.element;
-			Material* mat = Material::get_material(element.material);
-			if (mat == nullptr)
-			{
-				LOG(LOGTYPE_ERROR, "Couldn't find material");
-				return;
-			}
+		//
+		//if (renderer->lines_buffer.size() > 0)
+		//{
+		//	GraphicsElement& element = renderer->line_graphic.element;
+		//	Material* mat = Material::get_material(element.material);
+		//	if (mat == nullptr)
+		//	{
+		//		LOG(LOGTYPE_ERROR, "Couldn't find material");
+		//		return;
+		//	}
 
-			mat->Bind();
-			element.vao.Bind();
-			element.ibo.Bind();
+		//	mat->Bind();
+		//	element.vao.Bind();
+		//	element.ibo.Bind();
 
-			GLint* uniform_loc = Shader::shader_library[mat->shader].uniform_locations;
+		//	GLint* uniform_loc = Shader::shader_library[mat->shader].uniform_locations;
 
 
-			for (Uint_32 _i = 0; _i < (Int_32)ShaderUniformName::u_count; _i++)
-			{
-				ShaderUniformName _name = (ShaderUniformName)_i;
-				GLuint _loc = uniform_loc[_i];
-				if (_loc >= 0)
-				{
-					switch (_name)
-					{
-					/*case ShaderUniformName::u_Model:
-						GL_CALL(
-							glUniformMatrix4fv(_loc, 1, GL_TRUE, Matrix4x4<Float_32>::identity().data);
-						)
-							break;*/
-					case ShaderUniformName::u_View:
-						GL_CALL(
-							glUniformMatrix4fv(_loc, 1, GL_TRUE, _camera.view_matrix.data);
-						)
-							break;
-					case ShaderUniformName::u_Projection:
-						GL_CALL(
-							glUniformMatrix4fv(_loc, 1, GL_TRUE, _camera.projection_matrix.data);
-						)
-							break;
-					default:
-						break;
-					}
-				}
-			}
+		//	for (Uint_32 _i = 0; _i < (Int_32)ShaderUniformName::u_count; _i++)
+		//	{
+		//		ShaderUniformName _name = (ShaderUniformName)_i;
+		//		GLuint _loc = uniform_loc[_i];
+		//		if (_loc >= 0)
+		//		{
+		//			switch (_name)
+		//			{
+		//			/*case ShaderUniformName::u_Model:
+		//				GL_CALL(
+		//					glUniformMatrix4fv(_loc, 1, GL_TRUE, Matrix4x4<Float_32>::identity().data);
+		//				)
+		//					break;*/
+		//			case ShaderUniformName::u_View:
+		//				GL_CALL(
+		//					glUniformMatrix4fv(_loc, 1, GL_TRUE, _camera.view_matrix.data);
+		//				)
+		//					break;
+		//			case ShaderUniformName::u_Projection:
+		//				GL_CALL(
+		//					glUniformMatrix4fv(_loc, 1, GL_TRUE, _camera.projection_matrix.data);
+		//				)
+		//					break;
+		//			default:
+		//				break;
+		//			}
+		//		}
+		//	}
 
-			GL_CALL(
-				glDrawElements(GL_LINES, renderer->line_graphic.element.ibo.count, GL_UNSIGNED_INT, nullptr));
+		//	GL_CALL(
+		//		glDrawElements(GL_LINES, renderer->line_graphic.element.ibo.count, GL_UNSIGNED_INT, nullptr));
 
-			element.vao.Unbind();
-			element.ibo.Unbind();
-			mat->Unbind();
+		//	element.vao.Unbind();
+		//	element.ibo.Unbind();
+		//	mat->Unbind();
 
-			renderer->lines_buffer.clear();
-			renderer->lines_indices.clear();
-			element.vbo.Delete();
-			element.ibo.Delete();
-			element.vao.Delete();
-		}
+		//	renderer->lines_buffer.clear();
+		//	renderer->lines_indices.clear();
+		//	element.vbo.Delete();
+		//	element.ibo.Delete();
+		//	element.vao.Delete();
+		//}
 
 
 		for (Uint_32 _i = 0; _i < MAX_GRAPHIC_COUNT; _i++)

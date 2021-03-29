@@ -69,9 +69,7 @@ namespace PrEngine {
 			SDL_Window* window;
 			// the opengl context used with the window
 			SDL_GLContext glContext;
-			std::vector<GLuint> lines_indices;
-			std::vector<Vertex> lines_buffer;
-			Graphic line_graphic;
+
 			//static std::unordered_map<Uint_32, Uint_32> texture_to_index;
     };
 

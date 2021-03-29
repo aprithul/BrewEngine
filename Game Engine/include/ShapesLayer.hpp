@@ -4,6 +4,17 @@
 #include "RenderLayer.hpp"
 
 namespace PrEngine {
+
+
+	struct Line
+	{
+		Vector3<Float_32> p1;
+		Vector3<Float_32> p2;
+		Vector4<Float_32> color;
+	};
+	extern std::vector<Line> lines;
+
+
 	struct ShapesLayer : public RenderLayer
 	{
 		void start() override;
