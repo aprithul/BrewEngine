@@ -1,5 +1,5 @@
 #vertex
-#version 330 core
+#version 320 es
 layout(location=0) in vec4 position;
 layout(location=1) in vec4 _color;
 layout(location=2) in vec4 _normal;
@@ -37,7 +37,9 @@ void main()
 }
 
 #fragment
-#version 330 core
+#version 320 es
+
+precision mediump float;
 
 //uniform float u_red;
 uniform sampler2D u_sampler2d;
@@ -61,7 +63,7 @@ void main()
 		if (out_outline_color.a < 0.5)
 			discard;
 
-		vec2 thickness = 1.0 / vec2(textureSize(u_sampler2d, 0)) * 3;
+		vec2 thickness = 1.0 / vec2(textureSize(u_sampler2d, 0)) * 3.0;
 
 		vec4 top = texture(u_sampler2d, vec2(pan_tile.x, pan_tile.y + thickness.y));
 		vec4 bottom = texture(u_sampler2d, vec2(pan_tile.x, pan_tile.y - thickness.y));

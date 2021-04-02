@@ -3,12 +3,19 @@
 //
 //  Created by Aniruddha Prithul on 7/22/17.
 //  Copyright © 2017 Aniruddha Prithul. All rights reserved.
+#include "PlatformDefines.hpp"
 #include <stdlib.h>
 #include <iostream>
 //#include "Module.hpp"
 #include "EngineMain.hpp"
 #include "EntityGenerator.hpp"
 #include "Game.hpp"
+
+#ifdef  _SWITCH
+#include <switch.h>
+#endif //  _SWITCH
+
+
 //#include <emscripten.h>
 
 //#include "ImGuiModule.hpp"
@@ -17,8 +24,19 @@ Int_32 make_engine_and_start_game();
 
 Int_32 main(Int_32 argc, char* argv[])
 {
-	make_engine_and_start_game();
+#if defined(_SWITCH) && defined(DEBUG)
+	socketInitializeDefault();              // Initialize sockets
+	nxlinkStdio();                          // Redirect stdout and stderr over the network to nxlink
+#endif // _SWITCH
 
+
+	std::cout << "Starting engine" << std::endl;
+	make_engine_and_start_game();
+	std::cout << "Clolsed engine" << std::endl;
+
+#if defined(_SWITCH) && defined(DEBUG)
+	socketExit();                           // Cleanup
+#endif
 	return 0;
 }
 
@@ -30,7 +48,7 @@ Int_32 make_engine_and_start_game(){
 	// create a new game engine instance
 	do
 	{
-		PrEngine::Engine* game_engine = setup_engine_with_parameters(1440, 900,"PrEngine", false);
+		PrEngine::Engine* game_engine = setup_engine_with_parameters(1280, 720,"PrEngine", false);
 		game_engine->add_module(new Game("game module", 3)); //All 'gameplay' code managed by game module 
 															// priority = 3 means that game module is added after Time, Input and EntityManagementSystem modules
 
@@ -48,7 +66,7 @@ Int_32 make_engine_and_start_game(){
 
 
 		//}
-		PrEngine::LOG(PrEngine::LOGTYPE_WARNING, std::to_string(PrEngine::entity_management_system->entity_count));
+		PrEngine::LOG(PrEngine::LOGTYPE_WARNING, std::to_string(PrEngine::entity_count));
 
 		//std::string scene_name = "scene.graph";
 		//entity_generator->load_scenegraph(scene_name);

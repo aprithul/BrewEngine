@@ -29,6 +29,9 @@
 *.exe
 *.out
 *.app
+*.elf
+*.nro
+*.nacp
 
 #html, js are builds. so ignore
 *.html
@@ -42,6 +45,7 @@
 
 #ds_store
 .DS_Store
+
 
 .vs/
 .vscode/

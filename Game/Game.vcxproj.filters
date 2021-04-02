@@ -26,38 +26,5 @@
     <ClCompile Include="src\main.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\Game Engine\src\EditorUtils.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="res\shaders\Shape.shader" />
-    <None Include="res\Materials\Door.mat" />
-    <None Include="res\Materials\Tim.mat" />
-    <None Include="res\Materials\Default.mat" />
-    <None Include="res\shaders\BatchedSprite.shader" />
-    <None Include="res\Materials\Batch.mat" />
-    <None Include="res\Materials\Door1.mat" />
-    <None Include="res\Materials\Door2.mat" />
-    <None Include="res\Materials\Door3.mat" />
-    <None Include="res\Materials\Door4.mat" />
-    <None Include="res\Materials\Door5.mat" />
-    <None Include="res\Materials\Door6.mat" />
-    <None Include="res\Materials\Door7.mat" />
-    <None Include="res\Materials\Door8.mat" />
-    <None Include="res\Materials\Door9.mat" />
-    <None Include="res\Materials\Door10.mat" />
-    <None Include="res\Materials\Door11.mat" />
-    <None Include="res\Materials\Door12.mat" />
-    <None Include="res\Animations\run.anim" />
-    <None Include="res\Animations\run_duplicate.anim" />
-    <None Include="res\Materials\Extra\Door3312.mat" />
-    <None Include="res\Materials\Extra\EXEXtra\Door33123333.mat" />
-    <None Include="res\Materials\Shape.mat" />
-    <None Include="res\Scenes\simplescene.graph" />
-    <None Include="res\Scenes\scene.graph" />
-    <None Include="res\Scenes\test_scene.graph" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="res\Materials\Extra\dummy.txt" />
-    <Text Include="res\Materials\Extra\EXEXtra\dummy.txt" />
   </ItemGroup>
 </Project>

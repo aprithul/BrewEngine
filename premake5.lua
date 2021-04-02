@@ -8,11 +8,11 @@ workspace "PrEngine"
 	}
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
-enginedir = "Game Engine/"
+enginedir = "Game_Engine/"
 gamedir = "Game/"
 
 project "PrEngine"
-	location "Game Engine"
+	location "Game_Engine"
 	kind "StaticLib"
 	language "C++"
 	cppdialect "C++11"

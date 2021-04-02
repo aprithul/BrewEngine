@@ -1,5 +1,5 @@
 #vertex
-#version 330 core
+#version 320 es
 layout(location = 0) in vec4 position;
 layout(location = 1) in vec4 _color;
 
@@ -15,7 +15,9 @@ void main()
 }
 
 #fragment
-#version 330 core
+#version 320 es
+
+precision mediump float;
 
 in vec4 v_color;
 

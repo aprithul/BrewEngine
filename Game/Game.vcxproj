@@ -16,7 +16,7 @@
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Game</RootNamespace>
     <LatestTargetPlatformVersion>$([Microsoft.Build.Utilities.ToolLocationHelper]::GetLatestSDKTargetPlatformVersion('Windows', '10.0'))</LatestTargetPlatformVersion>
-    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -44,7 +44,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>Build\Debug-windows-x86_64\Game\</OutDir>
-    <IntDir>..\Game Engine\Build\Obj\Debug-windows-x86_64\Game\</IntDir>
+    <IntDir>..\Game_Engine\Build\Obj\Debug-windows-x86_64\Game\</IntDir>
     <TargetName>Game</TargetName>
     <TargetExt>.exe</TargetExt>
     <IncludePath>D:\PrEngine\PrEngine2D\Game\include;$(IncludePath)</IncludePath>
@@ -52,15 +52,16 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>Build\Release-windows-x86_64\Game\</OutDir>
-    <IntDir>..\Game Engine\Build\Obj\Release-windows-x86_64\Game\</IntDir>
+    <IntDir>..\Game_Engine\Build\Obj\Release-windows-x86_64\Game\</IntDir>
     <TargetName>Game</TargetName>
     <TargetExt>.exe</TargetExt>
+    <IncludePath>D:\PrEngine\PrEngine2D\Game\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>..\Game Engine\include;..\Game Engine\Vendor;..\Game Engine\Vendor\include;..\Game Engine\Vendor\imgui-master;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Game_Engine\include;..\Game_Engine\Vendor;..\Game_Engine\Vendor\include;..\Game_Engine\Vendor\imgui-master;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
@@ -72,7 +73,7 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>..\Game Engine\include;..\Game Engine\Vendor;..\Game Engine\Vendor\include;..\Game Engine\Vendor\imgui-master;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\PrEngine\PrEngine2D\Game\include;D:\PrEngine\PrEngine2D\Game_Engine\include;..\Game_Engine\include;..\Game_Engine\Vendor;..\Game_Engine\Vendor\include;..\Game_Engine\Vendor\imgui-master;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
@@ -85,47 +86,14 @@
     <ClInclude Include="include\Game.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Game Engine\src\EditorUtils.cpp" />
     <ClCompile Include="src\EngineMaine.cpp" />
     <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Game Engine\PrEngine.vcxproj">
+    <ProjectReference Include="..\Game_Engine\PrEngine.vcxproj">
       <Project>{5DA1A940-496E-044C-7287-F2F35EB339DA}</Project>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="res\Animations\run.anim" />
-    <None Include="res\Animations\run_duplicate.anim" />
-    <None Include="res\Materials\Batch.mat" />
-    <None Include="res\Materials\Default.mat" />
-    <None Include="res\Materials\Door1.mat" />
-    <None Include="res\Materials\Door10.mat" />
-    <None Include="res\Materials\Door11.mat" />
-    <None Include="res\Materials\Door12.mat" />
-    <None Include="res\Materials\Door2.mat" />
-    <None Include="res\Materials\Door3.mat" />
-    <None Include="res\Materials\Door4.mat" />
-    <None Include="res\Materials\Door5.mat" />
-    <None Include="res\Materials\Door6.mat" />
-    <None Include="res\Materials\Door7.mat" />
-    <None Include="res\Materials\Door8.mat" />
-    <None Include="res\Materials\Door9.mat" />
-    <None Include="res\Materials\Extra\Door3312.mat" />
-    <None Include="res\Materials\Extra\EXEXtra\Door33123333.mat" />
-    <None Include="res\Materials\Shape.mat" />
-    <None Include="res\Materials\Tim.mat" />
-    <None Include="res\Materials\Door.mat" />
-    <None Include="res\Scenes\scene.graph" />
-    <None Include="res\Scenes\simplescene.graph" />
-    <None Include="res\Scenes\test_scene.graph" />
-    <None Include="res\shaders\BatchedSprite.shader" />
-    <None Include="res\shaders\Shape.shader" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="res\Materials\Extra\dummy.txt" />
-    <Text Include="res\Materials\Extra\EXEXtra\dummy.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

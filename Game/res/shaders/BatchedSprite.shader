@@ -1,5 +1,5 @@
 #vertex
-#version 330 core
+#version 320 es
 layout(location = 0) in vec4 position;
 layout(location = 1) in vec4 _color;
 layout(location = 2) in vec4 _normal;
@@ -40,7 +40,10 @@ void main()
 }
 
 #fragment
-#version 330 core
+#version 320 es
+
+precision mediump float;
+precision lowp sampler2DArray;
 
 //uniform float u_red;
 uniform sampler2DArray u_sampler2d;// [8];
