@@ -1,7 +1,4 @@
 #include "Platform.hpp"
-#include <GLES2/gl2.h>  // OpenGL ES 2.0 library
-#include <glad/glad.h>  // glad library (OpenGL loader)
-
 
 #include <iostream>
 

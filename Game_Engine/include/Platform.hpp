@@ -8,6 +8,8 @@
 #include <GL/glew.h>
 #elif _SWITCH
 #include <GLES2/gl2.h>  // OpenGL ES 2.0 library
+#include <glad/glad.h>  // glad library (OpenGL loader)
+
 #elif __APPLE__
 #include <OpenGL/gl3.h>
 #endif

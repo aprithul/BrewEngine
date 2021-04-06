@@ -66,7 +66,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 #include "Platform.hpp"
-#include <glad/glad.h>  // glad library (OpenGL loader)
+//#include <glad/glad.h>  // glad library (OpenGL loader)
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
 #include <stdio.h>

@@ -87,6 +87,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\PlatformDefines.hpp" />
+    <ClInclude Include="include\Vec.hpp" />
     <ClInclude Include="Vendor\imgui-master\imconfig.h" />
     <ClInclude Include="Vendor\imgui-master\imgui.h" />
     <ClInclude Include="Vendor\imgui-master\imgui_impl_opengl3.h" />

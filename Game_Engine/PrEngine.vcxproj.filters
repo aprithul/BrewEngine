@@ -195,6 +195,9 @@
     <ClInclude Include="include\PlatformDefines.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\Vec.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Vendor\imgui-master\imgui.cpp">
