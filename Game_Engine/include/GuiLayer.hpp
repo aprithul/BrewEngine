@@ -7,7 +7,7 @@
 #include "../Vendor/imgui-master/imgui.h"
 #include "../Vendor/imgui-master/imgui_impl_opengl3.h"
 #include "../Vendor/imgui-master/imgui_impl_sdl.h"
-#include "Vector2.hpp"
+#include "Vec.hpp"
 #include <string>
 namespace PrEngine
 {
@@ -20,8 +20,8 @@ namespace PrEngine
             void start() override;
             void update() override;
             void end() override;
-            Vector2<Float_32> *panning;
-            Vector2<Float_32> *tiling;
+            Vec2f *panning;
+            Vec2f *tiling;
 			Int_32 fps;
         private:
             SDL_Window* window;

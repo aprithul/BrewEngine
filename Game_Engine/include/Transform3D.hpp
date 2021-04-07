@@ -1,26 +1,26 @@
 #ifndef TRANSFORM3D_HPP
 #define TRANSFORM3D_HPP
 
-#include "Vector3.hpp"
+#include "Vec.hpp"
 #include "Logger.hpp"
 #include "Component.hpp"
-#include "Matrix4x4f.hpp"
+//#include "Matrix4x4f.hpp"
 #include "Serializable.hpp"
 #include "Types.hpp"
 #include <cmath>
+#include "Math.hpp"
 #include <string>
 
-//#define PI 3.14159265
 
 namespace PrEngine{
     
     struct Transform3D : public Component
     {
-		Matrix4x4<Float_32> transformation;
-		Matrix4x4<Float_32> rotation_transformation;
-		Vector3<Float_32> position;
-		Vector3<Float_32> rotation;
-		Vector3<Float_32> scale;
+		Mat4x4 transformation;
+		Mat4x4 rotation_transformation;
+		Vec3f position;
+		Vec3f rotation;
+		Vec3f scale;
 		Uint_32 parent_transform;
 		
 		Transform3D();
@@ -28,19 +28,19 @@ namespace PrEngine{
 		void update() override;
 		std::string to_string() override;
 
-		void translate(const Vector3<Float_32>& translation);
+		void translate(const Vec3f& translation);
 		void rotate(Float_32 _x, Float_32 _y, Float_32 _z);
 		void update_transformation();
 
-		const Vector3<Float_32> get_forward();
-		const Vector3<Float_32> get_right();
-		const Vector3<Float_32> get_up();
+		const Vec3f get_forward();
+		const Vec3f get_right();
+		const Vec3f get_up();
 
-		Vector3<Float_32> get_global_position();
-		Vector3<Float_32> get_global_rotation();
-		Vector3<Float_32> get_global_scale();
-		Vector3<Float_32> get_global_to_local_position(Vector3<Float_32> global_pos);
-		Vector3<Float_32> get_global_to_local_rotation(Vector3<Float_32> global_rot);
+		Vec3f get_global_position();
+		Vec3f get_global_rotation();
+		Vec3f get_global_scale();
+		Vec3f get_global_to_local_position(Vec3f global_pos);
+		Vec3f get_global_to_local_rotation(Vec3f global_rot);
     };
 
 	extern Transform3D transforms[];

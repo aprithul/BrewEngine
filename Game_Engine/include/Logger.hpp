@@ -15,6 +15,7 @@
 #include <fstream>
 #include <string>
 #include "Utils.hpp"
+#include "Platform.hpp"
 
 namespace PrEngine{
 

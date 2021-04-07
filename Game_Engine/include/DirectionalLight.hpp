@@ -2,7 +2,7 @@
 #define DIRECTIONAL_LIGHT_HPP
 
 #include "Entity.hpp"
-#include "Vector3.hpp"
+#include "Vec.hpp"
 
 namespace PrEngine
 {

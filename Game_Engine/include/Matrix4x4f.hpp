@@ -11,7 +11,7 @@
 
 #include <cmath>
 #include <stdio.h>
-#include "Vector3.hpp"
+#include "Vec.hpp"
 #define DEG_TO_RAD 0.0174533f
 
 namespace PrEngine {
@@ -75,9 +75,9 @@ namespace PrEngine {
             return r;
         }
 
-		Vector4<T> operator*(const Vector4<T>& vec4) const
+		Vec4f operator*(const Vec4f& vec4) const
 		{
-			Vector4<Float_32> r;
+			Vec4f r;
 			r.x = (data[0] * vec4.x) + (data[1] * vec4.y) + (data[2] * vec4.z) + (data[3] * vec4.w);
 			r.y = (data[4] * vec4.x) + (data[5] * vec4.y) + (data[6] * vec4.z) + (data[7] * vec4.w);
 			r.z = (data[8] * vec4.x) + (data[9] * vec4.y) + (data[10] * vec4.z) + (data[11] * vec4.w);
@@ -85,9 +85,9 @@ namespace PrEngine {
 			return r;
 		}
 
-        Vector3<T> operator*(const Vector3<T>& v) const
+        Vec3f operator*(const Vec3f& v) const
         {
-            Vector3<T> r;
+            Vec3f r;
             r.x =   (data[(0*4)+0]*v.x)+
                     (data[(0*4)+1]*v.y)+
                     (data[(0*4)+2]*v.z)+
@@ -106,6 +106,20 @@ namespace PrEngine {
            
             return r;
         }
+
+		Vec2f operator*(const Vec2f& v) const
+		{
+			Vec2f r;
+			r.x = (data[(0 * 4) + 0] * v.x) +
+				(data[(0 * 4) + 1] * v.y) +
+				(data[(0 * 4) + 3] * 1);
+
+			r.y = (data[(1 * 4) + 0] * v.x) +
+				(data[(1 * 4) + 1] * v.y) +
+				(data[(1 * 4) + 3] * 1);
+
+			return r;
+		}
 
         Matrix4x4<T> operator^(Matrix4x4<T> m) const
         {

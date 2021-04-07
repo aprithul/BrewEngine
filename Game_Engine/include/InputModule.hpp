@@ -14,7 +14,7 @@
 #include <unordered_map>
 #include <SDL2/SDL.h>
 #include "Module.hpp"
-#include "Vector2.hpp"
+#include "Vec.hpp"
 #include "Utils.hpp"
 #include "TimeModule.hpp"
 #include "../Vendor/imgui-master/imgui.h"
@@ -92,7 +92,7 @@ namespace PrEngine {
             Bool_8 get_mouse_button_up(Int_32 index);
             Int_32 window_id;
 
-            Vector2<Int_32> position;
+            Vec2f position;
             Int_32 mb_to_mb_binding[MAX_MOUSE_BUTTON_COUNT];
             SDL_Keycode mb_to_kb_binding[MAX_MOUSE_BUTTON_COUNT];
 
@@ -105,7 +105,7 @@ namespace PrEngine {
             std::unordered_map<SDL_Keycode, Bool_8> kb;
             void map_mb_to_mb(Int_32 from, Int_32 to);
             void map_mb_to_kb(Int_32 from, SDL_Keycode to);
-            Vector2<Int_32> delta;
+			Vec2f delta;
             Int_32 scroll;
     };
 

@@ -86,6 +86,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\Mat.hpp" />
     <ClInclude Include="include\PlatformDefines.hpp" />
     <ClInclude Include="include\Vec.hpp" />
     <ClInclude Include="Vendor\imgui-master\imconfig.h" />
@@ -140,8 +141,6 @@
     <ClInclude Include="include\Transform3D.hpp" />
     <ClInclude Include="include\Types.hpp" />
     <ClInclude Include="include\Utils.hpp" />
-    <ClInclude Include="include\Vector2.hpp" />
-    <ClInclude Include="include\Vector3.hpp" />
     <ClInclude Include="include\Vertex.hpp" />
   </ItemGroup>
   <ItemGroup>

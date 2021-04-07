@@ -10,9 +10,9 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
-#include "Vector3.hpp"
+#include "Vec.hpp"
 #include "Logger.hpp"
-#include "PlatformDefines.hpp"
+#include "Platform.hpp"
 
 #if defined(_WIN64)
     const std::string PATH_SEP = "\\";
@@ -43,7 +43,7 @@ namespace PrEngine
 	std::vector<std::string> get_files_in_dir(const std::string& dir_name, const std::string& ext = "");
 	void trim(std::string& str);
 
-	//Bool_8 inside(Vector2<Float_32> pos, SDL_FRect& rect, Bool_8 centered = false);
+	//Bool_8 inside(Vec2f pos, SDL_FRect& rect, Bool_8 centered = false);
 
 }
 #endif

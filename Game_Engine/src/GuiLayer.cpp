@@ -186,17 +186,17 @@ namespace PrEngine
 
 	Float_32 drag_amount;
 	Float_32 drag_limit = 20;
-	Vector2<Int_32> drag_start;
-	Vector2<Float_32> mouse_pos_ws;
-	//Vector2<Float_32> mouse_pos_vs;
-	Vector2<Float_32> mouse_pos_ss;
+	Vec2f drag_start;
+	Vec2f mouse_pos_ws;
+	//Vec2f mouse_pos_vs;
+	Vec2f mouse_pos_ss;
 	Uint_32 drag_transform;
 	float v_x, v_y, v_w, v_h;
 	inline void draw_editor(SDL_Window* window)
 	{
 		//axis lines
-		renderer->draw_line(Vector3<Float_32>{0, 0, 0}, Vector3<Float_32>{100, 0, 0}, Vector4<Float_32>{1, 0, 0, 1});
-		renderer->draw_line(Vector3<Float_32>{0, 0, 0}, Vector3<Float_32>{0, 100, 0}, Vector4<Float_32>{0, 1, 0, 1});
+		renderer->draw_line(Vec3f{0, 0, 0}, Vec3f{100, 0, 0}, Vec4f{1, 0, 0, 1});
+		renderer->draw_line(Vec3f{0, 0, 0}, Vec3f{0, 100, 0}, Vec4f{0, 1, 0, 1});
 
 
 
@@ -206,15 +206,15 @@ namespace PrEngine
 		Uint_32 cam = entity_management_system->get_active_camera();
 		Uint_32 cam_transform = cameras[cam].id_transform;
 		//mouse_pos_ws = cameras[cam].get_screen_to_world_pos(input_manager->mouse.position);
-		mouse_pos_ws = cameras[cam].get_screen_to_world_pos(input_manager->mouse.position);
-		//mouse_pos_vs = Vector2<Float_32>{ clamp<Float_32>(input_manager->mouse.position.x - v_x, 0, v_w) ,
+		mouse_pos_ws = (Vec2f)(cameras[cam].get_screen_to_world_pos(input_manager->mouse.position));
+		//mouse_pos_vs = Vec2f{ clamp<Float_32>(input_manager->mouse.position.x - v_x, 0, v_w) ,
 		//	clamp<Float_32>(renderer->height - (input_manager->mouse.position.y - v_y), 0, v_h) };
 
 		// narrowing shouldn't cause problem in screen space (limited space)
-		mouse_pos_ss = Vector2<Float_32>{ (Float_32)input_manager->mouse.position.x, (Float_32)(renderer->height - input_manager->mouse.position.y) };
+		mouse_pos_ss = Vec2f{ (Float_32)input_manager->mouse.position.x, (Float_32)(renderer->height - input_manager->mouse.position.y) };
 		
 		// entity selection by clicking sprite
-		static Vector2<Float_32> selection_offset;
+		static Vec2f selection_offset;
 		if (input_manager->mouse.get_mouse_button_down(1))
 		{
 			Uint_32 clicked_on = physics_module->point_in_any_shape(mouse_pos_ws);
@@ -223,7 +223,7 @@ namespace PrEngine
 				if (selected_transform == clicked_on)	// 
 				{
 					drag_transform = selected_transform;
-					selection_offset = transforms[drag_transform].position - mouse_pos_ws;
+					selection_offset = (Vec2f)transforms[drag_transform].position - mouse_pos_ws;
 				}
 				else
 				{
@@ -251,13 +251,13 @@ namespace PrEngine
 			{
 				Collider& collider = colliders[collider_id];
 				Rect<Float_32> rect = points_to_rect(collider.collision_shape.points);
-				Vector4<Float_32> color{ 0.8, 0.5, 0, 1 };
+				Vec4f color{ 0.8, 0.5, 0, 1 };
 				renderer->draw_rect_with_transform(rect, color, _transform.transformation);
 /*
 				for (int _i = 0; _i < 4; _i++)
 				{
-					Vector3<Float_32> p1 = _transform.transformation * collider.collision_shape.points[_i];
-					Vector3<Float_32> p2 = _transform.transformation * collider.collision_shape.points[(_i + 1) % 4];
+					Vec3f p1 = _transform.transformation * collider.collision_shape.points[_i];
+					Vec3f p2 = _transform.transformation * collider.collision_shape.points[(_i + 1) % 4];
 					renderer->draw_line(p1, p2, color);
 				}
 */
@@ -268,7 +268,7 @@ namespace PrEngine
 		{
 			if (input_manager->mouse.get_mouse_button(1))
 			{
-				Vector3<Float_32>& drag_transform_pos = transforms[drag_transform].position;
+				Vec3f& drag_transform_pos = transforms[drag_transform].position;
 				drag_transform_pos.x = mouse_pos_ws.x + selection_offset.x;
 				drag_transform_pos.y = mouse_pos_ws.y + selection_offset.y;
 			}
@@ -283,7 +283,7 @@ namespace PrEngine
 		if (input_manager->keyboard.get_key(SDLK_LSHIFT))
 			cam_pan_speed = cam_pan_max_speed;
 
-		Vector3<Float_32> pos = transforms[cam_transform].position;
+		Vec3f pos = transforms[cam_transform].position;
 		if (input_manager->keyboard.get_key(SDLK_w))
 			pos.y = pos.y + (Time::Frame_time*cam_pan_speed);
 		if (input_manager->keyboard.get_key(SDLK_s))
@@ -343,7 +343,7 @@ namespace PrEngine
 			Uint_32 entity = transform_entity_id[selected_transform];
 			if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
 			{
-				Vector3<float>& pos = transforms[selected_transform].position;// .get_global_position();
+				Vec3f& pos = transforms[selected_transform].position;// .get_global_position();
 				float v3_p[3] = { pos.x, pos.y, pos.z };
 				//ImGui::InputFloat("input float", &pos.x, 0.01f, 1.0f, "%.3f");
 				ImGui::DragFloat3("Position", v3_p, 1.0f, -10000.0f, 10000.0f, "%.3f", 1.0f);
@@ -352,7 +352,7 @@ namespace PrEngine
 				pos.z = v3_p[2];
 				//transforms[selected_transform].position = transforms[selected_transform].get_global_to_local_position(pos);
 
-				Vector3<float>& rot = get_transform(selected_transform).rotation;// get_global_rotation();
+				Vec3f& rot = get_transform(selected_transform).rotation;// get_global_rotation();
 				float v3_r[3] = { rot.x, rot.y, rot.z };
 				//ImGui::InputFloat("input float", &pos.x, 0.01f, 1.0f, "%.3f");
 				ImGui::DragFloat3("Rotation", v3_r, 1.0f, -10000.0f, 10000.0f, "%.3f", 1.0f);
@@ -361,7 +361,7 @@ namespace PrEngine
 				rot.z = v3_r[2];
 				//transforms[selected_transform].rotation = transforms[selected_transform].get_global_to_local_rotation(rot);
 
-				Vector3<float>& scl = get_transform(selected_transform).scale;
+				Vec3f& scl = get_transform(selected_transform).scale;
 				float v3_s[3] = { scl.x, scl.y, scl.z };
 				//ImGui::InputFloat("input float", &pos.x, 0.01f, 1.0f, "%.3f");
 				ImGui::DragFloat3("Scale", v3_s, 1.0f, -10000.0f, 10000.0f, "%.3f", 1.0f);
@@ -726,8 +726,8 @@ namespace PrEngine
 		_pos.x = v_x + v_w - _size.x;
 		ImGui::SetWindowPos(_pos);
 
-		ImGui::Text(("(WS): " + mouse_pos_ws.to_string()).c_str());
-		ImGui::Text(("(SS): " + mouse_pos_ss.to_string()).c_str());
+		//ImGui::Text(("(WS): " + mouse_pos_ws.to_string()).c_str());
+		//ImGui::Text(("(SS): " + mouse_pos_ss.to_string()).c_str());
 #endif
 		ImGui::Text("(%.1f FPS)", fps);
 		

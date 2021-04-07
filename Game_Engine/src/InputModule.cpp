@@ -91,7 +91,7 @@ namespace PrEngine {
             keyboard.key_released_flags[it->first] = false;
 
 //        LOG(LOGTYPE_GENERAL, std::to_string(Time::get_time()));
-        SDL_GetRelativeMouseState(&mouse.delta.x, &mouse.delta.y);
+        SDL_GetRelativeMouseState( (int*)(&mouse.delta.x), (int*)(&mouse.delta.y));
 
         while (SDL_PollEvent(&event)) {
             

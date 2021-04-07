@@ -1,7 +1,6 @@
 #ifndef TYPES_HPP
 #define TYPES_HPP
 
-
 typedef int Int_32;
 typedef unsigned int Uint_32;
 typedef double Double_64;

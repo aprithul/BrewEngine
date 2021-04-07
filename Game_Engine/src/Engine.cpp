@@ -6,6 +6,8 @@
 //  Copyright © 2017 Aniruddha Prithul. All rights reserved.
 //
 
+#define PRI_VEC_IMPLEMENTATION
+
 #include "Engine.hpp"
 #include <time.h>
 #include "Utils.hpp"

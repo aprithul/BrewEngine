@@ -183,12 +183,6 @@
     <ClInclude Include="include\Utils.hpp">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\Vector2.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Vector3.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\Vertex.hpp">
       <Filter>include</Filter>
     </ClInclude>
@@ -196,6 +190,9 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\Vec.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Mat.hpp">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

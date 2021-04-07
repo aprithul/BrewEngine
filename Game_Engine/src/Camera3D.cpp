@@ -55,19 +55,18 @@ namespace PrEngine
     {
 
         // set view matrix based on camera
-
-        view_matrix = Matrix4x4<Float_32>::identity();
-        view_matrix.set(0,3, -get_transform(id_transform).position.x);
-        view_matrix.set(1,3, -get_transform(id_transform).position.y);
-        view_matrix.set(2,3, -get_transform(id_transform).position.z);
-        Matrix4x4<Float_32> reverse_rot = get_transform(id_transform).rotation_transformation.transpose();
+        view_matrix = Mat4x4::Identity();
+        view_matrix(0,3) = -transforms[id_transform].position.x;
+        view_matrix(1,3) = -transforms[id_transform].position.y;
+        view_matrix(2,3) = -transforms[id_transform].position.z;
+        Mat4x4 reverse_rot = transforms[id_transform].rotation_transformation.GetTransformInverse();
         view_matrix = reverse_rot * view_matrix;
         
-        if(projection_type==PERSPECTIVE)
-            projection_matrix = Matrix4x4<Float_32>::perspective(near_, far_,width, height, fov);
-        else
-            projection_matrix = Matrix4x4<Float_32>::ortho(h_mod*left*zoom, h_mod*right*zoom, bottom*zoom, top*zoom, near_, far_);
-            //projection_matrix = Matrix4x4<Float_32>::ortho(0, width,0, height, near_, far_);
+        //if(projection_type==PERSPECTIVE)
+       //     projection_matrix = Mat4x4::perspective(near_, far_,width, height, fov);
+        //else
+            projection_matrix = Mat4x4::Orthogrpahic(h_mod*left*zoom, h_mod*right*zoom, bottom*zoom, top*zoom, near_, far_);
+            //projection_matrix = Mat4x4::ortho(0, width,0, height, near_, far_);
     }
 
     void Camera::end()
@@ -83,14 +82,14 @@ namespace PrEngine
 			return std::to_string(COMP_CAMERA) + "," + std::to_string(projection_type) + "," + std::to_string(width) + "," + std::to_string(height) + "," + std::to_string(near_) + "," + std::to_string(far_) + "," + std::to_string(fov);
 	}
 
-	Vector3<Float_32> Camera::get_screen_to_world_pos(Vector2<Int_32> screen_pos)
+	Vec3f Camera::get_screen_to_world_pos(Vec2f screen_pos)
 	{
 		auto camera_t = transforms[id_transform];
 		Float_32 x_pos = h_mod*zoom*(right - left) / renderer->viewport_size.x;// +camera_pos.x;
 		Float_32 y_pos = zoom*(top - bottom) / renderer->viewport_size.y;// +camera_pos.y;
 
 		//in viewport co ordinate
-		Vector3<Float_32> pos_in_viewport = Vector2<Float_32>{ clamp<Float_32>(screen_pos.x - renderer->viewport_pos.x, 0, renderer->viewport_size.x) ,
+		Vec3f pos_in_viewport = Vec2f{ clamp<Float_32>(screen_pos.x - renderer->viewport_pos.x, 0, renderer->viewport_size.x) ,
 			clamp<Float_32>((renderer->height - screen_pos.y) - renderer->viewport_pos.y, 0, renderer->viewport_size.y) };
 
 		Float_32 v_x = pos_in_viewport.x - renderer->viewport_size.x / 2;
@@ -100,8 +99,8 @@ namespace PrEngine
 		x_pos = x_pos * v_x;
 		y_pos = y_pos * v_y;// (screen_pos.y - renderer->viewport_size.y / 2);
 		//auto mat = camera_t.transformation.transpose();
-		Vector4<Float_32> world_pos =  camera_t.transformation* Vector4<Float_32>{x_pos, y_pos, 0, 1};
-		return (Vector3<Float_32>)world_pos;
+		Vec4f world_pos =  camera_t.transformation* Vec4f{x_pos, y_pos, 0, 1};
+		return (Vec3f)world_pos;
 	}
 
 }

@@ -22,7 +22,7 @@ namespace PrEngine{
 		Uint_32 entity = entity_management_system->make_entity();
 		
 		Uint_32 id_transform = entity_management_system->make_transform_comp(entity);
-		get_transform(id_transform).position = Vector3<Float_32>( 0.f, 1.f, -6.f);
+		get_transform(id_transform).position = Vec3f( 0.f, 1.f, -6.f);
 		
 		Uint_32 id_camera = entity_management_system->make_camera_comp(entity);
 		cameras[id_camera].set_orthographic(-(width / 2.f), (width / 2.f), -(height / 2.f), (height / 2.f), -10, 10);
@@ -41,8 +41,8 @@ namespace PrEngine{
 		auto rand_y = rand()%3 * (rand()%2==0?-1:1);
 		
 		Uint_32 id_transform = entity_management_system->make_transform_comp(entity);
-		get_transform(id_transform).position = Vector3<Float_32>(rand_x, rand_y, -6.f);
-		get_transform(id_transform).scale = Vector3<Float_32>(1,1,1);
+		get_transform(id_transform).position = Vec3f(rand_x, rand_y, -6.f);
+		get_transform(id_transform).scale = Vec3f(1,1,1);
 
 		Uint_32 id_graphic = entity_management_system->make_graphic_comp(entity);
 		//renderer->generate_sprite_graphics(id_graphic, image_file_path, std::string("sprite_mat_")+image_file_path);
@@ -88,7 +88,7 @@ namespace PrEngine{
 		Uint_32 entity = entity_management_system->make_entity();
 
 		Uint_32 id_transform = entity_management_system->make_transform_comp(entity);
-		get_transform(id_transform).rotation = Vector3<Float_32>(0,0,90);
+		get_transform(id_transform).rotation = Vec3f(0,0,90);
 
 		Uint_32 id_dir_light = entity_management_system->make_directional_light_comp(entity);
 		directional_lights[id_dir_light].specular = 0.5f;
@@ -185,7 +185,7 @@ namespace PrEngine{
 							col.collision_shape.type = (Shape2DTypes)std::atoi(tokens[1].c_str());
 							for (int _i = 2; _i < tokens.size(); _i+=2)
 							{
-								Vector2<Float_32> p{ std::strtof(tokens[_i].c_str(), nullptr), std::strtof(tokens[_i + 1].c_str(), nullptr) };
+								Vec2f p{ std::strtof(tokens[_i].c_str(), nullptr), std::strtof(tokens[_i + 1].c_str(), nullptr) };
 								col.collision_shape.points[(_i/2) - 1] = p;
 								col.collision_shape.point_count++;
 							}
@@ -350,13 +350,13 @@ namespace PrEngine{
 							transform_id = entity_management_system->make_transform_comp(entity);
 							LOG(LOGTYPE_WARNING, std::to_string(transform_id));
 							transform_id_mapping[std::stoi(tokens[11])] = transform_id;	//mapping for finding parents
-							transforms[transform_id].position = Vector3<Float_32>(std::stof(tokens[1]), std::stof(tokens[2]), std::stof(tokens[3]));
-							transforms[transform_id].scale = Vector3<Float_32>(std::stof(tokens[4]), std::stof(tokens[5]), std::stof(tokens[6]));
-							transforms[transform_id].rotation = Vector3<Float_32>(std::stof(tokens[7]), std::stof(tokens[8]), std::stof(tokens[9]));
+							transforms[transform_id].position = Vec3f(std::stof(tokens[1]), std::stof(tokens[2]), std::stof(tokens[3]));
+							transforms[transform_id].scale = Vec3f(std::stof(tokens[4]), std::stof(tokens[5]), std::stof(tokens[6]));
+							transforms[transform_id].rotation = Vec3f(std::stof(tokens[7]), std::stof(tokens[8]), std::stof(tokens[9]));
 							Uint32 parent_transform_id =  transform_id_mapping[std::stoi(tokens[10])];	
 							if(parent_transform_id)
 								entity_management_system->set_parent_transform(parent_transform_id, transform_id);
-							get_transform(transform_id).update_transformation();
+							transforms[transform_id].update_transformation();
 							break;
 						}
 						case COMP_UNKNOWN:

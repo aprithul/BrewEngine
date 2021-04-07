@@ -3,12 +3,12 @@ namespace  PrEngine
 {
     Transform::Transform() : Component(COMP_TRANSFORM)
     {
-        this->position = Vector2<Float_32>(0.f, 0.f);
+        this->position = Vec2f(0.f, 0.f);
         this->angle = 0.f;
-        this->scale = Vector2<Float_32>(1.f, 1.f);
+        this->scale = Vec2f(1.f, 1.f);
     }
 
-    Transform::Transform(Vector2<Float_32> position, Float_32 angle, Vector2<Float_32> scale): Component(COMP_TRANSFORM)
+    Transform::Transform(Vec2f position, Float_32 angle, Vec2f scale): Component(COMP_TRANSFORM)
     {
         this->position = position;
         this->angle = angle;
@@ -20,7 +20,7 @@ namespace  PrEngine
 
     }
 
-    Vector2<Float_32> Transform::translate(const Vector2<Float_32>& translation)
+    Vec2f Transform::translate(const Vec2f& translation)
     {
         position = position + translation;
         return this->position;

@@ -16,13 +16,13 @@ namespace PrEngine
 		std::string _s = std::to_string(COMP_COLLIDER)+","+ std::to_string(collision_shape.type);
 		for (int _i = 0; _i < collision_shape.point_count; _i++)
 		{
-			_s += ","+collision_shape.points[_i].to_string();
+			_s += "," + std::to_string(collision_shape.points[_i].x) + "," + std::to_string(collision_shape.points[_i].y);
 		}
 		return _s;
 	}
 
 
-	Bool_8 point_in_AABB(Vector2<Float_32> p, Rect<Float_32>& rect)
+	Bool_8 point_in_AABB(Vec2f p, Rect<Float_32>& rect)
 	{
 		if (p.x > rect.x && p.x < rect.x + rect.w
 			&& p.y > rect.y && p.y < rect.y + rect.h)
@@ -31,9 +31,9 @@ namespace PrEngine
 			return false;
 	}
 
-	std::vector<Vector2<Float_32>> simplex;
+	std::vector<Vec2f> simplex;
 
-	Bool_8 intersect_line_line(Vector2<Float_32> l1_p1, Vector2<Float_32> l1_p2, Vector2<Float_32> l2_p1, Vector2<Float_32> l2_p2)
+	Bool_8 intersect_line_line(Vec2f l1_p1, Vec2f l1_p2, Vec2f l2_p1, Vec2f l2_p2)
 	{
 		// line equation = (y1 - y2)*x + (x2 - x1)*y + (x1*y2 - x2*y1) = 0 
 		Float_32 l1_a = l1_p1.y - l1_p2.y;
@@ -79,7 +79,7 @@ namespace PrEngine
 		return false;
 	}
 
-	Bool_8 point_in_shape(Vector2<Float_32>* points, Uint_32 count, Vector2<Float_32> p)
+	Bool_8 point_in_shape(Vec2f* points, Uint_32 count, Vec2f p)
 	{
 		// at least 3 points needed to contain another point
 		if (count < 3)
@@ -110,16 +110,16 @@ namespace PrEngine
 		// farther test ( crossing number algorithm )
 
 		// two points of line from outiside of bounding box to point
-		Vector2<Float_32> l1_p1{ x_min - 0.1f, y_min };
-		Vector2<Float_32> l1_p2 = p;
+		Vec2f l1_p1{ x_min - 0.1f, y_min };
+		Vec2f l1_p2 = p;
 
 		Int_32 intersection_count = 0;
 		// check intersections with every edge of shape
 		for (int _i = 0; _i < count; _i++)
 		{
 			// two points of line 2 ( an edge of shape)
-			Vector2<Float_32> l2_p1 = points[_i];
-			Vector2<Float_32> l2_p2 = points[(_i + 1) % count];
+			Vec2f l2_p1 = points[_i];
+			Vec2f l2_p2 = points[(_i + 1) % count];
 
 			Bool_8 intersection_res = intersect_line_line(l1_p1, l1_p2, l2_p1, l2_p2);
 			if (intersection_res)
@@ -134,7 +134,7 @@ namespace PrEngine
 
 	}
 
-	Float_32 solve_line(Vector2<Float_32> v1, Vector2<Float_32> v2, Vector2<Float_32> p)
+	Float_32 solve_line(Vec2f v1, Vec2f v2, Vec2f p)
 	{
 		Float_32 A = v1.y - v2.y;
 		Float_32 B = v1.x - v2.x;
@@ -145,17 +145,17 @@ namespace PrEngine
 
 	}
 
-	Vector2<Float_32> support(Vector2<Float_32> dir, Collider& col_A, Collider& col_B)
+	Vec2f support(Vec2f dir, Collider& col_A, Collider& col_B)
 	{
 		//assert(col_A.transform_id && col_B.transform_id);
 
 		// find max point in A along dir
-		Vector2<Float_32> A_max;
+		Vec2f A_max;
 		Float_32 max_proj = -std::numeric_limits<Float_32>::infinity();
 		for (Uint_32 i = 0; i < col_A.collision_shape.point_count; i++)
 		{
-			Vector2<Float_32> point = (transforms[col_A.transform_id].transformation * col_A.collision_shape.points[i]);
-			Float_32 proj = dir * point;
+			Vec2f point = (transforms[col_A.transform_id].transformation * col_A.collision_shape.points[i]);
+			Float_32 proj = Dot(dir, point);
 			if (proj > max_proj)
 			{
 				max_proj = proj;
@@ -164,12 +164,12 @@ namespace PrEngine
 		}
 
 		// find max point in B along  (-dir)
-		Vector2<Float_32> B_max;
+		Vec2f B_max;
 		max_proj = -std::numeric_limits<Float_32>::infinity();
 		for (Uint_32 i = 0; i < col_B.collision_shape.point_count; i++)
 		{
-			Vector2<Float_32> point = (transforms[col_B.transform_id].transformation * col_B.collision_shape.points[i]);
-			Float_32 proj = -dir * point;
+			Vec2f point = (transforms[col_B.transform_id].transformation * col_B.collision_shape.points[i]);
+			Float_32 proj = Dot(-dir, point);
 			if (proj > max_proj)
 			{
 				max_proj = proj;
@@ -181,21 +181,21 @@ namespace PrEngine
 		return A_max - B_max;
 	}
 
-	Bool_8 do_simplex(std::vector<Vector2<Float_32>>& simplex, Vector2<Float_32>& dir)
+	Bool_8 do_simplex(std::vector<Vec2f>& simplex, Vec2f& dir)
 	{
-		static Vector2<Float_32> origin{ 0,0 };
+		static Vec2f origin{ 0,0 };
 		if (simplex.size() == 3)	//we got a triangle. so check if it contains origin
 		{
 			// for side A of triangle
-			Vector3<Float_32> vec1 = simplex[2] - simplex[1];
-			Vector3<Float_32> vec2 = -simplex[1];
-			Vector3<Float_32> perp = (vec1^vec2) ^ vec1;
+			Vec3f vec1 = (Vec3f)(simplex[2] - simplex[1]);
+			Vec3f vec2 = (Vec3f)(-simplex[1]);
+			Vec3f perp = Cross(Cross(vec1, vec2), vec1);
 
-			Float_32 _dotA = perp * (simplex[0] - simplex[2]);
+			Float_32 _dotA = Dot(perp, (Vec3f)(simplex[0] - simplex[2]));
 
 			if (_dotA < 0) // in A region
 			{
-				dir = perp;
+				dir = (Vec2f)perp;
 				simplex.erase(simplex.begin());
 				return false;
 			}
@@ -203,15 +203,15 @@ namespace PrEngine
 			//------------------------------------------------
 
 			// for side B of triangle
-			vec1 = simplex[2] - simplex[0];
-			vec2 = -simplex[0];
-			perp = (vec1^vec2) ^ vec1;
+			vec1 = (Vec3f)(simplex[2] - simplex[0]);
+			vec2 = (Vec3f)(-simplex[0]);
+			perp = Cross(Cross(vec1, vec2), vec1);
 
-			Float_32 _dotB = perp * (simplex[1] - simplex[2]);
+			Float_32 _dotB = Dot(perp , (Vec3f)(simplex[1] - simplex[2]));
 
 			if (_dotB < 0) // in B region
 			{
-				dir = perp;
+				dir = (Vec2f)perp;
 				simplex.erase(simplex.begin() + 1);
 				return false;
 			}
@@ -225,13 +225,13 @@ namespace PrEngine
 		}
 		else if (simplex.size() == 2)
 		{
-			Vector3<Float_32> vec1 = -simplex[1];
-			Vector3<Float_32> vec2 = simplex[0] - simplex[1];
+			Vec3f vec1 = (Vec3f)(-simplex[1]);
+			Vec3f vec2 = (Vec3f)(simplex[0] - simplex[1]);
 			//Float_32 _dot = vec1 * vec2;
 			//if (_dot > 0)	// new direction is normal to vec2 in the direction of origin
 			//{
-			Vector3<Float_32> perp = (vec2^vec1) ^ vec2;
-			dir = perp.normalize();
+			Vec3f perp = Cross(Cross(vec2, vec1), vec2);
+			dir = (Vec2f)(perp.GetNormalized());
 			return false;
 			//}
 			//else
@@ -246,10 +246,10 @@ namespace PrEngine
 
 	Bool_8 intersect_GJK(Collider& col_A, Collider& col_B)
 	{
-		static Vector2<Float_32> origin{ 0,0 };
+		static Vec2f origin{ 0,0 };
 
-		Vector2<Float_32> dir{ 1,0 };
-		Vector2<Float_32> p = support(dir, col_A, col_B);
+		Vec2f dir{ 1,0 };
+		Vec2f p = support(dir, col_A, col_B);
 		simplex.clear();
 		simplex.push_back(p);
 
@@ -259,7 +259,7 @@ namespace PrEngine
 		do {
 			p = support(dir, col_A, col_B);
 
-			Float_32 _dot = dir * p;
+			Float_32 _dot = Dot(dir, p);
 			if (_dot < 0) // extreme point in direction of origin doesn't reach origin. so can't intersect
 				return false;
 			simplex.push_back(p);
@@ -272,7 +272,7 @@ namespace PrEngine
 
 	}
 
-	Vector2<Float_32> do_EPA(Collider& col_A, Collider& col_B)
+	Vec2f do_EPA(Collider& col_A, Collider& col_B)
 	{
 		static Float_32 tolerance = 0.0001;
 		Float_32 current_dist = 0;
@@ -282,22 +282,22 @@ namespace PrEngine
 		Float_32 delta = 0;
 		while (max_it--)
 		{
-			Vector3<Float_32> edge_n;
+			Vec3f edge_n;
 			Float_32 min_dist = std::numeric_limits<Float_32>::infinity();
 			Uint_32 e_i = 0;
 
 			//find normal to closest edge
 			for (int i = 0; i < simplex.size(); i++)
 			{
-				Vector3<Float_32> p1 = simplex[i];
-				Vector3<Float_32> p2 = simplex[(i + 1) % simplex.size()];
+				Vec3f p1 = (Vec3f)simplex[i];
+				Vec3f p2 = (Vec3f)(simplex[(i + 1) % simplex.size()]);
 
-				Vector3<Float_32> v1 = p1 - p2;
-				Vector3<Float_32> v2 = -p1;
-				Vector3<Float_32> _edge_n = (v1^v2) ^ v1;
+				Vec3f v1 = p1 - p2;
+				Vec3f v2 = -p1;
+				Vec3f _edge_n = Cross(Cross(v1, v2), v1);
 				_edge_n = -_edge_n;
-				_edge_n.normalize();
-				Float_32 _dist = _edge_n * p1;
+				_edge_n.Normalize();
+				Float_32 _dist = Dot(_edge_n, p1);
 				
 				if (_dist < min_dist)
 				{
@@ -309,28 +309,28 @@ namespace PrEngine
 
 			//edge_n.normalize();
 			clock_t begin = clock();
-			Vector3<Float_32> p = support(edge_n, col_A, col_B);
+			Vec3f p = (Vec3f)support((Vec2f)edge_n, col_A, col_B);
 			clock_t end = clock();
 			Double_64 elapsed = (Double_64)(end - begin) / CLOCKS_PER_SEC;
 
 			//last_dist = current_dist;
-			current_dist = edge_n * p;
+			current_dist = Dot(edge_n, p);
 			delta = current_dist - min_dist;
 			if ( delta < tolerance)
 			{
-				return edge_n*current_dist;
+				return (Vec2f)(edge_n*current_dist);
 			}
 			else
 			{
-				simplex.insert(simplex.begin() + e_i+1, p);
+				simplex.insert(simplex.begin() + e_i+1, (Vec2f)p);
 			}
 		} 
 		
-		return Vector2<Float_32>{0, 0};
+		return Vec2f{0, 0};
 		
 	}
 
-	Rect<Float_32> points_to_rect(Vector2<Float_32>* points)
+	Rect<Float_32> points_to_rect(Vec2f* points)
 	{
 		Float_32 x_min = points[0].x;
 		Float_32 x_max = points[0].x;
@@ -353,7 +353,7 @@ namespace PrEngine
 		return rect;
 	}
 
-	Rect<Float_32> points_to_rect_with_transform(Vector2<Float_32>*  points, Matrix4x4<Float_32>& transformation)
+	Rect<Float_32> points_to_rect_with_transform(Vec2f*  points, Mat4x4& transformation)
 	{
 		Float_32 x_min = std::numeric_limits<Float_32>::infinity();
 		Float_32 x_max = -std::numeric_limits<Float_32>::infinity();
@@ -362,7 +362,7 @@ namespace PrEngine
 
 		for (int _i = 1; _i < 4; _i++)
 		{
-			Vector2<Float_32> p = transformation * points[_i];
+			Vec2f p = transformation * points[_i];
 			if (p.x < x_min)
 				x_min = p.x;
 			if (p.x > x_max)
@@ -377,5 +377,5 @@ namespace PrEngine
 		return rect;
 	}
 
-	//std::vector<Vector2<Float_32>> simplex;
+	//std::vector<Vec2f> simplex;
 }

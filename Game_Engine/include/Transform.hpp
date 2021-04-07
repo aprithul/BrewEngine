@@ -1,6 +1,6 @@
 #ifndef TRANSFORM_HPP
 #define TRANSFORM_HPP
-#include "Vector2.hpp"
+#include "Vec.hpp"
 #include "Logger.hpp"
 #include "Component.hpp"
 #include <string>
@@ -9,14 +9,14 @@ namespace PrEngine{
     
     struct Transform : public Component
     {
-        Vector2<Float_32> position;
+        Vec2f position;
         Float_32 angle;
-        Vector2<Float_32> scale;
+        Vec2f scale;
 
         Transform();
-        Transform(Vector2<Float_32> position, Float_32 angle, Vector2<Float_32> scale);
+        Transform(Vec2f position, Float_32 angle, Vec2f scale);
         ~Transform();
-        Vector2<Float_32> translate(const Vector2<Float_32>& translation);
+        Vec2f translate(const Vec2f& translation);
         void rotate(Float_32 amount);
     };
 }

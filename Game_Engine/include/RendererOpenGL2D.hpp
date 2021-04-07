@@ -34,8 +34,8 @@ namespace PrEngine {
 			Int_32 width;
 
 			// viewport attributes
-			Vector2<Float_32> viewport_pos;
-			Vector2<Float_32> viewport_size;
+			Vec2f viewport_pos;
+			Vec2f viewport_size;
 
 			std::string title;
 
@@ -53,9 +53,9 @@ namespace PrEngine {
 			GLuint make_shader( GLenum type, const std::string& source);
 			//void generate_batched_sprite_graphics(Uint_32 graphic_id);
 			void generate_sprite_graphics(Uint_32 graphic_id);
-			void draw_line(Vector3<Float_32> p1, Vector3<Float_32> p2, Vector4<Float_32> color);
-			void draw_rect(Rect<Float_32> rect, Vector4<Float_32> color);
-			void draw_rect_with_transform(Rect<Float_32> rect, Vector4<Float_32> color, Matrix4x4<Float_32> transformation);
+			void draw_line(Vec3f p1, Vec3f p2, Vec4f color);
+			void draw_rect(Rect<Float_32> rect, Vec4f color);
+			void draw_rect_with_transform(Rect<Float_32> rect, Vec4f color, Mat4x4& transformation);
 			RenderLayer* get_layer(const std::string& layer_name);
 			void prepare_batches(std::vector<Uint_32> batched_grphic_ids, Uint_32 usage);
 			//void prepare_dynmic_batches(std::vector<Uint_32> batched_grphic_ids);

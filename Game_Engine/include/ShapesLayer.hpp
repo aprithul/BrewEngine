@@ -8,9 +8,9 @@ namespace PrEngine {
 
 	struct Line
 	{
-		Vector3<Float_32> p1;
-		Vector3<Float_32> p2;
-		Vector4<Float_32> color;
+		Vec3f p1;
+		Vec3f p2;
+		Vec4f color;
 	};
 	extern std::vector<Line> lines;
 

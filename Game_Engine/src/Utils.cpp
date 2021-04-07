@@ -93,7 +93,7 @@ namespace PrEngine{
 		str.erase(str.find_last_not_of("\t\n\v\f\r ") + 1); // right trim
 	}
 
-/*    Bool_8 inside(Vector2<Float_32> pos, SDL_FRect& rect, Bool_8 centered)
+/*    Bool_8 inside(Vec2f pos, SDL_FRect& rect, Bool_8 centered)
     {
         if(!centered)
         {

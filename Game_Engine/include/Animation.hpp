@@ -4,14 +4,14 @@
 #include <sstream>
 #include <vector>
 #include "Texture.hpp"
-#include "Vector3.hpp"
+#include "Vec.hpp"
 namespace PrEngine {
 
 	struct Keyframe // 44 Bytes
 	{
-		Vector3<Float_32> position;
-		Vector3<Float_32> rotation;
-		Vector3<Float_32> scale;
+		Vec3f position;
+		Vec3f rotation;
+		Vec3f scale;
 		Uint_32 texture;
 		Float_32 timestamp;
 	};

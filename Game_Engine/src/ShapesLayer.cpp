@@ -100,12 +100,12 @@ namespace PrEngine {
 					{
 					case ShaderUniformName::u_View:
 						GL_CALL(
-							glUniformMatrix4fv(_loc, 1, GL_TRUE, _camera.view_matrix.data);
+							glUniformMatrix4fv(_loc, 1, GL_FALSE, _camera.view_matrix.data);
 						)
 							break;
 					case ShaderUniformName::u_Projection:
 						GL_CALL(
-							glUniformMatrix4fv(_loc, 1, GL_TRUE, _camera.projection_matrix.data);
+							glUniformMatrix4fv(_loc, 1, GL_FALSE, _camera.projection_matrix.data);
 						)
 							break;
 					default:

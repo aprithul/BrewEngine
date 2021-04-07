@@ -115,12 +115,12 @@ namespace PrEngine
     }
 
 	std::unordered_map<Uint_32, GraphicEditorData> Graphic::editor_data;
-	std::unordered_map < Uint_32, Vector3<Float_32>[4]> Graphic::vertex_data;
+	std::unordered_map < Uint_32, Vec3f[4]> Graphic::vertex_data;
 
 
     Graphic::Graphic():Component(COMP_GRAPHICS)
     {
-		outline_color = Vector3<Float_32>{ 1,1,1 };
+		outline_color = Vec3f{ 1,1,1 };
 		outline_alpha = 0.f;
 		animator_id = 0;
 		transform_id = 0;

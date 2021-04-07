@@ -29,19 +29,26 @@ void Game::update()
 	Uint_32 _camera = entity_management_system->get_active_camera();
 	if (!_camera)
 		LOG(LOGTYPE_ERROR, "No active camera in scene");
-	cameras[_camera].zoom = 1.5f;
+	//cameras[_camera].zoom = 1.5f;
 	
 	static const Float_32 cam_pan_min_speed = 10.f;
 	static const Float_32 cam_pan_max_speed = 10.f;
 	Float_32 cam_pan_speed = cam_pan_min_speed;
 	//if (input_manager->keyboard.get_key(SDLK_LSHIFT))
 	//	cam_pan_speed = cam_pan_max_speed;
-	Vector3<Float_32> pos = transforms[cameras[_camera].id_transform].position;
+	Vec3f pos = transforms[cameras[_camera].id_transform].position;
 	pos.y = pos.y + (Time::Frame_time*cam_pan_speed * input_manager->get_gamecontroller(0)->get_axis(SDL_CONTROLLER_AXIS_LEFTY));
 	//pos.y = pos.y - (Time::Frame_time*cam_pan_speed * input_manager->get_gamecontroller(0)->get_axis(SDL_CONTROLLER_AXIS_LEFTY));
 	pos.x = pos.x + (Time::Frame_time*cam_pan_speed * input_manager->get_gamecontroller(0)->get_axis(SDL_CONTROLLER_AXIS_LEFTX));
 	//pos.x = pos.x - (Time::Frame_time*cam_pan_speed * input_manager->get_gamecontroller(0)->get_axis(SDL_CONTROLLER_AXIS_LEFTY));
 	transforms[cameras[_camera].id_transform].position = pos;
+
+	if (input_manager->get_gamecontroller(0)->get_axis(SDL_CONTROLLER_AXIS_RIGHTY) != 0)
+	{
+		Float_32 speed = 20.f;
+		cameras[_camera].zoom = clamp<Float_32>(cameras[_camera].zoom + (input_manager->get_gamecontroller(0)->get_axis(SDL_CONTROLLER_AXIS_RIGHTY)*Time::Frame_time*speed), 0.1, 1000);
+	}
+
 
 	/*CollisionShape2D shape_a;
 	shape_a.points[0] = { -5,2 };

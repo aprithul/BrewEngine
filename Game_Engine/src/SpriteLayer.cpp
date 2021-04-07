@@ -29,7 +29,7 @@ namespace PrEngine
 	}
 
 	int draw_calls = 0;
-	inline void render_graphic(Graphic& graphic, Matrix4x4<Float_32>& transformation, Camera& _camera, DirectionalLight& _light, Vector3<Float_32> _cam_pos, Vector3<Float_32> _dir)
+	inline void render_graphic(Graphic& graphic, Mat4x4& transformation, Camera& _camera, DirectionalLight& _light, Vec3f _cam_pos, Vec3f _dir)
 	{
 		
 		draw_calls++;
@@ -66,7 +66,7 @@ namespace PrEngine
 		for (Uint_32 _i = 0; _i<(Int_32)ShaderUniformName::u_count; _i++)
 		{
 			ShaderUniformName _name = (ShaderUniformName)_i;
-			GLuint _loc = uniform_loc[_i];
+			GLint _loc = uniform_loc[_i];
 			if (_loc >= 0)
 			{
 				switch (_name)
@@ -104,30 +104,30 @@ namespace PrEngine
 							break;*/
 					case ShaderUniformName::u_Model:
 						GL_CALL(
-							glUniformMatrix4fv(_loc, 1, GL_TRUE, transformation.data))
+							glUniformMatrix4fv(_loc, 1, GL_FALSE, transformation.data))
 							break;
 					case ShaderUniformName::u_View:
 						GL_CALL(
-							glUniformMatrix4fv(_loc, 1, GL_TRUE, _camera.view_matrix.data))
+							glUniformMatrix4fv(_loc, 1, GL_FALSE, _camera.view_matrix.data))
 							break;
 					case ShaderUniformName::u_View_t:
 					{
-						Matrix4x4<Float_32> _view = Matrix4x4<Float_32>(_camera.view_matrix);
-						_view.data[3] = 0;
-						_view.data[7] = 0;
-						_view.data[11] = 0;
-						_view.data[12] = 0;
-						_view.data[13] = 0;
-						_view.data[14] = 0;
-						_view.data[15] = 1;
+						Mat4x4 _view = Mat4x4(_camera.view_matrix);
+						_view(0,3) = 0;
+						_view(1,3) = 0;
+						_view(2,3) = 0;
+						_view(3,0) = 0;
+						_view(3,1) = 0;
+						_view(3,2) = 0;
+						_view(3,3) = 1;
 
 						GL_CALL(
-							glUniformMatrix4fv(_loc, 1, GL_TRUE, _view.data))
+							glUniformMatrix4fv(_loc, 1, GL_FALSE, _view.data))
 					}
 					break;
 					case ShaderUniformName::u_Projection:
 						GL_CALL(
-							glUniformMatrix4fv(_loc, 1, GL_TRUE, _camera.projection_matrix.data))
+							glUniformMatrix4fv(_loc, 1, GL_FALSE, _camera.projection_matrix.data))
 							break;
 						/*case ShaderUniformName::u_Camera_Position:
 							GL_CALL(
@@ -193,8 +193,8 @@ namespace PrEngine
 
 		Camera _camera = cameras[camera_id];
 		DirectionalLight _light = directional_lights[1];
-		Vector3<Float_32> _cam_pos = transforms[_camera.id_transform].position;
-		Vector3<Float_32> _dir = get_transform(_light.id_transform).get_forward();
+		Vec3f _cam_pos = transforms[_camera.id_transform].position;
+		Vec3f _dir = get_transform(_light.id_transform).get_forward();
 
 		for (Uint_32 _i = 0; _i < MAX_GRAPHIC_COUNT; _i++)
 		{
@@ -234,7 +234,7 @@ namespace PrEngine
 
 					Uint_32 animator_id = graphic.animator_id;
 					Uint_32 texture_id = 0;
-					Matrix4x4<Float_32> anim_tr = Matrix4x4<Float_32>::identity();
+					Mat4x4 anim_tr = Mat4x4::Identity();
 					if (animator_id)
 					{
 						Animator& anim = animators[animator_id];
@@ -268,10 +268,10 @@ namespace PrEngine
 					y_scale *= ged.scale;
 
 					Transform3D& transform = transforms[graphic.transform_id];
-					Vector3<Float_32> p1 = transform.transformation * anim_tr * Vector3<Float_32>{ 0.5f*x_scale, 0.5f*y_scale, 0.0f };
-					Vector3<Float_32> p2 = transform.transformation * anim_tr * Vector3<Float_32>{ -0.5f*x_scale, 0.5f*y_scale, 0.0f };
-					Vector3<Float_32> p3 = transform.transformation * anim_tr * Vector3<Float_32>{ -0.5f*x_scale, -0.5f*y_scale, 0.0f };
-					Vector3<Float_32> p4 = transform.transformation * anim_tr * Vector3<Float_32>{ 0.5f*x_scale, -0.5f*y_scale, 0.0f };
+					Vec3f p1 = transform.transformation * Vec3f{ 0.5f*x_scale, 0.5f*y_scale, 0.0f };
+					Vec3f p2 = transform.transformation * Vec3f{ -0.5f*x_scale, 0.5f*y_scale, 0.0f };
+					Vec3f p3 = transform.transformation * Vec3f{ -0.5f*x_scale, -0.5f*y_scale, 0.0f };
+					Vec3f p4 = transform.transformation * Vec3f{ 0.5f*x_scale, -0.5f*y_scale, 0.0f };
 
 
 					// save vertex data for collider

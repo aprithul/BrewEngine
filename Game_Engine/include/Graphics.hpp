@@ -105,10 +105,10 @@ namespace PrEngine
     struct Graphic : public Component	// 184 bytes
     {
 		static std::unordered_map<Uint_32, GraphicEditorData> editor_data;
-		static std::unordered_map < Uint_32, Vector3<Float_32>[4]> vertex_data;
+		static std::unordered_map < Uint_32, Vec3f[4]> vertex_data;
 
 		GraphicsElement element;			//152
-		Vector3<Float_32> outline_color;	//12
+		Vec3f outline_color;	//12
 		Float_32 outline_alpha;				//4
 		Uint_32 transform_id;				//4
 		Uint_32 animator_id;				//4

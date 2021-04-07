@@ -4,7 +4,7 @@
 #include "GlAssert.hpp"
 #include "Texture.hpp"
 #include "Utils.hpp"
-#include "Vector3.hpp"
+#include "Vec.hpp"
 #include <sstream>
 #include <string>
 
@@ -55,9 +55,9 @@ namespace PrEngine
 
     struct Material //64 bytes
     {
-		Vector3<Float_32> diffuse_color;
-		Vector2<Float_32> tiling;
-		Vector2<Float_32> panning;
+		Vec3f diffuse_color;
+		Vec2f tiling;
+		Vec2f panning;
 		Uint_32 diffuse_textures[MAX_TEXTURES] = {}; // length depends on the total combined textures allowed by opengl
 		Uint_32 shader;
 

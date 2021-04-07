@@ -441,14 +441,14 @@ namespace PrEngine
 
 		//
 		
-		Matrix4x4<Float_32>& p_t = transforms[parent_transform].transformation;
-		Matrix4x4<Float_32>& c_t = transforms[child_transform].transformation;
+		Mat4x4& p_t = transforms[parent_transform].transformation;
+		Mat4x4& c_t = transforms[child_transform].transformation;
 
-		Vector3<Float_32> pos_p(p_t.data[3],p_t.data[7], p_t.data[11]);
-		/*Vector3<Float_32> pos_c(c_t.data[3], c_t.data[7], c_t.data[11]);
+		Vec3f pos_p(p_t.data[3],p_t.data[7], p_t.data[11]);
+		/*Vec3f pos_c(c_t.data[3], c_t.data[7], c_t.data[11]);
 
-		Vector3<Float_32> rot_p(p_t.data[3], p_t.data[7], p_t.data[11]);
-		Vector3<Float_32> rot_c(c_t.data[3], c_t.data[7], c_t.data[11]);*/
+		Vec3f rot_p(p_t.data[3], p_t.data[7], p_t.data[11]);
+		Vec3f rot_c(c_t.data[3], c_t.data[7], c_t.data[11]);*/
 
 
 		Transform3D& child_t = transforms[child_transform];
@@ -458,9 +458,9 @@ namespace PrEngine
 		child_t.rotation = child_t.get_global_rotation() - parent_t.get_global_rotation();
 		
 		// maintain global position
-		Vector3<Float_32> c_gp = child_t.get_global_position();
-		Vector3<Float_32> p_gp = parent_t.get_global_position();
-		child_t.position = parent_t.transformation.transpose() * ( c_gp - pos_p);
+		Vec3f c_gp = child_t.get_global_position();
+		Vec3f p_gp = parent_t.get_global_position();
+		child_t.position = parent_t.transformation.GetTransformInverse() * ( c_gp - pos_p);
 
 		//child_t.position = c_gp - p_gp;// child_t.get_global_position() - parent_t.get_global_position();
 
@@ -592,7 +592,7 @@ assert(level > 0);
 //						if (did_intersect)
 //						{
 //							clock_t begin = clock();
-//							Vector2<Float_32> col_pen_vec = do_EPA(colliders[i], colliders[j]);
+//							Vec2f col_pen_vec = do_EPA(colliders[i], colliders[j]);
 //							clock_t end = clock();
 //							Double_64 elapsed = (Double_64)(end - begin) / CLOCKS_PER_SEC;
 //

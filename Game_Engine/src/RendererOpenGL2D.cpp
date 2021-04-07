@@ -365,10 +365,10 @@ namespace PrEngine {
 		y_scale *= ged.scale;
 
 		Transform3D& transform = transforms[graphic.transform_id];
-		Vector3<Float_32> p1 =  Vector3<Float_32>{ 0.5f*x_scale, 0.5f*y_scale, 0.0f };
-		Vector3<Float_32> p2 =  Vector3<Float_32>{ -0.5f*x_scale, 0.5f*y_scale, 0.0f };
-		Vector3<Float_32> p3 =  Vector3<Float_32>{ -0.5f*x_scale, -0.5f*y_scale, 0.0f };
-		Vector3<Float_32> p4 =  Vector3<Float_32>{ 0.5f*x_scale, -0.5f*y_scale, 0.0f };
+		Vec3f p1 =  Vec3f{ 0.5f*x_scale, 0.5f*y_scale, 0.0f };
+		Vec3f p2 =  Vec3f{ -0.5f*x_scale, 0.5f*y_scale, 0.0f };
+		Vec3f p3 =  Vec3f{ -0.5f*x_scale, -0.5f*y_scale, 0.0f };
+		Vec3f p4 =  Vec3f{ 0.5f*x_scale, -0.5f*y_scale, 0.0f };
 
 		// save vertex data for collider
 		Graphic::vertex_data[graphic_id][0] = p1;
@@ -690,10 +690,10 @@ namespace PrEngine {
         buffer.push_back(v4);
 
 		// save vertex data for collider
-		Graphic::vertex_data[graphic_id][0] = Vector3<Float_32>{ v1.p_x, v1.p_y, v1.p_z };
-		Graphic::vertex_data[graphic_id][1] = Vector3<Float_32>{ v2.p_x, v2.p_y, v2.p_z };
-		Graphic::vertex_data[graphic_id][2] = Vector3<Float_32>{ v3.p_x, v3.p_y, v3.p_z };
-		Graphic::vertex_data[graphic_id][3] = Vector3<Float_32>{ v4.p_x, v4.p_y, v4.p_z };
+		Graphic::vertex_data[graphic_id][0] = Vec3f{ v1.p_x, v1.p_y, v1.p_z };
+		Graphic::vertex_data[graphic_id][1] = Vec3f{ v2.p_x, v2.p_y, v2.p_z };
+		Graphic::vertex_data[graphic_id][2] = Vec3f{ v3.p_x, v3.p_y, v3.p_z };
+		Graphic::vertex_data[graphic_id][3] = Vec3f{ v4.p_x, v4.p_y, v4.p_z };
 
 
         indices.push_back(0);
@@ -735,33 +735,33 @@ namespace PrEngine {
     }
 
 
-	void RendererOpenGL2D::draw_line(Vector3<Float_32> p1, Vector3<Float_32> p2, Vector4<Float_32> color)
+	void RendererOpenGL2D::draw_line(Vec3f p1, Vec3f p2, Vec4f color)
 	{
 		//return;
 		lines.push_back({ p1,p2,color });
 	}
 
-	void RendererOpenGL2D::draw_rect(Rect<Float_32> rect, Vector4<Float_32> color)
+	void RendererOpenGL2D::draw_rect(Rect<Float_32> rect, Vec4f color)
 	{
-		Vector3<Float_32> p1{ rect.x,rect.y,0};
-		Vector3<Float_32> p2{ rect.x,rect.y+rect.h,0 };
-		Vector3<Float_32> p3{ rect.x+rect.w,rect.y+rect.h, 0 };
-		Vector3<Float_32> p4{ rect.x+rect.w,rect.y ,0};
+		Vec3f p1{ rect.x,rect.y,0};
+		Vec3f p2{ rect.x,rect.y+rect.h,0 };
+		Vec3f p3{ rect.x+rect.w,rect.y+rect.h, 0 };
+		Vec3f p4{ rect.x+rect.w,rect.y ,0};
 		renderer->draw_line(p1, p2, color);
 		renderer->draw_line(p2, p3, color);
 		renderer->draw_line(p3, p4, color);
 		renderer->draw_line(p4, p1, color);
 	}
 
-	void RendererOpenGL2D::draw_rect_with_transform(Rect<Float_32> rect, Vector4<Float_32> color, Matrix4x4<Float_32> transformation)
+	void RendererOpenGL2D::draw_rect_with_transform(Rect<Float_32> rect, Vec4f color, Mat4x4& transformation)
 	{
-		Vector3<Float_32> p1{ rect.x,rect.y,0 };
+		Vec3f p1{ rect.x,rect.y,0 };
 		p1 = transformation * p1;
-		Vector3<Float_32> p2{ rect.x,rect.y + rect.h,0 };
+		Vec3f p2{ rect.x,rect.y + rect.h,0 };
 		p2 = transformation * p2;
-		Vector3<Float_32> p3{ rect.x + rect.w,rect.y + rect.h, 0 };
+		Vec3f p3{ rect.x + rect.w,rect.y + rect.h, 0 };
 		p3 = transformation * p3;
-		Vector3<Float_32> p4{ rect.x + rect.w,rect.y ,0 };
+		Vec3f p4{ rect.x + rect.w,rect.y ,0 };
 		p4 = transformation * p4;
 		renderer->draw_line(p1, p2, color);
 		renderer->draw_line(p2, p3, color);

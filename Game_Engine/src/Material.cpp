@@ -22,8 +22,8 @@ namespace PrEngine
     Material::Material(const std::string& shader_path, const std::string& diffuse_tex_path, TextureCubeMap& env_map, const std::string& name)
     {
         // only create new texture on gpu if texture doesn't exist already
-        tiling = Vector2<Float_32>(1,1);
-        panning = Vector2<Float_32>(0,0);
+        tiling = Vec2f(1,1);
+        panning = Vec2f(0,0);
         
         environment_map_texture = &env_map;
 
@@ -67,9 +67,9 @@ namespace PrEngine
 	{
         // only create new texture on gpu if texture doesn't exist already
 		//material_creation_status = 1;
-        tiling = Vector2<Float_32>(1,1);
-        panning = Vector2<Float_32>(0,0);
-		diffuse_color = Vector3<Float_32>{ 1,1,1 };
+        tiling = Vec2f(1,1);
+        panning = Vec2f(0,0);
+		diffuse_color = Vec3f{ 1,1,1 };
 
 
 		this->shader = shader;
@@ -85,8 +85,8 @@ namespace PrEngine
     Material::Material(const std::string& shader_path, const std::vector<std::string>& cubemap_tex_path,const std::string& name)
     {
         // only create new texture on gpu if texture doesn't exist already
-        tiling = Vector2<Float_32>(1,1);
-        panning = Vector2<Float_32>(0,0);
+        tiling = Vec2f(1,1);
+        panning = Vec2f(0,0);
         environment_map_texture = nullptr;
 
         std::string cubemap_file_name = "";
@@ -353,6 +353,9 @@ namespace PrEngine
      {
 		//LOG(LOGTYPE_GENERAL, source);
         Int_32 pos = 0;
+		for (Uint_32 _i = 0; _i < (Int_32)ShaderUniformName::u_count; _i++)
+			shader_program.uniform_locations[_i] = -1;
+
         while((pos = source.find("uniform",pos)) != std::string::npos)
         {
             Int_32 prev = 1;

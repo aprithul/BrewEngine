@@ -2,7 +2,7 @@
 #define PHYSICS_MODULE_HPP
 
 #include "Module.hpp"
-#include "Vector3.hpp"
+#include "Vec.hpp"
 #include "Collider.hpp"
 #include "Math.hpp"
 #include "Utils.hpp"
@@ -18,8 +18,8 @@ namespace PrEngine {
 		PhysicsModule(std::string name, Int_32 priority);
 		~PhysicsModule();
 
-		Uint_32 point_in_any_shape(Vector2<Float_32> p);
-		bool col_point_box(Vector2<Float_32> p, Vector2<Float_32>* box);
+		Uint_32 point_in_any_shape(Vec2f p);
+		bool col_point_box(Vec2f p, Vec2f* box);
 
 
 		void start() override;
