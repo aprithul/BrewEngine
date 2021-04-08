@@ -17,8 +17,8 @@ namespace PrEngine{
     struct Transform3D : public Component
     {
 		Mat4x4 transformation;
-		Mat4x4 rotation_transformation;
-		Vec3f position;
+		//Mat4x4 rotation_transformation;
+		Point3d position;
 		Vec3f rotation;
 		Vec3f scale;
 		Uint_32 parent_transform;
@@ -36,10 +36,10 @@ namespace PrEngine{
 		const Vec3f get_right();
 		const Vec3f get_up();
 
-		Vec3f get_global_position();
+		Point3d get_global_position();
 		Vec3f get_global_rotation();
 		Vec3f get_global_scale();
-		Vec3f get_global_to_local_position(Vec3f global_pos);
+		Point3d get_global_to_local_position(Point3d global_pos);
 		Vec3f get_global_to_local_rotation(Vec3f global_rot);
     };
 

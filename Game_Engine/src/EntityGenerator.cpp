@@ -22,7 +22,7 @@ namespace PrEngine{
 		Uint_32 entity = entity_management_system->make_entity();
 		
 		Uint_32 id_transform = entity_management_system->make_transform_comp(entity);
-		get_transform(id_transform).position = Vec3f( 0.f, 1.f, -6.f);
+		get_transform(id_transform).position = Point3d{ 0.f, 1.f, -6.f };
 		
 		Uint_32 id_camera = entity_management_system->make_camera_comp(entity);
 		cameras[id_camera].set_orthographic(-(width / 2.f), (width / 2.f), -(height / 2.f), (height / 2.f), -10, 10);
@@ -37,11 +37,11 @@ namespace PrEngine{
 	{
 		Uint_32 entity = entity_management_system->make_entity();
 
-		auto rand_x = rand()%3 * (rand()%2==0?-1:1);
-		auto rand_y = rand()%3 * (rand()%2==0?-1:1);
+		Float_32 rand_x = rand()%3 * (rand()%2==0?-1:1);
+		Float_32 rand_y = rand()%3 * (rand()%2==0?-1:1);
 		
 		Uint_32 id_transform = entity_management_system->make_transform_comp(entity);
-		get_transform(id_transform).position = Vec3f(rand_x, rand_y, -6.f);
+		get_transform(id_transform).position = Point3d{ rand_x, rand_y, -6.f };
 		get_transform(id_transform).scale = Vec3f(1,1,1);
 
 		Uint_32 id_graphic = entity_management_system->make_graphic_comp(entity);
@@ -350,7 +350,7 @@ namespace PrEngine{
 							transform_id = entity_management_system->make_transform_comp(entity);
 							LOG(LOGTYPE_WARNING, std::to_string(transform_id));
 							transform_id_mapping[std::stoi(tokens[11])] = transform_id;	//mapping for finding parents
-							transforms[transform_id].position = Vec3f(std::stof(tokens[1]), std::stof(tokens[2]), std::stof(tokens[3]));
+							transforms[transform_id].position = Point3d{ std::stof(tokens[1]), std::stof(tokens[2]), std::stof(tokens[3]) };
 							transforms[transform_id].scale = Vec3f(std::stof(tokens[4]), std::stof(tokens[5]), std::stof(tokens[6]));
 							transforms[transform_id].rotation = Vec3f(std::stof(tokens[7]), std::stof(tokens[8]), std::stof(tokens[9]));
 							Uint32 parent_transform_id =  transform_id_mapping[std::stoi(tokens[10])];	

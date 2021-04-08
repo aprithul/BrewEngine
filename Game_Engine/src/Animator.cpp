@@ -60,19 +60,19 @@ namespace PrEngine
 				Float_32 b = frame.rotation.y * PI / 180.f;
 				Float_32 c = frame.rotation.z * PI / 180.f;
 
-				rotation = Mat4x4::Identity();
-				rotation(0, 0) = cosf(b) * cosf(c);
-				rotation(0, 1) = cosf(b) * sinf(c);
-				rotation(0, 2) = -sinf(b);
+				//rotation = Mat4x4::Identity();
+				//rotation(0, 0) = cosf(b) * cosf(c);
+				//rotation(0, 1) = cosf(b) * sinf(c);
+				//rotation(0, 2) = -sinf(b);
 
-				rotation(1, 0) = (sinf(a) * sinf(b) * cosf(c)) - (cosf(a) * sinf(c));
-				rotation(1, 1) = (sinf(a) * sinf(b) * sinf(c)) + (cosf(a) * cosf(c));
-				rotation(1, 2) = sinf(a)*cosf(b);
+				//rotation(1, 0) = (sinf(a) * sinf(b) * cosf(c)) - (cosf(a) * sinf(c));
+				//rotation(1, 1) = (sinf(a) * sinf(b) * sinf(c)) + (cosf(a) * cosf(c));
+				//rotation(1, 2) = sinf(a)*cosf(b);
 
-				rotation(2, 0) = (cosf(a) * sinf(b) * cosf(c)) + (sinf(a) * sinf(c));
-				rotation(2, 1) = (cosf(a) * sinf(b) * sinf(c)) - (sinf(a) * cosf(c));
-				rotation(2, 2) = cosf(a) * cosf(b);
-
+				//rotation(2, 0) = (cosf(a) * sinf(b) * cosf(c)) + (sinf(a) * sinf(c));
+				//rotation(2, 1) = (cosf(a) * sinf(b) * sinf(c)) - (sinf(a) * cosf(c));
+				//rotation(2, 2) = cosf(a) * cosf(b);
+				rotation = Quaternion::EulerToQuaternion(Vec3f{ a,b,c }).GetRotationMatrix();
 			}
 
 			scale = Mat4x4::Identity();

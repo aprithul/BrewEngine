@@ -283,7 +283,7 @@ namespace PrEngine
 		if (input_manager->keyboard.get_key(SDLK_LSHIFT))
 			cam_pan_speed = cam_pan_max_speed;
 
-		Vec3f pos = transforms[cam_transform].position;
+		Point3d pos = transforms[cam_transform].position;
 		if (input_manager->keyboard.get_key(SDLK_w))
 			pos.y = pos.y + (Time::Frame_time*cam_pan_speed);
 		if (input_manager->keyboard.get_key(SDLK_s))
@@ -726,7 +726,7 @@ namespace PrEngine
 		_pos.x = v_x + v_w - _size.x;
 		ImGui::SetWindowPos(_pos);
 
-		//ImGui::Text(("(WS): " + mouse_pos_ws.to_string()).c_str());
+		ImGui::Text(("(WS): " + std::to_string(mouse_pos_ws.x)+","+ std::to_string(mouse_pos_ws.y)).c_str());
 		//ImGui::Text(("(SS): " + mouse_pos_ss.to_string()).c_str());
 #endif
 		ImGui::Text("(%.1f FPS)", fps);

@@ -36,7 +36,7 @@ void Game::update()
 	Float_32 cam_pan_speed = cam_pan_min_speed;
 	//if (input_manager->keyboard.get_key(SDLK_LSHIFT))
 	//	cam_pan_speed = cam_pan_max_speed;
-	Vec3f pos = transforms[cameras[_camera].id_transform].position;
+	Point3d pos = transforms[cameras[_camera].id_transform].position;
 	pos.y = pos.y + (Time::Frame_time*cam_pan_speed * input_manager->get_gamecontroller(0)->get_axis(SDL_CONTROLLER_AXIS_LEFTY));
 	//pos.y = pos.y - (Time::Frame_time*cam_pan_speed * input_manager->get_gamecontroller(0)->get_axis(SDL_CONTROLLER_AXIS_LEFTY));
 	pos.x = pos.x + (Time::Frame_time*cam_pan_speed * input_manager->get_gamecontroller(0)->get_axis(SDL_CONTROLLER_AXIS_LEFTX));
