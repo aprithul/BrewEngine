@@ -120,6 +120,8 @@ struct Point3d : Vec3f
 	Point3d(Float_32 _x, Float_32 _y, Float_32 _z);
 	Point3d operator+(const Vec3f& other) const;
 	Vec3f operator-(const Point3d& other) const;
+	Point3d operator-(const Vec3f& other) const;
+
 };
 
 struct Mat4x4
@@ -462,6 +464,11 @@ Point3d Point3d::operator+(const Vec3f& other) const
 Vec3f Point3d::operator-(const Point3d& other) const
 {
 	return Vec3f{ x + other.x, y + other.y, z + other.z };
+}
+
+Point3d Point3d::operator-(const Vec3f& other) const
+{
+	return Point3d{ x + other.x, y + other.y, z + other.z };
 }
 
 ////////////////////////////////////////////////

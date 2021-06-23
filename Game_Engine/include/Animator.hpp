@@ -45,7 +45,7 @@ namespace PrEngine{
 		Uint_32 animation_count;
 		Int_32 cur_anim_ind;	// the current active animation
 		Int_32 current_frame_index;
-		Bool_8 anim_flags[3] = {};
+		Bool_8 anim_transform_update_flags[3] = {};	// which of the transform properties to update ( pos, rot, scale )
 		Float_32 frame_time;
 		//Uint_32 id_graphic;
 
@@ -61,7 +61,7 @@ namespace PrEngine{
 			return animations_library[animation_ids[cur_anim_ind]];
 		}
 
-		static Uint_32 load_animation(std::string& animation_file);
+		static Uint_32 load_animation(const std::string& animation_file);
 		static std::vector<Animation> animations_library;
 		static std::vector<std::string> animation_clip_names;
 	};

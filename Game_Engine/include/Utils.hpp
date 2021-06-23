@@ -42,7 +42,9 @@ namespace PrEngine
 
 	std::vector<std::string> get_files_in_dir(const std::string& dir_name, const std::string& ext = "");
 	void trim(std::string& str);
-
+	
+	/* includes range */
+	Float_32 RandomFraction(Float_32 low, Float_32 high);
 	//Bool_8 inside(Vec2f pos, SDL_FRect& rect, Bool_8 centered = false);
 
 }

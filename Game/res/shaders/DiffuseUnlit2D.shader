@@ -2,13 +2,11 @@
 #version 320 es
 layout(location=0) in vec4 position;
 layout(location=1) in vec4 _color;
-layout(location=2) in vec4 _normal;
 layout(location=3) in vec2 texco;
 
 uniform mat4 u_Model;
 uniform mat4 u_View;
 uniform mat4 u_Projection;
-uniform mat4 u_Normal_M;
 uniform vec3 u_Diffuse_Color;
 uniform vec4 u_Outline_Color;
 uniform vec2 u_Tiling;

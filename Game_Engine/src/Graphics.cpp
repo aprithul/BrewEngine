@@ -114,7 +114,7 @@ namespace PrEngine
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
     }
 
-	std::unordered_map<Uint_32, GraphicEditorData> Graphic::editor_data;
+	std::unordered_map<Float_32, GraphicEditorData> Graphic::editor_data;
 	std::unordered_map < Uint_32, Vec3f[4]> Graphic::vertex_data;
 
 

@@ -47,7 +47,6 @@
     <IntDir>..\Game_Engine\Build\Obj\Debug-windows-x86_64\Game\</IntDir>
     <TargetName>Game</TargetName>
     <TargetExt>.exe</TargetExt>
-    <IncludePath>D:\PrEngine\PrEngine2D\Game\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -55,13 +54,12 @@
     <IntDir>..\Game_Engine\Build\Obj\Release-windows-x86_64\Game\</IntDir>
     <TargetName>Game</TargetName>
     <TargetExt>.exe</TargetExt>
-    <IncludePath>D:\PrEngine\PrEngine2D\Game\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>..\Game_Engine\include;..\Game_Engine\Vendor;..\Game_Engine\Vendor\include;..\Game_Engine\Vendor\imgui-master;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;..\Game_Engine\include;..\Game_Engine\Vendor;..\Game_Engine\Vendor\include;..\Game_Engine\Vendor\imgui-master;..\Game_Engine\Vendor\imgui-master\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
@@ -73,7 +71,7 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>D:\PrEngine\PrEngine2D\Game\include;D:\PrEngine\PrEngine2D\Game_Engine\include;..\Game_Engine\include;..\Game_Engine\Vendor;..\Game_Engine\Vendor\include;..\Game_Engine\Vendor\imgui-master;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;..\Game_Engine\include;..\Game_Engine\Vendor;..\Game_Engine\Vendor\include;..\Game_Engine\Vendor\imgui-master;..\Game_Engine\Vendor\imgui-master\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>

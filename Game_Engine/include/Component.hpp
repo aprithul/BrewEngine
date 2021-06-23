@@ -19,15 +19,21 @@ namespace PrEngine
         COMP_CAMERA,
 		COMP_ANIMATOR,
 		COMP_COLLIDER,
+		COMP_SCRIPT,
         COMP_COUNT_MAX,
     };
-    extern const std::string CompName[COMP_COUNT_MAX];
 
     struct Component
     {
         Component(ComponentType type);
         virtual ~Component();
-        virtual void awake();
+
+		Component(const Component&) = delete;
+		Component& operator=(const Component&) = delete;
+		Component(Component&&) = delete;
+		Component& operator=(Component&&) = delete;
+
+		virtual void awake();
         virtual void start();
         virtual void update();
         virtual void end();

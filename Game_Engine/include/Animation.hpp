@@ -19,7 +19,7 @@ namespace PrEngine {
 	struct Animation
 	{
 		Animation();
-		Animation(std::string& animation_name);
+		Animation(const std::string& animation_name);
 		~Animation();
 		std::vector<Keyframe> frames;
 

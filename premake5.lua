@@ -28,6 +28,8 @@ project "PrEngine"
 		enginedir .. "/include/**.h",	
 		enginedir .. "/Vendor/include/**.h",
 		enginedir .. "/Vendor/src/**.cpp",
+		enginedir .. "/Vendor/imgui-master/backends/**.cpp",
+		enginedir .. "/Vendor/imgui-master/backends/**.h",
 		enginedir .. "/Vendor/imgui-master/**.cpp",
 		enginedir .. "/Vendor/imgui-master/**.h"
 	}
@@ -42,7 +44,8 @@ project "PrEngine"
 		enginedir .. "/include",
 		enginedir .. "/Vendor",
 		enginedir .. "/Vendor/include",
-		enginedir .. "/Vendor/imgui-master"
+		enginedir .. "/Vendor/imgui-master",
+		enginedir .. "/Vendor/imgui-master/backends"
 
 	}
 	libdirs {"vendor/libs" }
@@ -73,10 +76,12 @@ project "Game"
 	}
 
 	includedirs { 
+		gamedir .. "/include",
 		enginedir .. "/include",
 		enginedir .. "/Vendor",
 		enginedir .. "/Vendor/include",
-		enginedir .. "/Vendor/imgui-master"
+		enginedir .. "/Vendor/imgui-master",
+		enginedir .. "/Vendor/imgui-master/backends"
 	}
 
 	links{

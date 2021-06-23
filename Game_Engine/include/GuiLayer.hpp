@@ -5,8 +5,8 @@
 #include "RenderLayer.hpp"
 #include "TimeModule.hpp"
 #include "../Vendor/imgui-master/imgui.h"
-#include "../Vendor/imgui-master/imgui_impl_opengl3.h"
-#include "../Vendor/imgui-master/imgui_impl_sdl.h"
+#include "../Vendor/imgui-master/backends/imgui_impl_opengl3.h"
+#include "../Vendor/imgui-master/backends/imgui_impl_sdl.h"
 #include "Vec.hpp"
 #include <string>
 namespace PrEngine

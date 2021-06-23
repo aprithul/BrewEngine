@@ -46,7 +46,7 @@ namespace PrEngine
 			//transform->translate(frame.position);
 			
 			translation = Mat4x4::Identity();
-			if (anim_flags[ANIM_TRANSLATE])
+			if (anim_transform_update_flags[ANIM_TRANSLATE])
 			{
 				translation(0, 3) = frame.position.x;
 				translation(1, 3) = frame.position.y;
@@ -54,7 +54,7 @@ namespace PrEngine
 			}
 
 			rotation = Mat4x4::Identity();
-			if (anim_flags[ANIM_ROTATE])
+			if (anim_transform_update_flags[ANIM_ROTATE])
 			{
 				Float_32 a = frame.rotation.x * PI / 180.f;
 				Float_32 b = frame.rotation.y * PI / 180.f;
@@ -76,7 +76,7 @@ namespace PrEngine
 			}
 
 			scale = Mat4x4::Identity();
-			if (anim_flags[ANIM_SCALE])
+			if (anim_transform_update_flags[ANIM_SCALE])
 			{
 				scale(0, 0) = frame.scale.x;
 				scale(1, 1) = frame.scale.y;
@@ -114,7 +114,7 @@ namespace PrEngine
 		else
 			LOG(LOGTYPE_ERROR, "Max number of animations already added to animator");
 	}
-	Uint_32 Animator::load_animation(std::string& file_name)
+	Uint_32 Animator::load_animation(const std::string& file_name)
 	{
 		Animation::animation_load_status = 1;
 		Int_32 present_at = -1;
@@ -141,7 +141,7 @@ namespace PrEngine
 	std::string Animator::to_string()
 	{
 		std::string text = std::to_string(COMP_ANIMATOR);
-		text += ","+std::to_string(cur_anim_ind)+","+std::to_string(anim_flags[0])+"," + std::to_string(anim_flags[1])+"," + std::to_string(anim_flags[2]);
+		text += ","+std::to_string(cur_anim_ind)+","+std::to_string(anim_transform_update_flags[0])+"," + std::to_string(anim_transform_update_flags[1])+"," + std::to_string(anim_transform_update_flags[2]);
 		for (int _i=0; _i < MAX_ANIMATIONS ; _i++)
 		{
 			if(animation_ids[_i])

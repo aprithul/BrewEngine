@@ -7,7 +7,7 @@
 #include "EditorUtils.hpp"
 #include "PhysicsModule.hpp"
 #include "Math.hpp"
-
+#include "SceneManager.hpp"
 namespace PrEngine
 {
 
@@ -53,6 +53,7 @@ namespace PrEngine
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         ImGui_ImplSDL2_InitForOpenGL(window, gl_context);
+		ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
         ImGuiIO& io = ImGui::GetIO(); (void)io;
 #ifdef _WIN64
 		io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
@@ -77,6 +78,103 @@ namespace PrEngine
 
     }
 
+	void ShowExampleAppDockSpace(bool* p_open)
+	{
+		// If you strip some features of, this demo is pretty much equivalent to calling DockSpaceOverViewport()!
+		// In most cases you should be able to just call DockSpaceOverViewport() and ignore all the code below!
+		// In this specific demo, we are not using DockSpaceOverViewport() because:
+		// - we allow the host window to be floating/moveable instead of filling the viewport (when opt_fullscreen == false)
+		// - we allow the host window to have padding (when opt_padding == true)
+		// - we have a local menu bar in the host window (vs. you could use BeginMainMenuBar() + DockSpaceOverViewport() in your code!)
+		// TL;DR; this demo is more complicated than what you would normally use.
+		// If we removed all the options we are showcasing, this demo would become:
+		//     void ShowExampleAppDockSpace()
+		//     {
+		//         ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
+		//     }
+
+		static bool opt_fullscreen = true;
+		static bool opt_padding = false;
+		static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_NoDockingInCentralNode;
+
+		// We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
+		// because it would be confusing to have two docking targets within each others.
+		//ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+		ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoTitleBar;
+		if (opt_fullscreen)
+		{
+			const ImGuiViewport* viewport = ImGui::GetMainViewport();
+			ImGui::SetNextWindowPos(viewport->WorkPos);
+			ImGui::SetNextWindowSize(viewport->WorkSize);
+			ImGui::SetNextWindowViewport(viewport->ID);
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+			window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+			window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+		}
+		else
+		{
+			dockspace_flags &= ~ImGuiDockNodeFlags_PassthruCentralNode;
+		}
+
+		// When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background
+		// and handle the pass-thru hole, so we ask Begin() to not render a background.
+		if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
+			window_flags |= ImGuiWindowFlags_NoBackground;
+
+		// Important: note that we proceed even if Begin() returns false (aka window is collapsed).
+		// This is because we want to keep our DockSpace() active. If a DockSpace() is inactive,
+		// all active windows docked into it will lose their parent and become undocked.
+		// We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
+		// any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
+		if (!opt_padding)
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+		ImGui::Begin("DockSpace Demo", p_open, window_flags);
+		if (!opt_padding)
+			ImGui::PopStyleVar();
+
+		if (opt_fullscreen)
+			ImGui::PopStyleVar(2);
+
+		// Submit the DockSpace
+		ImGuiIO& io = ImGui::GetIO();
+		if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
+		{
+			ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+			ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+		}
+		
+		/*
+		if (ImGui::BeginMenuBar())
+		{
+			if (ImGui::BeginMenu("Options"))
+			{
+				// Disabling fullscreen would allow the window to be moved to the front of other windows,
+				// which we can't undo at the moment without finer window depth/z control.
+				ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen);
+				ImGui::MenuItem("Padding", NULL, &opt_padding);
+				ImGui::Separator();
+
+				if (ImGui::MenuItem("Flag: NoSplit", "", (dockspace_flags & ImGuiDockNodeFlags_NoSplit) != 0)) { dockspace_flags ^= ImGuiDockNodeFlags_NoSplit; }
+				if (ImGui::MenuItem("Flag: NoResize", "", (dockspace_flags & ImGuiDockNodeFlags_NoResize) != 0)) { dockspace_flags ^= ImGuiDockNodeFlags_NoResize; }
+				if (ImGui::MenuItem("Flag: NoDockingInCentralNode", "", (dockspace_flags & ImGuiDockNodeFlags_NoDockingInCentralNode) != 0)) { dockspace_flags ^= ImGuiDockNodeFlags_NoDockingInCentralNode; }
+				if (ImGui::MenuItem("Flag: AutoHideTabBar", "", (dockspace_flags & ImGuiDockNodeFlags_AutoHideTabBar) != 0)) { dockspace_flags ^= ImGuiDockNodeFlags_AutoHideTabBar; }
+				if (ImGui::MenuItem("Flag: PassthruCentralNode", "", (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode) != 0, opt_fullscreen)) { dockspace_flags ^= ImGuiDockNodeFlags_PassthruCentralNode; }
+				ImGui::Separator();
+
+				if (ImGui::MenuItem("Close", NULL, false, p_open != NULL))
+					*p_open = false;
+				ImGui::EndMenu();
+			}
+			
+
+			ImGui::EndMenuBar();
+		}
+		*/
+
+		ImGui::End();
+	}
+
 
     void GuiLayer::update()
     {
@@ -90,8 +188,8 @@ namespace PrEngine
 		ImGui_ImplSDL2_NewFrame(window);
 		ImGui::NewFrame();
 		static Bool_8 show = true;
-
-
+		//ImGui::ShowDemoWindow();
+		ShowExampleAppDockSpace(0);
 #ifdef EDITOR_MODE
 		draw_editor(window);
 		//ImGui::ShowMetricsWindow();
@@ -100,7 +198,7 @@ namespace PrEngine
 
 		if (input_manager->keyboard.get_key_down(SDLK_F5))
 		{
-			entity_management_system->save_scene(get_resource_path("Scenes"+PATH_SEP+"simplescene.graph"));
+			SceneManager::get_instance()->save_current_scene();
 			LOG(LOGTYPE_WARNING, "scene file saved");
 		}
 
@@ -311,31 +409,69 @@ namespace PrEngine
 		Uint_32 cam_id = entity_management_system->get_active_camera();
 		if (cam_id)
 		{
+			Int_32 w, h;
+			SDL_GetWindowSize(window, &w, &h);
+
 			Camera& cam = cameras[cam_id];
-			Float_32 v_ar = v_w / v_h;
-			Float_32 cam_w = cam.right - cam.left;
-			Float_32 cam_h = cam.top - cam.bottom;
-			cam.h_mod = (v_ar*cam_h) / cam_w;
+			Float_32 cam_asp_ratio = cam.width / cam.height;
+
+			Int_32 center_hole_w = ImGui::max_viewport.x - ImGui::min_viewport.x;
+			Int_32 center_hole_h = ImGui::max_viewport.y - ImGui::min_viewport.y;
+			if (center_hole_w == 0 || center_hole_h == 0)
+				return;
+			
+
+			Float_32 hole_asp_ratio = center_hole_w / (Float_32)center_hole_h;
+			static int c_ = 100;
+			c_--;
+
+			if (hole_asp_ratio >= cam_asp_ratio)
+			{
+				Int_32 center_hole_half_y = (h - (ImGui::max_viewport.y + ImGui::min_viewport.y) / 2);
+				Int_32 target_h = center_hole_w / (Float_32)cam_asp_ratio;
+				Int_32 target_min_y = center_hole_half_y - (target_h / 2);
+				//Int_32 target_max_y = center_hole_half_y + (target_h / 2);
+
+				renderer->update_viewport_size(ImGui::min_viewport.x, target_min_y, center_hole_w, target_h);
+
+			}
+			else
+			{
+				Int_32 center_hole_half_x = (ImGui::max_viewport.x + ImGui::min_viewport.x) / 2;
+				Int_32 target_w = center_hole_h * cam_asp_ratio;
+				Int_32 target_min_x = center_hole_half_x - (target_w / 2);
+				//Int_32 target_max_x = center_hole_half_x + (target_w / 2);
+
+				renderer->update_viewport_size(target_min_x, h - ImGui::max_viewport.y, target_w, center_hole_h);
+
+				//renderer->update_viewport_size(ImGui::min_viewport.x, h - ImGui::max_viewport.y,
+				//	ImGui::max_viewport.x - ImGui::min_viewport.x, ImGui::max_viewport.y - ImGui::min_viewport.y);
+			}
 
 			//cam.v_mod = (cam_w / (v_ar*cam_h));
-			renderer->update_viewport_size(v_x, v_y, v_w, v_h);
+			//renderer->update_viewport_size(v_x, v_y, v_w, v_h);
+
 		}
 
-		renderer->viewport_pos.x = v_x;
+
+
+		
+
+		/*renderer->viewport_pos.x = v_x;
 		renderer->viewport_pos.y = v_y;
 		renderer->viewport_size.x = v_w;
-		renderer->viewport_size.y = v_h;
+		renderer->viewport_size.y = v_h;*/
 	}
 
 	inline void draw_inspector_window()
 	{
-		if (!ImGui::Begin("Inspector", 0, ImGuiWindowFlags_NoMove))
+		if (!ImGui::Begin("Inspector", 0))
 		{
 			ImGui::End();
 			return;
 		}
 
-		v_w = ImGui::GetWindowPos().x - v_x;
+		//v_w = ImGui::GetWindowPos().x - v_x;
 
 
 		if (selected_transform)
@@ -450,9 +586,9 @@ namespace PrEngine
 						}
 						ImGui::EndDragDropTarget();
 					}
-					ImGui::Checkbox("Translate", &animator.anim_flags[ANIM_TRANSLATE]);
-					ImGui::Checkbox("Rotate", &animator.anim_flags[ANIM_ROTATE]);
-					ImGui::Checkbox("Scale", &animator.anim_flags[ANIM_SCALE]);
+					ImGui::Checkbox("Translate", &animator.anim_transform_update_flags[ANIM_TRANSLATE]);
+					ImGui::Checkbox("Rotate", &animator.anim_transform_update_flags[ANIM_ROTATE]);
+					ImGui::Checkbox("Scale", &animator.anim_transform_update_flags[ANIM_SCALE]);
 
 					ImGui::BeginChild("Animations",ImVec2(0,0),true,0);
 
@@ -513,13 +649,14 @@ namespace PrEngine
 
 	inline void draw_scene_hierarchy()
 	{
-		if (!ImGui::Begin("Scene Hierarchy", 0, ImGuiWindowFlags_NoMove))
+		//if (!ImGui::Begin("Scene Hierarchy", 0, ImGuiWindowFlags_NoMove))
+		if (!ImGui::Begin("Scene Hierarchy", 0))
 		{
 			ImGui::End();
 			return;
 		}
 
-		v_x = ImGui::GetWindowPos().x + ImGui::GetWindowWidth();
+		//v_x = ImGui::GetWindowPos().x + ImGui::GetWindowWidth();
 
 		Uint_32 max_hierarchy = 0;
 		for (int _i = 0; _i < next_transform_order; _i++)
@@ -541,9 +678,11 @@ namespace PrEngine
 		{
 			if (payload && !payload->Delivery)
 			{
-				IM_ASSERT(payload->DataSize == sizeof(Uint_32));
-				Uint_32 dragged_transform_id = *(const int*)payload->Data;
-				entity_management_system->set_parent_transform(0, dragged_transform_id);
+				if (payload->DataSize == sizeof(Uint_32))
+				{
+					Uint_32 dragged_transform_id = *(const int*)payload->Data;
+					entity_management_system->set_parent_transform(0, dragged_transform_id);
+				}
 				//transforms[dragged_transform_id].parent_transform = 0;
 			}
 			//ImGui::EndDragDropTarget();
@@ -604,21 +743,21 @@ namespace PrEngine
 
 	inline void draw_asset_window()
 	{
-		if (!ImGui::Begin("Assets", 0, ImGuiWindowFlags_NoMove))
+		if (!ImGui::Begin("Assets", 0))//, ImGuiWindowFlags_NoMove))
 		{
 			ImGui::End();
 			return;
 		}
 
-		v_y = renderer->height - ImGui::GetWindowPos().y;// -ImGui::GetWindowHeight());// ImGui::GetWindowPos().y;// (renderer->height - (ImGui::GetWindowPos().y - ImGui::GetWindowHeight()));
+		/*v_y = renderer->height - ImGui::GetWindowPos().y;// -ImGui::GetWindowHeight());// ImGui::GetWindowPos().y;// (renderer->height - (ImGui::GetWindowPos().y - ImGui::GetWindowHeight()));
 		v_h = renderer->height - ImGui::GetWindowHeight();
 		
 		ImVec2 _pos = ImGui::GetWindowPos();
 		ImVec2 _size = ImGui::GetWindowSize();
 		_pos.x = v_x;
-		ImGui::SetWindowPos(_pos);
+		//ImGui::SetWindowPos(_pos);
 		_size.x = v_w;
-		ImGui::SetWindowSize(_size);
+		//ImGui::SetWindowSize(_size);*/
 		
 		static int selected = 0;
 		const char* labels[4] = { "Material", "Shaders", "Textures", "Animations" };
@@ -721,10 +860,10 @@ namespace PrEngine
 		}
 #ifdef EDITOR_MODE
 
-		ImVec2 _pos = ImGui::GetWindowPos();
+		/*ImVec2 _pos = ImGui::GetWindowPos();
 		ImVec2 _size = ImGui::GetWindowSize();
 		_pos.x = v_x + v_w - _size.x;
-		ImGui::SetWindowPos(_pos);
+		ImGui::SetWindowPos(_pos);*/
 
 		ImGui::Text(("(WS): " + std::to_string(mouse_pos_ws.x)+","+ std::to_string(mouse_pos_ws.y)).c_str());
 		//ImGui::Text(("(SS): " + mouse_pos_ss.to_string()).c_str());

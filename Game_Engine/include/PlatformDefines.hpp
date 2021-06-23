@@ -12,7 +12,7 @@
 //#define _SWITCH 1
 #define _WIN64 1
 #define EDITOR_MODE
-#define DEBUG 1
+//#define DEBUG 1
 
 // if editor was enabled by mistake
 

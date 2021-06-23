@@ -7,11 +7,17 @@
     <Filter Include="Vendor\imgui-master">
       <UniqueIdentifier>{76B6D858-E217-B666-6B85-FC18D7E5EC25}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Vendor\imgui-master\backends">
+      <UniqueIdentifier>{60D57919-4C90-69C5-F547-E20FE1E1B355}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Vendor\imgui-master\misc">
       <UniqueIdentifier>{11438B41-FD67-DAC1-26B3-BF511237D9DF}</UniqueIdentifier>
     </Filter>
     <Filter Include="Vendor\imgui-master\misc\cpp">
       <UniqueIdentifier>{63DDC3CC-4F98-B378-F84F-2CC3E4E9FD08}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Vendor\imgui-master\misc\single_file">
+      <UniqueIdentifier>{812D9124-6D14-531C-1665-B939022BCC82}</UniqueIdentifier>
     </Filter>
     <Filter Include="Vendor\include">
       <UniqueIdentifier>{066ACDFF-F237-C105-DBCB-312CC7389D6A}</UniqueIdentifier>
@@ -27,16 +33,16 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Vendor\imgui-master\backends\imgui_impl_opengl3.h">
+      <Filter>Vendor\imgui-master\backends</Filter>
+    </ClInclude>
+    <ClInclude Include="Vendor\imgui-master\backends\imgui_impl_sdl.h">
+      <Filter>Vendor\imgui-master\backends</Filter>
+    </ClInclude>
     <ClInclude Include="Vendor\imgui-master\imconfig.h">
       <Filter>Vendor\imgui-master</Filter>
     </ClInclude>
     <ClInclude Include="Vendor\imgui-master\imgui.h">
-      <Filter>Vendor\imgui-master</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\imgui-master\imgui_impl_opengl3.h">
-      <Filter>Vendor\imgui-master</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\imgui-master\imgui_impl_sdl.h">
       <Filter>Vendor\imgui-master</Filter>
     </ClInclude>
     <ClInclude Include="Vendor\imgui-master\imgui_internal.h">
@@ -54,6 +60,9 @@
     <ClInclude Include="Vendor\imgui-master\misc\cpp\imgui_stdlib.h">
       <Filter>Vendor\imgui-master\misc\cpp</Filter>
     </ClInclude>
+    <ClInclude Include="Vendor\imgui-master\misc\single_file\imgui_single_file.h">
+      <Filter>Vendor\imgui-master\misc\single_file</Filter>
+    </ClInclude>
     <ClInclude Include="Vendor\include\stb_image.h">
       <Filter>Vendor\include</Filter>
     </ClInclude>
@@ -67,9 +76,6 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\AudioManager.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Behaviour.hpp">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\Camera3D.hpp">
@@ -120,6 +126,9 @@
     <ClInclude Include="include\Logger.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\Mat.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
     <ClInclude Include="include\Material.hpp">
       <Filter>include</Filter>
     </ClInclude>
@@ -147,10 +156,19 @@
     <ClInclude Include="include\Platform.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\PlatformDefines.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
     <ClInclude Include="include\RenderLayer.hpp">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\RendererOpenGL2D.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SceneManager.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ScriptComponent.hpp">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\Serializable.hpp">
@@ -183,20 +201,26 @@
     <ClInclude Include="include\Utils.hpp">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\Vertex.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\PlatformDefines.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\Vec.hpp">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\Mat.hpp">
+    <ClInclude Include="include\Vector2.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Vector3.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Vertex.hpp">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Vendor\imgui-master\backends\imgui_impl_opengl3.cpp">
+      <Filter>Vendor\imgui-master\backends</Filter>
+    </ClCompile>
+    <ClCompile Include="Vendor\imgui-master\backends\imgui_impl_sdl.cpp">
+      <Filter>Vendor\imgui-master\backends</Filter>
+    </ClCompile>
     <ClCompile Include="Vendor\imgui-master\imgui.cpp">
       <Filter>Vendor\imgui-master</Filter>
     </ClCompile>
@@ -206,10 +230,7 @@
     <ClCompile Include="Vendor\imgui-master\imgui_draw.cpp">
       <Filter>Vendor\imgui-master</Filter>
     </ClCompile>
-    <ClCompile Include="Vendor\imgui-master\imgui_impl_opengl3.cpp">
-      <Filter>Vendor\imgui-master</Filter>
-    </ClCompile>
-    <ClCompile Include="Vendor\imgui-master\imgui_impl_sdl.cpp">
+    <ClCompile Include="Vendor\imgui-master\imgui_tables.cpp">
       <Filter>Vendor\imgui-master</Filter>
     </ClCompile>
     <ClCompile Include="Vendor\imgui-master\imgui_widgets.cpp">
@@ -231,9 +252,6 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\AudioManager.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Behaviour.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\Camera3D.cpp">
@@ -306,6 +324,12 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\RendererOpenGL2D.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SceneManager.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ScriptComponent.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\Serializable.cpp">

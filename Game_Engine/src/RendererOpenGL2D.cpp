@@ -18,6 +18,7 @@ namespace PrEngine {
 
 	RendererOpenGL2D* renderer = nullptr;
 	GLint max_layers;
+	Uint_32 max_vertices_in_batch;
 	GLint max_texture_units = 0;
 
 	RendererOpenGL2D::RendererOpenGL2D(Int_32 width, Int_32 height, Bool_8 full_screen, std::string& title, std::string module_name, Int_32 priority):Module(module_name, priority)
@@ -40,7 +41,7 @@ namespace PrEngine {
 		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 */
-		window = SDL_CreateWindow(this->title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);// | (full_screen*SDL_WINDOW_FULLSCREEN) );
+		window = SDL_CreateWindow(this->title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);// | (full_screen*SDL_WINDOW_FULLSCREEN) );
 		glContext = SDL_GL_CreateContext(window);
 
 #ifdef _WIN64
@@ -115,11 +116,12 @@ namespace PrEngine {
         SpriteLayer* sprite_layer = new SpriteLayer();
         render_layers.push_back(sprite_layer);
 
+		ShapesLayer* shapes_layer = new ShapesLayer();
+		render_layers.push_back(shapes_layer);
+
         GuiLayer* gui_layer = new GuiLayer(window, &glContext);
         render_layers.push_back(gui_layer);
 
-		ShapesLayer* shapes_layer = new ShapesLayer();
-		render_layers.push_back(shapes_layer);
 
 
 		renderer = this;
@@ -149,8 +151,6 @@ namespace PrEngine {
         SDL_Quit();
 
     }
-
-
 
 	void RendererOpenGL2D::update_viewport_size(int x, int y, int width, int height)
 	{
@@ -214,16 +214,18 @@ namespace PrEngine {
 
     void RendererOpenGL2D::update()
     {
+		SDL_GetWindowSize(window, &width, &height);
         Clear(0,0,0.3f,1);
+		clock_t begin = clock();
+
 		for (std::vector<RenderLayer*>::iterator layer = render_layers.begin(); layer != render_layers.end(); layer++)
 		{
-			clock_t begin = clock();
 			(*layer)->update();
-			clock_t end = clock();
-			Double_64 elapsed = (Double_64)(end - begin) / CLOCKS_PER_SEC;
-			continue;
 		}
         SwapBuffers();
+		clock_t end = clock();
+		Double_64 elapsed = (Double_64)(end - begin) / CLOCKS_PER_SEC;
+
     }
 
     void RendererOpenGL2D::end()
@@ -245,13 +247,13 @@ namespace PrEngine {
 		VertexLayout layout;
 		VertexAttribute attribute_0(0, 3, GL_FLOAT, GL_FALSE);
 		VertexAttribute attribute_1(1, 4, GL_FLOAT, GL_FALSE);
-		VertexAttribute attribute_2(2, 3, GL_FLOAT, GL_FALSE);
-		VertexAttribute attribute_3(3, 2, GL_FLOAT, GL_FALSE);
-		VertexAttribute attribute_4(4, 1, GL_FLOAT, GL_FALSE);
+		//VertexAttribute attribute_2(2, 3, GL_FLOAT, GL_FALSE);
+		VertexAttribute attribute_3(2, 2, GL_FLOAT, GL_FALSE);
+		VertexAttribute attribute_4(3, 1, GL_FLOAT, GL_FALSE);
 
 		layout.add_attribute(attribute_0);
 		layout.add_attribute(attribute_1);
-		layout.add_attribute(attribute_2);
+		//layout.add_attribute(attribute_2);
 		layout.add_attribute(attribute_3);
 		layout.add_attribute(attribute_4);
 
@@ -388,7 +390,7 @@ namespace PrEngine {
 			{
 				batch_texture_ids.push_back(texture_id);
 			}
-			float texture_index = batch_texture_ids.size() - 1;
+			Short_16 texture_index = batch_texture_ids.size() - 1;
 			// find index of texture in set
 
 			/*auto it = std::find(texture_ids.begin(), texture_ids.end(), texture_id);
@@ -404,11 +406,7 @@ namespace PrEngine {
 			Vertex v1 = {
 				p1.x, p1.y, p1.z,
 
-				1.0f,1.0f,1.0f,1.0f,
-
-				0.0f,
-				0.0f,
-				-1.0f,
+				1,1,1,1,
 
 				texco_u,
 				texco_v,
@@ -420,15 +418,7 @@ namespace PrEngine {
 			Vertex v2 = {
 				p2.x, p2.y, p2.z,
 
-
-				1.0f,
-				1.0f,
-				1.0f,
-				1.0f,
-
-				0.0f,
-				0.0f,
-				-1.0f,
+				1,1,1,1,
 
 				0.f,
 				texco_v,
@@ -439,15 +429,7 @@ namespace PrEngine {
 			Vertex v3 = {
 				p3.x, p3.y, p3.z,
 
-
-				1.0f,
-				1.0f,
-				1.0f,
-				1.0f,
-
-				0.0f,
-				0.0f,
-				-1.0f,
+				1,1,1,1,
 
 				0.0f,
 				0.0f,
@@ -458,14 +440,7 @@ namespace PrEngine {
 			Vertex v4 = {
 				p4.x, p4.y, p4.z,
 
-				1.0f,
-				1.0f,
-				1.0f,
-				1.0f,
-
-				0.0f,
-				0.0f,
-				-1.0f,
+				1,1,1,1,
 
 				texco_u,
 				0.0f,
@@ -617,14 +592,7 @@ namespace PrEngine {
 			0.5f*y_scale,
 			0.0f,
 
-			1.0f,
-			1.0f,
-			1.0f,
-			1.0f,
-
-			0.0f,
-			0.0f,
-			-1.0f,
+			1,1,1,1,
 
 			1.0f,
 			1.0f
@@ -635,15 +603,8 @@ namespace PrEngine {
 			0.5f*y_scale,
 			0.f,
 
-			1.0f,
-			1.0f,
-			1.0f,
-			1.0f,
+			1,1,1,1,
 
-			0.0f,
-			0.0f,
-			-1.0f,
-			
 			0.f,
 			1.0f
 		};
@@ -653,15 +614,8 @@ namespace PrEngine {
 			-0.5f*y_scale,
 			0.f,
 			
-			1.0f,
-			1.0f,
-			1.0f,
-			1.0f,
-			
-			0.0f,
-			0.0f,
-			-1.0f,
-			
+			1,1,1,1,
+
 			0.0f,
 			0.0f 
 		};
@@ -671,15 +625,8 @@ namespace PrEngine {
 			-0.5f*y_scale,
 			0.f,
 			
-			1.0f,
-			1.0f,
-			1.0f,
-			1.0f,
-			
-			0.0f,
-			0.0f,
-			-1.0f,
-			
+			1,1,1,1,
+
 			1.0f,
 			0.0f
 		};
@@ -706,11 +653,11 @@ namespace PrEngine {
         VertexLayout layout;
         VertexAttribute attribute_0(0,3,GL_FLOAT,GL_FALSE);
         VertexAttribute attribute_1(1,4,GL_FLOAT,GL_FALSE);
-        VertexAttribute attribute_2(2,3,GL_FLOAT,GL_FALSE);
+        //VertexAttribute attribute_2(2,3,GL_FLOAT,GL_FALSE);
         VertexAttribute attribute_3(3,2,GL_FLOAT,GL_FALSE);
         layout.add_attribute(attribute_0);
         layout.add_attribute(attribute_1);
-        layout.add_attribute(attribute_2);
+        //layout.add_attribute(attribute_2);
         layout.add_attribute(attribute_3);
 
 		//graphic.bounding_rect = Rect{0,0, x_scale, y_scale };
@@ -738,7 +685,7 @@ namespace PrEngine {
 	void RendererOpenGL2D::draw_line(Vec3f p1, Vec3f p2, Vec4f color)
 	{
 		//return;
-		lines.push_back({ p1,p2,color });
+		lines.push_back({ p1,p2, color });
 	}
 
 	void RendererOpenGL2D::draw_rect(Rect<Float_32> rect, Vec4f color)

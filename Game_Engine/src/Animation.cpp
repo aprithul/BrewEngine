@@ -9,7 +9,7 @@ namespace PrEngine {
 		
 	}
 
-	Animation::Animation(std::string& animation_name)
+	Animation::Animation(const std::string& animation_name)
 	{
 		std::string data = read_file(get_resource_path(animation_name));
 

@@ -104,7 +104,7 @@ namespace PrEngine
 
     struct Graphic : public Component	// 184 bytes
     {
-		static std::unordered_map<Uint_32, GraphicEditorData> editor_data;
+		static std::unordered_map<Float_32, GraphicEditorData> editor_data;
 		static std::unordered_map < Uint_32, Vec3f[4]> vertex_data;
 
 		GraphicsElement element;			//152
@@ -134,7 +134,7 @@ namespace PrEngine
 		std::unordered_map<Uint_32, Uint_32> texture_to_index;
 		std::vector<Uint_32> graphic_ids;
 
-		static const Uint_32 max_vertices_in_batch = 4 * 1000; // 4 vertex per quad * 1000 quads. Arbitrarily set.
+		static const Uint_32 max_vertices_in_batch = 4 * 1000000; // 4 vertex per quad * 1000000 quads. each vertex 40 bytes.
 		static const Uint_32 max_textures_in_batch = MAX_TEXTURES;
 		static Uint_32 current_batched_vertex_count;
 		static Uint_32 current_batched_texture_count;

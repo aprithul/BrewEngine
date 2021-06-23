@@ -57,7 +57,7 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>include;Vendor;Vendor\include;Vendor\imgui-master;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;Vendor;Vendor\include;Vendor\imgui-master;Vendor\imgui-master\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
@@ -73,7 +73,7 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>include;Vendor;Vendor\include;Vendor\imgui-master;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;Vendor;Vendor\include;Vendor\imgui-master;Vendor\imgui-master\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
@@ -86,24 +86,21 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="include\Mat.hpp" />
-    <ClInclude Include="include\PlatformDefines.hpp" />
-    <ClInclude Include="include\Vec.hpp" />
+    <ClInclude Include="Vendor\imgui-master\backends\imgui_impl_opengl3.h" />
+    <ClInclude Include="Vendor\imgui-master\backends\imgui_impl_sdl.h" />
     <ClInclude Include="Vendor\imgui-master\imconfig.h" />
     <ClInclude Include="Vendor\imgui-master\imgui.h" />
-    <ClInclude Include="Vendor\imgui-master\imgui_impl_opengl3.h" />
-    <ClInclude Include="Vendor\imgui-master\imgui_impl_sdl.h" />
     <ClInclude Include="Vendor\imgui-master\imgui_internal.h" />
     <ClInclude Include="Vendor\imgui-master\imstb_rectpack.h" />
     <ClInclude Include="Vendor\imgui-master\imstb_textedit.h" />
     <ClInclude Include="Vendor\imgui-master\imstb_truetype.h" />
     <ClInclude Include="Vendor\imgui-master\misc\cpp\imgui_stdlib.h" />
+    <ClInclude Include="Vendor\imgui-master\misc\single_file\imgui_single_file.h" />
     <ClInclude Include="Vendor\include\stb_image.h" />
     <ClInclude Include="Vendor\include\tiny_obj_loader.h" />
     <ClInclude Include="include\Animation.hpp" />
     <ClInclude Include="include\Animator.hpp" />
     <ClInclude Include="include\AudioManager.hpp" />
-    <ClInclude Include="include\Behaviour.hpp" />
     <ClInclude Include="include\Camera3D.hpp" />
     <ClInclude Include="include\Collider.hpp" />
     <ClInclude Include="include\Component.hpp" />
@@ -120,6 +117,7 @@
     <ClInclude Include="include\GuiLayer.hpp" />
     <ClInclude Include="include\InputModule.hpp" />
     <ClInclude Include="include\Logger.hpp" />
+    <ClInclude Include="include\Mat.hpp" />
     <ClInclude Include="include\Material.hpp" />
     <ClInclude Include="include\Math.hpp" />
     <ClInclude Include="include\Matrix3x3f.hpp" />
@@ -129,8 +127,11 @@
     <ClInclude Include="include\NetworkManager.hpp" />
     <ClInclude Include="include\PhysicsModule.hpp" />
     <ClInclude Include="include\Platform.hpp" />
+    <ClInclude Include="include\PlatformDefines.hpp" />
     <ClInclude Include="include\RenderLayer.hpp" />
     <ClInclude Include="include\RendererOpenGL2D.hpp" />
+    <ClInclude Include="include\SceneManager.hpp" />
+    <ClInclude Include="include\ScriptComponent.hpp" />
     <ClInclude Include="include\Serializable.hpp" />
     <ClInclude Include="include\ShapesLayer.hpp" />
     <ClInclude Include="include\Sprite.hpp" />
@@ -141,14 +142,18 @@
     <ClInclude Include="include\Transform3D.hpp" />
     <ClInclude Include="include\Types.hpp" />
     <ClInclude Include="include\Utils.hpp" />
+    <ClInclude Include="include\Vec.hpp" />
+    <ClInclude Include="include\Vector2.hpp" />
+    <ClInclude Include="include\Vector3.hpp" />
     <ClInclude Include="include\Vertex.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Vendor\imgui-master\backends\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="Vendor\imgui-master\backends\imgui_impl_sdl.cpp" />
     <ClCompile Include="Vendor\imgui-master\imgui.cpp" />
     <ClCompile Include="Vendor\imgui-master\imgui_demo.cpp" />
     <ClCompile Include="Vendor\imgui-master\imgui_draw.cpp" />
-    <ClCompile Include="Vendor\imgui-master\imgui_impl_opengl3.cpp" />
-    <ClCompile Include="Vendor\imgui-master\imgui_impl_sdl.cpp" />
+    <ClCompile Include="Vendor\imgui-master\imgui_tables.cpp" />
     <ClCompile Include="Vendor\imgui-master\imgui_widgets.cpp" />
     <ClCompile Include="Vendor\imgui-master\misc\cpp\imgui_stdlib.cpp" />
     <ClCompile Include="Vendor\src\stb_image.cpp" />
@@ -156,7 +161,6 @@
     <ClCompile Include="src\Animation.cpp" />
     <ClCompile Include="src\Animator.cpp" />
     <ClCompile Include="src\AudioManager.cpp" />
-    <ClCompile Include="src\Behaviour.cpp" />
     <ClCompile Include="src\Camera3D.cpp" />
     <ClCompile Include="src\Collider.cpp" />
     <ClCompile Include="src\Component.cpp" />
@@ -181,6 +185,8 @@
     <ClCompile Include="src\PhysicsModule.cpp" />
     <ClCompile Include="src\RenderLayer.cpp" />
     <ClCompile Include="src\RendererOpenGL2D.cpp" />
+    <ClCompile Include="src\SceneManager.cpp" />
+    <ClCompile Include="src\ScriptComponent.cpp" />
     <ClCompile Include="src\Serializable.cpp" />
     <ClCompile Include="src\ShapesLayer.cpp" />
     <ClCompile Include="src\Sprite.cpp" />

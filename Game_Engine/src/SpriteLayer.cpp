@@ -191,14 +191,14 @@ namespace PrEngine
 		if (!camera_id)
 			return;
 
-		Camera _camera = cameras[camera_id];
-		DirectionalLight _light = directional_lights[1];
+		Camera& _camera = cameras[camera_id];
+		DirectionalLight& _light = directional_lights[1];
 		Vec3f _cam_pos = transforms[_camera.id_transform].position;
 		Vec3f _dir = get_transform(_light.id_transform).get_forward();
 
-		for (Uint_32 _i = 0; _i < MAX_GRAPHIC_COUNT; _i++)
+
+		for (Uint_32 _i = 0; _i < next_graphic_pos; _i++)
 		{
-			clock_t begin = clock();
 
 			if (graphics_entity_id[_i])//  is_valid(graphic_active_status, graphics[_i].entity))
 			{
@@ -215,6 +215,10 @@ namespace PrEngine
 
 			//continue;
 		}
+
+
+		clock_t begin = clock();
+
 		for (Uint_32 _i =1; _i < next_batched_graphic_pos; _i++)
 		{
 			BatchedGraphic& batch = batched_graphics[_i];
@@ -290,10 +294,6 @@ namespace PrEngine
 
 						1.0f,1.0f,1.0f,1.0f,
 
-						0.0f,
-						0.0f,
-						-1.0f,
-
 						texco_u,
 						texco_v,
 
@@ -309,10 +309,6 @@ namespace PrEngine
 						1.0f,
 						1.0f,
 						1.0f,
-
-						0.0f,
-						0.0f,
-						-1.0f,
 
 						0.f,
 						texco_v,
@@ -331,10 +327,6 @@ namespace PrEngine
 
 						0.0f,
 						0.0f,
-						-1.0f,
-
-						0.0f,
-						0.0f,
 
 						texture_index
 					};
@@ -346,10 +338,6 @@ namespace PrEngine
 						1.0f,
 						1.0f,
 						1.0f,
-
-						0.0f,
-						0.0f,
-						-1.0f,
 
 						texco_u,
 						0.0f,
@@ -378,7 +366,10 @@ namespace PrEngine
 		}
 				//LOG(LOGTYPE_WARNING, "Draw calls : ", std::to_string(draw_calls));
 
+		clock_t end = clock();
 
+		Float_32 seconds = (float)(end - begin) / CLOCKS_PER_SEC;
+		//LOG(LOGTYPE_GENERAL, std::to_string(seconds));
 		
 		return;
     }

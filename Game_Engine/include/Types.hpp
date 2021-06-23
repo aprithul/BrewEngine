@@ -9,5 +9,7 @@ typedef char Char_8;
 typedef unsigned int Uint_32;
 typedef float Float_32;
 typedef long Long_32;
+typedef short Short_16;
+typedef char Byte_8;
 
 #endif

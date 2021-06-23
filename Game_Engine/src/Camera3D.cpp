@@ -33,6 +33,8 @@ namespace PrEngine
         this->near_ = near_;
         this->far_ = far_;
         this->zoom = 1;
+		this->width = right - left;
+		this->height = top - bottom;
         this->projection_type = ORTHOGRAPHIC;
 
     }
@@ -84,7 +86,7 @@ namespace PrEngine
 
 	Vec3f Camera::get_screen_to_world_pos(Vec2f screen_pos)
 	{
-		auto camera_t = transforms[id_transform];
+		Transform3D& camera_t = transforms[id_transform];
 		Float_32 x_pos = h_mod*zoom*(right - left) / renderer->viewport_size.x;// +camera_pos.x;
 		Float_32 y_pos = zoom*(top - bottom) / renderer->viewport_size.y;// +camera_pos.y;
 

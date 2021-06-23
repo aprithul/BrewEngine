@@ -111,4 +111,9 @@ namespace PrEngine{
         return false;
     }*/
 
+	/* includes range */
+	Float_32 RandomFraction(Float_32 low, Float_32 high) {
+		Float_32 rand_frac = ((float)(rand() % 1001)) / (float)1000.0;
+		return low + ((high - low)*rand_frac);
+	}
 }

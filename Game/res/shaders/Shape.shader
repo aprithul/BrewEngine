@@ -24,5 +24,6 @@ in vec4 v_color;
 out vec4 color;
 void main()
 {
+	//vec4 _col = vec4((v_color & 0xff000000u) >> 24, (v_color & 0x00ff0000u) >> 16, (v_color & 0x0000ff00u) >> 8, (v_color & 0x000000ffu));
 	color = v_color;// vec4(1, 1, 1, 1);
 }

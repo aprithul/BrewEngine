@@ -6,9 +6,9 @@ namespace PrEngine
 {
 	EntityManagementSystem* entity_management_system = nullptr;
 
+	Script* scripts[MAX_SCRIPT_COUNT];
 	Transform3D transforms[MAX_ENTITY_COUNT];
 	Camera cameras[MAX_CAMERA_COUNT];
-	//Sprite sprites[MAX_SPRITE_COUNT];
 	Graphic graphics[MAX_GRAPHIC_COUNT];
 	BatchedGraphic batched_graphics[MAX_BATCH_COUNT];
 	DirectionalLight directional_lights[MAX_DIRECTIONAL_LIGHT_COUNT];
@@ -18,23 +18,18 @@ namespace PrEngine
 	std::unordered_map<ComponentType, Uint_32> entities[MAX_ENTITY_COUNT];
 	
 	Uint_32 camera_entity_id[MAX_CAMERA_COUNT] = {};
-	//Uint_32 EntityManagementSystem::sprite_entity_id[MAX_SPRITE_COUNT]={};
 	Uint_32 graphics_entity_id[MAX_GRAPHIC_COUNT] = {};
 	Uint_32 directional_light_entity_id[MAX_DIRECTIONAL_LIGHT_COUNT] = {};
 	Uint_32 animator_entity_id[MAX_ANIMATOR_COUNT] = {};
 	Uint_32 collider_entity_id[MAX_COLLIDER_COUNT] = {};
+	Uint_32 script_entity_id[MAX_SCRIPT_COUNT] = {};
 	Uint_32 transform_entity_id[MAX_ENTITY_COUNT] = {};
 
 	std::unordered_set<Uint_32> transform_children[MAX_ENTITY_COUNT];
 	Uint_32 transform_order[MAX_ENTITY_COUNT] = {};
 	Uint_32 transform_hierarchy_level[MAX_ENTITY_COUNT] = {};
 	Bool_8 transform_dirty_flag[MAX_ENTITY_COUNT] = {};
-	//Bool_8 transform_active_status[MAX_ENTITY_COUNT] = {};
-	//Bool_8 sprite_active_status[MAX_SPRITE_COUNT] = {};
-	//Bool_8 directional_light_active_status[MAX_DIRECTIONAL_LIGHT_COUNT] = {};
-	//Bool_8 graphic_active_status[MAX_GRAPHIC_COUNT] = {};
-	//Bool_8 camera_active_status[MAX_CAMERA_COUNT] = {};
-	//Bool_8 animator_active_status[MAX_ANIMATOR_COUNT] = {};
+
 	Uint_32 entity_count;
 	Uint_32 next_entity_pos;
 	Uint_32 next_transform_pos;
@@ -46,6 +41,7 @@ namespace PrEngine
 	Uint_32 next_animator_pos;
 	Uint_32 next_collider_pos;
 	Uint_32 next_camera_pos;
+	Uint_32 next_script_pos;
 
 
 	std::queue<Uint_32> EntityManagementSystem::released_positions;
@@ -57,6 +53,7 @@ namespace PrEngine
 	std::queue<Uint_32> EntityManagementSystem::animator_released_positions;
 	std::queue<Uint_32> EntityManagementSystem::collider_released_positions;
 	std::queue<Uint_32> EntityManagementSystem::camera_released_positions;
+	std::queue<Uint_32> EntityManagementSystem::script_released_positions;
 
 
     EntityManagementSystem::EntityManagementSystem(std::string name, Int_32 priority) : Module(name, priority)
@@ -73,6 +70,7 @@ namespace PrEngine
 		next_transform_pos = 1;
 		next_transform_order = 1;
 		next_collider_pos = 1;
+		next_script_pos = 1;
 		entity_count = 0;
 		
 		transform_hierarchy_level[0] = MAX_HIERARCHY_LEVEL + 1;
@@ -115,7 +113,7 @@ namespace PrEngine
 			transform_children[id_transform].clear();
 			transforms[id_transform].parent_transform = 0;
 
-			Uint_32 c_id{}, s_id{}, g_id{}, l_id{}, a_id{};
+			Uint_32 c_id{}, s_id{}, g_id{}, l_id{}, a_id{}, col_id{}, scr_id{};
 			auto it = ent.find(COMP_CAMERA);
 			if (it != ent.end())
 				c_id = it->second;
@@ -135,6 +133,9 @@ namespace PrEngine
 			it = ent.find(COMP_ANIMATOR);
 			if (it != ent.end())
 				a_id = it->second;
+			it = ent.find(COMP_COLLIDER);
+			if (it != ent.end())
+				col_id = it->second;
 
 			if (c_id)
 				delete_camera_comp(c_id);
@@ -621,6 +622,7 @@ assert(level > 0);
 
 	void EntityManagementSystem::save_scene(const std::string& scene_file)
 	{
+
 		write_to_file("", scene_file, 0, 0); //clears file
 		std::unordered_map<int, std::string> entities_in_scene;
 
