@@ -8,11 +8,22 @@ namespace PrEngine {
 
 	struct Line
 	{
+		Vec4f color;
 		Vec3f p1;
 		Vec3f p2;
-		Vec4f color;
 	};
+
+	struct Quad
+	{
+		Vec4f color;
+		Point3d p1;
+		Point3d p2;
+		Float_32 w;
+		Float_32 h;
+	};
+
 	extern std::vector<Line> lines;
+	extern std::vector<Quad> quads;
 
 
 	struct ShapesLayer : public RenderLayer

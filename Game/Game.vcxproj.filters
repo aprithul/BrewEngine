@@ -27,4 +27,7 @@
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="res\Materials\Gizmo.mat" />
+  </ItemGroup>
 </Project>

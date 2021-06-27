@@ -63,6 +63,7 @@ namespace PrEngine {
 
 	// useful for drawing bounding rects
 	Rect<Float_32> points_to_rect(Vec2f* points);
+	Rect<Float_32> points_to_rect(Vec3f* points);
 	Rect<Float_32> points_to_rect_with_transform(Vec2f*  points, Mat4x4& transformation);
 	
 	

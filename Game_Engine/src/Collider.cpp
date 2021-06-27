@@ -353,6 +353,29 @@ namespace PrEngine
 		return rect;
 	}
 
+	Rect<Float_32> points_to_rect(Vec3f* points)
+	{
+		Float_32 x_min = points[0].x;
+		Float_32 x_max = points[0].x;
+		Float_32 y_min = points[0].y;
+		Float_32 y_max = points[0].y;
+
+		for (int _i = 1; _i < 4; _i++)
+		{
+			if (points[_i].x < x_min)
+				x_min = points[_i].x;
+			if (points[_i].x > x_max)
+				x_max = points[_i].x;
+			if (points[_i].y < y_min)
+				y_min = points[_i].y;
+			if (points[_i].y > y_max)
+				y_max = points[_i].y;
+		}
+
+		Rect<Float_32> rect{ x_min,y_min, (x_max - x_min),(y_max - y_min) };
+		return rect;
+	}
+
 	Rect<Float_32> points_to_rect_with_transform(Vec2f*  points, Mat4x4& transformation)
 	{
 		Float_32 x_min = std::numeric_limits<Float_32>::infinity();

@@ -140,10 +140,11 @@ namespace PrEngine {
 		ShapesLayer* shapes_layer = new ShapesLayer();
 		render_layers.push_back(shapes_layer);
 
-        GuiLayer* gui_layer = new GuiLayer(window, &glContext);
-        render_layers.push_back(gui_layer);
+		GizmoLayer* gizmo_layer = new GizmoLayer();
+		render_layers.push_back(gizmo_layer);
 
-
+		GuiLayer* gui_layer = new GuiLayer(window, &glContext);
+		render_layers.push_back(gui_layer);
 
 		renderer = this;
 
@@ -584,13 +585,8 @@ namespace PrEngine {
 		}
 	}
 
-
-
-	void RendererOpenGL2D::generate_sprite_graphics(Uint_32 graphic_id)
+	void RendererOpenGL2D::generate_sprite_graphics(Graphic& graphic, Uint_32 graphic_id)
 	{
-		//Uint_32 mat_id = Material::load_material("shaders" + PATH_SEP + "DiffuseUnlit2D.shader", texture_file_path, mat_name);
-		// find the proper scale needed for the quad mesh
-		Graphic& graphic = graphics[graphic_id];
 		Uint_32 material_id = graphic.element.material;
 		assert(material_id);
 
@@ -608,14 +604,18 @@ namespace PrEngine {
 			y_scale = y_scale / x_scale;
 			x_scale = 1.f;
 		}
-		Float_32 import_scale = Graphic::editor_data[graphic_id].scale;
-		x_scale *= import_scale;
-		y_scale *= import_scale;
+
+		if (graphic_id)
+		{
+			Float_32 import_scale = Graphic::editor_data[graphic_id].scale;
+			x_scale *= import_scale;
+			y_scale *= import_scale;
+		}
 
 		std::vector<GLuint> indices;
 		std::vector<Vertex> buffer;
 
-		Vertex v1={
+		Vertex v1 = {
 			0.5f*x_scale,
 			0.5f*y_scale,
 			0.0f,
@@ -626,7 +626,7 @@ namespace PrEngine {
 			1.0f
 		};
 
-		Vertex v2={
+		Vertex v2 = {
 			-0.5f*x_scale,
 			0.5f*y_scale,
 			0.f,
@@ -637,56 +637,57 @@ namespace PrEngine {
 			1.0f
 		};
 
-		Vertex v3={
+		Vertex v3 = {
 			-0.5f*x_scale,
 			-0.5f*y_scale,
 			0.f,
-			
+
 			1,1,1,1,
 
 			0.0f,
-			0.0f 
+			0.0f
 		};
 
-		Vertex v4={
+		Vertex v4 = {
 			0.5f*x_scale,
 			-0.5f*y_scale,
 			0.f,
-			
+
 			1,1,1,1,
 
 			1.0f,
 			0.0f
 		};
 
-        buffer.push_back(v1);
-        buffer.push_back(v2);
-        buffer.push_back(v3);
-        buffer.push_back(v4);
+		buffer.push_back(v1);
+		buffer.push_back(v2);
+		buffer.push_back(v3);
+		buffer.push_back(v4);
 
-		// save vertex data for collider
-		Graphic::vertex_data[graphic_id][0] = Vec3f{ v1.p_x, v1.p_y, v1.p_z };
-		Graphic::vertex_data[graphic_id][1] = Vec3f{ v2.p_x, v2.p_y, v2.p_z };
-		Graphic::vertex_data[graphic_id][2] = Vec3f{ v3.p_x, v3.p_y, v3.p_z };
-		Graphic::vertex_data[graphic_id][3] = Vec3f{ v4.p_x, v4.p_y, v4.p_z };
+		if (graphic_id)
+		{	// save vertex data for collider
+			Graphic::vertex_data[graphic_id][0] = Vec3f{ v1.p_x, v1.p_y, v1.p_z };
+			Graphic::vertex_data[graphic_id][1] = Vec3f{ v2.p_x, v2.p_y, v2.p_z };
+			Graphic::vertex_data[graphic_id][2] = Vec3f{ v3.p_x, v3.p_y, v3.p_z };
+			Graphic::vertex_data[graphic_id][3] = Vec3f{ v4.p_x, v4.p_y, v4.p_z };
+		}
 
+		indices.push_back(0);
+		indices.push_back(1);
+		indices.push_back(2);
+		indices.push_back(2);
+		indices.push_back(3);
+		indices.push_back(0);
 
-        indices.push_back(0);
-        indices.push_back(1);
-        indices.push_back(2);
-        indices.push_back(2);
-        indices.push_back(3);
-        indices.push_back(0);
-
-        VertexLayout layout;
-        VertexAttribute attribute_0(0,3,GL_FLOAT,GL_FALSE);
-        VertexAttribute attribute_1(1,4,GL_FLOAT,GL_FALSE);
-        //VertexAttribute attribute_2(2,3,GL_FLOAT,GL_FALSE);
-        VertexAttribute attribute_3(3,2,GL_FLOAT,GL_FALSE);
-        layout.add_attribute(attribute_0);
-        layout.add_attribute(attribute_1);
-        //layout.add_attribute(attribute_2);
-        layout.add_attribute(attribute_3);
+		VertexLayout layout;
+		VertexAttribute attribute_0(0, 3, GL_FLOAT, GL_FALSE);
+		VertexAttribute attribute_1(1, 4, GL_FLOAT, GL_FALSE);
+		//VertexAttribute attribute_2(2,3,GL_FLOAT,GL_FALSE);
+		VertexAttribute attribute_3(3, 2, GL_FLOAT, GL_FALSE);
+		layout.add_attribute(attribute_0);
+		layout.add_attribute(attribute_1);
+		//layout.add_attribute(attribute_2);
+		layout.add_attribute(attribute_3);
 
 		//graphic.bounding_rect = Rect{0,0, x_scale, y_scale };
 		graphic.element.vao.Generate();
@@ -706,6 +707,14 @@ namespace PrEngine {
 
 		graphic.element.vao.Unbind();
 		graphic.element.ibo.Unbind();
+	}
+
+	void RendererOpenGL2D::generate_sprite_graphics(Uint_32 graphic_id)
+	{
+		//Uint_32 mat_id = Material::load_material("shaders" + PATH_SEP + "DiffuseUnlit2D.shader", texture_file_path, mat_name);
+		// find the proper scale needed for the quad mesh
+		Graphic& graphic = graphics[graphic_id];
+		generate_sprite_graphics(graphic, graphic_id);
 
     }
 
@@ -713,8 +722,10 @@ namespace PrEngine {
 	void RendererOpenGL2D::draw_line(Vec3f p1, Vec3f p2, Vec4f color)
 	{
 		//return;
-		lines.push_back({ p1,p2, color });
+		lines.push_back({ color, p1,p2 });
 	}
+
+	
 
 	void RendererOpenGL2D::draw_rect(Rect<Float_32> rect, Vec4f color)
 	{
@@ -728,7 +739,7 @@ namespace PrEngine {
 		renderer->draw_line(p4, p1, color);
 	}
 
-	void RendererOpenGL2D::draw_rect_with_transform(Rect<Float_32> rect, Vec4f color, Mat4x4& transformation)
+	void RendererOpenGL2D::draw_rect_with_transform(Rect<Float_32> rect, Vec4f color, const Mat4x4& transformation)
 	{
 		Vec3f p1{ rect.x,rect.y,0 };
 		p1 = transformation * p1;
@@ -757,6 +768,158 @@ namespace PrEngine {
         }
         return nullptr;
     }
+
+	void RendererOpenGL2D::render_graphic(Graphic& graphic, Mat4x4& transformation, Camera& _camera, DirectionalLight& _light)
+	{
+
+		GraphicsElement& element = graphic.element;
+		Material* mat = Material::get_material(element.material);
+		if (mat == nullptr)
+		{
+			LOG(LOGTYPE_ERROR, "Couldn't find material");
+			return;
+		}
+
+		//graphic.bounding_rect.x = transform.position.x;
+		//graphic.bounding_rect.y = transform.position.y;
+		//std::cout<<"before: "<<grp->element.material.uniform_locations["u_MVP"]  <<std::endl;
+
+		// only bind texture for the last texture unit. Ideally we want to have fewer units in use
+		// to avoid binding all together. Assumption is that textures are bound at consturction and
+		// remain bound
+		Texture* tex = Texture::get_texture(mat->diffuse_textures[0]);
+		//if (tex->bind_unit == max_texture_units - 1)
+		mat->Bind();
+
+		//glActiveTexture(GL_TEXTURE0 + tex->bind_unit);
+		Shader* shader = Shader::get_shader(mat->shader);
+		if (shader == nullptr)
+		{
+			LOG(LOGTYPE_ERROR, "Shader couldn't be found");
+			return;
+		}
+		//glUseProgram(shader->id);
+		GLint* uniform_loc = shader->uniform_locations;
+
+
+		for (Uint_32 _i = 0; _i < (Int_32)ShaderUniformName::u_count; _i++)
+		{
+			ShaderUniformName _name = (ShaderUniformName)_i;
+			GLint _loc = uniform_loc[_i];
+			if (_loc >= 0)
+			{
+				switch (_name)
+				{
+				case ShaderUniformName::u_sampler2d:
+				{
+					Texture* tex = Texture::get_texture(mat->diffuse_textures[0]);
+					//GL_CALL(
+					glUniform1i(_loc, tex->bind_unit);//)
+				}
+				break;
+				case ShaderUniformName::u_textures:	//happens with batche graphic, batche graphi will have array of texture ids
+				{
+					/*GLint texture_bind_units[MAX_TEXTURES] = {};
+					int _count = 0;
+					for (int _i = 0; _i < MAX_TEXTURES; _i++)
+					{
+						//if (mat->diffuse_textures[_i] != 0)
+						{
+							Texture* tex = Texture::get_texture(mat->diffuse_textures[_i]);
+							texture_bind_units[_i] = tex->bind_unit;
+							_count++;
+						}
+						//else
+						//	break;
+					}
+
+					//GL_CALL(
+					glUniform1iv(it.second.second, _count, texture_bind_units);//)*/
+				}
+				break;
+				/*case ShaderUniformName::u_Dir_Light:
+					GL_CALL(
+						glUniform3f(it.second.second, _dir.x, _dir.y, _dir.z))
+						break;*/
+				case ShaderUniformName::u_Model:
+					GL_CALL(
+						glUniformMatrix4fv(_loc, 1, GL_FALSE, transformation.data))
+						break;
+				case ShaderUniformName::u_View:
+					GL_CALL(
+						glUniformMatrix4fv(_loc, 1, GL_FALSE, _camera.view_matrix.data))
+						break;
+				case ShaderUniformName::u_View_t:
+				{
+					Mat4x4 _view = Mat4x4(_camera.view_matrix);
+					_view(0, 3) = 0;
+					_view(1, 3) = 0;
+					_view(2, 3) = 0;
+					_view(3, 0) = 0;
+					_view(3, 1) = 0;
+					_view(3, 2) = 0;
+					_view(3, 3) = 1;
+
+					GL_CALL(
+						glUniformMatrix4fv(_loc, 1, GL_FALSE, _view.data))
+				}
+				break;
+				case ShaderUniformName::u_Projection:
+					GL_CALL(
+						glUniformMatrix4fv(_loc, 1, GL_FALSE, _camera.projection_matrix.data))
+						break;
+					/*case ShaderUniformName::u_Camera_Position:
+						GL_CALL(
+							glUniform3f(it.second.second, _cam_pos.x, _cam_pos.y, _cam_pos.z))
+							break;
+					case ShaderUniformName::u_Normal_M:
+						GL_CALL(
+							glUniformMatrix4fv(it.second.second, 1, GL_TRUE, transform.rotation_transformation.data))
+							break;*/
+				case ShaderUniformName::u_Panning:
+					GL_CALL(
+						glUniform2f(_loc, mat->panning.x, mat->panning.y))
+						break;
+				case ShaderUniformName::u_Tiling:
+					GL_CALL(
+						glUniform2f(_loc, mat->tiling.x, mat->tiling.y))
+						break;
+				case ShaderUniformName::u_Diffuse_Color:
+					GL_CALL(
+						glUniform3f(_loc, mat->diffuse_color.x, mat->diffuse_color.y, mat->diffuse_color.z))
+						break;
+				case ShaderUniformName::u_Outline_Color:
+					GL_CALL(
+						glUniform4f(_loc, graphic.outline_color.x, graphic.outline_color.y, graphic.outline_color.z, graphic.outline_alpha))
+						break;
+				case ShaderUniformName::u_Ambient_Strength:
+					GL_CALL(
+						glUniform1f(_loc, 1.f))
+						break;
+				default:
+					break;
+				}
+			}
+
+
+
+			//}
+
+			//grp->ibo[i].Bind();
+
+			//GL_CALL(
+			//    glUniform1f((*it)->material.uniform_locations["u_red"], 1.f))
+		}
+		element.vao.Bind();
+		element.ibo.Bind();
+		GL_CALL(
+			//glDrawArrays(GL_TRIANGLES,0, grp->element.num_of_triangles*3))
+			glDrawElements(GL_TRIANGLES, element.ibo.count, GL_UNSIGNED_INT, nullptr));
+		element.vao.Unbind();
+		element.ibo.Unbind();
+		mat->Unbind();
+
+	}
 
 /*
     void Renderer3D::upload_mesh(const Mesh& mesh)

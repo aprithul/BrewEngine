@@ -8,11 +8,12 @@
 #include "PhysicsModule.hpp"
 #include "Math.hpp"
 #include "SceneManager.hpp"
+#include "GizmoLayer.hpp"
 namespace PrEngine
 {
 
 #ifdef EDITOR_MODE
-	Uint_32 selected_transform = 0;
+	Uint_32 selected_graphic = 0;
 	Uint_32 last_selected_transform = 0;
 	std::vector<std::string> material_directories;
 	std::vector<std::string> shader_directories;
@@ -27,13 +28,20 @@ namespace PrEngine
 	void draw_inspector_window();
 	void draw_asset_window();
 	void draw_editor(SDL_Window* window);
+	Uint_32 is_mouse_in_any_graphic(Vec2f mouse_pos);
 #endif // 
 #ifdef DEBUG
 	void draw_debug_window(Float_32 fps);
 #endif // DEBUG
 
 
-
+	Bool_8 is_mouse_inside_viewport(Vec2f mouse_pos)
+	{
+		Int_32 w, h;
+		SDL_GetWindowSize(renderer->window, &w, &h);
+		Rect<Float_32> r{ ImGui::min_viewport.x, (h - ImGui::min_viewport.y) - (ImGui::max_viewport.y - ImGui::min_viewport.y), ImGui::max_viewport.x - ImGui::min_viewport.x, ImGui::max_viewport.y - ImGui::min_viewport.y };
+		return point_in_AABB(mouse_pos, r);
+	}
 
     GuiLayer::GuiLayer(SDL_Window* sdl_window, SDL_GLContext* gl_context):window(sdl_window),gl_context(gl_context)
     {
@@ -70,10 +78,16 @@ namespace PrEngine
 
 
 #ifdef EDITOR_MODE
+
 		load_materials();
 		load_textures();
 		load_animations();
 		load_shaders();
+
+		// gizmo arrows
+		//EntityGenerator eg;
+		//eg.make_sprite("Materials" + PATH_SEP + "Gizmo.mat", Point3d{ 2,0,0 }, RENDER_UNTAGGED);
+
 #endif // EDITOR_MODE
 
     }
@@ -241,21 +255,24 @@ namespace PrEngine
 
 		static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
 		ImGuiTreeNodeFlags node_flags = base_flags;
-		if(selected_transform == id_transform)
+		if(selected_graphic == id_transform)
 			node_flags |= ImGuiTreeNodeFlags_Selected;
 		
 		bool node_open = ImGui::TreeNodeEx(buffer, node_flags, buffer, id_transform);
 	
 		
 		if (ImGui::IsItemClicked())
-			selected_transform = id_transform;
+		{
+			selected_graphic = id_transform;
+			GizmoLayer::move_gizmo.target_transform = selected_graphic;
+		}
 
 		//if (input_manager->mouse.get_mouse_button(SDL_BUTTON_LEFT) && selected_transform)
 		//{
 			if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
 			{
-				ImGui::SetDragDropPayload("SCENE_HIERARCHY", &selected_transform, sizeof(Uint_32));
-				ImGui::Text("Copy %d", selected_transform);
+				ImGui::SetDragDropPayload("SCENE_HIERARCHY", &selected_graphic, sizeof(Uint_32));
+				ImGui::Text("Copy %d", selected_graphic);
 				ImGui::EndDragDropSource();
 			}
 			if (ImGui::BeginDragDropTarget())
@@ -290,9 +307,9 @@ namespace PrEngine
 	Vec2f mouse_pos_ws;
 	//Vec2f mouse_pos_vs;
 	Vec2f mouse_pos_ss;
-	Uint_32 drag_transform;
+	Uint_32 drag_graphic;
 	float v_x, v_y, v_w, v_h;
-	inline void draw_editor(SDL_Window* window)
+	void draw_editor(SDL_Window* window)
 	{
 		//axis lines
 		renderer->draw_line(Vec3f{0, 0, 0}, Vec3f{100, 0, 0}, Vec4f{1, 0, 0, 1});
@@ -317,63 +334,55 @@ namespace PrEngine
 		static Vec2f selection_offset;
 		if (input_manager->mouse.get_mouse_button_down(1))
 		{
-			Uint_32 clicked_on = physics_module->point_in_any_shape(mouse_pos_ws);
-			if (clicked_on)
+			Uint_32 clicked_on_graphic= is_mouse_in_any_graphic(mouse_pos_ws);
+			if (clicked_on_graphic)
 			{
-				if (selected_transform == clicked_on)	// 
+				if (selected_graphic == clicked_on_graphic)	// 
 				{
-					drag_transform = selected_transform;
-					selection_offset = (Vec2f)transforms[drag_transform].position - mouse_pos_ws;
+					drag_graphic = selected_graphic;
+					Uint_32 trans_id = graphics[drag_graphic].transform_id;
+					selection_offset = (Vec2f)transforms[trans_id].position - mouse_pos_ws;
 				}
 				else
 				{
-					selected_transform = clicked_on;
-					drag_transform = 0;
+					selected_graphic = clicked_on_graphic;
+					drag_graphic = 0;
 				}
 			}
 			else
 			{
 				// check if click was inside viewport
-				Rect<Float_32> r{ v_x, v_y, v_w, v_h };
-				if (point_in_AABB(mouse_pos_ss, r))
+				if(is_mouse_inside_viewport(mouse_pos_ss))
 				{
-					selected_transform = 0;
-					drag_transform = 0;
+					selected_graphic = 0;
+					GizmoLayer::move_gizmo.target_transform = 0;
+					drag_graphic = 0;
 				}
 			}
 		}
 		// draw rect around selected entity
-		if (selected_transform)
+		if (selected_graphic)
 		{
-			Uint_32 collider_id = entities[transform_entity_id[selected_transform]][COMP_COLLIDER];
-			Transform3D& _transform = transforms[selected_transform];
-			if (collider_id)
-			{
-				Collider& collider = colliders[collider_id];
-				Rect<Float_32> rect = points_to_rect(collider.collision_shape.points);
-				Vec4f color{ 0.8, 0.5, 0, 1 };
-				renderer->draw_rect_with_transform(rect, color, _transform.transformation);
-/*
-				for (int _i = 0; _i < 4; _i++)
-				{
-					Vec3f p1 = _transform.transformation * collider.collision_shape.points[_i];
-					Vec3f p2 = _transform.transformation * collider.collision_shape.points[(_i + 1) % 4];
-					renderer->draw_line(p1, p2, color);
-				}
-*/
-			}
+			Uint_32 trans_id = graphics[selected_graphic].transform_id;
+			const Mat4x4& _transform = transforms[trans_id].transformation;
+			Vec3f* vertices = Graphic::vertex_data[selected_graphic];
+
+			Rect<Float_32> rect = points_to_rect(vertices);
+			Vec4f color{ 0.8, 0.5, 0, 1 };
+			renderer->draw_rect_with_transform(rect, color,_transform);
+
 		}
-		//drag tarnsform with mouse pointer
-		if (drag_transform)
+		//drag grpahic with mouse pointer
+		if (drag_graphic)
 		{
 			if (input_manager->mouse.get_mouse_button(1))
 			{
-				Vec3f& drag_transform_pos = transforms[drag_transform].position;
+				Vec3f& drag_transform_pos = transforms[ graphics[drag_graphic].transform_id].position;
 				drag_transform_pos.x = mouse_pos_ws.x + selection_offset.x;
 				drag_transform_pos.y = mouse_pos_ws.y + selection_offset.y;
 			}
 			else
-				drag_transform = 0;
+				drag_graphic = 0;
 		}
 		
 		
@@ -394,14 +403,14 @@ namespace PrEngine
 			pos.x = pos.x - (Time::Frame_time*cam_pan_speed);
 		transforms[cam_transform].position = pos;
 
-		if (input_manager->mouse.scroll != 0)
+		if (input_manager->mouse.scroll != 0 && is_mouse_inside_viewport(mouse_pos_ss))
 		{
 			Float_32 speed = 20.f;
 			cameras[cam].zoom = clamp<Float_32>(cameras[cam].zoom + +(input_manager->mouse.scroll*Time::Frame_time*speed), 0.1, 1000);
 		}
 
 		if (input_manager->keyboard.get_key_down(SDLK_DELETE))
-			entity_management_system->delete_entity_by_transform(selected_transform);
+			entity_management_system->delete_entity_by_transform(selected_graphic);
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		draw_scene_hierarchy();
@@ -465,7 +474,7 @@ namespace PrEngine
 		renderer->viewport_size.y = v_h;*/
 	}
 
-	inline void draw_inspector_window()
+	void draw_inspector_window()
 	{
 		if (!ImGui::Begin("Inspector", 0))
 		{
@@ -476,12 +485,12 @@ namespace PrEngine
 		//v_w = ImGui::GetWindowPos().x - v_x;
 
 
-		if (selected_transform)
+		if (selected_graphic)
 		{
-			Uint_32 entity = transform_entity_id[selected_transform];
+			Uint_32 entity = transform_entity_id[selected_graphic];
 			if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
 			{
-				Vec3f& pos = transforms[selected_transform].position;// .get_global_position();
+				Vec3f& pos = transforms[selected_graphic].position;// .get_global_position();
 				float v3_p[3] = { pos.x, pos.y, pos.z };
 				//ImGui::InputFloat("input float", &pos.x, 0.01f, 1.0f, "%.3f");
 				ImGui::DragFloat3("Position", v3_p, 1.0f, -10000.0f, 10000.0f, "%.3f", 1.0f);
@@ -490,7 +499,7 @@ namespace PrEngine
 				pos.z = v3_p[2];
 				//transforms[selected_transform].position = transforms[selected_transform].get_global_to_local_position(pos);
 
-				Vec3f& rot = get_transform(selected_transform).rotation;// get_global_rotation();
+				Vec3f& rot = get_transform(selected_graphic).rotation;// get_global_rotation();
 				float v3_r[3] = { rot.x, rot.y, rot.z };
 				//ImGui::InputFloat("input float", &pos.x, 0.01f, 1.0f, "%.3f");
 				ImGui::DragFloat3("Rotation", v3_r, 1.0f, -10000.0f, 10000.0f, "%.3f", 1.0f);
@@ -499,7 +508,7 @@ namespace PrEngine
 				rot.z = v3_r[2];
 				//transforms[selected_transform].rotation = transforms[selected_transform].get_global_to_local_rotation(rot);
 
-				Vec3f& scl = get_transform(selected_transform).scale;
+				Vec3f& scl = get_transform(selected_graphic).scale;
 				float v3_s[3] = { scl.x, scl.y, scl.z };
 				//ImGui::InputFloat("input float", &pos.x, 0.01f, 1.0f, "%.3f");
 				ImGui::DragFloat3("Scale", v3_s, 1.0f, -10000.0f, 10000.0f, "%.3f", 1.0f);
@@ -507,7 +516,7 @@ namespace PrEngine
 				scl.y = v3_s[1];
 				scl.z = v3_s[2];
 			}
-			last_selected_transform = selected_transform;
+			last_selected_transform = selected_graphic;
 
 			auto& ent = entities[entity];
 			if (ent[COMP_GRAPHICS])
@@ -649,7 +658,7 @@ namespace PrEngine
 		ImGui::End();
 	}
 
-	inline void draw_scene_hierarchy()
+	void draw_scene_hierarchy()
 	{
 		//if (!ImGui::Begin("Scene Hierarchy", 0, ImGuiWindowFlags_NoMove))
 		if (!ImGui::Begin("Scene Hierarchy", 0))
@@ -694,7 +703,7 @@ namespace PrEngine
 
 	}
 
-	inline void load_materials()
+	void load_materials()
 	{
 		std::string dir = get_resource_path("");// +"Materials" + PATH_SEP;
 		get_files_in_dir(dir, ".mat", material_directories);
@@ -706,7 +715,7 @@ namespace PrEngine
 		}
 	}
 
-	inline void load_shaders()
+	void load_shaders()
 	{
 		std::string dir = get_resource_path("");// +"Materials" + PATH_SEP;
 		get_files_in_dir(dir, ".shader", shader_directories);
@@ -718,7 +727,7 @@ namespace PrEngine
 		}
 	}
 
-	inline void load_textures()
+	void load_textures()
 	{
 		std::string dir = get_resource_path("");// +"Materials" + PATH_SEP;
 		get_files_in_dir(dir, ".png", texture_directories);
@@ -731,7 +740,7 @@ namespace PrEngine
 		}
 	}
 
-	inline void load_animations()
+	void load_animations()
 	{
 		std::string dir = get_resource_path("");// +"Materials" + PATH_SEP;
 		get_files_in_dir(dir, ".anim", animation_directories);
@@ -743,7 +752,7 @@ namespace PrEngine
 		}
 	}
 
-	inline void draw_asset_window()
+	void draw_asset_window()
 	{
 		if (!ImGui::Begin("Assets", 0))//, ImGuiWindowFlags_NoMove))
 		{
@@ -850,10 +859,29 @@ namespace PrEngine
 		ImGui::EndChild();
 		ImGui::End();
 	}
+
+	Uint_32 is_mouse_in_any_graphic(Vec2f mouse_pos)
+	{
+		for (auto& it : Graphic::vertex_data)
+		{
+			Uint_32 t_id = graphics[it.first].transform_id;
+			Vec2f points[4];
+			points[0] = transforms[t_id].transformation * it.second[0];
+			points[1] = transforms[t_id].transformation * it.second[1];
+			points[2] = transforms[t_id].transformation * it.second[2];
+			points[3] = transforms[t_id].transformation * it.second[3];
+
+			if (point_in_shape(points, 4, mouse_pos))
+				return it.first;
+		}
+
+		return 0;
+	}
+
 #endif
 
 #ifdef DEBUG
-	inline void draw_debug_window(Float_32 fps)
+	void draw_debug_window(Float_32 fps)
 	{
 		if (!ImGui::Begin("Info: ", 0))//, ImGuiWindowFlags_NoMove))
 		{

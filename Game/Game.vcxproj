@@ -93,6 +93,9 @@
       <Project>{5DA1A940-496E-044C-7287-F2F35EB339DA}</Project>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="res\Materials\Gizmo.mat" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

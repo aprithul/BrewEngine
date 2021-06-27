@@ -65,7 +65,7 @@ Int_32 make_engine_and_start_game(){
 		auto c = entity_generator->make_animated_sprite_entity(file_path);
 		entity_management_system->set_parent_transform(p, c);
 		auto i = entity_generator->make_animated_sprite_entity(file_path);*/
-		
+
 
 		//EntityGenerator eg;
 		//eg.make_camera_orthographic(16, 9, -10, 10);

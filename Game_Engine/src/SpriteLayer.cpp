@@ -29,158 +29,158 @@ namespace PrEngine
 	}
 
 	int draw_calls = 0;
-	inline void render_graphic(Graphic& graphic, Mat4x4& transformation, Camera& _camera, DirectionalLight& _light, Vec3f _cam_pos, Vec3f _dir)
-	{
-		
-		draw_calls++;
-		GraphicsElement& element = graphic.element;
-		Material* mat = Material::get_material(element.material);
-		if (mat == nullptr)
-		{
-			LOG(LOGTYPE_ERROR, "Couldn't find material");
-			return;
-		}
+	//inline void render_graphic(Graphic& graphic, Mat4x4& transformation, Camera& _camera, DirectionalLight& _light, Vec3f _cam_pos, Vec3f _dir)
+	//{
+	//	
+	//	draw_calls++;
+	//	GraphicsElement& element = graphic.element;
+	//	Material* mat = Material::get_material(element.material);
+	//	if (mat == nullptr)
+	//	{
+	//		LOG(LOGTYPE_ERROR, "Couldn't find material");
+	//		return;
+	//	}
 
-		//graphic.bounding_rect.x = transform.position.x;
-		//graphic.bounding_rect.y = transform.position.y;
-		//std::cout<<"before: "<<grp->element.material.uniform_locations["u_MVP"]  <<std::endl;
+	//	//graphic.bounding_rect.x = transform.position.x;
+	//	//graphic.bounding_rect.y = transform.position.y;
+	//	//std::cout<<"before: "<<grp->element.material.uniform_locations["u_MVP"]  <<std::endl;
 
-		// only bind texture for the last texture unit. Ideally we want to have fewer units in use
-		// to avoid binding all together. Assumption is that textures are bound at consturction and
-		// remain bound
-		Texture* tex = Texture::get_texture(mat->diffuse_textures[0]);
-		//if (tex->bind_unit == max_texture_units - 1)
-		mat->Bind();
+	//	// only bind texture for the last texture unit. Ideally we want to have fewer units in use
+	//	// to avoid binding all together. Assumption is that textures are bound at consturction and
+	//	// remain bound
+	//	Texture* tex = Texture::get_texture(mat->diffuse_textures[0]);
+	//	//if (tex->bind_unit == max_texture_units - 1)
+	//	mat->Bind();
 
-		//glActiveTexture(GL_TEXTURE0 + tex->bind_unit);
-		Shader* shader = Shader::get_shader(mat->shader);
-		if (shader == nullptr)
-		{
-			LOG(LOGTYPE_ERROR, "Shader couldn't be found");
-			return;
-		}
-		//glUseProgram(shader->id);
-		GLint* uniform_loc = shader->uniform_locations;
-
-
-		for (Uint_32 _i = 0; _i<(Int_32)ShaderUniformName::u_count; _i++)
-		{
-			ShaderUniformName _name = (ShaderUniformName)_i;
-			GLint _loc = uniform_loc[_i];
-			if (_loc >= 0)
-			{
-				switch (_name)
-				{
-					case ShaderUniformName::u_sampler2d:
-					{
-						Texture* tex = Texture::get_texture(mat->diffuse_textures[0]);
-						//GL_CALL(
-						glUniform1i(_loc, tex->bind_unit);//)
-					}
-					break;
-					case ShaderUniformName::u_textures:	//happens with batche graphic, batche graphi will have array of texture ids
-					{
-						/*GLint texture_bind_units[MAX_TEXTURES] = {};
-						int _count = 0;
-						for (int _i = 0; _i < MAX_TEXTURES; _i++)
-						{
-							//if (mat->diffuse_textures[_i] != 0)
-							{
-								Texture* tex = Texture::get_texture(mat->diffuse_textures[_i]);
-								texture_bind_units[_i] = tex->bind_unit;
-								_count++;
-							}
-							//else
-							//	break;
-						}
-
-						//GL_CALL(
-						glUniform1iv(it.second.second, _count, texture_bind_units);//)*/
-					}
-					break;
-					/*case ShaderUniformName::u_Dir_Light:
-						GL_CALL(
-							glUniform3f(it.second.second, _dir.x, _dir.y, _dir.z))
-							break;*/
-					case ShaderUniformName::u_Model:
-						GL_CALL(
-							glUniformMatrix4fv(_loc, 1, GL_FALSE, transformation.data))
-							break;
-					case ShaderUniformName::u_View:
-						GL_CALL(
-							glUniformMatrix4fv(_loc, 1, GL_FALSE, _camera.view_matrix.data))
-							break;
-					case ShaderUniformName::u_View_t:
-					{
-						Mat4x4 _view = Mat4x4(_camera.view_matrix);
-						_view(0,3) = 0;
-						_view(1,3) = 0;
-						_view(2,3) = 0;
-						_view(3,0) = 0;
-						_view(3,1) = 0;
-						_view(3,2) = 0;
-						_view(3,3) = 1;
-
-						GL_CALL(
-							glUniformMatrix4fv(_loc, 1, GL_FALSE, _view.data))
-					}
-					break;
-					case ShaderUniformName::u_Projection:
-						GL_CALL(
-							glUniformMatrix4fv(_loc, 1, GL_FALSE, _camera.projection_matrix.data))
-							break;
-						/*case ShaderUniformName::u_Camera_Position:
-							GL_CALL(
-								glUniform3f(it.second.second, _cam_pos.x, _cam_pos.y, _cam_pos.z))
-								break;
-						case ShaderUniformName::u_Normal_M:
-							GL_CALL(
-								glUniformMatrix4fv(it.second.second, 1, GL_TRUE, transform.rotation_transformation.data))
-								break;*/
-					case ShaderUniformName::u_Panning:
-						GL_CALL(
-							glUniform2f(_loc, mat->panning.x, mat->panning.y))
-							break;
-					case ShaderUniformName::u_Tiling:
-						GL_CALL(
-							glUniform2f(_loc, mat->tiling.x, mat->tiling.y))
-							break;
-					case ShaderUniformName::u_Diffuse_Color:
-						GL_CALL(
-							glUniform3f(_loc, mat->diffuse_color.x, mat->diffuse_color.y, mat->diffuse_color.z))
-							break;
-					case ShaderUniformName::u_Outline_Color:
-						GL_CALL(
-							glUniform4f(_loc, graphic.outline_color.x, graphic.outline_color.y, graphic.outline_color.z, graphic.outline_alpha))
-							break;
-					case ShaderUniformName::u_Ambient_Strength:
-						GL_CALL(
-							glUniform1f(_loc, 1.f))
-							break;
-					default:
-						break;
-				}
-			}
+	//	//glActiveTexture(GL_TEXTURE0 + tex->bind_unit);
+	//	Shader* shader = Shader::get_shader(mat->shader);
+	//	if (shader == nullptr)
+	//	{
+	//		LOG(LOGTYPE_ERROR, "Shader couldn't be found");
+	//		return;
+	//	}
+	//	//glUseProgram(shader->id);
+	//	GLint* uniform_loc = shader->uniform_locations;
 
 
+	//	for (Uint_32 _i = 0; _i<(Int_32)ShaderUniformName::u_count; _i++)
+	//	{
+	//		ShaderUniformName _name = (ShaderUniformName)_i;
+	//		GLint _loc = uniform_loc[_i];
+	//		if (_loc >= 0)
+	//		{
+	//			switch (_name)
+	//			{
+	//				case ShaderUniformName::u_sampler2d:
+	//				{
+	//					Texture* tex = Texture::get_texture(mat->diffuse_textures[0]);
+	//					//GL_CALL(
+	//					glUniform1i(_loc, tex->bind_unit);//)
+	//				}
+	//				break;
+	//				case ShaderUniformName::u_textures:	//happens with batche graphic, batche graphi will have array of texture ids
+	//				{
+	//					/*GLint texture_bind_units[MAX_TEXTURES] = {};
+	//					int _count = 0;
+	//					for (int _i = 0; _i < MAX_TEXTURES; _i++)
+	//					{
+	//						//if (mat->diffuse_textures[_i] != 0)
+	//						{
+	//							Texture* tex = Texture::get_texture(mat->diffuse_textures[_i]);
+	//							texture_bind_units[_i] = tex->bind_unit;
+	//							_count++;
+	//						}
+	//						//else
+	//						//	break;
+	//					}
 
-			//}
+	//					//GL_CALL(
+	//					glUniform1iv(it.second.second, _count, texture_bind_units);//)*/
+	//				}
+	//				break;
+	//				/*case ShaderUniformName::u_Dir_Light:
+	//					GL_CALL(
+	//						glUniform3f(it.second.second, _dir.x, _dir.y, _dir.z))
+	//						break;*/
+	//				case ShaderUniformName::u_Model:
+	//					GL_CALL(
+	//						glUniformMatrix4fv(_loc, 1, GL_FALSE, transformation.data))
+	//						break;
+	//				case ShaderUniformName::u_View:
+	//					GL_CALL(
+	//						glUniformMatrix4fv(_loc, 1, GL_FALSE, _camera.view_matrix.data))
+	//						break;
+	//				case ShaderUniformName::u_View_t:
+	//				{
+	//					Mat4x4 _view = Mat4x4(_camera.view_matrix);
+	//					_view(0,3) = 0;
+	//					_view(1,3) = 0;
+	//					_view(2,3) = 0;
+	//					_view(3,0) = 0;
+	//					_view(3,1) = 0;
+	//					_view(3,2) = 0;
+	//					_view(3,3) = 1;
 
-			//grp->ibo[i].Bind();
+	//					GL_CALL(
+	//						glUniformMatrix4fv(_loc, 1, GL_FALSE, _view.data))
+	//				}
+	//				break;
+	//				case ShaderUniformName::u_Projection:
+	//					GL_CALL(
+	//						glUniformMatrix4fv(_loc, 1, GL_FALSE, _camera.projection_matrix.data))
+	//						break;
+	//					/*case ShaderUniformName::u_Camera_Position:
+	//						GL_CALL(
+	//							glUniform3f(it.second.second, _cam_pos.x, _cam_pos.y, _cam_pos.z))
+	//							break;
+	//					case ShaderUniformName::u_Normal_M:
+	//						GL_CALL(
+	//							glUniformMatrix4fv(it.second.second, 1, GL_TRUE, transform.rotation_transformation.data))
+	//							break;*/
+	//				case ShaderUniformName::u_Panning:
+	//					GL_CALL(
+	//						glUniform2f(_loc, mat->panning.x, mat->panning.y))
+	//						break;
+	//				case ShaderUniformName::u_Tiling:
+	//					GL_CALL(
+	//						glUniform2f(_loc, mat->tiling.x, mat->tiling.y))
+	//						break;
+	//				case ShaderUniformName::u_Diffuse_Color:
+	//					GL_CALL(
+	//						glUniform3f(_loc, mat->diffuse_color.x, mat->diffuse_color.y, mat->diffuse_color.z))
+	//						break;
+	//				case ShaderUniformName::u_Outline_Color:
+	//					GL_CALL(
+	//						glUniform4f(_loc, graphic.outline_color.x, graphic.outline_color.y, graphic.outline_color.z, graphic.outline_alpha))
+	//						break;
+	//				case ShaderUniformName::u_Ambient_Strength:
+	//					GL_CALL(
+	//						glUniform1f(_loc, 1.f))
+	//						break;
+	//				default:
+	//					break;
+	//			}
+	//		}
 
-			//GL_CALL(
-			//    glUniform1f((*it)->material.uniform_locations["u_red"], 1.f))
-		}
-		element.vao.Bind();
-		element.ibo.Bind();
-		GL_CALL(
-			//glDrawArrays(GL_TRIANGLES,0, grp->element.num_of_triangles*3))
-			glDrawElements(GL_TRIANGLES, element.ibo.count, GL_UNSIGNED_INT, nullptr));
-		element.vao.Unbind();
-		element.ibo.Unbind();
-		mat->Unbind();
 
-	}
+
+	//		//}
+
+	//		//grp->ibo[i].Bind();
+
+	//		//GL_CALL(
+	//		//    glUniform1f((*it)->material.uniform_locations["u_red"], 1.f))
+	//	}
+	//	element.vao.Bind();
+	//	element.ibo.Bind();
+	//	GL_CALL(
+	//		//glDrawArrays(GL_TRIANGLES,0, grp->element.num_of_triangles*3))
+	//		glDrawElements(GL_TRIANGLES, element.ibo.count, GL_UNSIGNED_INT, nullptr));
+	//	element.vao.Unbind();
+	//	element.ibo.Unbind();
+	//	mat->Unbind();
+
+	//}
 
 	Float_32 texture_index = 0;
 	void SpriteLayer::update()
@@ -193,8 +193,8 @@ namespace PrEngine
 
 		Camera& _camera = cameras[camera_id];
 		DirectionalLight& _light = directional_lights[1];
-		Vec3f _cam_pos = transforms[_camera.id_transform].position;
-		Vec3f _dir = get_transform(_light.id_transform).get_forward();
+		//Vec3f _cam_pos = transforms[_camera.id_transform].position;
+		//Vec3f _dir = get_transform(_light.id_transform).get_forward();
 
 
 		for (Uint_32 _i = 0; _i < next_graphic_pos; _i++)
@@ -209,7 +209,7 @@ namespace PrEngine
 					continue;
 
 				auto& transform = transforms[graphic.transform_id];
-				render_graphic(graphic, transform.transformation, _camera, _light, _cam_pos, _dir);
+				renderer->render_graphic(graphic, transform.transformation, _camera, _light);
 				
 			}
 
@@ -362,7 +362,7 @@ namespace PrEngine
 			auto& t = transforms[batch.transform_id].transformation;
 			//if (batch.id_animator)
 			//	t = animators[batch.id_animator].translation * t;
-			render_graphic(batch, t, _camera, _light, _cam_pos, _dir); // transforms[0] is an 'identity' transformation
+			renderer->render_graphic(batch, t, _camera, _light); // transforms[0] is an 'identity' transformation
 		}
 				//LOG(LOGTYPE_WARNING, "Draw calls : ", std::to_string(draw_calls));
 
