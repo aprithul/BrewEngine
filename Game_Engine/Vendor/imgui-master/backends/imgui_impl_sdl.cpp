@@ -54,6 +54,11 @@
 
 // SDL
 // (the multi-viewports feature requires SDL features supported from SDL 2.0.4+. SDL 2.0.5+ is highly recommended)
+#ifdef _WEB
+#include <SDL.h>
+#include <SDL_syswm.h>
+#endif // 
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
 #if defined(__APPLE__)

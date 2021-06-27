@@ -11,7 +11,7 @@ namespace PrEngine {
 
 	void make_shape_graphic()
 	{
-		Uint_32 mat_id = Material::load_material("Materials" + PATH_SEP + "shape.mat", true);
+		Uint_32 mat_id = Material::load_material("Materials" + PATH_SEP + "Shape.mat", true);
 		Material& mat = Material::material_library[mat_id];
 		line_graphic.element.material = mat_id;
 

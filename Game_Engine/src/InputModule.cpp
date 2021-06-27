@@ -231,6 +231,7 @@ namespace PrEngine {
             	break;
 
             case SDL_MOUSEMOTION:
+
                 mouse.position.x = event.motion.x;
                 mouse.position.y = event.motion.y;
                 mouse.window_id  = event.motion.windowID;

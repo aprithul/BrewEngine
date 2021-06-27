@@ -23,6 +23,7 @@ namespace PrEngine
 		~Camera();
 		Uint_32 id_transform;
 
+		Vec3f get_mouse_to_screen_pos(Vec2f mouse_pos);
 		Vec3f get_screen_to_world_pos(Vec2f screen_pos);
 		void zoom_in(Float_32 zoom_speed);
 		void zoom_out(Float_32 zoom_speed);

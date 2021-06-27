@@ -534,7 +534,6 @@ assert(level > 0);
 
     void EntityManagementSystem::update()
     {
-		clock_t begin = clock();
 
 		//clock_t begin = clock();
 		update_transforms();
@@ -567,51 +566,52 @@ assert(level > 0);
 			if (animator_entity_id[i])
 				animators[i].update();
 		}
+		clock_t begin = clock();
 
 		// find collision
-//		for (Uint_32 i = 0; i < next_collider_pos; i++)
-//		{
-//			if (collider_entity_id[i])
-//			{
-//				Uint_32 t_id_i = colliders[i].transform_id;
-//				if (!t_id_i)continue;
-//				//Rect<Float_32> r1 = points_to_rect_with_transform(colliders[i].collision_shape.points, transforms[t_id_i].transformation);
-//
-//				for (Uint_32 j = i+1; j < next_collider_pos; j++)
-//				{
-//					if (collider_entity_id[j])
-//					{
-//						Uint_32 t_id_j = colliders[j].transform_id;
-//						if (!t_id_j)continue;
-//						//Rect<Float_32> r2 = points_to_rect_with_transform(colliders[j].collision_shape.points, transforms[t_id_j].transformation);
-//						
-//						clock_t begin = clock();
-//						Bool_8 did_intersect = intersect_GJK(colliders[i], colliders[j]);
-//						clock_t end = clock();
-//						Double_64 elapsed = (Double_64)(end - begin) / CLOCKS_PER_SEC;
-//
-//						if (did_intersect)
-//						{
-//							clock_t begin = clock();
-//							Vec2f col_pen_vec = do_EPA(colliders[i], colliders[j]);
-//							clock_t end = clock();
-//							Double_64 elapsed = (Double_64)(end - begin) / CLOCKS_PER_SEC;
-//
-//							physics_module->contacts.push_back(Contact{ col_pen_vec, i, j });
-//						}
-///*
-//						if (intersect_AABB_AABB(r1, r2))
-//						{
-//							physics_module->contacts.push_back(Contact{ i, j });
-//						}*/
-//					}
-//				}
-//
-//			}
-//		}
+		for (Uint_32 i = 0; i < next_collider_pos; i++)
+		{
+			if (collider_entity_id[i])
+			{
+				Uint_32 t_id_i = colliders[i].transform_id;
+				if (!t_id_i)continue;
+				//Rect<Float_32> r1 = points_to_rect_with_transform(colliders[i].collision_shape.points, transforms[t_id_i].transformation);
+
+				for (Uint_32 j = i+1; j < next_collider_pos; j++)
+				{
+					if (collider_entity_id[j])
+					{
+						Uint_32 t_id_j = colliders[j].transform_id;
+						if (!t_id_j)continue;
+						//Rect<Float_32> r2 = points_to_rect_with_transform(colliders[j].collision_shape.points, transforms[t_id_j].transformation);
+						
+						//clock_t begin = clock();
+						Bool_8 did_intersect = intersect_GJK(colliders[i], colliders[j]);
+						//clock_t end = clock();
+						//Double_64 elapsed = (Double_64)(end - begin) / CLOCKS_PER_SEC;
+
+						if (did_intersect)
+						{
+							//clock_t begin = clock();
+							Vec2f col_pen_vec = do_EPA(colliders[i], colliders[j]);
+							//clock_t end = clock();
+							//Double_64 elapsed = (Double_64)(end - begin) / CLOCKS_PER_SEC;
+
+							physics_module->contacts.push_back(Contact{ col_pen_vec, i, j });
+						}
+/*
+						if (intersect_AABB_AABB(r1, r2))
+						{
+							physics_module->contacts.push_back(Contact{ i, j });
+						}*/
+					}
+				}
+
+			}
+		}
 		clock_t end = clock();
 		Double_64 elapsed = (Double_64)(end - begin) / CLOCKS_PER_SEC;
-
+		//LOG(LOGTYPE_GENERAL, std::to_string(elapsed));
 		return;
     }
 

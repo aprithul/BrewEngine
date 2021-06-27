@@ -41,13 +41,19 @@ namespace PrEngine {
 		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 */
-		window = SDL_CreateWindow(this->title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);// | (full_screen*SDL_WINDOW_FULLSCREEN) );
+		window = SDL_CreateWindow(this->title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL);// | (full_screen*SDL_WINDOW_FULLSCREEN) );
+		//window = SDL_CreateWindow(this->title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);// | (full_screen*SDL_WINDOW_FULLSCREEN) );
 		glContext = SDL_GL_CreateContext(window);
 
-#ifdef _WIN64
+
+
+#if defined(_WIN64)
+		glewExperimental = GL_TRUE;
 		if (glewInit() != GLEW_OK)
 			printf("Glew not initialized properly");
+#endif
 
+#if defined(_WIN64)
 		// GL_CALL(glFrontFace(GL_CCW))     // points are gonna get supplid in clockwise order
 		// GL_CALL(glEnable(GL_CULL_FACE))
 		GL_CALL(glDisable(GL_CULL_FACE));
@@ -59,6 +65,8 @@ namespace PrEngine {
 		GL_CALL(glEnable(GL_DEPTH_TEST))
 			GL_CALL(glDepthFunc(GL_LESS))
 			//GL_CALL(glEnable(GL_MULTISAMPLE))
+
+			
 #elif _SWITCH
 		if (!gladLoadGL())
 			LOG(LOGTYPE_ERROR, "Glad not initialized properly");
@@ -82,8 +90,21 @@ namespace PrEngine {
 
 
 		GLuint id;
-		GL_CALL(glGenBuffers(1, &id))
-		printf("Buffer: %d\n", id);
+
+		const GLubyte* glVersion = glGetString(GL_VERSION);
+		printf("GLVersion = %s\n", glVersion);
+
+		const GLubyte* vendor = glGetString(GL_VENDOR);
+		const GLubyte* renderer_v = glGetString(GL_RENDERER);
+		printf("vendor = %s\nrenderer = %s\n", vendor, renderer_v);
+
+		GLuint q;
+		glGenQueries(1, &q);
+		printf("If you see this there was no crash!\n");
+
+		//glGenBuffers(1, &id);
+		//GL_CALL(glGenBuffers(1, &id))
+		//printf("Buffer: %d\n", id);
 
 		printf("---------------------------------------------------\n");
 
@@ -102,7 +123,7 @@ namespace PrEngine {
 
         std::cout<<"Loading default texture"<<std::endl;
         //Texture::load_default_texture();
-		Uint_32 mat = Material::load_material("Materials\\Default.mat", true);
+		Uint_32 mat = Material::load_material("Materials/Default.mat", true);
 		
 		assert(Material::material_creation_status); // default material has to be created for engine to work
 
@@ -154,6 +175,11 @@ namespace PrEngine {
 
 	void RendererOpenGL2D::update_viewport_size(int x, int y, int width, int height)
 	{
+		viewport_pos.x = x;
+		viewport_pos.y = y;
+		viewport_size.x = width;
+		viewport_size.y = height;
+
 		glViewport(x, y, width, height);
 	}
 
@@ -162,14 +188,16 @@ namespace PrEngine {
         SDL_Init(SDL_INIT_VIDEO);
         //TTF_Init();
 
-#ifdef _SWITCH
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+#if defined(_SWITCH) || defined(_WEB)
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+		//SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
 
 		/* Turn on double buffering with a 24bit Z buffer.
 		 * You may need to change this to 16 or 32 for your system */
-		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+		//SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+		//SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+
 #elif _WIN64
 
         SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
@@ -390,7 +418,7 @@ namespace PrEngine {
 			{
 				batch_texture_ids.push_back(texture_id);
 			}
-			Short_16 texture_index = batch_texture_ids.size() - 1;
+			Float_32 texture_index = batch_texture_ids.size() - 1;
 			// find index of texture in set
 
 			/*auto it = std::find(texture_ids.begin(), texture_ids.end(), texture_id);

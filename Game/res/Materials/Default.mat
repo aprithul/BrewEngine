@@ -1,2 +1,2 @@
 texture default.png
-shader shaders\DiffuseUnlit2D.shader
+shader shaders/DiffuseUnlit2D.shader

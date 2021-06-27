@@ -1,5 +1,5 @@
 #vertex
-#version 320 es
+#version 300 es
 layout(location=0) in vec4 position;
 layout(location=1) in vec4 _color;
 layout(location=3) in vec2 texco;
@@ -35,7 +35,7 @@ void main()
 }
 
 #fragment
-#version 320 es
+#version 300 es
 
 precision mediump float;
 

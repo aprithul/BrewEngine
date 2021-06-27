@@ -204,6 +204,7 @@ namespace PrEngine
 			std::string shader_name = "";
 
 			std::string material_data = read_file(get_resource_path(material_name));
+			LOG(LOGTYPE_GENERAL, "Material data:  ", material_data);
 			std::stringstream mateiral_data_stream(material_data);
 			std::string material_line;
 			std::vector<std::string> material_tokens;

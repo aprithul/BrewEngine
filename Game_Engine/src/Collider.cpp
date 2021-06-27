@@ -59,8 +59,8 @@ namespace PrEngine
 			return false;
 
 		// determinant is ~0, so colinear 
-		Float_32 derivative = l1_a * l2_b - l1_b * l2_a;
-		if (derivative < EPSILON && derivative > -EPSILON)
+		Float_32 determinant = l1_a * l2_b - l1_b * l2_a;
+		if (determinant < EPSILON && determinant > -EPSILON)
 			return false;
 
 		return true;

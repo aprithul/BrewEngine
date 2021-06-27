@@ -1,2 +1,2 @@
 texture default.png
-shader shaders\shape.shader
+shader shaders/Shape.shader

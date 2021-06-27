@@ -9,6 +9,11 @@
 #elif _SWITCH
 #include <GLES2/gl2.h>  // OpenGL ES 2.0 library
 #include <glad/glad.h>  // glad library (OpenGL loader)
+#elif _WEB
+	#include <emscripten.h>
+	#include <GLES3/gl3.h>  // OpenGL ES 2.0 library
+//#include <GL/glew.h>
+//#include <SDL_opengles2.h>
 
 #elif __APPLE__
 #include <OpenGL/gl3.h>

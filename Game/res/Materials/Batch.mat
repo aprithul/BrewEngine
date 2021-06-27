@@ -1,2 +1,2 @@
 texture default.png
-shader shaders\BatchedSprite.shader
+shader shaders/BatchedSprite.shader

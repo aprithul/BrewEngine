@@ -19,7 +19,7 @@
 #include <unordered_set>
 #include <unordered_map>
 
-#define MAX_ENTITY_COUNT 10205
+#define MAX_ENTITY_COUNT 500
 #define MAX_TRANSFORM_COUNT MAX_ENTITY_COUNT
 #define MAX_GRAPHIC_COUNT MAX_ENTITY_COUNT
 #define MAX_BATCH_COUNT 100

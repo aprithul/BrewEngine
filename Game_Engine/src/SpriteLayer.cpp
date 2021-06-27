@@ -182,7 +182,7 @@ namespace PrEngine
 
 	}
 
-	Uint_32 texture_index = 0;
+	Float_32 texture_index = 0;
 	void SpriteLayer::update()
 	{
 

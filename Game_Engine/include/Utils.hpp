@@ -15,10 +15,12 @@
 #include "Platform.hpp"
 
 #if defined(_WIN64)
-    const std::string PATH_SEP = "\\";
+    const std::string PATH_SEP = "/";
 	#include <windows.h>
 #elif defined(_SWITCH)
     const std::string PATH_SEP = "/";
+#elif defined(_WEB)
+	const std::string PATH_SEP = "/";
 #endif
 
 namespace PrEngine

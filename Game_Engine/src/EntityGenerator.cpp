@@ -98,15 +98,7 @@ namespace PrEngine{
 		RenderTag future_render_tag = render_tag;
 		Graphic::editor_data[graphic_id] = { import_scale, future_render_tag };
 
-		//Comment for benchmarking purpose, Uncomment in build
-		/*
-#ifdef EDITOR_MODE	
-		//if (render_tag == RENDER_STATIC) render_tag = RENDER_DYNAMIC;
-		render_tag = RENDER_UNTAGGED;
-#endif
-		if (animator_id)
-			render_tag = RENDER_DYNAMIC;
-		*/
+		
 		graphics[graphic_id].tag = _render_tag;
 		//graphics[id_graphic].future_tag = future_render_tag;
 
@@ -137,6 +129,25 @@ namespace PrEngine{
 				break;
 		}
 		LOG(LOGTYPE_GENERAL, "added to batch list");
+
+
+		// to be moved
+		/*Uint_32 collider_id = entity_management_system->make_collider_comp(entity);
+		Collider& col = colliders[collider_id];
+		col.graphic_id = graphic_id;
+		col.transform_id = transform_id;
+		col.collision_shape.type = SHAPE_RECT;*/
+		/*for (int _i = 2; _i < tokens.size(); _i += 2)
+		{
+			Vec2f p{ std::strtof(tokens[_i].c_str(), nullptr), std::strtof(tokens[_i + 1].c_str(), nullptr) };
+			col.collision_shape.points[(_i / 2) - 1] = p;
+			col.collision_shape.point_count++;
+		}*/
+
+
+
+
+
 		//braid\\tim_run\\0.gif
 		/*Graphic* graphics = renderer->generate_sprite_graphics(tokens[1], "sprite_mat_" + tokens[1]);
 		entity->add_componenet(graphics);*/
@@ -243,6 +254,7 @@ namespace PrEngine{
 							for (int t_i = 5; t_i < tokens.size(); t_i++)
 							{
 								Uint_32 a_id = 0;
+								trim(tokens[t_i]);
 								if (a_id = Animator::load_animation(tokens[t_i]))
 								{
 									animators[animator_id].add_animation(a_id);// Animator::animations_library.size() - 1;
@@ -300,6 +312,16 @@ namespace PrEngine{
 							trim(material_path);
 							RenderTag render_tag = (RenderTag)std::atoi(tokens[2].c_str());
 							assert(transform_id);
+
+							//Comment for benchmarking purpose, Uncomment in build
+					#ifdef EDITOR_MODE
+							//if (render_tag == RENDER_STATIC) render_tag = RENDER_DYNAMIC;
+							render_tag = RENDER_UNTAGGED;
+					#endif
+							if (animator_id)
+								render_tag = RENDER_DYNAMIC;
+							
+
 							make_sprite(entity, import_scale, render_tag, animator_id, transform_id, material_path);
 							/*
 							graphic_id = entity_management_system->make_graphic_comp(entity);

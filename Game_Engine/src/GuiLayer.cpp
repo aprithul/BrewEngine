@@ -207,6 +207,8 @@ namespace PrEngine
 			input_manager->was_crossed = true;
 		}
 
+	
+
 #endif // EDITOR_MODE
 
 #ifdef DEBUG
@@ -304,13 +306,13 @@ namespace PrEngine
 		Uint_32 cam = entity_management_system->get_active_camera();
 		Uint_32 cam_transform = cameras[cam].id_transform;
 		//mouse_pos_ws = cameras[cam].get_screen_to_world_pos(input_manager->mouse.position);
-		mouse_pos_ws = (Vec2f)(cameras[cam].get_screen_to_world_pos(input_manager->mouse.position));
 		//mouse_pos_vs = Vec2f{ clamp<Float_32>(input_manager->mouse.position.x - v_x, 0, v_w) ,
 		//	clamp<Float_32>(renderer->height - (input_manager->mouse.position.y - v_y), 0, v_h) };
 
 		// narrowing shouldn't cause problem in screen space (limited space)
-		mouse_pos_ss = Vec2f{ (Float_32)input_manager->mouse.position.x, (Float_32)(renderer->height - input_manager->mouse.position.y) };
-		
+		mouse_pos_ss = cameras[cam].get_mouse_to_screen_pos(input_manager->mouse.position);
+		mouse_pos_ws = (Vec2f)(cameras[cam].get_screen_to_world_pos(mouse_pos_ss));
+
 		// entity selection by clicking sprite
 		static Vec2f selection_offset;
 		if (input_manager->mouse.get_mouse_button_down(1))
@@ -866,7 +868,7 @@ namespace PrEngine
 		ImGui::SetWindowPos(_pos);*/
 
 		ImGui::Text(("(WS): " + std::to_string(mouse_pos_ws.x)+","+ std::to_string(mouse_pos_ws.y)).c_str());
-		//ImGui::Text(("(SS): " + mouse_pos_ss.to_string()).c_str());
+		ImGui::Text(("(SS): " + std::to_string(mouse_pos_ss.x)+","+ std::to_string(mouse_pos_ss.y)).c_str());
 #endif
 		ImGui::Text("(%.1f FPS)", fps);
 		

@@ -41,15 +41,7 @@ namespace PrEngine
 			GL_CALL(glTexParameteri(bind_target, GL_TEXTURE_WRAP_T, GL_REPEAT))
 
 			GLenum type = GL_RGBA;
-		switch (no_of_channels)
-		{
-#ifdef _WIN64
-		case 1:type = GL_R; break;
-#endif // _SWITCH
-		case 2:type = GL_RG; break;
-		case 3:type = GL_RGB; break;
-		case 4:type = GL_RGBA; break;
-		}
+
 		LOG(LOGTYPE_GENERAL, "Number of channels ", std::to_string(no_of_channels));
 		LOG(LOGTYPE_GENERAL, "Number of channels ", std::to_string(type));
 		GL_CALL(glTexImage2D(bind_target, 0, GL_RGBA8, width, height, 0, type, GL_UNSIGNED_BYTE, data))
@@ -137,7 +129,7 @@ namespace PrEngine
 		LOG(LOGTYPE_WARNING, std::to_string(mipLevelCount));
 
 
-#ifdef _SWITCH
+#if defined(_SWITCH) || defined(_WEB)
 		for (int i = 0; i < mipLevelCount; i++) {
 			glTexImage3D(bind_target, i, GL_RGBA8, width, height, layerCount, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 			width = std::max(1, (width / 2));

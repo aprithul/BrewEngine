@@ -84,8 +84,34 @@ namespace PrEngine
 			return std::to_string(COMP_CAMERA) + "," + std::to_string(projection_type) + "," + std::to_string(width) + "," + std::to_string(height) + "," + std::to_string(near_) + "," + std::to_string(far_) + "," + std::to_string(fov);
 	}
 
+
+	Vec3f Camera::get_mouse_to_screen_pos(Vec2f mouse_pos)
+	{
+		return Vec2f{ (Float_32)mouse_pos.x, (Float_32)(renderer->height - mouse_pos.y) };
+	}
 	Vec3f Camera::get_screen_to_world_pos(Vec2f screen_pos)
 	{
+		static int _wait = 60;
+		_wait--;
+		//screen_pos.x = 155;
+		//screen_pos.y = 202;
+		Int_32 _x = clamp<Float_32>(screen_pos.x, renderer->viewport_pos.x, renderer->viewport_pos.x+renderer->viewport_size.x);
+		Int_32 _y = clamp<Float_32>(screen_pos.y, renderer->viewport_pos.y, renderer->viewport_pos.y+renderer->viewport_size.y);
+
+		Int_32 _x_in_v_port = _x - renderer->viewport_pos.x;
+		Int_32 _y_in_v_port = _y - renderer->viewport_pos.y;
+
+		Float_32 _x_ndc = ((_x_in_v_port / (Float_32)renderer->viewport_size.x) * 2) - 1.f;
+		Float_32 _y_ndc = ((_y_in_v_port / (Float_32)renderer->viewport_size.y) * 2) - 1.f;
+		Point3d ndc_co = { _x_ndc, _y_ndc, 0};
+
+		Mat4x4 vp = projection_matrix* view_matrix;
+		Point3d world_pos = vp.GetInverse() * ndc_co;
+
+		return Vec3f{ world_pos.x, world_pos.y, world_pos.z };
+
+		/*
+
 		Transform3D& camera_t = transforms[id_transform];
 		Float_32 x_pos = h_mod*zoom*(right - left) / renderer->viewport_size.x;// +camera_pos.x;
 		Float_32 y_pos = zoom*(top - bottom) / renderer->viewport_size.y;// +camera_pos.y;
@@ -103,6 +129,7 @@ namespace PrEngine
 		//auto mat = camera_t.transformation.transpose();
 		Vec4f world_pos =  camera_t.transformation* Vec4f{x_pos, y_pos, 0, 1};
 		return (Vec3f)world_pos;
+		*/
 	}
 
 }

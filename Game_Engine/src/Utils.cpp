@@ -1,5 +1,5 @@
 #include "Utils.hpp"
-
+#include <algorithm>
 
 #define DEBUG_BASE_PATH
 
@@ -26,13 +26,35 @@ namespace PrEngine{
     // dynamically increases in size if needed
     std::string read_file(const std::string& file_name)
     {
+
+
+#ifdef _WEB
+		LOG(LOGTYPE_GENERAL, file_name);
+		std::string output;
+		FILE *file = fopen(file_name.c_str(), "rb");
+		if (!file) {
+			printf("cannot open file\n");
+			return "";
+		}
+		while (!feof(file)) {
+			char c = fgetc(file);
+			if (c != EOF) {
+				output += c;
+			}
+		}
+		fclose(file);
+		return output;
+#else
 		std::string _file_name(file_name);
 		trim(_file_name);
 
+		LOG(LOGTYPE_GENERAL, _file_name);
 		std::ifstream _file(file_name);
 		std::stringstream buffer;
 		buffer << _file.rdbuf();
 		return buffer.str();
+#endif
+//		
     }
     
 
@@ -71,6 +93,9 @@ namespace PrEngine{
 #ifdef _SWITCH
 		static std::string base_path = "res" + PATH_SEP;
 #endif // _SWITCH
+#ifdef _WEB
+		static std::string base_path = "res" + PATH_SEP;
+#endif // _WEB
 
         return subDir.empty() ? base_path : base_path + subDir;
     }
