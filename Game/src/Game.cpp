@@ -43,7 +43,7 @@ void Game::update()
 	//pos.x = pos.x - (Time::Frame_time*cam_pan_speed * input_manager->get_gamecontroller(0)->get_axis(SDL_CONTROLLER_AXIS_LEFTY));
 	transforms[cameras[_camera].id_transform].position = pos;
 
-	if (input_manager->get_gamecontroller(0)->get_axis(SDL_CONTROLLER_AXIS_RIGHTY) != 0)
+	if (input_manager->get_gamecontroller(0)->get_axis(SDL_CONTROLLER_AXIS_RIGHTY) != 0) 
 	{
 		Float_32 speed = 20.f;
 		cameras[_camera].zoom = clamp<Float_32>(cameras[_camera].zoom + (input_manager->get_gamecontroller(0)->get_axis(SDL_CONTROLLER_AXIS_RIGHTY)*Time::Frame_time*speed), 0.1, 1000);

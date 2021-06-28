@@ -140,8 +140,8 @@ namespace PrEngine {
 		ShapesLayer* shapes_layer = new ShapesLayer();
 		render_layers.push_back(shapes_layer);
 
-		GizmoLayer* gizmo_layer = new GizmoLayer();
-		render_layers.push_back(gizmo_layer);
+		//GizmoLayer* gizmo_layer = new GizmoLayer();
+		//render_layers.push_back(gizmo_layer);
 
 		GuiLayer* gui_layer = new GuiLayer(window, &glContext);
 		render_layers.push_back(gui_layer);

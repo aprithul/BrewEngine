@@ -19,6 +19,7 @@ namespace PrEngine
 	std::vector<std::string> shader_directories;
 	std::vector<std::string> texture_directories;
 	std::vector<std::string> animation_directories;
+	std::vector<std::string> script_names;
 
 	void load_materials();
 	void load_shaders();
@@ -49,6 +50,10 @@ namespace PrEngine
         panning = nullptr;
         tiling = nullptr;
 		this->fps = 0;
+
+		std::string file_content =  read_file(get_resource_path() + PATH_SEP + "type_names.csv");
+		tokenize_string(file_content, ',', script_names);
+		
     }
 
     GuiLayer::~GuiLayer()
@@ -476,13 +481,38 @@ namespace PrEngine
 
 	void draw_inspector_window()
 	{
-		if (!ImGui::Begin("Inspector", 0))
+		ImGuiWindowFlags flags = ImGuiWindowFlags_MenuBar;
+		if (!ImGui::Begin("Inspector",0, flags))
 		{
 			ImGui::End();
 			return;
 		}
 
-		//v_w = ImGui::GetWindowPos().x - v_x;
+		if (ImGui::BeginMenuBar())
+		{
+			if (selected_graphic)
+			{
+				if (ImGui::BeginMenu("Add..."))
+				{
+					ImGui::MenuItem("Graphics", NULL);
+					ImGui::MenuItem("Animator", NULL);
+					ImGui::MenuItem("Collider", NULL);
+					if (ImGui::BeginMenu("Script"))
+					{
+						for (auto script_name : script_names)
+						{
+							ImGui::MenuItem(script_name.c_str(), NULL);
+						}
+						ImGui::EndMenu();
+					}
+					ImGui::EndMenu();
+				}
+			}
+			ImGui::EndMenuBar();
+		}
+
+		//	ImGui::EndMenu();
+		//}		//v_w = ImGui::GetWindowPos().x - v_x;
 
 
 		if (selected_graphic)

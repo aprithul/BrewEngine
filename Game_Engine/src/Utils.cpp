@@ -141,4 +141,15 @@ namespace PrEngine{
 		Float_32 rand_frac = ((float)(rand() % 1001)) / (float)1000.0;
 		return low + ((high - low)*rand_frac);
 	}
+
+	void tokenize_string(const std::string& str, char delim, std::vector<std::string>& tokens)
+	{
+		std::stringstream stream(str);
+		std::string token;
+
+		while (std::getline(stream, token, delim))
+		{
+			tokens.push_back(token);
+		}
+	}
 }

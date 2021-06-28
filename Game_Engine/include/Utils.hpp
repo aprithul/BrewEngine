@@ -49,5 +49,6 @@ namespace PrEngine
 	Float_32 RandomFraction(Float_32 low, Float_32 high);
 	//Bool_8 inside(Vec2f pos, SDL_FRect& rect, Bool_8 centered = false);
 
+	void tokenize_string(const std::string& str, char delim, std::vector<std::string>& tokens);
 }
 #endif

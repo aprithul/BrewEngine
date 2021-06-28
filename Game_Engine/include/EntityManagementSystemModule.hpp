@@ -44,7 +44,6 @@ namespace PrEngine
 
 	// component arrays
 
-	extern Script* scripts[MAX_SCRIPT_COUNT];
 	extern Transform3D transforms[MAX_ENTITY_COUNT];
 	extern Camera cameras[MAX_CAMERA_COUNT];
 	extern Graphic graphics[MAX_GRAPHIC_COUNT];
@@ -52,6 +51,7 @@ namespace PrEngine
 	extern DirectionalLight directional_lights[MAX_DIRECTIONAL_LIGHT_COUNT];
 	extern Animator animators[MAX_ANIMATOR_COUNT];
 	extern Collider colliders[MAX_COLLIDER_COUNT];
+	extern Scripting* scripts[MAX_SCRIPT_COUNT];
 	extern Bool_8 entity_validity[MAX_ENTITY_COUNT];
 	extern Uint_32 camera_entity_id[MAX_CAMERA_COUNT];
 	extern Uint_32 graphics_entity_id[MAX_GRAPHIC_COUNT];
@@ -62,7 +62,7 @@ namespace PrEngine
 	extern Uint_32 script_entity_id[MAX_SCRIPT_COUNT];
 
 	extern Uint_32 entity_count;
-	extern Uint_32 next_script_pos;
+	extern Uint_32 script_pos;
 	extern Uint_32 next_entity_pos;
 	extern Uint_32 next_transform_pos;
 	extern Uint_32 next_transform_order;
@@ -119,7 +119,7 @@ namespace PrEngine
 		Uint_32 make_directional_light_comp(Uint_32 entity_id);
 		Uint_32 make_transform_comp(Uint_32 entity_id);
 		Uint_32 make_collider_comp(Uint_32 entity_id);
-		Uint_32 make_script_comp(Uint_32 entity_id);
+		Uint_32 make_script_comp(Uint_32 entity_id, Scripting* script);
 
 		Bool_8 delete_camera_comp(Uint_32 camera_id);
 		Bool_8 delete_graphic_comp(Uint_32 graphics_id);

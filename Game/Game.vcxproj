@@ -66,6 +66,9 @@
     <Link>
       <SubSystem>Console</SubSystem>
     </Link>
+    <PreBuildEvent>
+      <Command>$(SolutionDir)MetaTools\Debug\MetaTools.exe</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -78,15 +81,23 @@
     <Link>
       <SubSystem>Console</SubSystem>
     </Link>
+    <PreBuildEvent>
+      <Command>$(SolutionDir)MetaTools\Debug\MetaTools.exe</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\EngineMain.hpp" />
     <ClInclude Include="include\Game.hpp" />
+    <ClInclude Include="include\Scripts\FooScript.hpp" />
+    <ClInclude Include="include\Scripts\TestScript.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\EngineMaine.cpp" />
     <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\ScriptGenerator.cpp" />
+    <ClCompile Include="src\Scripts\FooScript.cpp" />
+    <ClCompile Include="src\Scripts\TestScript.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Game_Engine\PrEngine.vcxproj">
@@ -95,6 +106,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="res\Materials\Gizmo.mat" />
+    <None Include="res\type_names.csv" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

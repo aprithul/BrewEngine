@@ -6,7 +6,6 @@ namespace PrEngine
 {
 	EntityManagementSystem* entity_management_system = nullptr;
 
-	Script* scripts[MAX_SCRIPT_COUNT];
 	Transform3D transforms[MAX_ENTITY_COUNT];
 	Camera cameras[MAX_CAMERA_COUNT];
 	Graphic graphics[MAX_GRAPHIC_COUNT];
@@ -15,6 +14,7 @@ namespace PrEngine
 	Collider colliders[MAX_COLLIDER_COUNT];
 	Animator animators[MAX_ANIMATOR_COUNT];
 	Bool_8 entity_validity[MAX_ENTITY_COUNT] = {};
+	Scripting* scripts[MAX_SCRIPT_COUNT];
 	std::unordered_map<ComponentType, Uint_32> entities[MAX_ENTITY_COUNT];
 	
 	Uint_32 camera_entity_id[MAX_CAMERA_COUNT] = {};
@@ -41,7 +41,7 @@ namespace PrEngine
 	Uint_32 next_animator_pos;
 	Uint_32 next_collider_pos;
 	Uint_32 next_camera_pos;
-	Uint_32 next_script_pos;
+	Uint_32 script_pos;
 
 
 	std::queue<Uint_32> EntityManagementSystem::released_positions;
@@ -70,7 +70,7 @@ namespace PrEngine
 		next_transform_pos = 1;
 		next_transform_order = 1;
 		next_collider_pos = 1;
-		next_script_pos = 1;
+		script_pos = 1;
 		entity_count = 0;
 		
 		transform_hierarchy_level[0] = MAX_HIERARCHY_LEVEL + 1;
@@ -252,6 +252,25 @@ namespace PrEngine
 		entities[entity_id][COMP_ANIMATOR] = _id;
 
 		//animator_active_status[_id] = true;
+
+		return _id;
+	}
+
+	Uint_32 EntityManagementSystem::make_script_comp(Uint_32 entity_id, Scripting* script)
+	{
+		assert(script);
+		Uint_32 _id = script_pos;
+		if (!script_released_positions.empty())
+		{
+			_id = script_released_positions.front();
+			script_released_positions.pop();
+		}
+		else
+			script_pos++;
+
+		script_entity_id[_id] = entity_id;
+		entities[entity_id][COMP_SCRIPT] = _id;
+		scripts[_id] = script;
 
 		return _id;
 	}

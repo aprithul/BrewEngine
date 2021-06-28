@@ -216,6 +216,9 @@
     <ClInclude Include="include\GizmoLayer.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\Script.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Vendor\imgui-master\backends\imgui_impl_opengl3.cpp">

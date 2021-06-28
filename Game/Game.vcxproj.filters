@@ -15,6 +15,8 @@
     <ClInclude Include="include\Game.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\Scripts\TestScript.hpp" />
+    <ClInclude Include="include\Scripts\FooScript.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\EngineMaine.cpp">
@@ -26,8 +28,12 @@
     <ClCompile Include="src\main.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\Scripts\TestScript.cpp" />
+    <ClCompile Include="src\Scripts\FooScript.cpp" />
+    <ClCompile Include="src\ScriptGenerator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\Materials\Gizmo.mat" />
+    <None Include="res\type_names.csv" />
   </ItemGroup>
 </Project>
