@@ -86,6 +86,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\ECS.hpp" />
     <ClInclude Include="include\GizmoLayer.hpp" />
     <ClInclude Include="include\Script.hpp" />
     <ClInclude Include="Vendor\imgui-master\backends\imgui_impl_opengl3.h" />
@@ -150,6 +151,7 @@
     <ClInclude Include="include\Vertex.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\ECS.cpp" />
     <ClCompile Include="src\GizmoLayer.cpp" />
     <ClCompile Include="Vendor\imgui-master\backends\imgui_impl_opengl3.cpp" />
     <ClCompile Include="Vendor\imgui-master\backends\imgui_impl_sdl.cpp" />

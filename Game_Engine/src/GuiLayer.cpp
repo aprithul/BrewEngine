@@ -22,18 +22,13 @@ namespace PrEngine
 	std::vector<std::string> script_names;
 
 	void load_materials();
-	void load_shaders();
 	void load_textures();
 	void load_animations();
-	void draw_scene_hierarchy();
-	void draw_inspector_window();
-	void draw_asset_window();
-	void draw_editor(SDL_Window* window);
+	void load_shaders();
+
 	Uint_32 is_mouse_in_any_graphic(Vec2f mouse_pos);
 #endif // 
-#ifdef DEBUG
-	void draw_debug_window(Float_32 fps);
-#endif // DEBUG
+
 
 
 	Bool_8 is_mouse_inside_viewport(Vec2f mouse_pos)
@@ -53,8 +48,7 @@ namespace PrEngine
 
 		std::string file_content =  read_file(get_resource_path() + PATH_SEP + "type_names.csv");
 		tokenize_string(file_content, ',', script_names);
-		
-    }
+	}
 
     GuiLayer::~GuiLayer()
     {
@@ -207,7 +201,7 @@ namespace PrEngine
 		ImGui_ImplSDL2_NewFrame(window);
 		ImGui::NewFrame();
 		static Bool_8 show = true;
-		//ImGui::ShowDemoWindow();
+		ImGui::ShowDemoWindow();
 		ShowExampleAppDockSpace(0);
 #ifdef EDITOR_MODE
 		draw_editor(window);
@@ -314,7 +308,7 @@ namespace PrEngine
 	Vec2f mouse_pos_ss;
 	Uint_32 drag_graphic;
 	float v_x, v_y, v_w, v_h;
-	void draw_editor(SDL_Window* window)
+	void GuiLayer::draw_editor(SDL_Window* window)
 	{
 		//axis lines
 		renderer->draw_line(Vec3f{0, 0, 0}, Vec3f{100, 0, 0}, Vec4f{1, 0, 0, 1});
@@ -468,19 +462,23 @@ namespace PrEngine
 			//renderer->update_viewport_size(v_x, v_y, v_w, v_h);
 
 		}
-
-
-
-		
-
-		/*renderer->viewport_pos.x = v_x;
-		renderer->viewport_pos.y = v_y;
-		renderer->viewport_size.x = v_w;
-		renderer->viewport_size.y = v_h;*/
 	}
 
-	void draw_inspector_window()
+	void GuiLayer::draw_inspector_window()
 	{
+		// flags and data for menubar
+		static Bool_8 call_add_script = false;
+		static std::string script_to_call = ""; 
+
+		// menubar actions
+		if (call_add_script)
+		{
+			//add_script(script_to_call);
+			call_add_script = false;
+		}
+
+
+
 		ImGuiWindowFlags flags = ImGuiWindowFlags_MenuBar;
 		if (!ImGui::Begin("Inspector",0, flags))
 		{
@@ -501,7 +499,8 @@ namespace PrEngine
 					{
 						for (auto script_name : script_names)
 						{
-							ImGui::MenuItem(script_name.c_str(), NULL);
+							ImGui::MenuItem(script_name.c_str(),0, &call_add_script);
+							script_to_call = script_name;
 						}
 						ImGui::EndMenu();
 					}
@@ -688,7 +687,7 @@ namespace PrEngine
 		ImGui::End();
 	}
 
-	void draw_scene_hierarchy()
+	void GuiLayer::draw_scene_hierarchy()
 	{
 		//if (!ImGui::Begin("Scene Hierarchy", 0, ImGuiWindowFlags_NoMove))
 		if (!ImGui::Begin("Scene Hierarchy", 0))
@@ -782,7 +781,7 @@ namespace PrEngine
 		}
 	}
 
-	void draw_asset_window()
+	void GuiLayer::draw_asset_window()
 	{
 		if (!ImGui::Begin("Assets", 0))//, ImGuiWindowFlags_NoMove))
 		{
@@ -908,10 +907,14 @@ namespace PrEngine
 		return 0;
 	}
 
+
+	void GuiLayer::add_script(Uint_32 entity, std::string& script_name)
+	{
+	}
 #endif
 
 #ifdef DEBUG
-	void draw_debug_window(Float_32 fps)
+	void GuiLayer::draw_debug_window(Float_32 fps)
 	{
 		if (!ImGui::Begin("Info: ", 0))//, ImGuiWindowFlags_NoMove))
 		{

@@ -219,6 +219,9 @@
     <ClInclude Include="include\Script.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\ECS.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Vendor\imgui-master\backends\imgui_impl_opengl3.cpp">
@@ -369,6 +372,9 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\GizmoLayer.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ECS.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
