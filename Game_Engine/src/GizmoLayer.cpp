@@ -17,8 +17,7 @@ namespace PrEngine {
 		renderer->generate_sprite_graphics(move_gizmo.graphic_x);
 		renderer->generate_sprite_graphics(move_gizmo.graphic_y);
 
-		move_gizmo.transform.scale.x = 0.5;
-		move_gizmo.transform.scale.y = 0.5;
+		move_gizmo.transform.set_scale(0.5, 0.5, 0.5);
 			
 	}
 
@@ -36,18 +35,17 @@ namespace PrEngine {
 		if (move_gizmo.target_transform)
 		{
 			Transform3D& target_transform = transforms[move_gizmo.target_transform];
-			move_gizmo.transform.position = target_transform.position;
-			move_gizmo.transform.position.z = 1;
+			move_gizmo.transform.set_position(target_transform.get_position().x, target_transform.get_position().y, 1);
 
 			//draw gizmos
 			move_mat->diffuse_color = Vec4f(1, 0.26f, 0.26f, 1); // red
 			renderer->render_graphic(move_gizmo.graphic_x, move_gizmo.transform.transformation, _camera, _light);
 
-			move_gizmo.transform.rotate(0, 0, 90);
+			move_gizmo.transform.Rotate(0, 0, 90);
 			move_gizmo.transform.update();
 			move_mat->diffuse_color = Vec4f(0.26f, 1, 0.52f, 1); // green
 			renderer->render_graphic(move_gizmo.graphic_y, move_gizmo.transform.transformation, _camera, _light);
-			move_gizmo.transform.rotate(0, 0, -90);
+			move_gizmo.transform.Rotate(0, 0, -90);
 			move_gizmo.transform.update();
 
 		}

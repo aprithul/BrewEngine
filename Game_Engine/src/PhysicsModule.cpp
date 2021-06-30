@@ -20,7 +20,7 @@ namespace PrEngine {
 
 	void PhysicsModule::start()
 	{
-		/*for (Uint_32 _i = 0; _i<entity_management_system->next_collider_pos; _i++)
+		for (Uint_32 _i = 0; _i<next_collider_pos; _i++)
 		{
 			if (collider_entity_id[_i])
 			{
@@ -48,7 +48,7 @@ namespace PrEngine {
 
 				}
 			}
-		}*/
+		}
 
 
 		//// test
@@ -137,17 +137,17 @@ namespace PrEngine {
 			Rect<Float_32> b = points_to_rect(colliders[col_b].collision_shape.points);//, transforms[tr_b].transformation);
 			renderer->draw_rect_with_transform(a, red_color, transforms[tr_a].transformation);
 			renderer->draw_rect_with_transform(b, red_color, transforms[tr_b].transformation);
-			renderer->draw_line(transforms[tr_b].position, transforms[tr_b].position + (Vec3f)contacts[_i].depth, yellow_color);
+			renderer->draw_line(transforms[tr_b].get_position(), transforms[tr_b].get_position() + (Vec3f)contacts[_i].depth, yellow_color);
 
 			Float_32 _len = contacts[_i].depth.GetMagnitude();
 
-			transforms[tr_a].position -= (Vec3f)(contacts[_i].depth*0.55);
+			transforms[tr_a].Translate(-(Vec3f)(contacts[_i].depth*0.55));
 			//transforms[tr_a].update_transformation();
-			transforms[tr_b].position += (Vec3f)(contacts[_i].depth*0.55);
+			transforms[tr_b].Translate((Vec3f)(contacts[_i].depth*0.55));
 			//transforms[tr_b].update_transformation();
-			Float_32 _x = abs<Float_32>(transforms[tr_a].position.x);
-			_x = abs<Float_32>(transforms[tr_b].position.x);
-			continue;
+		/*	Float_32 _x = abs<Float_32>(transforms[tr_a].get_position().x);
+			_x = abs<Float_32>(transforms[tr_b].get_position.x);
+			continue;*/
 			//LOG(LOGTYPE_GENERAL, std::to_string(contacts[_i].depth.length()));
 
 		}

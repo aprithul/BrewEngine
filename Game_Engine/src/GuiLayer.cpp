@@ -13,7 +13,7 @@ namespace PrEngine
 {
 
 #ifdef EDITOR_MODE
-	Uint_32 selected_graphic = 0;
+	Uint_32 selected_transform = 0;
 	Uint_32 last_selected_transform = 0;
 	std::vector<std::string> material_directories;
 	std::vector<std::string> shader_directories;
@@ -254,7 +254,7 @@ namespace PrEngine
 
 		static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
 		ImGuiTreeNodeFlags node_flags = base_flags;
-		if(selected_graphic == id_transform)
+		if(selected_transform == id_transform)
 			node_flags |= ImGuiTreeNodeFlags_Selected;
 		
 		bool node_open = ImGui::TreeNodeEx(buffer, node_flags, buffer, id_transform);
@@ -262,16 +262,16 @@ namespace PrEngine
 		
 		if (ImGui::IsItemClicked())
 		{
-			selected_graphic = id_transform;
-			GizmoLayer::move_gizmo.target_transform = selected_graphic;
+			selected_transform = id_transform;
+			GizmoLayer::move_gizmo.target_transform = selected_transform;
 		}
 
 		//if (input_manager->mouse.get_mouse_button(SDL_BUTTON_LEFT) && selected_transform)
 		//{
 			if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
 			{
-				ImGui::SetDragDropPayload("SCENE_HIERARCHY", &selected_graphic, sizeof(Uint_32));
-				ImGui::Text("Copy %d", selected_graphic);
+				ImGui::SetDragDropPayload("SCENE_HIERARCHY", &selected_transform, sizeof(Uint_32));
+				ImGui::Text("Copy %d", selected_transform);
 				ImGui::EndDragDropSource();
 			}
 			if (ImGui::BeginDragDropTarget())
@@ -306,7 +306,7 @@ namespace PrEngine
 	Vec2f mouse_pos_ws;
 	//Vec2f mouse_pos_vs;
 	Vec2f mouse_pos_ss;
-	Uint_32 drag_graphic;
+	Uint_32 drag_transform;
 	float v_x, v_y, v_w, v_h;
 	void GuiLayer::draw_editor(SDL_Window* window)
 	{
@@ -336,16 +336,16 @@ namespace PrEngine
 			Uint_32 clicked_on_graphic= is_mouse_in_any_graphic(mouse_pos_ws);
 			if (clicked_on_graphic)
 			{
-				if (selected_graphic == clicked_on_graphic)	// 
+				Uint_32 clicked_on_transform = graphics[clicked_on_graphic].transform_id;
+				if (selected_transform == clicked_on_transform)	// 
 				{
-					drag_graphic = selected_graphic;
-					Uint_32 trans_id = graphics[drag_graphic].transform_id;
-					selection_offset = (Vec2f)transforms[trans_id].position - mouse_pos_ws;
+					drag_transform = selected_transform;
+					selection_offset = (Vec2f)transforms[selected_transform].get_position() - mouse_pos_ws;
 				}
 				else
 				{
-					selected_graphic = clicked_on_graphic;
-					drag_graphic = 0;
+					selected_transform = clicked_on_transform;
+					drag_transform = 0;
 				}
 			}
 			else
@@ -353,18 +353,18 @@ namespace PrEngine
 				// check if click was inside viewport
 				if(is_mouse_inside_viewport(mouse_pos_ss))
 				{
-					selected_graphic = 0;
+					selected_transform = 0;
 					GizmoLayer::move_gizmo.target_transform = 0;
-					drag_graphic = 0;
+					drag_transform = 0;
 				}
 			}
 		}
 		// draw rect around selected entity
-		if (selected_graphic)
+		if (selected_transform)
 		{
-			Uint_32 trans_id = graphics[selected_graphic].transform_id;
-			const Mat4x4& _transform = transforms[trans_id].transformation;
-			Vec3f* vertices = Graphic::vertex_data[selected_graphic];
+			const Mat4x4& _transform = transforms[selected_transform].transformation;
+			Uint_32 entity_id = transform_entity_id[selected_transform];
+			Vec3f* vertices = Graphic::vertex_data[entities[entity_id][COMP_GRAPHICS]];
 
 			Rect<Float_32> rect = points_to_rect(vertices);
 			Vec4f color{ 0.8, 0.5, 0, 1 };
@@ -372,16 +372,17 @@ namespace PrEngine
 
 		}
 		//drag grpahic with mouse pointer
-		if (drag_graphic)
+		if (drag_transform)
 		{
 			if (input_manager->mouse.get_mouse_button(1))
 			{
-				Vec3f& drag_transform_pos = transforms[ graphics[drag_graphic].transform_id].position;
+				Point3d drag_transform_pos = transforms[drag_transform].get_position();
 				drag_transform_pos.x = mouse_pos_ws.x + selection_offset.x;
 				drag_transform_pos.y = mouse_pos_ws.y + selection_offset.y;
+				transforms[drag_transform].set_position(drag_transform_pos);
 			}
 			else
-				drag_graphic = 0;
+				drag_transform = 0;
 		}
 		
 		
@@ -391,7 +392,7 @@ namespace PrEngine
 		if (input_manager->keyboard.get_key(SDLK_LSHIFT))
 			cam_pan_speed = cam_pan_max_speed;
 
-		Point3d pos = transforms[cam_transform].position;
+		Point3d pos = transforms[cam_transform].get_position();
 		if (input_manager->keyboard.get_key(SDLK_w))
 			pos.y = pos.y + (Time::Frame_time*cam_pan_speed);
 		if (input_manager->keyboard.get_key(SDLK_s))
@@ -400,7 +401,7 @@ namespace PrEngine
 			pos.x = pos.x + (Time::Frame_time*cam_pan_speed);
 		if (input_manager->keyboard.get_key(SDLK_a))
 			pos.x = pos.x - (Time::Frame_time*cam_pan_speed);
-		transforms[cam_transform].position = pos;
+		transforms[cam_transform].set_position(pos);
 
 		if (input_manager->mouse.scroll != 0 && is_mouse_inside_viewport(mouse_pos_ss))
 		{
@@ -409,7 +410,7 @@ namespace PrEngine
 		}
 
 		if (input_manager->keyboard.get_key_down(SDLK_DELETE))
-			entity_management_system->delete_entity_by_transform(selected_graphic);
+			entity_management_system->delete_entity_by_transform(selected_transform);
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		draw_scene_hierarchy();
@@ -488,7 +489,7 @@ namespace PrEngine
 
 		if (ImGui::BeginMenuBar())
 		{
-			if (selected_graphic)
+			if (selected_transform)
 			{
 				if (ImGui::BeginMenu("Add..."))
 				{
@@ -514,38 +515,42 @@ namespace PrEngine
 		//}		//v_w = ImGui::GetWindowPos().x - v_x;
 
 
-		if (selected_graphic)
+		if (selected_transform)
 		{
-			Uint_32 entity = transform_entity_id[selected_graphic];
+			Uint_32 entity = transform_entity_id[selected_transform];
 			if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
 			{
-				Vec3f& pos = transforms[selected_graphic].position;// .get_global_position();
+				Point3d pos = transforms[selected_transform].get_position();// .get_global_position();
 				float v3_p[3] = { pos.x, pos.y, pos.z };
 				//ImGui::InputFloat("input float", &pos.x, 0.01f, 1.0f, "%.3f");
 				ImGui::DragFloat3("Position", v3_p, 1.0f, -10000.0f, 10000.0f, "%.3f", 1.0f);
 				pos.x = v3_p[0];
 				pos.y = v3_p[1];
 				pos.z = v3_p[2];
+				transforms[selected_transform].set_position(pos);
 				//transforms[selected_transform].position = transforms[selected_transform].get_global_to_local_position(pos);
 
-				Vec3f& rot = get_transform(selected_graphic).rotation;// get_global_rotation();
+				Vec3f rot = transforms[selected_transform].get_rotation();// get_global_rotation();
 				float v3_r[3] = { rot.x, rot.y, rot.z };
 				//ImGui::InputFloat("input float", &pos.x, 0.01f, 1.0f, "%.3f");
 				ImGui::DragFloat3("Rotation", v3_r, 1.0f, -10000.0f, 10000.0f, "%.3f", 1.0f);
 				rot.x = v3_r[0];
 				rot.y = v3_r[1];
 				rot.z = v3_r[2];
+				get_transform(selected_transform).set_rotation(rot);
 				//transforms[selected_transform].rotation = transforms[selected_transform].get_global_to_local_rotation(rot);
 
-				Vec3f& scl = get_transform(selected_graphic).scale;
+				Vec3f scl = transforms[selected_transform].get_scale();
 				float v3_s[3] = { scl.x, scl.y, scl.z };
 				//ImGui::InputFloat("input float", &pos.x, 0.01f, 1.0f, "%.3f");
 				ImGui::DragFloat3("Scale", v3_s, 1.0f, -10000.0f, 10000.0f, "%.3f", 1.0f);
 				scl.x = v3_s[0];
 				scl.y = v3_s[1];
 				scl.z = v3_s[2];
+				transforms[selected_transform].set_scale(scl);
+
 			}
-			last_selected_transform = selected_graphic;
+			last_selected_transform = selected_transform;
 
 			auto& ent = entities[entity];
 			if (ent[COMP_GRAPHICS])

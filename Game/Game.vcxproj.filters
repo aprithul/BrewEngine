@@ -4,8 +4,14 @@
     <Filter Include="include">
       <UniqueIdentifier>{89AF369E-F58E-B539-FEA6-40106A051C9B}</UniqueIdentifier>
     </Filter>
+    <Filter Include="include\Scripts">
+      <UniqueIdentifier>{C00F7F20-2C9B-ECE4-35AC-6FD9A1B648E5}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src">
       <UniqueIdentifier>{2DAB880B-99B4-887C-2230-9F7C8E38947C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Scripts">
+      <UniqueIdentifier>{646F54F1-D024-CDE6-5919-C7BDC5CDC3EA}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -15,8 +21,12 @@
     <ClInclude Include="include\Game.hpp">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\Scripts\TestScript.hpp" />
-    <ClInclude Include="include\Scripts\FooScript.hpp" />
+    <ClInclude Include="include\Scripts\FooScript.hpp">
+      <Filter>include\Scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Scripts\TestScript.hpp">
+      <Filter>include\Scripts</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\EngineMaine.cpp">
@@ -25,15 +35,17 @@
     <ClCompile Include="src\Game.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\ScriptGenerator.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scripts\FooScript.cpp">
+      <Filter>src\Scripts</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scripts\TestScript.cpp">
+      <Filter>src\Scripts</Filter>
+    </ClCompile>
     <ClCompile Include="src\main.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\Scripts\TestScript.cpp" />
-    <ClCompile Include="src\Scripts\FooScript.cpp" />
-    <ClCompile Include="src\ScriptGenerator.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="res\Materials\Gizmo.mat" />
-    <None Include="res\type_names.csv" />
   </ItemGroup>
 </Project>

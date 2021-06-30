@@ -25,28 +25,6 @@ namespace  PrEngine
 		Float_32 b = rotation.y * PI / 180.f;
 		Float_32 c = rotation.z * PI / 180.f;
 
-		//Vec3f e{ a,b,c };
-
-		//Quaternion qx = Quaternion::QuaternionFromAngleAxis(Vec3f{ 1,0,0 }, a);
-		//Quaternion qy = Quaternion::QuaternionFromAngleAxis(Vec3f{ 0,1,0 }, b);
-		//Quaternion qz = Quaternion::QuaternionFromAngleAxis(Vec3f{ 0,0,1 }, c);
-		//rotation_transformation = Quaternion::EulerToQuaternion(Vec3f{ a,b,c }).GetRotationMatrix();
-
-		//rotation_transformation = Mat4x4::Identity();
-		//rotation_transformation = q.GetRotationMatrix();
-
-		//rotation_transformation(0,0) = cosf(b) * cosf(c);
-		//rotation_transformation(0,1) = cosf(b) * sinf(c);
-		//rotation_transformation(0,2) = -sinf(b);
-
-		//rotation_transformation(1,0) = (sinf(a) * sinf(b) * cosf(c)) - (cosf(a) * sinf(c));
-		//rotation_transformation(1,1) = (sinf(a) * sinf(b) * sinf(c)) + (cosf(a) * cosf(c));
-		//rotation_transformation(1,2) = sinf(a)*cosf(b);
-
-		//rotation_transformation(2,0) = (cosf(a) * sinf(b) * cosf(c)) + (sinf(a) * sinf(c));
-		//rotation_transformation(2,1) = (cosf(a) * sinf(b) * sinf(c)) - (sinf(a) * cosf(c));
-		//rotation_transformation(2,2) = cosf(a) * cosf(b);
-
 		Mat4x4 scale_m = Mat4x4::Identity();
 		scale_m(0, 0) = scale.x;
 		scale_m(1, 1) = scale.y;
@@ -80,17 +58,76 @@ namespace  PrEngine
         return transformation * Vec3f(0, 1.f, 0.f);
     }
 
-	void Transform3D::translate(const Vec3f& translation)
+	void Transform3D::Translate(const Vec3f& translation)
 	{
 		position += translation;
 	}
 
-	void Transform3D::rotate(Float_32 _x, Float_32 _y, Float_32 _z)
+	void Transform3D::Rotate(Float_32 _x, Float_32 _y, Float_32 _z)
 	{
 		rotation.x += _x;
 		rotation.y += _y;
 		rotation.z += _z;
+		is_dirty = true;
 	}
+
+	void Transform3D::Scale(Float_32 _x, Float_32 _y, Float_32 _z)
+	{
+		scale.x += _x;
+		scale.y += _y;
+		scale.z += _z;
+		is_dirty = true;
+	}
+
+	void Transform3D::set_position(Float_32 _x, Float_32 _y, Float_32 _z)
+	{
+		position = {_x, _y, _z};
+		is_dirty = true;
+	}
+
+	void Transform3D::set_position(Point3d _position)
+	{
+		position = _position;
+		is_dirty = true;
+	}
+
+	void Transform3D::set_rotation(Float_32 _x, Float_32 _y, Float_32 _z)
+	{
+		rotation = { _x, _y, _z };
+		is_dirty = true;
+	}
+
+	void Transform3D::set_rotation(Vec3f _rotation)
+	{
+		rotation = _rotation;
+		is_dirty = true;
+	}
+
+	void Transform3D::set_scale(Float_32 _x, Float_32 _y, Float_32 _z)
+	{
+		scale = { _x, _y, _z };
+		is_dirty = true;
+	}
+
+	void Transform3D::set_scale(Vec3f _scale)
+	{
+		scale = _scale;
+		is_dirty = true;
+	}
+
+	Point3d Transform3D::get_position()
+	{
+		return position;
+	}
+	Vec3f Transform3D::get_rotation()
+	{
+		return rotation;
+	}
+	Vec3f Transform3D::get_scale()
+	{
+		return scale;
+	}
+
 
 	
     std::string Transform3D::to_string()

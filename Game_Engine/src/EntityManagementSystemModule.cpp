@@ -475,12 +475,12 @@ namespace PrEngine
 		Transform3D& parent_t = transforms[parent_transform];
 
 		// maintain global rotation
-		child_t.rotation = child_t.get_global_rotation() - parent_t.get_global_rotation();
+		child_t.set_rotation(child_t.get_global_rotation() - parent_t.get_global_rotation());
 		
 		// maintain global position
 		Point3d c_gp = child_t.get_global_position();
 		Vec3f p_gp = parent_t.get_global_position();
-		child_t.position = Point3d() + parent_t.transformation.GetTransformInverse() * ( c_gp - pos_p);
+		child_t.set_position( Point3d() + parent_t.transformation.GetTransformInverse() * ( c_gp - pos_p));
 
 		//child_t.position = c_gp - p_gp;// child_t.get_global_position() - parent_t.get_global_position();
 
