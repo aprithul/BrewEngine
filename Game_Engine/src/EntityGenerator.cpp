@@ -22,7 +22,7 @@ namespace PrEngine{
 		Uint_32 entity = entity_management_system->make_entity();
 		
 		Uint_32 id_transform = entity_management_system->make_transform_comp(entity);
-		get_transform(id_transform).set_position( 0.f, 0.f, -6.f );
+		get_transform(id_transform).set_local_position( 0.f, 0.f, -6.f );
 		
 		Uint_32 id_camera = entity_management_system->make_camera_comp(entity);
 		cameras[id_camera].set_orthographic(-(width / 2.f), (width / 2.f), -(height / 2.f), (height / 2.f), _near, _far);
@@ -39,7 +39,7 @@ namespace PrEngine{
 		if (entity)
 		{
 			Uint_32 transform_id = entity_management_system->make_transform_comp(entity);
-			transforms[transform_id].set_position(position);
+			transforms[transform_id].set_local_position(position);
 
 			make_sprite(entity, 1.0f, render_tag, 0, transform_id, material_path);
 		}
@@ -52,7 +52,7 @@ namespace PrEngine{
 		Uint_32 entity = entity_management_system->make_entity();
 		
 		Uint_32 transform_id = entity_management_system->make_transform_comp(entity);
-		transforms[transform_id].set_position(position);
+		transforms[transform_id].set_local_position(position);
 
 		Uint_32 animator_id = entity_management_system->make_animator_comp(entity);
 		animators[animator_id].cur_anim_ind = 0;
@@ -76,7 +76,7 @@ namespace PrEngine{
 		Uint_32 entity = entity_management_system->make_entity();
 
 		Uint_32 id_transform = entity_management_system->make_transform_comp(entity);
-		get_transform(id_transform).set_rotation(0, 0, 90);
+		get_transform(id_transform).set_local_rotation(0, 0, 90);
 
 		Uint_32 id_dir_light = entity_management_system->make_directional_light_comp(entity);
 		directional_lights[id_dir_light].specular = 0.5f;
@@ -408,14 +408,16 @@ namespace PrEngine{
 						{
 							transform_id = entity_management_system->make_transform_comp(entity);
 							LOG(LOGTYPE_WARNING, std::to_string(transform_id));
-							transform_id_mapping[std::stoi(tokens[11])] = transform_id;	//mapping for finding parents
-							transforms[transform_id].set_position( std::stof(tokens[1]), std::stof(tokens[2]), std::stof(tokens[3]));
-							transforms[transform_id].set_scale(std::stof(tokens[4]), std::stof(tokens[5]), std::stof(tokens[6]));
-							transforms[transform_id].set_rotation(std::stof(tokens[7]), std::stof(tokens[8]), std::stof(tokens[9]));
-							Uint32 parent_transform_id =  transform_id_mapping[std::stoi(tokens[10])];	
+							transform_id_mapping[std::stoi(tokens[12])] = transform_id;	//mapping for finding parents
+							transforms[transform_id].set_local_position( std::stof(tokens[1]), std::stof(tokens[2]), std::stof(tokens[3]));
+							transforms[transform_id].set_local_scale(std::stof(tokens[4]), std::stof(tokens[5]), std::stof(tokens[6]));
+
+							Quaternion rot = { std::stof(tokens[7]), std::stof(tokens[8]), std::stof(tokens[9]), std::stof(tokens[10]) };
+							transforms[transform_id].set_local_rotation(rot);
+							Uint32 parent_transform_id =  transform_id_mapping[std::stoi(tokens[11])];	
 							if(parent_transform_id)
 								entity_management_system->set_parent_transform(parent_transform_id, transform_id);
-							transforms[transform_id].update_transformation();
+							//transforms[transform_id].update_transformation();
 							break;
 						}
 						case COMP_UNKNOWN:
@@ -427,7 +429,7 @@ namespace PrEngine{
 		}
 
 		LOG(LOGTYPE_GENERAL, "will update transform");
-		entity_management_system->update_transforms();
+		//entity_management_system->update_transforms();
 		generate_batches();
 
 		Texture::delete_all_texture_data();

@@ -291,7 +291,7 @@ namespace PrEngine
 
 		if (node_open)
 		{
-			for (auto it : transform_children[id_transform])
+			for (auto it : *transforms[id_transform].children)
 			{
 				if(transform_entity_id[it])
 					add_child(it);
@@ -340,7 +340,7 @@ namespace PrEngine
 				if (selected_transform == clicked_on_transform)	// 
 				{
 					drag_transform = selected_transform;
-					selection_offset = (Vec2f)transforms[selected_transform].get_position() - mouse_pos_ws;
+					selection_offset = (Vec2f)transforms[selected_transform].get_global_position() - mouse_pos_ws;
 				}
 				else
 				{
@@ -376,10 +376,10 @@ namespace PrEngine
 		{
 			if (input_manager->mouse.get_mouse_button(1))
 			{
-				Point3d drag_transform_pos = transforms[drag_transform].get_position();
+				Point3d drag_transform_pos = transforms[drag_transform].get_global_position();
 				drag_transform_pos.x = mouse_pos_ws.x + selection_offset.x;
 				drag_transform_pos.y = mouse_pos_ws.y + selection_offset.y;
-				transforms[drag_transform].set_position(drag_transform_pos);
+				transforms[drag_transform].set_global_position(drag_transform_pos);
 			}
 			else
 				drag_transform = 0;
@@ -392,7 +392,7 @@ namespace PrEngine
 		if (input_manager->keyboard.get_key(SDLK_LSHIFT))
 			cam_pan_speed = cam_pan_max_speed;
 
-		Point3d pos = transforms[cam_transform].get_position();
+		Point3d pos = transforms[cam_transform].get_local_position();
 		if (input_manager->keyboard.get_key(SDLK_w))
 			pos.y = pos.y + (Time::Frame_time*cam_pan_speed);
 		if (input_manager->keyboard.get_key(SDLK_s))
@@ -401,7 +401,7 @@ namespace PrEngine
 			pos.x = pos.x + (Time::Frame_time*cam_pan_speed);
 		if (input_manager->keyboard.get_key(SDLK_a))
 			pos.x = pos.x - (Time::Frame_time*cam_pan_speed);
-		transforms[cam_transform].set_position(pos);
+		transforms[cam_transform].set_local_position(pos);
 
 		if (input_manager->mouse.scroll != 0 && is_mouse_inside_viewport(mouse_pos_ss))
 		{
@@ -520,34 +520,35 @@ namespace PrEngine
 			Uint_32 entity = transform_entity_id[selected_transform];
 			if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
 			{
-				Point3d pos = transforms[selected_transform].get_position();// .get_global_position();
+				Point3d pos = transforms[selected_transform].get_local_position();// .get_global_position();
 				float v3_p[3] = { pos.x, pos.y, pos.z };
 				//ImGui::InputFloat("input float", &pos.x, 0.01f, 1.0f, "%.3f");
 				ImGui::DragFloat3("Position", v3_p, 1.0f, -10000.0f, 10000.0f, "%.3f", 1.0f);
 				pos.x = v3_p[0];
 				pos.y = v3_p[1];
 				pos.z = v3_p[2];
-				transforms[selected_transform].set_position(pos);
+				transforms[selected_transform].set_local_position(pos);
 				//transforms[selected_transform].position = transforms[selected_transform].get_global_to_local_position(pos);
 
-				Vec3f rot = transforms[selected_transform].get_rotation();// get_global_rotation();
+				Vec3f rot = Quaternion::QuaternionToEuler(transforms[selected_transform].get_local_rotation());// transforms[selected_transform].get_local_rotation();// get_global_rotation();
 				float v3_r[3] = { rot.x, rot.y, rot.z };
 				//ImGui::InputFloat("input float", &pos.x, 0.01f, 1.0f, "%.3f");
 				ImGui::DragFloat3("Rotation", v3_r, 1.0f, -10000.0f, 10000.0f, "%.3f", 1.0f);
 				rot.x = v3_r[0];
 				rot.y = v3_r[1];
 				rot.z = v3_r[2];
-				get_transform(selected_transform).set_rotation(rot);
+				transforms[selected_transform].set_local_rotation(rot);
+				//transform_editor_data[selected_transform] = rot;
 				//transforms[selected_transform].rotation = transforms[selected_transform].get_global_to_local_rotation(rot);
 
-				Vec3f scl = transforms[selected_transform].get_scale();
+				Vec3f scl = transforms[selected_transform].get_local_scale();
 				float v3_s[3] = { scl.x, scl.y, scl.z };
 				//ImGui::InputFloat("input float", &pos.x, 0.01f, 1.0f, "%.3f");
 				ImGui::DragFloat3("Scale", v3_s, 1.0f, -10000.0f, 10000.0f, "%.3f", 1.0f);
 				scl.x = v3_s[0];
 				scl.y = v3_s[1];
 				scl.z = v3_s[2];
-				transforms[selected_transform].set_scale(scl);
+				transforms[selected_transform].set_local_scale(scl);
 
 			}
 			last_selected_transform = selected_transform;
@@ -703,16 +704,15 @@ namespace PrEngine
 
 		//v_x = ImGui::GetWindowPos().x + ImGui::GetWindowWidth();
 
-		Uint_32 max_hierarchy = 0;
-		for (int _i = 0; _i < next_transform_order; _i++)
+		//Uint_32 max_hierarchy = 0;
+		for (int _i = 0; _i < next_transform_pos; _i++)
 		{
-			auto id_t = transform_order[_i];
-			if (transform_entity_id[id_t])
+			if (transform_entity_id[_i])
 			{
-				if (transform_hierarchy_level[id_t] == MAX_HIERARCHY_LEVEL)// max_hierarchy)
+				if (transforms[_i].parent_transform == 0)// max_hierarchy)
 				{
-					max_hierarchy = transform_hierarchy_level[id_t];
-					add_child(id_t);
+					//max_hierarchy = transform_hierarchy_level[id_t];
+					add_child(_i);
 
 				}
 			}

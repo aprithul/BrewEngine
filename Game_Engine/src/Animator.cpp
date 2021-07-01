@@ -53,7 +53,7 @@ namespace PrEngine
 				translation(2, 3) = frame.position.z;
 			}
 
-			rotation = Mat4x4::Identity();
+			rotation = Quaternion::GetIdentity();
 			if (anim_transform_update_flags[ANIM_ROTATE])
 			{
 				Float_32 a = frame.rotation.x * PI / 180.f;
@@ -72,10 +72,10 @@ namespace PrEngine
 				//rotation(2, 0) = (cosf(a) * sinf(b) * cosf(c)) + (sinf(a) * sinf(c));
 				//rotation(2, 1) = (cosf(a) * sinf(b) * sinf(c)) - (sinf(a) * cosf(c));
 				//rotation(2, 2) = cosf(a) * cosf(b);
-				rotation = Quaternion::EulerToQuaternion(Vec3f{ a,b,c }).GetRotationMatrix();
+				rotation = Quaternion::EulerToQuaternion(Vec3f{ a,b,c });
 			}
 
-			scale = Mat4x4::Identity();
+			scale = Mat3x3::Identity();
 			if (anim_transform_update_flags[ANIM_SCALE])
 			{
 				scale(0, 0) = frame.scale.x;

@@ -137,7 +137,7 @@ namespace PrEngine {
 			Rect<Float_32> b = points_to_rect(colliders[col_b].collision_shape.points);//, transforms[tr_b].transformation);
 			renderer->draw_rect_with_transform(a, red_color, transforms[tr_a].transformation);
 			renderer->draw_rect_with_transform(b, red_color, transforms[tr_b].transformation);
-			renderer->draw_line(transforms[tr_b].get_position(), transforms[tr_b].get_position() + (Vec3f)contacts[_i].depth, yellow_color);
+			renderer->draw_line(transforms[tr_b].get_local_position(), transforms[tr_b].get_local_position() + (Vec3f)contacts[_i].depth, yellow_color);
 
 			Float_32 _len = contacts[_i].depth.GetMagnitude();
 

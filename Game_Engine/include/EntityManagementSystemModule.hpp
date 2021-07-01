@@ -36,15 +36,17 @@ namespace PrEngine
 {
 	extern std::unordered_map<ComponentType, Uint_32> entities[MAX_ENTITY_COUNT];
 
-	extern Bool_8 transform_dirty_flag[MAX_ENTITY_COUNT];
+	//extern Bool_8 transform_dirty_flag[MAX_ENTITY_COUNT];
 
-	extern Uint_32 transform_order[MAX_ENTITY_COUNT]; //indices are ids. Indirection allows transforms to be updated in correct order 
-	extern Uint_32 transform_hierarchy_level[MAX_ENTITY_COUNT];
-	extern std::unordered_set<Uint_32> transform_children[MAX_ENTITY_COUNT];
+	//extern Uint_32 transform_order[MAX_ENTITY_COUNT]; //indices are ids. Indirection allows transforms to be updated in correct order 
+	//extern Uint_32 transform_hierarchy_level[MAX_ENTITY_COUNT];
+	//extern std::unordered_set<Uint_32> transform_children[MAX_ENTITY_COUNT];
 
 	// component arrays
 
 	extern Transform3D transforms[MAX_ENTITY_COUNT];
+	extern std::vector<Uint_32> transform_children[MAX_ENTITY_COUNT];
+
 	extern Camera cameras[MAX_CAMERA_COUNT];
 	extern Graphic graphics[MAX_GRAPHIC_COUNT];
 	extern BatchedGraphic batched_graphics[MAX_BATCH_COUNT];
@@ -65,7 +67,6 @@ namespace PrEngine
 	extern Uint_32 script_pos;
 	extern Uint_32 next_entity_pos;
 	extern Uint_32 next_transform_pos;
-	extern Uint_32 next_transform_order;
 	extern Uint_32 next_sprite_pos;
 	extern Uint_32 next_graphic_pos;
 	extern Uint_32 next_batched_graphic_pos;
@@ -131,12 +132,12 @@ namespace PrEngine
 		//Uint_32 delete_transform_comp(Uint_32 transform_id);
 
 		void set_parent_transform(Uint_32 parent_transform, Uint_32 child_transform);
-		void change_hierarchy_level_recursively(Uint_32 transform, Int_32 level);
-		void sort_transform_order();
+		/*void change_hierarchy_level_recursively(Uint_32 transform, Int_32 level);
+		void sort_transform_order();*/
 		Uint_32 get_active_camera();
 		void save_scene(const std::string& scene_file);
 
-		inline void update_transforms()
+		/*inline void update_transforms()
 		{
 			for (Uint_32 i = 1; i < next_transform_order; i++)
 			{
@@ -144,7 +145,7 @@ namespace PrEngine
 				if (transform_entity_id[j])
 					transforms[j].update();
 			}
-		}
+		}*/
 
 		void start() override;
 		void update() override;

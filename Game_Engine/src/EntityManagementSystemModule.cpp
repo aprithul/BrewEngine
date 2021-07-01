@@ -7,6 +7,8 @@ namespace PrEngine
 	EntityManagementSystem* entity_management_system = nullptr;
 
 	Transform3D transforms[MAX_ENTITY_COUNT];
+	std::vector<Uint_32> transform_children[MAX_ENTITY_COUNT];
+
 	Camera cameras[MAX_CAMERA_COUNT];
 	Graphic graphics[MAX_GRAPHIC_COUNT];
 	BatchedGraphic batched_graphics[MAX_BATCH_COUNT];
@@ -25,15 +27,13 @@ namespace PrEngine
 	Uint_32 script_entity_id[MAX_SCRIPT_COUNT] = {};
 	Uint_32 transform_entity_id[MAX_ENTITY_COUNT] = {};
 
-	std::unordered_set<Uint_32> transform_children[MAX_ENTITY_COUNT];
-	Uint_32 transform_order[MAX_ENTITY_COUNT] = {};
+	/*Uint_32 transform_order[MAX_ENTITY_COUNT] = {};
 	Uint_32 transform_hierarchy_level[MAX_ENTITY_COUNT] = {};
-	Bool_8 transform_dirty_flag[MAX_ENTITY_COUNT] = {};
+	Bool_8 transform_dirty_flag[MAX_ENTITY_COUNT] = {};*/
 
 	Uint_32 entity_count;
 	Uint_32 next_entity_pos;
 	Uint_32 next_transform_pos;
-	Uint_32 next_transform_order;
 	Uint_32 next_sprite_pos;
 	Uint_32 next_graphic_pos;
 	Uint_32 next_batched_graphic_pos;
@@ -68,12 +68,11 @@ namespace PrEngine
 		next_batched_graphic_pos = 1;
 		next_sprite_pos = 1;
 		next_transform_pos = 1;
-		next_transform_order = 1;
 		next_collider_pos = 1;
 		script_pos = 1;
 		entity_count = 0;
 		
-		transform_hierarchy_level[0] = MAX_HIERARCHY_LEVEL + 1;
+		//transform_hierarchy_level[0] = MAX_HIERARCHY_LEVEL + 1;
 
         entity_management_system = this;
     }
@@ -92,7 +91,7 @@ namespace PrEngine
 	//delete entity through its transform
     void EntityManagementSystem::delete_entity_by_transform(Uint_32 id_transform)
     {
-		if (transform_entity_id[id_transform])
+		/*if (transform_entity_id[id_transform])
 		{
 			for (auto it : transform_children[id_transform])
 			{
@@ -149,7 +148,7 @@ namespace PrEngine
 				delete_animator_comp(a_id);
 
 			return;
-		}
+		}*/
     }
 
 	Uint_32 EntityManagementSystem::make_entity()
@@ -180,23 +179,11 @@ namespace PrEngine
 		else
 			next_transform_pos++;
 
-		Uint_32 _order = next_transform_order;
-		if (transform_order_positions.empty() != true)
-		{
-			_order = transform_order_positions.front();
-			transform_order_positions.pop();
-		}
-		else
-			next_transform_order++;
-
-		transform_order[_order] = _id;
 		transform_entity_id[_id] = entity_id;
 		entities[entity_id][COMP_TRANSFORM_3D] = _id;
 
-		//transform_active_status[_id] = true;
 		transform_children[_id].clear();
-		transform_hierarchy_level[_id] = MAX_HIERARCHY_LEVEL;
-		sort_transform_order();
+		transforms[_id].children = &transform_children[_id];
 
 		return _id;
 	}
@@ -431,103 +418,131 @@ namespace PrEngine
 
 	void EntityManagementSystem::set_parent_transform(Uint_32 parent_transform, Uint_32 child_transform)
 	{
-		//if (!parent_transform)
-		//{
-		//	Uint_32 prev_parent = transforms[child_transform].parent_transform;
-		//	if (prev_parent)
-		//	{
-		//		transform_children[prev_parent].erase(child_transform);
-		//		//auto _i = transform_children[parent_transform].find(child_transform);
-		//		//if (_i == transform_children[parent_transform].end())
-		//		//	LOG(LOGTYPE_ERROR, "HELLO");
-		//	}
-
-		//	transforms[child_transform].parent_transform = 0;
-		//	decrease_hierarchy_level_recursively(child_transform);
-		//	sort_transform_order();
-		//	return;
-		//}
-
-		if (parent_transform == child_transform || parent_transform == transforms[child_transform].parent_transform)
-			return;
-		Uint_32 prev_parent = transforms[child_transform].parent_transform;
-		if (prev_parent)
+		Uint_32 current_parent = transforms[child_transform].parent_transform;
+		if (current_parent)
 		{
-			transform_children[prev_parent].erase(child_transform);
-			//auto _i = transform_children[parent_transform].find(child_transform);
-			//if (_i == transform_children[parent_transform].end())
-			//	LOG(LOGTYPE_ERROR, "HELLO");
+			std::vector<Uint_32>& children = *transforms[current_parent].children;
+			for (Uint_32 _i = 0; _i < children.size(); _i++)
+				if (children[_i] == child_transform)
+					children[_i] = 0;
 		}
 
-		//
-		
-		Mat4x4& p_t = transforms[parent_transform].transformation;
-		Mat4x4& c_t = transforms[child_transform].transformation;
+		Point3d glob_pos = transforms[child_transform].get_global_position();
+		Quaternion glob_rot = transforms[child_transform].get_global_rotation();
+		//Vec3f glob_scl = transforms[child_transform].get_global_scale();
 
-		Point3d pos_p(p_t.data[3],p_t.data[7], p_t.data[11]);
-		/*Vec3f pos_c(c_t.data[3], c_t.data[7], c_t.data[11]);
-
-		Vec3f rot_p(p_t.data[3], p_t.data[7], p_t.data[11]);
-		Vec3f rot_c(c_t.data[3], c_t.data[7], c_t.data[11]);*/
-
-
-		Transform3D& child_t = transforms[child_transform];
-		Transform3D& parent_t = transforms[parent_transform];
-
-		// maintain global rotation
-		child_t.set_rotation(child_t.get_global_rotation() - parent_t.get_global_rotation());
-		
-		// maintain global position
-		Point3d c_gp = child_t.get_global_position();
-		Vec3f p_gp = parent_t.get_global_position();
-		child_t.set_position( Point3d() + parent_t.transformation.GetTransformInverse() * ( c_gp - pos_p));
-
-		//child_t.position = c_gp - p_gp;// child_t.get_global_position() - parent_t.get_global_position();
-
-
-		//child_t.rotation = transforms[child_transform].rotation - transforms[parent_transform].rotation;
-		//child_t.rotation = 
-		//child_t.update_transformation(); //
-		//child_t.transformation = (parent_t.rotation_transformation).transpose() * child_t.transformation;
-
-
-		//Int_32 mod = transform_hierarchy_level[prev_parent]
-		//				> transform_hierarchy_level[parent_transform] ? -1 : 1;
 		transforms[child_transform].parent_transform = parent_transform;
-		transform_children[parent_transform].insert(child_transform);
-		
-		Int_32 level = transform_hierarchy_level[parent_transform] - 1;
-		change_hierarchy_level_recursively(child_transform, level);
-		sort_transform_order();
-		return;
+		if(parent_transform)	
+			transforms[parent_transform].children->push_back(child_transform);
+
+		transforms[child_transform].set_global_position(glob_pos);
+		transforms[child_transform].set_global_rotation(glob_rot);
+		//transforms[child_transform].set_global_scale(glob_scl);
+
+		//transforms[child_transform].is_dirty = true;
 	}
 
-	void EntityManagementSystem::change_hierarchy_level_recursively(Uint_32 transform, Int_32 level)
-	{
-		
 
-		transform_hierarchy_level[transform] = level;
-assert(level > 0);
-
-		for (auto it : transform_children[transform])//.begin(); it != transform_children[transform].end(); it++)
-		{
-			change_hierarchy_level_recursively(it, level-1);
-		}
-		return;
-	}
-
-	bool comp(Uint_32 i, Uint_32 j)
-	{
-		auto r = (transform_hierarchy_level[i] > transform_hierarchy_level[j]);
-		return r;
-	}
-
-	void EntityManagementSystem::sort_transform_order()
-	{
-
-		std::sort(transform_order + 1, transform_order + next_transform_order, comp);
-		return;
-	}
+//
+//	void EntityManagementSystem::set_parent_transform(Uint_32 parent_transform, Uint_32 child_transform)
+//	{
+//		//if (!parent_transform)
+//		//{
+//		//	Uint_32 prev_parent = transforms[child_transform].parent_transform;
+//		//	if (prev_parent)
+//		//	{
+//		//		transform_children[prev_parent].erase(child_transform);
+//		//		//auto _i = transform_children[parent_transform].find(child_transform);
+//		//		//if (_i == transform_children[parent_transform].end())
+//		//		//	LOG(LOGTYPE_ERROR, "HELLO");
+//		//	}
+//
+//		//	transforms[child_transform].parent_transform = 0;
+//		//	decrease_hierarchy_level_recursively(child_transform);
+//		//	sort_transform_order();
+//		//	return;
+//		//}
+//
+//		if (parent_transform == child_transform || parent_transform == transforms[child_transform].parent_transform)
+//			return;
+//		Uint_32 prev_parent = transforms[child_transform].parent_transform;
+//		if (prev_parent)
+//		{
+//			transform_children[prev_parent].erase(child_transform);
+//			//auto _i = transform_children[parent_transform].find(child_transform);
+//			//if (_i == transform_children[parent_transform].end())
+//			//	LOG(LOGTYPE_ERROR, "HELLO");
+//		}
+//
+//		//
+//		
+//		Mat4x4& p_t = transforms[parent_transform].transformation;
+//		Mat4x4& c_t = transforms[child_transform].transformation;
+//
+//		Point3d pos_p(p_t.data[3],p_t.data[7], p_t.data[11]);
+//		/*Vec3f pos_c(c_t.data[3], c_t.data[7], c_t.data[11]);
+//
+//		Vec3f rot_p(p_t.data[3], p_t.data[7], p_t.data[11]);
+//		Vec3f rot_c(c_t.data[3], c_t.data[7], c_t.data[11]);*/
+//
+//
+//		Transform3D& child_t = transforms[child_transform];
+//		Transform3D& parent_t = transforms[parent_transform];
+//
+//		// maintain global rotation
+//		child_t.set_rotation(child_t.get_global_rotation() - parent_t.get_global_rotation());
+//		
+//		// maintain global position
+//		Point3d c_gp = child_t.get_global_position();
+//		Vec3f p_gp = parent_t.get_global_position();
+//		child_t.set_position( Point3d() + parent_t.transformation.GetTransformInverse() * ( c_gp - pos_p));
+//
+//		//child_t.position = c_gp - p_gp;// child_t.get_global_position() - parent_t.get_global_position();
+//
+//
+//		//child_t.rotation = transforms[child_transform].rotation - transforms[parent_transform].rotation;
+//		//child_t.rotation = 
+//		//child_t.update_transformation(); //
+//		//child_t.transformation = (parent_t.rotation_transformation).transpose() * child_t.transformation;
+//
+//
+//		//Int_32 mod = transform_hierarchy_level[prev_parent]
+//		//				> transform_hierarchy_level[parent_transform] ? -1 : 1;
+//		transforms[child_transform].parent_transform = parent_transform;
+//		transform_children[parent_transform].insert(child_transform);
+//		
+//		Int_32 level = transform_hierarchy_level[parent_transform] - 1;
+//		change_hierarchy_level_recursively(child_transform, level);
+//		sort_transform_order();
+//		return;
+//	}
+//
+//	void EntityManagementSystem::change_hierarchy_level_recursively(Uint_32 transform, Int_32 level)
+//	{
+//		
+//
+//		transform_hierarchy_level[transform] = level;
+//assert(level > 0);
+//
+//		for (auto it : transform_children[transform])//.begin(); it != transform_children[transform].end(); it++)
+//		{
+//			change_hierarchy_level_recursively(it, level-1);
+//		}
+//		return;
+//	}
+//
+//	bool comp(Uint_32 i, Uint_32 j)
+//	{
+//		auto r = (transform_hierarchy_level[i] > transform_hierarchy_level[j]);
+//		return r;
+//	}
+//
+//	void EntityManagementSystem::sort_transform_order()
+//	{
+//
+//		std::sort(transform_order + 1, transform_order + next_transform_order, comp);
+//		return;
+//	}
 
     void EntityManagementSystem::start()
     {
@@ -555,11 +570,17 @@ assert(level > 0);
     {
 
 		//clock_t begin = clock();
-		update_transforms();
+		//update_transforms();
 		//clock_t end = clock();
 
 		//Double_64 elapsed = (Double_64)(end - begin) / CLOCKS_PER_SEC;
 
+		for (Uint_32 i = 0; i < next_transform_pos; i++)
+		{
+			if(transform_entity_id[i])
+				if (transforms[i].parent_transform == 0) // better to move parent_transform outside ?
+					transforms[i].update();
+		}
 		
 		//begin = clock();
 		for (Uint_32 i = 0; i < next_camera_pos; i++)
@@ -645,11 +666,11 @@ assert(level > 0);
 		write_to_file("", scene_file, 0, 0); //clears file
 		std::unordered_map<int, std::string> entities_in_scene;
 
-		for (Uint_32 i = 1; i < next_transform_order; i++)
+		for (Uint_32 i = 1; i < next_transform_pos; i++)
 		{
-			int j = transform_order[i];
-			if (transform_entity_id[j])
-				entities_in_scene[transform_entity_id[j]] = transforms[j].to_string() + ","+ std::to_string(j) + "\n";
+			//int j = transform_order[i];
+			if (transform_entity_id[i])
+				entities_in_scene[transform_entity_id[i]] = transforms[i].to_string() + ","+ std::to_string(i) + "\n";
 		}
 
 		for (Uint_32 i = 0; i < next_camera_pos; i++)

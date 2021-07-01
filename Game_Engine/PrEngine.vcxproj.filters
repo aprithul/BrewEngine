@@ -141,12 +141,6 @@
     <ClInclude Include="include\Math.hpp">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\Matrix3x3f.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Matrix4x4f.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\Mesh.hpp">
       <Filter>include</Filter>
     </ClInclude>
@@ -318,9 +312,6 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\Material.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Matrix3x3f.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\Mesh.cpp">

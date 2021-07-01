@@ -242,7 +242,7 @@ namespace PrEngine
 					if (animator_id)
 					{
 						Animator& anim = animators[animator_id];
-						anim_tr = anim.translation*anim.rotation*anim.scale;
+						anim_tr = anim.translation*anim.rotation.GetRotationMatrix()*anim.scale;
 						texture_id = anim.get_current_animation().frames[anim.current_frame_index].texture;
 					}
 					else {

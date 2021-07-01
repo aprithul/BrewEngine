@@ -124,8 +124,6 @@
     <ClInclude Include="include\Mat.hpp" />
     <ClInclude Include="include\Material.hpp" />
     <ClInclude Include="include\Math.hpp" />
-    <ClInclude Include="include\Matrix3x3f.hpp" />
-    <ClInclude Include="include\Matrix4x4f.hpp" />
     <ClInclude Include="include\Mesh.hpp" />
     <ClInclude Include="include\Module.hpp" />
     <ClInclude Include="include\NetworkManager.hpp" />
@@ -185,7 +183,6 @@
     <ClCompile Include="src\InputModule.cpp" />
     <ClCompile Include="src\Logger.cpp" />
     <ClCompile Include="src\Material.cpp" />
-    <ClCompile Include="src\Matrix3x3f.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\Module.cpp" />
     <ClCompile Include="src\NetworkManager.cpp" />
