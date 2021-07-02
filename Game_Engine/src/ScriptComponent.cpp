@@ -5,7 +5,7 @@ namespace PrEngine{
 
 	Script* (*Scripting::get_script_instance)(const char* name);
 
-	Scripting::Scripting() : Component(COMP_SCRIPT),script_pos(0),ref_table_pos(0)
+	Scripting::Scripting() : Component(COMP_SCRIPT),script_pos(1),ref_table_pos(1)
 	{
 		
 	}
@@ -103,8 +103,9 @@ namespace PrEngine{
 		{
 			Script* temp = scripts[script_id];
 			scripts[script_id] = scripts[script_pos-1];
-			scripts[script_pos] = nullptr;
+			scripts[script_pos-1] = nullptr;
 			script_pos--;
+			delete temp;
 		}
 	}
 
@@ -124,7 +125,17 @@ namespace PrEngine{
 			return scripts[ref_table[ref_id]];
 		}
 		else
-			nullptr;
+			return nullptr;
+	}
+
+	const char* Scripting::get_script_name(Uint_32 ref_id)
+	{
+		if (ref_table[ref_id] != 0)
+		{
+			return script_names[ref_table[ref_id]];
+		}
+		else
+			return nullptr;
 	}
 
 	Uint_32 Scripting::get_script_ref(const char* script_name)

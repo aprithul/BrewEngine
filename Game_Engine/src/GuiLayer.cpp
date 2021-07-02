@@ -201,7 +201,7 @@ namespace PrEngine
 		ImGui_ImplSDL2_NewFrame(window);
 		ImGui::NewFrame();
 		static Bool_8 show = true;
-		//ImGui::ShowDemoWindow();
+		ImGui::ShowDemoWindow();
 		ShowExampleAppDockSpace(0);
 #ifdef EDITOR_MODE
 		draw_editor(window);
@@ -503,8 +503,8 @@ namespace PrEngine
 					{
 						for (auto script_name : script_names)
 						{
-							ImGui::MenuItem(script_name.c_str(),0, &call_add_script);
-							script_to_add = script_name;
+							if(ImGui::MenuItem(script_name.c_str(),0, &call_add_script))
+								script_to_add = script_name;
 						}
 						ImGui::EndMenu();
 					}
@@ -526,7 +526,11 @@ namespace PrEngine
 				Point3d pos = transforms[selected_transform].get_local_position();// .get_global_position();
 				float v3_p[3] = { pos.x, pos.y, pos.z };
 				//ImGui::InputFloat("input float", &pos.x, 0.01f, 1.0f, "%.3f");
-				ImGui::DragFloat3("Position", v3_p, 1.0f, -10000.0f, 10000.0f, "%.3f", 1.0f);
+				ImGui::Text("Position:");
+				ImGui::SameLine();
+				ImGui::PushID(&pos);
+				ImGui::DragFloat3("", v3_p, 1.0f, -10000.0f, 10000.0f, "%.3f", 1.0f);
+				ImGui::PopID();
 				pos.x = v3_p[0];
 				pos.y = v3_p[1];
 				pos.z = v3_p[2];
@@ -536,10 +540,14 @@ namespace PrEngine
 				Vec3f rot = Quaternion::QuaternionToEuler(transforms[selected_transform].get_local_rotation());// transforms[selected_transform].get_local_rotation();// get_global_rotation();
 				float v3_r[3] = { rot.x, rot.y, rot.z };
 				//ImGui::InputFloat("input float", &pos.x, 0.01f, 1.0f, "%.3f");
-				ImGui::DragFloat3("Rotation", v3_r, 1.0f, -10000.0f, 10000.0f, "%.3f", 1.0f);
+				ImGui::Text("Rotation:");
+				ImGui::SameLine();
+				ImGui::PushID(&rot);
+				ImGui::DragFloat3("", v3_r, 1.0f, -10000.0f, 10000.0f, "%.3f", 1.0f);
 				rot.x = v3_r[0];
 				rot.y = v3_r[1];
 				rot.z = v3_r[2];
+				ImGui::PopID();
 				transforms[selected_transform].set_local_rotation(rot);
 				//transform_editor_data[selected_transform] = rot;
 				//transforms[selected_transform].rotation = transforms[selected_transform].get_global_to_local_rotation(rot);
@@ -547,7 +555,12 @@ namespace PrEngine
 				Vec3f scl = transforms[selected_transform].get_local_scale();
 				float v3_s[3] = { scl.x, scl.y, scl.z };
 				//ImGui::InputFloat("input float", &pos.x, 0.01f, 1.0f, "%.3f");
-				ImGui::DragFloat3("Scale", v3_s, 1.0f, -10000.0f, 10000.0f, "%.3f", 1.0f);
+				ImGui::Text("Scale:   ");
+				ImGui::SameLine();
+				ImGui::PushID(&scl);
+				ImGui::DragFloat3("", v3_s, 1.0f, -10000.0f, 10000.0f, "%.3f", 1.0f);
+				ImGui::PopID();
+
 				scl.x = v3_s[0];
 				scl.y = v3_s[1];
 				scl.z = v3_s[2];
@@ -596,6 +609,8 @@ namespace PrEngine
 					}
 				}
 			}
+
+			
 
 			if (ent[COMP_LIGHT])
 			{
@@ -690,6 +705,31 @@ namespace PrEngine
 
 					animator.cur_anim_ind = clamp<Int_32>(animator.cur_anim_ind, 0, animator.animation_count-1);
 				}
+			}
+
+			if (ent[COMP_SCRIPT])
+			{
+				Scripting& sc = scripting_comps[ent[COMP_SCRIPT]];
+				for (auto& ref_id : sc.ref_table)
+				{
+					Script* _s = sc.get_script(ref_id.first);
+					if (_s)
+					{
+						const char* _n = sc.get_script_name(ref_id.first);
+						ImGui::PushID(ref_id.first);
+						if (ImGui::CollapsingHeader(_n, ImGuiTreeNodeFlags_DefaultOpen))
+						{
+							if (ImGui::Button("Remove..."))
+							{
+								sc.remove_script(ref_id.first);
+							}
+							ImGui::Separator();
+						}
+						ImGui::PopID();
+					}
+
+				}
+
 			}
 		}
 

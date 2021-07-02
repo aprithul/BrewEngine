@@ -25,8 +25,10 @@ namespace PrEngine
 		void remove_script(Uint_32 ref_id);
 		Script* get_script(const char* script_name);
 		Script* get_script(Uint_32 ref_id);
+		const char* get_script_name(Uint_32 ref_id);
 		Uint_32 get_script_ref(const char* script_name);
-
+		std::unordered_map<Uint_32, Uint_32> ref_table; // ref_id, script_id
+		std::unordered_map<Uint_32, Uint_32> ref_table_rev; // script_id, ref_id
 		static Script* (*get_script_instance)(const char* name);
 
 
@@ -35,8 +37,7 @@ namespace PrEngine
 		Uint_32 ref_table_pos;
 		char script_names[MAX_SCRIPTS_PER_ENTITY][128];
 		Script* scripts[MAX_SCRIPTS_PER_ENTITY];
-		std::unordered_map<Uint_32, Uint_32> ref_table; // ref_id, script_id
-		std::unordered_map<Uint_32, Uint_32> ref_table_rev; // script_id, ref_id
+
 	};
 }
 #endif // !SCRIPT_COMPONENT_HPP
