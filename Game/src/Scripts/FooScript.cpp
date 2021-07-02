@@ -1,9 +1,5 @@
 #include "Scripts/FooScript.hpp"
 
-void Foo::awake()
-{
-}
-
 void Foo::start()
 {
 }

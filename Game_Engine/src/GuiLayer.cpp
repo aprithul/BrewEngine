@@ -201,7 +201,7 @@ namespace PrEngine
 		ImGui_ImplSDL2_NewFrame(window);
 		ImGui::NewFrame();
 		static Bool_8 show = true;
-		ImGui::ShowDemoWindow();
+		//ImGui::ShowDemoWindow();
 		ShowExampleAppDockSpace(0);
 #ifdef EDITOR_MODE
 		draw_editor(window);
@@ -469,12 +469,15 @@ namespace PrEngine
 	{
 		// flags and data for menubar
 		static Bool_8 call_add_script = false;
-		static std::string script_to_call = ""; 
+		static std::string script_to_add = ""; 
 
 		// menubar actions
 		if (call_add_script)
 		{
 			//add_script(script_to_call);
+			Script* script = Scripting::get_script_instance(script_to_add.c_str());
+			Uint_32 sel_tr_entity = transform_entity_id[selected_transform];
+			entity_management_system->add_script_to_entity(sel_tr_entity, script, script_to_add.c_str());
 			call_add_script = false;
 		}
 
@@ -501,7 +504,7 @@ namespace PrEngine
 						for (auto script_name : script_names)
 						{
 							ImGui::MenuItem(script_name.c_str(),0, &call_add_script);
-							script_to_call = script_name;
+							script_to_add = script_name;
 						}
 						ImGui::EndMenu();
 					}

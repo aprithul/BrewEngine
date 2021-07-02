@@ -141,7 +141,7 @@ int main()
 	if (type_names.size() > 0)
 	{
 		std::string output =
-			"#include <string>\n";
+			"#include \"ScriptGenerator.hpp\"\n";
 		std::string type_name_output = type_names[0];
 		for (int _i = 1; _i < type_names.size(); _i++)
 		{

@@ -27,6 +27,7 @@
     <ClInclude Include="include\Scripts\TestScript.hpp">
       <Filter>include\Scripts</Filter>
     </ClInclude>
+    <ClInclude Include="include\ScriptGenerator.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\EngineMaine.cpp">

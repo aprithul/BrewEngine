@@ -27,6 +27,8 @@ namespace PrEngine
 		Script* get_script(Uint_32 ref_id);
 		Uint_32 get_script_ref(const char* script_name);
 
+		static Script* (*get_script_instance)(const char* name);
+
 
 	private:
 		Uint_32 script_pos;

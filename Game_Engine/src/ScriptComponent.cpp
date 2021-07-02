@@ -3,6 +3,8 @@
 
 namespace PrEngine{
 
+	Script* (*Scripting::get_script_instance)(const char* name);
+
 	Scripting::Scripting() : Component(COMP_SCRIPT),script_pos(0),ref_table_pos(0)
 	{
 		
@@ -19,11 +21,7 @@ namespace PrEngine{
 
 	void Scripting::awake()
 	{
-		for (auto script : scripts)
-		{
-			if(script != nullptr)
-				script->awake();
-		}
+		
 	}
 
 	void Scripting::start()
@@ -71,6 +69,9 @@ namespace PrEngine{
 			ref_table_rev[script_pos] = ref_table_pos;
 			script_pos++;
 			ref_table_pos++;
+			
+			script->start();
+
 			return ref_table_pos-1;
 		}
 

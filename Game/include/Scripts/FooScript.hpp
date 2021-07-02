@@ -6,7 +6,6 @@
 struct Foo : public PrEngine::Script
 {
 	// Inherited via Script
-	void awake() override;
 	void start() override;
 	void update() override;
 	void end() override;

@@ -1,4 +1,4 @@
-#include <string>
+#include "ScriptGenerator.hpp"
 #include "Scripts/FooScript.hpp"
 #include "Scripts/TestScript.hpp"
 PrEngine::Script* get_script_of_type(const char* type_name)

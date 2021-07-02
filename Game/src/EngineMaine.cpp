@@ -5,6 +5,7 @@
 #include "PhysicsModule.hpp"
 #include "ECS.hpp"
 #include "Game.hpp"
+#include "ScriptGenerator.hpp"
 #if defined(EMSCRIPTEN) && defined(_WIN64)
 #include "NetworkManager.hpp"
 #endif
@@ -30,7 +31,7 @@ Engine* setup_engine_with_parameters(Uint_32 window_width, Uint_32 window_height
 	//game_engine->add_module(new FrameRateCounter("Frame Counter", 100001));
 	game_engine->add_module(new RendererOpenGL2D(window_width, window_height, is_fullscreen, window_name, "Renderer", 99999));
 	((RendererOpenGL2D*)game_engine->get_module("Renderer"))->set_vsync(true);
-
+	Scripting::get_script_instance = &get_script_of_type;
 
 #if defined(EMSCRIPTEN) && defined(_WIN64)
 	NetworkManager* network_manager = (NetworkManager*)game_engine->

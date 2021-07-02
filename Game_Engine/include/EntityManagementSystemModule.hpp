@@ -53,7 +53,7 @@ namespace PrEngine
 	extern DirectionalLight directional_lights[MAX_DIRECTIONAL_LIGHT_COUNT];
 	extern Animator animators[MAX_ANIMATOR_COUNT];
 	extern Collider colliders[MAX_COLLIDER_COUNT];
-	extern Scripting* scripts[MAX_SCRIPT_COUNT];
+	extern Scripting scripting_comps[MAX_SCRIPT_COUNT];
 	extern Bool_8 entity_validity[MAX_ENTITY_COUNT];
 	extern Uint_32 camera_entity_id[MAX_CAMERA_COUNT];
 	extern Uint_32 graphics_entity_id[MAX_GRAPHIC_COUNT];
@@ -61,10 +61,10 @@ namespace PrEngine
 	extern Uint_32 animator_entity_id[MAX_ANIMATOR_COUNT];
 	extern Uint_32 collider_entity_id[MAX_COLLIDER_COUNT];
 	extern Uint_32 transform_entity_id[MAX_ENTITY_COUNT];
-	extern Uint_32 script_entity_id[MAX_SCRIPT_COUNT];
+	extern Uint_32 scripting_entity_id[MAX_SCRIPT_COUNT];
 
 	extern Uint_32 entity_count;
-	extern Uint_32 script_pos;
+	extern Uint_32 next_scripting_pos;
 	extern Uint_32 next_entity_pos;
 	extern Uint_32 next_transform_pos;
 	extern Uint_32 next_sprite_pos;
@@ -120,7 +120,7 @@ namespace PrEngine
 		Uint_32 make_directional_light_comp(Uint_32 entity_id);
 		Uint_32 make_transform_comp(Uint_32 entity_id);
 		Uint_32 make_collider_comp(Uint_32 entity_id);
-		Uint_32 make_script_comp(Uint_32 entity_id, Scripting* script);
+		Uint_32 make_scripting_comp(Uint_32 entity_id);
 
 		Bool_8 delete_camera_comp(Uint_32 camera_id);
 		Bool_8 delete_graphic_comp(Uint_32 graphics_id);
@@ -129,6 +129,7 @@ namespace PrEngine
 		Bool_8 delete_directional_light_comp(Uint_32 light_id);
 		Bool_8 delete_collider_comp(Uint_32 collider_id);
 		Bool_8 delete_script_comp(Uint_32 collider_id);
+
 		//Uint_32 delete_transform_comp(Uint_32 transform_id);
 
 		void set_parent_transform(Uint_32 parent_transform, Uint_32 child_transform);
@@ -136,8 +137,7 @@ namespace PrEngine
 		void sort_transform_order();*/
 		Uint_32 get_active_camera();
 		void save_scene(const std::string& scene_file);
-
-		/*inline void update_transforms()
+		void add_script_to_entity(Uint_32 entity, Script* script, const char* name);	/*inline void update_transforms()
 		{
 			for (Uint_32 i = 1; i < next_transform_order; i++)
 			{

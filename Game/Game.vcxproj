@@ -82,6 +82,7 @@
   <ItemGroup>
     <ClInclude Include="include\EngineMain.hpp" />
     <ClInclude Include="include\Game.hpp" />
+    <ClInclude Include="include\ScriptGenerator.hpp" />
     <ClInclude Include="include\Scripts\FooScript.hpp" />
     <ClInclude Include="include\Scripts\TestScript.hpp" />
   </ItemGroup>
