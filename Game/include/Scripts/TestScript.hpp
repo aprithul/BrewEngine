@@ -9,6 +9,7 @@ struct Test : public PrEngine::Script
 	void start() override;
 	void update() override;
 	void end() override;
+	~Test();
 };
 
 #endif // !FOO

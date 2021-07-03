@@ -53,10 +53,10 @@ namespace PrEngine{
 
 
 
-	Uint_32 Scripting::add_script(Script* script, const char* script_name)
+	Uint_32 Scripting::add_script(Script* script, Uint_32 name_index)
 	{
 
-		if (script_pos >= MAX_SCRIPTS_PER_ENTITY)
+		if (script_pos > MAX_SCRIPTS_PER_ENTITY)
 		{
 			LOG(LOGTYPE_ERROR, "Max number of scripts per entity reached");
 			return 0;
@@ -64,9 +64,8 @@ namespace PrEngine{
 		else
 		{
 			scripts[script_pos] = script;
-			strcpy(script_names[script_pos], script_name);
+			script_name_indices[script_pos] = name_index;
 			ref_table[ref_table_pos] = script_pos;
-			ref_table_rev[script_pos] = ref_table_pos;
 			script_pos++;
 			ref_table_pos++;
 			
@@ -79,42 +78,53 @@ namespace PrEngine{
 
 	void Scripting::remove_script(const char* script_name)
 	{
-		for (Uint_32 _i = 0; _i < MAX_SCRIPTS_PER_ENTITY; _i++)
-		{
-			if (strcmp(script_name, script_names[_i]) == 0)
-			{
-				ref_table[ref_table_rev[_i]] = 0; // reverse lookup _i to get reference_id and map it to null id [0]
-
-				Script* temp = scripts[_i];
-				scripts[_i] = scripts[script_pos-1];
-				scripts[script_pos] = nullptr;
-				script_pos--;
-
-			}
-		}
+		Uint_32 ref = get_script_ref(script_name);
+		if (ref)
+			remove_script(ref);
 	}
 
 	void Scripting::remove_script(Uint_32 ref_id)
 	{
 		int script_id = ref_table[ref_id];
-		ref_table[ref_id] = 0; 
 
 		if(script_id)
 		{
 			Script* temp = scripts[script_id];
 			scripts[script_id] = scripts[script_pos-1];
-			scripts[script_pos-1] = nullptr;
+			script_name_indices[script_id] = script_name_indices[script_pos - 1];
+			script_name_indices[script_pos - 1] = 0;
+			scripts[script_pos - 1] = nullptr;
+
+			ref_table[ref_id] = 0;
+			for (auto& r : ref_table)
+			{
+				if (r.second == script_pos - 1)
+					ref_table[r.first] = script_id;
+			}
+
 			script_pos--;
 			delete temp;
 		}
 	}
 
-	Script* Scripting::get_script(const char* script_name)
+	Script* Scripting::get_script_by_name_index(Uint_32 name_index)
 	{
-		for (Uint_32 _i = 0; _i < MAX_SCRIPTS_PER_ENTITY; _i++)
+		for (Uint_32 _i = 1; _i <= MAX_SCRIPTS_PER_ENTITY; _i++)
 		{
-			if (strcmp(script_name, script_names[_i]) == 0)
+			if (name_index == script_name_indices[_i])
 				return scripts[_i];
+		}
+	}
+
+	void Scripting::get_scripts(Uint_32 name_index, Script* _scripts[MAX_SCRIPTS_PER_ENTITY], Byte_8& count)
+	{
+		for (Uint_32 _i = 1; _i <= MAX_SCRIPTS_PER_ENTITY; _i++)
+		{
+			if (name_index == script_name_indices[_i])
+			{
+				_scripts[count] = scripts[_i];
+				count++;
+			}
 		}
 	}
 
@@ -132,7 +142,7 @@ namespace PrEngine{
 	{
 		if (ref_table[ref_id] != 0)
 		{
-			return script_names[ref_table[ref_id]];
+			return script_names[script_name_indices[ref_table[ref_id]]].c_str();
 		}
 		else
 			return nullptr;
@@ -140,11 +150,11 @@ namespace PrEngine{
 
 	Uint_32 Scripting::get_script_ref(const char* script_name)
 	{
-		for (Uint_32 _i = 0; _i < MAX_SCRIPTS_PER_ENTITY; _i++)
+		for (auto& r : ref_table)
 		{
-			if (strcmp(script_name, script_names[_i]) == 0)
+			if (strcmp( script_names[script_name_indices[r.second]].c_str(), script_name) == 0)
 			{
-				return ref_table_rev[_i];
+				return r.first;
 			}
 		}
 

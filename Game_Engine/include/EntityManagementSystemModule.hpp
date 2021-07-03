@@ -63,6 +63,7 @@ namespace PrEngine
 	extern Uint_32 transform_entity_id[MAX_ENTITY_COUNT];
 	extern Uint_32 scripting_entity_id[MAX_SCRIPT_COUNT];
 
+
 	extern Uint_32 entity_count;
 	extern Uint_32 next_scripting_pos;
 	extern Uint_32 next_entity_pos;
@@ -137,7 +138,7 @@ namespace PrEngine
 		void sort_transform_order();*/
 		Uint_32 get_active_camera();
 		void save_scene(const std::string& scene_file);
-		void add_script_to_entity(Uint_32 entity, Script* script, const char* name);	/*inline void update_transforms()
+		Uint_32 add_script_to_entity(Uint_32 entity, Script* script, Uint_32 name_index);	/*inline void update_transforms()
 		{
 			for (Uint_32 i = 1; i < next_transform_order; i++)
 			{

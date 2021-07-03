@@ -19,7 +19,6 @@ namespace PrEngine
 	std::vector<std::string> shader_directories;
 	std::vector<std::string> texture_directories;
 	std::vector<std::string> animation_directories;
-	std::vector<std::string> script_names;
 
 	void load_materials();
 	void load_textures();
@@ -46,8 +45,7 @@ namespace PrEngine
         tiling = nullptr;
 		this->fps = 0;
 
-		std::string file_content =  read_file(get_resource_path() + PATH_SEP + "type_names.csv");
-		tokenize_string(file_content, ',', script_names);
+		
 	}
 
     GuiLayer::~GuiLayer()
@@ -469,15 +467,16 @@ namespace PrEngine
 	{
 		// flags and data for menubar
 		static Bool_8 call_add_script = false;
-		static std::string script_to_add = ""; 
+		//static std::string script_to_add = ""; 
+		static Uint_32 script_to_add = 0;
 
 		// menubar actions
 		if (call_add_script)
 		{
 			//add_script(script_to_call);
-			Script* script = Scripting::get_script_instance(script_to_add.c_str());
-			Uint_32 sel_tr_entity = transform_entity_id[selected_transform];
-			entity_management_system->add_script_to_entity(sel_tr_entity, script, script_to_add.c_str());
+			Script* script = Scripting::get_script_instance(script_names[script_to_add].c_str());
+			Uint_32 slctd_tr_entity = transform_entity_id[selected_transform];
+			entity_management_system->add_script_to_entity(slctd_tr_entity, script, script_to_add);
 			call_add_script = false;
 		}
 
@@ -501,10 +500,11 @@ namespace PrEngine
 					ImGui::MenuItem("Collider", NULL);
 					if (ImGui::BeginMenu("Script"))
 					{
-						for (auto script_name : script_names)
+						for (Uint_32 _i = 1; _i < script_names.size(); _i++)
 						{
+							std::string& script_name = script_names[_i];
 							if(ImGui::MenuItem(script_name.c_str(),0, &call_add_script))
-								script_to_add = script_name;
+								script_to_add = _i;
 						}
 						ImGui::EndMenu();
 					}

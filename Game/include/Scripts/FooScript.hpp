@@ -9,6 +9,7 @@ struct Foo : public PrEngine::Script
 	void start() override;
 	void update() override;
 	void end() override;
+	~Foo();
 };
 
 #endif // !FOO

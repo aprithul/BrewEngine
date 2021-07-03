@@ -368,5 +368,8 @@
     <ClCompile Include="src\Vertex.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\Script.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

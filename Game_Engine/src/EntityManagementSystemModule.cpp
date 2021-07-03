@@ -5,6 +5,7 @@
 namespace PrEngine
 {
 	EntityManagementSystem* entity_management_system = nullptr;
+	std::vector<std::string> script_names;
 
 	Transform3D transforms[MAX_ENTITY_COUNT];
 	std::vector<Uint_32> transform_children[MAX_ENTITY_COUNT];
@@ -71,15 +72,17 @@ namespace PrEngine
 		next_collider_pos = 1;
 		next_scripting_pos = 1;
 		entity_count = 0;
-		
-		//transform_hierarchy_level[0] = MAX_HIERARCHY_LEVEL + 1;
-
         entity_management_system = this;
+		
+		// load all script file names
+		std::string file_content = read_file(get_resource_path() + PATH_SEP + "type_names.csv");
+		script_names.push_back(""); // empty at 0
+		tokenize_string(file_content, ',', script_names);
     }
 
     EntityManagementSystem::~EntityManagementSystem()
     {
-       //
+
     }
 
 	char EntityManagementSystem::get_entity(Uint_32 id)
@@ -606,7 +609,7 @@ namespace PrEngine
 		return 0;
 	}
 
-	void EntityManagementSystem::add_script_to_entity(Uint_32 entity, Script* script, const char* name)
+	Uint_32 EntityManagementSystem::add_script_to_entity(Uint_32 entity, Script* script, Uint_32 name_index)
 	{
 		Uint_32 scripting_id = entities[entity][COMP_SCRIPT];
 		if (!scripting_id)
@@ -614,6 +617,7 @@ namespace PrEngine
 			scripting_id = entity_management_system->make_scripting_comp(entity);
 		}
 		Scripting& scripting = scripting_comps[entities[entity][COMP_SCRIPT]];
-		scripting.add_script(script, name);
+		script->entity = entity;
+		return scripting.add_script(script, name_index);
 	}
 }
