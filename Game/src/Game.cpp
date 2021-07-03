@@ -29,6 +29,9 @@ void Game::update()
 	Uint_32 _camera = entity_management_system->get_active_camera();
 	if (!_camera)
 		LOG(LOGTYPE_ERROR, "No active camera in scene");
+
+	Camera& camera = camera_system.get_component(_camera);
+
 	//cameras[_camera].zoom = 1.5f;
 	
 	static const Float_32 cam_pan_min_speed = 10.f;
@@ -36,17 +39,17 @@ void Game::update()
 	Float_32 cam_pan_speed = cam_pan_min_speed;
 	//if (input_manager->keyboard.get_key(SDLK_LSHIFT))
 	//	cam_pan_speed = cam_pan_max_speed;
-	Point3d pos = transforms[cameras[_camera].id_transform].get_local_position();
+	Point3d pos = transforms[camera.id_transform].get_local_position();
 	pos.y = pos.y + (Time::Frame_time*cam_pan_speed * input_manager->get_gamecontroller(0)->get_axis(SDL_CONTROLLER_AXIS_LEFTY));
 	//pos.y = pos.y - (Time::Frame_time*cam_pan_speed * input_manager->get_gamecontroller(0)->get_axis(SDL_CONTROLLER_AXIS_LEFTY));
 	pos.x = pos.x + (Time::Frame_time*cam_pan_speed * input_manager->get_gamecontroller(0)->get_axis(SDL_CONTROLLER_AXIS_LEFTX));
 	//pos.x = pos.x - (Time::Frame_time*cam_pan_speed * input_manager->get_gamecontroller(0)->get_axis(SDL_CONTROLLER_AXIS_LEFTY));
-	transforms[cameras[_camera].id_transform].set_local_position(pos);
+	transforms[camera.id_transform].set_local_position(pos);
 
 	if (input_manager->get_gamecontroller(0)->get_axis(SDL_CONTROLLER_AXIS_RIGHTY) != 0) 
 	{
 		Float_32 speed = 20.f;
-		cameras[_camera].zoom = clamp<Float_32>(cameras[_camera].zoom + (input_manager->get_gamecontroller(0)->get_axis(SDL_CONTROLLER_AXIS_RIGHTY)*Time::Frame_time*speed), 0.1, 1000);
+		camera.zoom = clamp<Float_32>(camera.zoom + (input_manager->get_gamecontroller(0)->get_axis(SDL_CONTROLLER_AXIS_RIGHTY)*Time::Frame_time*speed), 0.1, 1000);
 	}
 
 

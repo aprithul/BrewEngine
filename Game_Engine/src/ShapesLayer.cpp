@@ -57,7 +57,7 @@ namespace PrEngine {
 		Uint_32 camera_id = entity_management_system->get_active_camera();
 		if (!camera_id)
 			return;
-		Camera& _camera = cameras[camera_id];
+		Camera& _camera = camera_system.get_component(camera_id); //cameras[camera_id];
 
 		GraphicsElement& element = line_graphic.element;
 

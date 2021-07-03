@@ -20,31 +20,32 @@ namespace PrEngine {
 
 	void PhysicsModule::start()
 	{
-		for (Uint_32 _i = 0; _i<next_collider_pos; _i++)
+		for (Uint_32 _i = 0; _i<collider_system.new_pos; _i++)
 		{
-			if (collider_entity_id[_i])
+			if (collider_system.get_entity(_i))
 			{
-				Uint_32 graphic_id = colliders[_i].graphic_id;
+				Collider& collider = collider_system.get_component(_i);
+				Uint_32 graphic_id = collider.graphic_id;// colliders[_i].graphic_id;
 				if (graphic_id)
 				{
-					Vec2f* col_points = colliders[_i].collision_shape.points;
+					Vec2f* col_points = collider.collision_shape.points;
 					Vec3f* g_points = Graphic::vertex_data[graphic_id];
 					col_points[0] = g_points[0];
 					col_points[1] = g_points[1];
 					col_points[2] = g_points[2];
 					col_points[3] = g_points[3];
-					colliders[_i].collision_shape.type = SHAPE_RECT;
-					colliders[_i].collision_shape.point_count = 4;
+					collider.collision_shape.type = SHAPE_RECT;
+					collider.collision_shape.point_count = 4;
 				}
 				else
 				{
-					Vec2f* col_points = colliders[_i].collision_shape.points;
+					Vec2f* col_points = collider.collision_shape.points;
 					col_points[0] = Vec2f{ -1, 1 };
 					col_points[1] = Vec2f{  1, 1 };
 					col_points[2] = Vec2f{  1,-1 };
 					col_points[3] = Vec2f{ -1,-1 };
-					colliders[_i].collision_shape.type = SHAPE_RECT;
-					colliders[_i].collision_shape.point_count = 4;
+					collider.collision_shape.type = SHAPE_RECT;
+					collider.collision_shape.point_count = 4;
 
 				}
 			}
@@ -70,11 +71,11 @@ namespace PrEngine {
 
 	Uint_32 PhysicsModule::point_in_any_shape(Vec2f p)
 	{
-		for (Uint_32 _i = 0; _i < next_collider_pos; _i++)
+		for (Uint_32 _i = 0; _i < collider_system.new_pos; _i++)
 		{
-			if (collider_entity_id[_i])
+			if (collider_system.get_entity(_i))
 			{
-				Collider& col = colliders[_i];
+				Collider& col = collider_system.get_component(_i);// colliders[_i];
 				switch (col.collision_shape.type)
 				{
 				case SHAPE_CIRCLE:
@@ -125,16 +126,16 @@ namespace PrEngine {
 		for (int _i = 0; _i < contacts.size(); _i++)
 		{
 			Uint_32 col_a = contacts[_i].collider_a;
-			Uint_32 tr_a = colliders[col_a].transform_id;
+			Uint_32 tr_a = collider_system.get_component(col_a).transform_id;
 			Uint_32 col_b = contacts[_i].collider_b;
-			Uint_32 tr_b = colliders[col_b].transform_id;
+			Uint_32 tr_b = collider_system.get_component(col_b).transform_id;
 
 			assert(tr_a && tr_b);
 
 			Vec4f red_color{ 1.0, 0, 0, 1.0 };
 			Vec4f yellow_color{ 0.0, 1, 1, 1.0 };
-			Rect<Float_32> a = points_to_rect(colliders[col_a].collision_shape.points);//, transforms[tr_a].transformation);
-			Rect<Float_32> b = points_to_rect(colliders[col_b].collision_shape.points);//, transforms[tr_b].transformation);
+			Rect<Float_32> a = points_to_rect(collider_system.get_component(col_a).collision_shape.points);//, transforms[tr_a].transformation);
+			Rect<Float_32> b = points_to_rect(collider_system.get_component(col_b).collision_shape.points);//, transforms[tr_b].transformation);
 			renderer->draw_rect_with_transform(a, red_color, transforms[tr_a].transformation);
 			renderer->draw_rect_with_transform(b, red_color, transforms[tr_b].transformation);
 			renderer->draw_line(transforms[tr_b].get_local_position(), transforms[tr_b].get_local_position() + (Vec3f)contacts[_i].depth, yellow_color);

@@ -191,25 +191,25 @@ namespace PrEngine
 		if (!camera_id)
 			return;
 
-		Camera& _camera = cameras[camera_id];
-		DirectionalLight& _light = directional_lights[1];
+		Camera& _camera = camera_system.get_component(camera_id);
+		//DirectionalLight& _light = directional_lights[1];
 		//Vec3f _cam_pos = transforms[_camera.id_transform].position;
 		//Vec3f _dir = get_transform(_light.id_transform).get_forward();
 
 
-		for (Uint_32 _i = 0; _i < next_graphic_pos; _i++)
+		for (Uint_32 _i = 0; _i < graphics_system.new_pos; _i++)
 		{
 
-			if (graphics_entity_id[_i])//  is_valid(graphic_active_status, graphics[_i].entity))
+			if (graphics_system.get_entity(_i))//  is_valid(graphic_active_status, graphics[_i].entity))
 			{
 				//UpdateTransforms(transform);
 				//Matrix4x4<Float_32> mvp = (projection) * (*(grp->model)) ;
-				auto& graphic = graphics[_i];
+				auto& graphic = graphics_system.get_component(_i);
 				if (graphic.tag != RENDER_UNTAGGED)
 					continue;
 
 				auto& transform = transforms[graphic.transform_id];
-				renderer->render_graphic(graphic, transform.transformation, _camera, _light);
+				renderer->render_graphic(graphic, transform.transformation, _camera);
 				
 			}
 
@@ -219,9 +219,10 @@ namespace PrEngine
 
 		clock_t begin = clock();
 
-		for (Uint_32 _i =1; _i < next_batched_graphic_pos; _i++)
+		for (Uint_32 _i =1; _i < batched_graphics_system.new_pos; _i++)
 		{
-			BatchedGraphic& batch = batched_graphics[_i];
+			//BatchedGraphic& batch = batched_graphics[_i];
+			BatchedGraphic& batch = batched_graphics_system.get_component(_i);
 			if (batch.tag == RENDER_DYNAMIC)
 			{
 				std::vector<Vertex> buffer;
@@ -231,7 +232,7 @@ namespace PrEngine
 				{
 					Uint_32 g_id = batch.graphic_ids[_i];
 
-					Graphic& graphic = graphics[g_id];
+					Graphic& graphic = graphics_system.get_component(g_id);
 					Uint_32 material_id = graphic.element.material;
 					assert(material_id);
 					Material* mat = Material::get_material(material_id);
@@ -241,7 +242,8 @@ namespace PrEngine
 					Mat4x4 anim_tr = Mat4x4::Identity();
 					if (animator_id)
 					{
-						Animator& anim = animators[animator_id];
+						//Animator& anim = animators[animator_id];
+						Animator& anim = animator_system.get_component(animator_id);
 						anim_tr = anim.translation*anim.rotation.GetRotationMatrix()*anim.scale;
 						texture_id = anim.get_current_animation().frames[anim.current_frame_index].texture;
 					}
@@ -362,7 +364,7 @@ namespace PrEngine
 			auto& t = transforms[batch.transform_id].transformation;
 			//if (batch.id_animator)
 			//	t = animators[batch.id_animator].translation * t;
-			renderer->render_graphic(batch, t, _camera, _light); // transforms[0] is an 'identity' transformation
+			renderer->render_graphic(batch, t, _camera); // transforms[0] is an 'identity' transformation
 		}
 				//LOG(LOGTYPE_WARNING, "Draw calls : ", std::to_string(draw_calls));
 

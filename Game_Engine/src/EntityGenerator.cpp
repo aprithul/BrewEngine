@@ -24,9 +24,17 @@ namespace PrEngine{
 		Uint_32 id_transform = entity_management_system->make_transform_comp(entity);
 		get_transform(id_transform).set_local_position( 0.f, 0.f, -6.f );
 		
-		Uint_32 id_camera = entity_management_system->make_camera_comp(entity);
+		/*Uint_32 id_camera = entity_management_system->make_camera_comp(entity);
 		cameras[id_camera].set_orthographic(-(width / 2.f), (width / 2.f), -(height / 2.f), (height / 2.f), _near, _far);
-		cameras[id_camera].id_transform = id_transform;
+		cameras[id_camera].id_transform = id_transform;*/
+
+		Uint_32 id_camera = camera_system.make(entity);
+		if (id_camera)
+		{
+			Camera& camera = camera_system.get_component(id_camera);
+			camera.set_orthographic(-(width / 2.f), (width / 2.f), -(height / 2.f), (height / 2.f), _near, _far);
+			camera.id_transform = id_transform; 
+		}
 
 		//auto text = camera_ent->to_string();
 		//write_to_file(text, "scene.graph", false, true);
@@ -54,20 +62,24 @@ namespace PrEngine{
 		Uint_32 transform_id = entity_management_system->make_transform_comp(entity);
 		transforms[transform_id].set_local_position(position);
 
-		Uint_32 animator_id = entity_management_system->make_animator_comp(entity);
-		animators[animator_id].cur_anim_ind = 0;
-		animators[animator_id].anim_transform_update_flags[ANIM_TRANSLATE] = true;
-		animators[animator_id].anim_transform_update_flags[ANIM_ROTATE] = true;
-		animators[animator_id].anim_transform_update_flags[ANIM_SCALE] = true;
-		animators[animator_id].id_transform = transform_id;
-		Uint_32 a_id = 0;
-		if (a_id = Animator::load_animation(animation_path))
+		Uint_32 animator_id = animator_system.make(entity);// entity_management_system->make_animator_comp(entity);
+		if (animator_id)
 		{
-			animators[animator_id].add_animation(a_id);
+			Animator& animator = animator_system.get_component(animator_id);
+			animator.cur_anim_ind = 0;
+			animator.anim_transform_update_flags[ANIM_TRANSLATE] = true;
+			animator.anim_transform_update_flags[ANIM_ROTATE] = true;
+			animator.anim_transform_update_flags[ANIM_SCALE] = true;
+			animator.id_transform = transform_id;
+			Uint_32 a_id = 0;
+			if (a_id = Animator::load_animation(animation_path))
+			{
+				animator.add_animation(a_id);
+			}
+			else
+				LOG(LOGTYPE_ERROR, "Couldn't add animation");
+			make_sprite(entity, 1.0f, RENDER_DYNAMIC, animator_id, transform_id, material_path);
 		}
-		else
-			LOG(LOGTYPE_ERROR, "Couldn't add animation");
-		make_sprite(entity, 1.0f, RENDER_DYNAMIC, animator_id, transform_id, material_path);
 		return entity;
 	}
 
@@ -75,16 +87,16 @@ namespace PrEngine{
 	{
 		Uint_32 entity = entity_management_system->make_entity();
 
-		Uint_32 id_transform = entity_management_system->make_transform_comp(entity);
-		get_transform(id_transform).set_local_rotation(0, 0, 90);
+		//Uint_32 id_transform = entity_management_system->make_transform_comp(entity);
+		//get_transform(id_transform).set_local_rotation(0, 0, 90);
 
-		Uint_32 id_dir_light = entity_management_system->make_directional_light_comp(entity);
-		directional_lights[id_dir_light].specular = 0.5f;
-		directional_lights[id_dir_light].ambient = 0.3f;
-		directional_lights[id_dir_light].id_transform = id_transform;
+		//Uint_32 id_dir_light = entity_management_system->make_directional_light_comp(entity);
+		//directional_lights[id_dir_light].specular = 0.5f;
+		//directional_lights[id_dir_light].ambient = 0.3f;
+		//directional_lights[id_dir_light].id_transform = id_transform;
 
-		//auto text = light_ent->to_string();
-		//write_to_file(text, "scene.graph", false, true);
+		////auto text = light_ent->to_string();
+		////write_to_file(text, "scene.graph", false, true);
 
 		return entity;
 	}
@@ -92,29 +104,38 @@ namespace PrEngine{
 	Uint_32 EntityGenerator::make_sprite(Uint_32 entity, Float_32 import_scale, RenderTag render_tag, Uint_32 animator_id, Uint_32 transform_id, const std::string& material_name)
 	{
 		
-		Uint_32 graphic_id = entity_management_system->make_graphic_comp(entity);
-
-		RenderTag _render_tag = render_tag;
-		RenderTag future_render_tag = render_tag;
-		Graphic::editor_data[graphic_id] = { import_scale, future_render_tag };
-
-		
-		graphics[graphic_id].tag = _render_tag;
-		//graphics[id_graphic].future_tag = future_render_tag;
-
-		Bool_8 create_gl_texture = _render_tag == RENDER_UNTAGGED;
-
-		Uint_32 mat_id = Material::load_material(material_name, create_gl_texture);
-		LOG(LOGTYPE_GENERAL, "mat created");
-		graphics[graphic_id].element.material = mat_id;
-
-		assert(transform_id);
-		graphics[graphic_id].transform_id = transform_id;
-		graphics[graphic_id].animator_id = animator_id;
-		switch (_render_tag)
+		//Uint_32 graphic_id = entity_management_system->make_graphic_comp(entity);
+		Uint_32 graphic_id = graphics_system.make(entity);
+		if (graphic_id)
 		{
+			Graphic& graphic = graphics_system.get_component(graphic_id);
+			RenderTag _render_tag = render_tag;
+			RenderTag future_render_tag = render_tag;
+			Graphic::editor_data[graphic_id] = { import_scale, future_render_tag };
+
+
+			//graphics[graphic_id].tag = _render_tag;
+			graphic.tag = _render_tag;
+
+			//graphics[id_graphic].future_tag = future_render_tag;
+
+			Bool_8 create_gl_texture = _render_tag == RENDER_UNTAGGED;
+
+			Uint_32 mat_id = Material::load_material(material_name, create_gl_texture);
+			LOG(LOGTYPE_GENERAL, "mat created");
+			/*graphics[graphic_id].element.material = mat_id;
+
+			assert(transform_id);
+			graphics[graphic_id].transform_id = transform_id;
+			graphics[graphic_id].animator_id = animator_id;*/
+			graphic.element.material = mat_id;
+			graphic.transform_id = transform_id;
+			graphic.animator_id = animator_id;
+
+			switch (_render_tag)
+			{
 			case RENDER_UNTAGGED:
-			{	
+			{
 				LOG(LOGTYPE_GENERAL, "creating sprite graphics");
 				renderer->generate_sprite_graphics(graphic_id);
 			}
@@ -127,45 +148,46 @@ namespace PrEngine{
 				//renderer->generate_sprite_graphics(id_graphic);
 				dynamic_batched_graphic_ids.push_back(graphic_id);
 				break;
+			}
+			LOG(LOGTYPE_GENERAL, "added to batch list");
+
+
+			// to be moved
+			/*Uint_32 collider_id = entity_management_system->make_collider_comp(entity);
+			Collider& col = colliders[collider_id];
+			col.graphic_id = graphic_id;
+			col.transform_id = transform_id;
+			col.collision_shape.type = SHAPE_RECT;*/
+			/*for (int _i = 2; _i < tokens.size(); _i += 2)
+			{
+				Vec2f p{ std::strtof(tokens[_i].c_str(), nullptr), std::strtof(tokens[_i + 1].c_str(), nullptr) };
+				col.collision_shape.points[(_i / 2) - 1] = p;
+				col.collision_shape.point_count++;
+			}*/
+
+
+
+
+
+			//braid\\tim_run\\0.gif
+			/*Graphic* graphics = renderer->generate_sprite_graphics(tokens[1], "sprite_mat_" + tokens[1]);
+			entity->add_componenet(graphics);*/
+
+			/*auto e = entity_management_system->make_entity();
+			auto t_id = entity_management_system->make_transform_comp(e);
+
+			auto g_id = entity_management_system->make_graphic_comp(e);
+			//renderer->generate_sprite_graphics(g_id, image_file_path, std::string("sprite_mat_") + image_file_path);
+
+			Uint_32 mat_id = Material::load_material(material_name, true);
+			graphics[g_id].element.material = mat_id;
+
+			renderer->generate_sprite_graphics(g_id);
+
+			graphics[g_id].transform_id = t_id;
+
+			return e;*/
 		}
-		LOG(LOGTYPE_GENERAL, "added to batch list");
-
-
-		// to be moved
-		/*Uint_32 collider_id = entity_management_system->make_collider_comp(entity);
-		Collider& col = colliders[collider_id];
-		col.graphic_id = graphic_id;
-		col.transform_id = transform_id;
-		col.collision_shape.type = SHAPE_RECT;*/
-		/*for (int _i = 2; _i < tokens.size(); _i += 2)
-		{
-			Vec2f p{ std::strtof(tokens[_i].c_str(), nullptr), std::strtof(tokens[_i + 1].c_str(), nullptr) };
-			col.collision_shape.points[(_i / 2) - 1] = p;
-			col.collision_shape.point_count++;
-		}*/
-
-
-
-
-
-		//braid\\tim_run\\0.gif
-		/*Graphic* graphics = renderer->generate_sprite_graphics(tokens[1], "sprite_mat_" + tokens[1]);
-		entity->add_componenet(graphics);*/
-
-		/*auto e = entity_management_system->make_entity();
-		auto t_id = entity_management_system->make_transform_comp(e);
-
-		auto g_id = entity_management_system->make_graphic_comp(e);
-		//renderer->generate_sprite_graphics(g_id, image_file_path, std::string("sprite_mat_") + image_file_path);
-
-		Uint_32 mat_id = Material::load_material(material_name, true);
-		graphics[g_id].element.material = mat_id;
-
-		renderer->generate_sprite_graphics(g_id);
-
-		graphics[g_id].transform_id = t_id;
-
-		return e;*/
 		return graphic_id;
 	}
 
@@ -226,8 +248,12 @@ namespace PrEngine{
 						{
 							LOG(LOGTYPE_WARNING, "will make collider");
 							// to be moved
-							Uint_32 collider_id = entity_management_system->make_collider_comp(entity);
-							Collider& col = colliders[collider_id];
+							//Uint_32 collider_id = entity_management_system->make_collider_comp(entity);
+							//Collider& col = colliders[collider_id];
+
+							Uint_32 collider_id = collider_system.make(entity);
+							Collider& col = collider_system.get_component(collider_id);
+
 							col.graphic_id = graphic_id;
 							col.transform_id = transform_id;
 							col.collision_shape.type = (Shape2DTypes)std::atoi(tokens[1].c_str());
@@ -243,30 +269,56 @@ namespace PrEngine{
 						break;
 						case COMP_ANIMATOR:
 						{	
+
+							animator_id = animator_system.make(entity);
+							if (animator_id)
+							{
+								Animator& animator = animator_system.get_component(animator_id);
+								animator.cur_anim_ind = std::stod(tokens[1]);
+								animator.anim_transform_update_flags[0] = std::stod(tokens[2]);
+								animator.anim_transform_update_flags[1] = std::stod(tokens[3]);
+								animator.anim_transform_update_flags[2] = std::stod(tokens[4]);
+
+								assert(transform_id);
+								animator.id_transform = transform_id;
+
+								for (int t_i = 5; t_i < tokens.size(); t_i++)
+								{
+									Uint_32 a_id = 0;
+									trim(tokens[t_i]);
+									if (a_id = Animator::load_animation(tokens[t_i]))
+									{
+										animator.add_animation(a_id);
+									}
+									else
+										LOG(LOGTYPE_ERROR, "Couldn't create animator");
+								}
+							}
+/*
 							animator_id = entity_management_system->make_animator_comp(entity);
 							animators[animator_id].cur_anim_ind = std::stod(tokens[1]);
 							animators[animator_id].anim_transform_update_flags[0] = std::stod(tokens[2]);
 							animators[animator_id].anim_transform_update_flags[1] = std::stod(tokens[3]);
-							animators[animator_id].anim_transform_update_flags[2] = std::stod(tokens[4]);
+							animators[animator_id].anim_transform_update_flags[2] = std::stod(tokens[4]);*/
 
-						assert(transform_id);
-							animators[animator_id].id_transform = transform_id;
-							for (int t_i = 5; t_i < tokens.size(); t_i++)
-							{
-								Uint_32 a_id = 0;
-								trim(tokens[t_i]);
-								if (a_id = Animator::load_animation(tokens[t_i]))
-								{
-									animators[animator_id].add_animation(a_id);// Animator::animations_library.size() - 1;
-									/*Uint_32 entity_2 = entity_management_system->make_entity();
-									Uint_32 id_transform_2 = entity_management_system->make_transform_comp(entity_2);
-									entity_management_system->set_parent_transform(id_transform, id_transform_2);
-									id_transform = id_transform_2;*/
-									
-								}
-								else
-									LOG(LOGTYPE_ERROR, "Couldn't create animator");
-							}
+						//assert(transform_id);
+						//	animators[animator_id].id_transform = transform_id;
+						//	for (int t_i = 5; t_i < tokens.size(); t_i++)
+						//	{
+						//		Uint_32 a_id = 0;
+						//		trim(tokens[t_i]);
+						//		if (a_id = Animator::load_animation(tokens[t_i]))
+						//		{
+						//			animators[animator_id].add_animation(a_id);// Animator::animations_library.size() - 1;
+						//			/*Uint_32 entity_2 = entity_management_system->make_entity();
+						//			Uint_32 id_transform_2 = entity_management_system->make_transform_comp(entity_2);
+						//			entity_management_system->set_parent_transform(id_transform, id_transform_2);
+						//			id_transform = id_transform_2;*/
+						//			
+						//		}
+						//		else
+						//			LOG(LOGTYPE_ERROR, "Couldn't create animator");
+						//	}
 							//assert(id_graphic);
 							//animators[id_animator].id_graphic = id_graphic;
 							/*Animator* animator = new Animator();
@@ -286,10 +338,16 @@ namespace PrEngine{
 							Float_32 _near = std::stof(tokens[6]);
 							Float_32 _far = std::stof(tokens[7]);
 
-							Uint_32 id_camera = entity_management_system->make_camera_comp(entity);
+							/*Uint_32 id_camera = entity_management_system->make_camera_comp(entity);
 							cameras[id_camera].set_orthographic(left, right, bottom, top, _near, _far);
 							assert(transform_id);
-							cameras[id_camera].id_transform = transform_id;
+							cameras[id_camera].id_transform = transform_id;*/
+							Uint_32 id_camera = camera_system.make(entity);
+							Camera& camera = camera_system.get_component(id_camera);
+							camera.set_orthographic(left, right, bottom, top, _near, _far);
+							assert(transform_id);
+							camera.id_transform = transform_id;
+
 
 							/*if (std::stoi(tokens[1]) == ORTHOGRAPHIC)
 							{
@@ -394,11 +452,11 @@ namespace PrEngine{
 						}
 						case COMP_LIGHT:
 						{
-							Uint_32 id_dir_light = entity_management_system->make_directional_light_comp(entity);
+							/*Uint_32 id_dir_light = entity_management_system->make_directional_light_comp(entity);
 							directional_lights[id_dir_light].specular = 0.5f;
 							directional_lights[id_dir_light].ambient = 0.3f;
 							assert(transform_id);
-							directional_lights[id_dir_light].id_transform = transform_id;
+							directional_lights[id_dir_light].id_transform = transform_id;*/
 
 							/*DirectionalLight* light = new DirectionalLight(std::stof(tokens[1]), std::stof(tokens[2]));
 							entity->add_componenet(light);*/

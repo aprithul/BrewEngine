@@ -318,14 +318,15 @@ namespace PrEngine
 		// editor input section
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		Uint_32 cam = entity_management_system->get_active_camera();
-		Uint_32 cam_transform = cameras[cam].id_transform;
+		Uint_32 cam_transform = camera_system.get_component(cam).id_transform;// cameras[cam].id_transform;
 		//mouse_pos_ws = cameras[cam].get_screen_to_world_pos(input_manager->mouse.position);
 		//mouse_pos_vs = Vec2f{ clamp<Float_32>(input_manager->mouse.position.x - v_x, 0, v_w) ,
 		//	clamp<Float_32>(renderer->height - (input_manager->mouse.position.y - v_y), 0, v_h) };
 
 		// narrowing shouldn't cause problem in screen space (limited space)
-		mouse_pos_ss = cameras[cam].get_mouse_to_screen_pos(input_manager->mouse.position);
-		mouse_pos_ws = (Vec2f)(cameras[cam].get_screen_to_world_pos(mouse_pos_ss));
+		Camera& camera = camera_system.get_component(cam);
+		mouse_pos_ss = camera.get_mouse_to_screen_pos(input_manager->mouse.position);
+		mouse_pos_ws = (Vec2f)(camera.get_screen_to_world_pos(mouse_pos_ss));
 
 		// entity selection by clicking sprite
 		static Vec2f selection_offset;
@@ -334,7 +335,7 @@ namespace PrEngine
 			Uint_32 clicked_on_graphic= is_mouse_in_any_graphic(mouse_pos_ws);
 			if (clicked_on_graphic)
 			{
-				Uint_32 clicked_on_transform = graphics[clicked_on_graphic].transform_id;
+				Uint_32 clicked_on_transform = graphics_system.get_component(clicked_on_graphic).transform_id;// graphics[clicked_on_graphic].transform_id;
 				if (selected_transform == clicked_on_transform)	// 
 				{
 					drag_transform = selected_transform;
@@ -404,7 +405,7 @@ namespace PrEngine
 		if (input_manager->mouse.scroll != 0 && is_mouse_inside_viewport(mouse_pos_ss))
 		{
 			Float_32 speed = 20.f;
-			cameras[cam].zoom = clamp<Float_32>(cameras[cam].zoom + +(input_manager->mouse.scroll*Time::Frame_time*speed), 0.1, 1000);
+			camera.zoom = clamp<Float_32>(camera.zoom + +(input_manager->mouse.scroll*Time::Frame_time*speed), 0.1, 1000);
 		}
 
 		if (input_manager->keyboard.get_key_down(SDLK_DELETE))
@@ -421,8 +422,8 @@ namespace PrEngine
 			Int_32 w, h;
 			SDL_GetWindowSize(window, &w, &h);
 
-			Camera& cam = cameras[cam_id];
-			Float_32 cam_asp_ratio = cam.width / cam.height;
+			//Camera& cam = cameras[cam_id];
+			Float_32 cam_asp_ratio = camera.width / camera.height;
 
 			Int_32 center_hole_w = ImGui::max_viewport.x - ImGui::min_viewport.x;
 			Int_32 center_hole_h = ImGui::max_viewport.y - ImGui::min_viewport.y;
@@ -569,13 +570,13 @@ namespace PrEngine
 			}
 			last_selected_transform = selected_transform;
 
-			auto& ent = entities[entity];
-			if (ent[COMP_GRAPHICS])
+			//auto& ent = entities[entity];
+			if (graphics_system.get_component_id(entity))
 			{
 				if (ImGui::CollapsingHeader("Graphics", ImGuiTreeNodeFlags_DefaultOpen))
 				{
-					Uint_32 graphic_id = ent[COMP_GRAPHICS];
-					Graphic& g = graphics[graphic_id];
+					Uint_32 graphic_id = graphics_system.get_component_id(entity);// ent[COMP_GRAPHICS];
+					Graphic& g = graphics_system.get_component(graphic_id);// [graphic_id];
 					//static Int_32 _tag = (Int_32)g.tag;
 					ImGui::Combo("Render Mode", &Graphic::editor_data[graphic_id].future_tag, "Untagged\0Static\0Dynamic\0", 3);
 					//g.tag = (RenderTag)_tag;
@@ -612,15 +613,15 @@ namespace PrEngine
 
 			
 
-			if (ent[COMP_LIGHT])
+			/*if (ent[COMP_LIGHT])
 			{
 				if (ImGui::CollapsingHeader("Light", ImGuiTreeNodeFlags_DefaultOpen))
 				{
 
 				}
-			}
+			}*/
 
-			if (ent[COMP_CAMERA])
+			if (camera_system.get_component_id(entity))
 			{
 				if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_DefaultOpen))
 				{
@@ -628,13 +629,13 @@ namespace PrEngine
 				}
 			}
 
-			if (ent[COMP_ANIMATOR])
+			if (animator_system.get_component_id(entity))
 			{
 				if (ImGui::CollapsingHeader("Animator", ImGuiTreeNodeFlags_DefaultOpen))
 				{
 
-					Uint_32 id_animator = ent[COMP_ANIMATOR];
-					Animator& animator = animators[id_animator];
+					Uint_32 id_animator = animator_system.get_component_id(entity);// ent[COMP_ANIMATOR];
+					Animator& animator = animator_system.get_component(id_animator);// animators[id_animator];
 					ImGui::DragFloat("Animation Speed", &animator.animation_speed, 0.05f, 0.0f, 5.0f);
 					ImGui::InputInt("Current Animation", &animator.cur_anim_ind);
 					if (ImGui::BeginDragDropTarget())
@@ -707,9 +708,10 @@ namespace PrEngine
 				}
 			}
 
-			if (ent[COMP_SCRIPT])
+			if (scripting_system.get_component_id(entity))
 			{
-				Scripting& sc = scripting_comps[ent[COMP_SCRIPT]];
+				Uint_32 scripting_id = scripting_system.get_component_id(entity);
+				Scripting& sc = scripting_system.get_component(scripting_id);// scripting_comps[ent[COMP_SCRIPT]];
 				for (auto& ref_id : sc.ref_table)
 				{
 					Script* _s = sc.get_script(ref_id.first);
@@ -941,7 +943,7 @@ namespace PrEngine
 	{
 		for (auto& it : Graphic::vertex_data)
 		{
-			Uint_32 t_id = graphics[it.first].transform_id;
+			Uint_32 t_id = graphics_system.get_component(it.first).transform_id;// graphics[it.first].transform_id;
 			Vec2f points[4];
 			points[0] = transforms[t_id].transformation * it.second[0];
 			points[1] = transforms[t_id].transformation * it.second[1];

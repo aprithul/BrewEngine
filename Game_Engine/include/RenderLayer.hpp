@@ -6,7 +6,7 @@
 #include "Graphics.hpp"
 namespace PrEngine
 {
-	extern Graphic graphics[];
+	//extern Graphic graphics[];
 
     class RenderLayer
     {

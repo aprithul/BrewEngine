@@ -34,47 +34,188 @@
 
 namespace PrEngine
 {
+
+	static const Uint_32 MaxEntityCount = 500 + 1;
+	static const Uint_32 Max_transform_count = 500 + 1;
+	static const Uint_32 Max_graphics_count = 500 + 1;
+	static const Uint_32 Max_batched_graphics_count = 8 + 1;
+	static const Uint_32 Max_animator_count = 500 + 1;
+	static const Uint_32 Max_camera_count = 1 + 1;
+	static const Uint_32 Max_scripting_count = 8000 + 1;
+	static const Uint_32 Max_collider_count = 1000 + 1;
+
+	template <typename T>
+	struct ComponentSystem
+	{
+
+		ComponentSystem(Uint_32 size);
+		~ComponentSystem();
+		
+		Uint_32 new_pos;
+		Uint_32 make(Uint_32 entity);
+		Bool_8 remove(Uint_32 id);
+		Uint_32 get_entity(Uint_32 comp_id);
+		Uint_32 get_component_id(Uint_32 entity);
+		T& get_component(Uint_32 comp_id);
+
+		void start();
+		void update();
+		void end();
+
+	private:	
+		Uint_32* comp_to_entity;
+		Uint_32* entity_to_comp;
+		std::queue<Uint_32> released;
+		T* components;
+	};
+
+	template <typename T>
+	ComponentSystem<T>::ComponentSystem(Uint_32 size):new_pos(1)
+	{
+		components = new T[size+1];
+
+		comp_to_entity = new Uint_32[size];
+		memset(comp_to_entity, 0, sizeof(Uint_32));
+
+		entity_to_comp = new Uint_32[MaxEntityCount];
+		memset(entity_to_comp, 0, sizeof(Uint_32));
+
+	}
+
+	template <typename T>
+	ComponentSystem<T>::~ComponentSystem()
+	{
+		delete[] components;
+		delete[] comp_to_entity;
+		delete[] entity_to_comp;
+	}
+
+	template <typename T>
+	Uint_32 ComponentSystem<T>::make(Uint_32 entity)
+	{
+		Uint_32 _id = new_pos;
+		if (released.empty() != true)
+		{
+			_id = released.front();
+			released.pop();
+		}
+
+		comp_to_entity[_id] = entity;
+		entity_to_comp[entity] = _id;
+		new_pos++;
+
+		return _id;
+	}
+
+	template <typename T>
+	Bool_8 ComponentSystem<T>::remove(Uint_32 comp_id)
+	{
+		if (!comp_id)
+		{
+			LOG(LOGTYPE_ERROR, "Component ID: " + std::to_string(comp_id) + " not valid, couldn't be deleted");
+			return false;
+		}
+
+		Uint_32 _entity = comp_to_entity[comp_id];
+		comp_to_entity[comp_id] = 0;
+		entity_to_comp[_entity] = 0;
+
+		released.push(comp_id);
+		return true;
+	}
+
+	template <typename T>
+	Uint_32 ComponentSystem<T>::get_entity(Uint_32 comp_id)
+	{
+		return comp_to_entity[comp_id];
+	}
+
+	template <typename T>
+	Uint_32 ComponentSystem<T>::get_component_id(Uint_32 entity)
+	{
+		return entity_to_comp[entity];
+	}
+
+	template <typename T>
+	T& ComponentSystem<T>::get_component(Uint_32 comp_id)
+	{
+		if (comp_id == 0)
+			LOG(LOGTYPE_ERROR, "Component ID is '0', returning empty component [ from index = 0 ]");
+		return components[comp_id];
+	}
+
+	template <typename T>
+	void ComponentSystem<T>::start()
+	{
+		for (Uint_32 _i = 1; _i < new_pos; _i++)
+		{
+			(reinterpret_cast<Component>(components[_i])).start();
+		}
+	}
+
+	template <typename T>
+	void ComponentSystem<T>::update()
+	{
+		for (Uint_32 _i = 1; _i < new_pos; _i++)
+		{
+			//reinterpret_cast<T*>(&components[_i])->update();
+			components[_i].update();
+
+		}
+	}
+
+	template <typename T>
+	void ComponentSystem<T>::end()
+	{
+		for (Uint_32 _i = 1; _i < new_pos; _i++)
+		{
+			(reinterpret_cast<Component>(components[_i])).end();
+
+		}
+	}
+
+	extern ComponentSystem<Camera> camera_system;
+	extern ComponentSystem<Graphic> graphics_system;
+	extern ComponentSystem<BatchedGraphic> batched_graphics_system;
+	extern ComponentSystem<Animator> animator_system;
+	extern ComponentSystem<Collider> collider_system;
+	extern ComponentSystem<Scripting> scripting_system;
+
+
+
+
 	extern std::unordered_map<ComponentType, Uint_32> entities[MAX_ENTITY_COUNT];
-
-	//extern Bool_8 transform_dirty_flag[MAX_ENTITY_COUNT];
-
-	//extern Uint_32 transform_order[MAX_ENTITY_COUNT]; //indices are ids. Indirection allows transforms to be updated in correct order 
-	//extern Uint_32 transform_hierarchy_level[MAX_ENTITY_COUNT];
-	//extern std::unordered_set<Uint_32> transform_children[MAX_ENTITY_COUNT];
-
-	// component arrays
-
 	extern Transform3D transforms[MAX_ENTITY_COUNT];
 	extern std::vector<Uint_32> transform_children[MAX_ENTITY_COUNT];
-
-	extern Camera cameras[MAX_CAMERA_COUNT];
-	extern Graphic graphics[MAX_GRAPHIC_COUNT];
-	extern BatchedGraphic batched_graphics[MAX_BATCH_COUNT];
-	extern DirectionalLight directional_lights[MAX_DIRECTIONAL_LIGHT_COUNT];
-	extern Animator animators[MAX_ANIMATOR_COUNT];
-	extern Collider colliders[MAX_COLLIDER_COUNT];
-	extern Scripting scripting_comps[MAX_SCRIPT_COUNT];
-	extern Bool_8 entity_validity[MAX_ENTITY_COUNT];
-	extern Uint_32 camera_entity_id[MAX_CAMERA_COUNT];
-	extern Uint_32 graphics_entity_id[MAX_GRAPHIC_COUNT];
-	extern Uint_32 directional_light_entity_id[MAX_DIRECTIONAL_LIGHT_COUNT];
-	extern Uint_32 animator_entity_id[MAX_ANIMATOR_COUNT];
-	extern Uint_32 collider_entity_id[MAX_COLLIDER_COUNT];
 	extern Uint_32 transform_entity_id[MAX_ENTITY_COUNT];
-	extern Uint_32 scripting_entity_id[MAX_SCRIPT_COUNT];
 
+	//extern Camera cameras[MAX_CAMERA_COUNT];
+	//extern Graphic graphics[MAX_GRAPHIC_COUNT];
+	//extern BatchedGraphic batched_graphics[MAX_BATCH_COUNT];
+	//extern DirectionalLight directional_lights[MAX_DIRECTIONAL_LIGHT_COUNT];
+	//extern Animator animators[MAX_ANIMATOR_COUNT];
+	//extern Collider colliders[MAX_COLLIDER_COUNT];
+	//extern Scripting scripting_comps[MAX_SCRIPT_COUNT];
+	//extern Bool_8 entity_validity[MAX_ENTITY_COUNT];
+	//extern Uint_32 camera_entity_id[MAX_CAMERA_COUNT];
+	//extern Uint_32 graphics_entity_id[MAX_GRAPHIC_COUNT];
+	//extern Uint_32 directional_light_entity_id[MAX_DIRECTIONAL_LIGHT_COUNT];
+	//extern Uint_32 animator_entity_id[MAX_ANIMATOR_COUNT];
+	//extern Uint_32 collider_entity_id[MAX_COLLIDER_COUNT];
+	//extern Uint_32 transform_entity_id[MAX_ENTITY_COUNT];
+	//extern Uint_32 scripting_entity_id[MAX_SCRIPT_COUNT];
 
-	extern Uint_32 entity_count;
+	extern Uint_32 next_transform_pos;
+	/*extern Uint_32 entity_count;
 	extern Uint_32 next_scripting_pos;
 	extern Uint_32 next_entity_pos;
-	extern Uint_32 next_transform_pos;
 	extern Uint_32 next_sprite_pos;
 	extern Uint_32 next_graphic_pos;
 	extern Uint_32 next_batched_graphic_pos;
 	extern Uint_32 next_directional_light_pos;
 	extern Uint_32 next_animator_pos;
 	extern Uint_32 next_collider_pos;
-	extern Uint_32 next_camera_pos;
+	extern Uint_32 next_camera_pos;*/
 
 
 	inline Bool_8 is_valid(Uint32* validity, Uint_32 pos);
@@ -102,11 +243,6 @@ namespace PrEngine
 		static std::queue<Uint_32> animator_released_positions;
 		static std::queue<Uint_32> collider_released_positions;
 		static std::queue<Uint_32> camera_released_positions;
-
-
-
-
-
 
 		EntityManagementSystem(std::string name, Int_32 priority);
 		~EntityManagementSystem();

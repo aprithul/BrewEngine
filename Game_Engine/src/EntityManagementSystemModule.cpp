@@ -9,25 +9,25 @@ namespace PrEngine
 
 	Transform3D transforms[MAX_ENTITY_COUNT];
 	std::vector<Uint_32> transform_children[MAX_ENTITY_COUNT];
+	Uint_32 transform_entity_id[MAX_ENTITY_COUNT] = {};
 
-	Camera cameras[MAX_CAMERA_COUNT];
-	Graphic graphics[MAX_GRAPHIC_COUNT];
-	BatchedGraphic batched_graphics[MAX_BATCH_COUNT];
-	DirectionalLight directional_lights[MAX_DIRECTIONAL_LIGHT_COUNT];
+	//Camera cameras[MAX_CAMERA_COUNT];
+	//Graphic graphics[MAX_GRAPHIC_COUNT];
+	//BatchedGraphic batched_graphics[MAX_BATCH_COUNT];
+	/*DirectionalLight directional_lights[MAX_DIRECTIONAL_LIGHT_COUNT];
 	Collider colliders[MAX_COLLIDER_COUNT];
 	Animator animators[MAX_ANIMATOR_COUNT];
 	Bool_8 entity_validity[MAX_ENTITY_COUNT] = {};
-	Scripting scripting_comps[MAX_SCRIPT_COUNT];
+	Scripting scripting_comps[MAX_SCRIPT_COUNT];*/
 	std::unordered_map<ComponentType, Uint_32> entities[MAX_ENTITY_COUNT];
 	
-	Uint_32 camera_entity_id[MAX_CAMERA_COUNT] = {};
+	/*Uint_32 camera_entity_id[MAX_CAMERA_COUNT] = {};
 	Uint_32 graphics_entity_id[MAX_GRAPHIC_COUNT] = {};
 	Uint_32 directional_light_entity_id[MAX_DIRECTIONAL_LIGHT_COUNT] = {};
 	Uint_32 animator_entity_id[MAX_ANIMATOR_COUNT] = {};
 	Uint_32 collider_entity_id[MAX_COLLIDER_COUNT] = {};
 	Uint_32 scripting_entity_id[MAX_SCRIPT_COUNT] = {};
-	Uint_32 transform_entity_id[MAX_ENTITY_COUNT] = {};
-
+*/
 	/*Uint_32 transform_order[MAX_ENTITY_COUNT] = {};
 	Uint_32 transform_hierarchy_level[MAX_ENTITY_COUNT] = {};
 	Bool_8 transform_dirty_flag[MAX_ENTITY_COUNT] = {};*/
@@ -166,7 +166,7 @@ namespace PrEngine
 			next_entity_pos++;
 
 		entity_count++;
-		entity_validity[_id] = true;
+		//entity_validity[_id] = true;
 		entities[_id].clear();
 		return _id;
     }
@@ -191,189 +191,189 @@ namespace PrEngine
 		return _id;
 	}
 
-	Uint_32 EntityManagementSystem::make_camera_comp(Uint_32 entity_id)
-	{
-		Uint_32 _id = next_camera_pos;
-		if (camera_released_positions.empty() != true)
-		{
-			_id = camera_released_positions.front();
-			camera_released_positions.pop();
-		}
-		else
-			next_camera_pos++;
+	//Uint_32 EntityManagementSystem::make_camera_comp(Uint_32 entity_id)
+	//{
+	//	Uint_32 _id = next_camera_pos;
+	//	if (camera_released_positions.empty() != true)
+	//	{
+	//		_id = camera_released_positions.front();
+	//		camera_released_positions.pop();
+	//	}
+	//	else
+	//		next_camera_pos++;
 
-		camera_entity_id[_id] = entity_id;
-		entities[entity_id][COMP_CAMERA] = _id;
+	//	camera_entity_id[_id] = entity_id;
+	//	entities[entity_id][COMP_CAMERA] = _id;
 
-		//camera_active_status[_id] = true;
-		return _id;
-	}
+	//	//camera_active_status[_id] = true;
+	//	return _id;
+	//}
 
-	Uint_32 EntityManagementSystem::make_collider_comp(Uint_32 entity_id)
-	{
-		Uint_32 _id = next_collider_pos;
-		if (collider_released_positions.empty() != true)
-		{
-			_id = collider_released_positions.front();
-			collider_released_positions.pop();
-		}
-		else
-			next_collider_pos++;
+	//Uint_32 EntityManagementSystem::make_collider_comp(Uint_32 entity_id)
+	//{
+	//	Uint_32 _id = next_collider_pos;
+	//	if (collider_released_positions.empty() != true)
+	//	{
+	//		_id = collider_released_positions.front();
+	//		collider_released_positions.pop();
+	//	}
+	//	else
+	//		next_collider_pos++;
 
-		collider_entity_id[_id] = entity_id;
-		entities[entity_id][COMP_COLLIDER] = _id;
+	//	collider_entity_id[_id] = entity_id;
+	//	entities[entity_id][COMP_COLLIDER] = _id;
 
-		//camera_active_status[_id] = true;
-		return _id;
-	}
+	//	//camera_active_status[_id] = true;
+	//	return _id;
+	//}
 
-	Uint_32 EntityManagementSystem::make_animator_comp(Uint_32 entity_id)
-	{
-		Uint_32 _id = next_animator_pos;
-		if (!animator_released_positions.empty())
-		{
-			_id = animator_released_positions.front();
-			animator_released_positions.pop();
-		}
-		else
-			next_animator_pos++;
+	//Uint_32 EntityManagementSystem::make_animator_comp(Uint_32 entity_id)
+	//{
+	//	Uint_32 _id = next_animator_pos;
+	//	if (!animator_released_positions.empty())
+	//	{
+	//		_id = animator_released_positions.front();
+	//		animator_released_positions.pop();
+	//	}
+	//	else
+	//		next_animator_pos++;
 
-		animator_entity_id[_id] = entity_id;
-		entities[entity_id][COMP_ANIMATOR] = _id;
+	//	animator_entity_id[_id] = entity_id;
+	//	entities[entity_id][COMP_ANIMATOR] = _id;
 
-		//animator_active_status[_id] = true;
+	//	//animator_active_status[_id] = true;
 
-		return _id;
-	}
+	//	return _id;
+	//}
 
-	Uint_32 EntityManagementSystem::make_scripting_comp(Uint_32 entity_id)
-	{
-		Uint_32 _id = next_scripting_pos;
-		if (!script_released_positions.empty())
-		{
-			_id = script_released_positions.front();
-			script_released_positions.pop();
-		}
-		else
-			next_scripting_pos++;
+	//Uint_32 EntityManagementSystem::make_scripting_comp(Uint_32 entity_id)
+	//{
+	//	Uint_32 _id = next_scripting_pos;
+	//	if (!script_released_positions.empty())
+	//	{
+	//		_id = script_released_positions.front();
+	//		script_released_positions.pop();
+	//	}
+	//	else
+	//		next_scripting_pos++;
 
-		scripting_entity_id[_id] = entity_id;
-		entities[entity_id][COMP_SCRIPT] = _id;
+	//	scripting_entity_id[_id] = entity_id;
+	//	entities[entity_id][COMP_SCRIPT] = _id;
 
-		return _id;
-	}
+	//	return _id;
+	//}
 
-	Uint_32 EntityManagementSystem::make_graphic_comp(Uint_32 entity_id)
-	{
-		Uint_32 _id = next_graphic_pos;
-		if (graphics_released_positions.empty() != true)
-		{
-			_id = graphics_released_positions.front();
-			graphics_released_positions.pop();
-		}
-		else
-			next_graphic_pos++;
+	//Uint_32 EntityManagementSystem::make_graphic_comp(Uint_32 entity_id)
+	//{
+	//	Uint_32 _id = next_graphic_pos;
+	//	if (graphics_released_positions.empty() != true)
+	//	{
+	//		_id = graphics_released_positions.front();
+	//		graphics_released_positions.pop();
+	//	}
+	//	else
+	//		next_graphic_pos++;
 
-		graphics_entity_id[_id] = entity_id;
-		entities[entity_id][COMP_GRAPHICS] = _id;
+	//	graphics_entity_id[_id] = entity_id;
+	//	entities[entity_id][COMP_GRAPHICS] = _id;
 
-		//graphic_active_status[_id] = true;
+	//	//graphic_active_status[_id] = true;
 
-		return _id;
-	}
+	//	return _id;
+	//}
 
-	Uint_32 EntityManagementSystem::make_directional_light_comp(Uint_32 entity_id)
-	{
-		Uint_32 _id = next_directional_light_pos;
-		if (directional_light_released_positions.empty() != true)
-		{
-			_id = directional_light_released_positions.front();
-			directional_light_released_positions.pop();
-		}
-		else
-			next_directional_light_pos++;
+	//Uint_32 EntityManagementSystem::make_directional_light_comp(Uint_32 entity_id)
+	//{
+	//	Uint_32 _id = next_directional_light_pos;
+	//	if (directional_light_released_positions.empty() != true)
+	//	{
+	//		_id = directional_light_released_positions.front();
+	//		directional_light_released_positions.pop();
+	//	}
+	//	else
+	//		next_directional_light_pos++;
 
-		directional_light_entity_id[_id] = entity_id;
-		entities[entity_id][COMP_LIGHT] = _id;
+	//	directional_light_entity_id[_id] = entity_id;
+	//	entities[entity_id][COMP_LIGHT] = _id;
 
-		//directional_light_active_status[_id] = true;
+	//	//directional_light_active_status[_id] = true;
 
-		return _id;
-	}
-	
+	//	return _id;
+	//}
+	//
 
-	Bool_8 EntityManagementSystem::delete_camera_comp(Uint_32 c_id)
-	{
-		if (!c_id)
-		{
-			LOG(LOGTYPE_ERROR, "camera comp : " + std::to_string(c_id) + " not valid, couldn't delete");
-			return false;
-		}
-		entities[camera_entity_id[c_id]][COMP_CAMERA] = 0;
-		camera_entity_id[c_id] = 0;
-		camera_released_positions.push(c_id);
-		return true;
+	//Bool_8 EntityManagementSystem::delete_camera_comp(Uint_32 c_id)
+	//{
+	//	if (!c_id)
+	//	{
+	//		LOG(LOGTYPE_ERROR, "camera comp : " + std::to_string(c_id) + " not valid, couldn't delete");
+	//		return false;
+	//	}
+	//	entities[camera_entity_id[c_id]][COMP_CAMERA] = 0;
+	//	camera_entity_id[c_id] = 0;
+	//	camera_released_positions.push(c_id);
+	//	return true;
 
-	}
-	Bool_8 EntityManagementSystem::delete_collider_comp(Uint_32 col_id)
-	{
-		if (!col_id)
-		{
-			LOG(LOGTYPE_ERROR, "Collider comp : " + std::to_string(col_id) + " not valid, couldn't delete");
-			return false;
-		}
-		entities[collider_entity_id[col_id]][COMP_COLLIDER] = 0;
-		collider_entity_id[col_id] = 0;
-		collider_released_positions.push(col_id);
-		return true;
+	//}
+	//Bool_8 EntityManagementSystem::delete_collider_comp(Uint_32 col_id)
+	//{
+	//	if (!col_id)
+	//	{
+	//		LOG(LOGTYPE_ERROR, "Collider comp : " + std::to_string(col_id) + " not valid, couldn't delete");
+	//		return false;
+	//	}
+	//	entities[collider_entity_id[col_id]][COMP_COLLIDER] = 0;
+	//	collider_entity_id[col_id] = 0;
+	//	collider_released_positions.push(col_id);
+	//	return true;
 
-	}
-	Bool_8 EntityManagementSystem::delete_graphic_comp(Uint_32 g_id)
-	{
-		if (!g_id)
-		{
-			LOG(LOGTYPE_ERROR, "graphics component : " + std::to_string(g_id) + " not valid, couldn't delete");
-			return false;
-		}
-		entities[graphics_entity_id[g_id]][COMP_GRAPHICS] = 0;
-		graphics_entity_id[g_id] = 0;
-		graphics_released_positions.push(g_id);
-		graphics[g_id].Delete();
-		return true;
-	}
-	Bool_8 EntityManagementSystem::delete_sprite_comp(Uint_32 sprite_id)
-	{
-		//entities[camera_entity_id[c_id]][COMP_CAMERA] = 0;
-		//camera_entity_id[c_id] = 0;
-		//camera_released_positions.push(c_id);
-		return false;
-	}
-	Bool_8 EntityManagementSystem::delete_animator_comp(Uint_32 a_id)
-	{
-		if (!a_id)
-		{
-			LOG(LOGTYPE_ERROR, "animator component : " + std::to_string(a_id) + " not valid, couldn't delete");
-			return false;
-		}
+	//}
+	//Bool_8 EntityManagementSystem::delete_graphic_comp(Uint_32 g_id)
+	//{
+	//	if (!g_id)
+	//	{
+	//		LOG(LOGTYPE_ERROR, "graphics component : " + std::to_string(g_id) + " not valid, couldn't delete");
+	//		return false;
+	//	}
+	//	entities[graphics_entity_id[g_id]][COMP_GRAPHICS] = 0;
+	//	graphics_entity_id[g_id] = 0;
+	//	graphics_released_positions.push(g_id);
+	//	//graphics[g_id].Delete();
+	//	return true;
+	//}
+	//Bool_8 EntityManagementSystem::delete_sprite_comp(Uint_32 sprite_id)
+	//{
+	//	//entities[camera_entity_id[c_id]][COMP_CAMERA] = 0;
+	//	//camera_entity_id[c_id] = 0;
+	//	//camera_released_positions.push(c_id);
+	//	return false;
+	//}
+	//Bool_8 EntityManagementSystem::delete_animator_comp(Uint_32 a_id)
+	//{
+	//	if (!a_id)
+	//	{
+	//		LOG(LOGTYPE_ERROR, "animator component : " + std::to_string(a_id) + " not valid, couldn't delete");
+	//		return false;
+	//	}
 
-		entities[animator_entity_id[a_id]][COMP_ANIMATOR] = 0;
-		animator_entity_id[a_id] = 0;
-		animator_released_positions.push(a_id);
-		return true;
-	}
-	Bool_8 EntityManagementSystem::delete_directional_light_comp(Uint_32 l_id)
-	{
-		if (!l_id)
-		{
-			LOG(LOGTYPE_ERROR, "directional light component : " + std::to_string(l_id) + " not valid, couldn't delete");
-			return false;
-		}
+	//	entities[animator_entity_id[a_id]][COMP_ANIMATOR] = 0;
+	//	animator_entity_id[a_id] = 0;
+	//	animator_released_positions.push(a_id);
+	//	return true;
+	//}
+	//Bool_8 EntityManagementSystem::delete_directional_light_comp(Uint_32 l_id)
+	//{
+	//	if (!l_id)
+	//	{
+	//		LOG(LOGTYPE_ERROR, "directional light component : " + std::to_string(l_id) + " not valid, couldn't delete");
+	//		return false;
+	//	}
 
-		entities[directional_light_entity_id[l_id]][COMP_LIGHT] = 0;
-		directional_light_entity_id[l_id] = 0;
-		directional_light_released_positions.push(l_id);
-		return true;
-	}
+	//	entities[directional_light_entity_id[l_id]][COMP_LIGHT] = 0;
+	//	directional_light_entity_id[l_id] = 0;
+	//	directional_light_released_positions.push(l_id);
+	//	return true;
+	//}
 	/*Uint_32 EntityManagementSystem::delete_transform_comp(Uint_32 transform_id)
 	{
 		for (auto it : transform_children[transform_id])
@@ -461,81 +461,84 @@ namespace PrEngine
 		}
 		
 		//begin = clock();
-		for (Uint_32 i = 0; i < next_camera_pos; i++)
+		/*for (Uint_32 i = 0; i < next_camera_pos; i++)
 		{
 			if (camera_entity_id[i])
 				cameras[i].update();
-		}
+		}*/
 		//end = clock();
 		//elapsed = (Double_64)(end - begin) / CLOCKS_PER_SEC;
 
 		//begin = clock();
-		for (Uint_32 i = 0; i < next_directional_light_pos; i++)
+		/*for (Uint_32 i = 0; i < next_directional_light_pos; i++)
 		{
 			if (directional_light_entity_id[i])
 				directional_lights[i].update();
-		}
+		}*/
 		//end = clock();
 		//elapsed = (Double_64)(end - begin) / CLOCKS_PER_SEC;
 
 		//begin = clock();
-		for (Uint_32 i = 0; i < next_animator_pos; i++)
+		/*for (Uint_32 i = 0; i < next_animator_pos; i++)
 		{
 			if (animator_entity_id[i])
 				animators[i].update();
-		}
+		}*/
+		animator_system.update();
+		scripting_system.update();
+		camera_system.update();
 
 		//begin = clock();
-		for (Uint_32 i = 0; i < next_scripting_pos; i++)
+	/*	for (Uint_32 i = 0; i < next_scripting_pos; i++)
 		{
 			if (scripting_entity_id[i])
 				scripting_comps[i].update();
 		}
-
+*/
 
 		clock_t begin = clock();
 
 		// find collision
-		for (Uint_32 i = 0; i < next_collider_pos; i++)
-		{
-			if (collider_entity_id[i])
-			{
-				Uint_32 t_id_i = colliders[i].transform_id;
-				if (!t_id_i)continue;
-				//Rect<Float_32> r1 = points_to_rect_with_transform(colliders[i].collision_shape.points, transforms[t_id_i].transformation);
-
-				for (Uint_32 j = i+1; j < next_collider_pos; j++)
-				{
-					if (collider_entity_id[j])
-					{
-						Uint_32 t_id_j = colliders[j].transform_id;
-						if (!t_id_j)continue;
-						//Rect<Float_32> r2 = points_to_rect_with_transform(colliders[j].collision_shape.points, transforms[t_id_j].transformation);
-						
-						//clock_t begin = clock();
-						Bool_8 did_intersect = intersect_GJK(colliders[i], colliders[j]);
-						//clock_t end = clock();
-						//Double_64 elapsed = (Double_64)(end - begin) / CLOCKS_PER_SEC;
-
-						if (did_intersect)
-						{
-							//clock_t begin = clock();
-							Vec2f col_pen_vec = do_EPA(colliders[i], colliders[j]);
-							//clock_t end = clock();
-							//Double_64 elapsed = (Double_64)(end - begin) / CLOCKS_PER_SEC;
-
-							physics_module->contacts.push_back(Contact{ col_pen_vec, i, j });
-						}
-/*
-						if (intersect_AABB_AABB(r1, r2))
-						{
-							physics_module->contacts.push_back(Contact{ i, j });
-						}*/
-					}
-				}
-
-			}
-		}
+//		for (Uint_32 i = 0; i < next_collider_pos; i++)
+//		{
+//			if (collider_entity_id[i])
+//			{
+//				Uint_32 t_id_i = colliders[i].transform_id;
+//				if (!t_id_i)continue;
+//				//Rect<Float_32> r1 = points_to_rect_with_transform(colliders[i].collision_shape.points, transforms[t_id_i].transformation);
+//
+//				for (Uint_32 j = i+1; j < next_collider_pos; j++)
+//				{
+//					if (collider_entity_id[j])
+//					{
+//						Uint_32 t_id_j = colliders[j].transform_id;
+//						if (!t_id_j)continue;
+//						//Rect<Float_32> r2 = points_to_rect_with_transform(colliders[j].collision_shape.points, transforms[t_id_j].transformation);
+//						
+//						//clock_t begin = clock();
+//						Bool_8 did_intersect = intersect_GJK(colliders[i], colliders[j]);
+//						//clock_t end = clock();
+//						//Double_64 elapsed = (Double_64)(end - begin) / CLOCKS_PER_SEC;
+//
+//						if (did_intersect)
+//						{
+//							//clock_t begin = clock();
+//							Vec2f col_pen_vec = do_EPA(colliders[i], colliders[j]);
+//							//clock_t end = clock();
+//							//Double_64 elapsed = (Double_64)(end - begin) / CLOCKS_PER_SEC;
+//
+//							physics_module->contacts.push_back(Contact{ col_pen_vec, i, j });
+//						}
+///*
+//						if (intersect_AABB_AABB(r1, r2))
+//						{
+//							physics_module->contacts.push_back(Contact{ i, j });
+//						}*/
+//					}
+//				}
+//
+//			}
+//		}
 		clock_t end = clock();
 		Double_64 elapsed = (Double_64)(end - begin) / CLOCKS_PER_SEC;
 		//LOG(LOGTYPE_GENERAL, std::to_string(elapsed));
@@ -549,7 +552,7 @@ namespace PrEngine
 
 	void EntityManagementSystem::save_scene(const std::string& scene_file)
 	{
-
+		/*
 		write_to_file("", scene_file, 0, 0); //clears file
 		std::unordered_map<int, std::string> entities_in_scene;
 
@@ -596,28 +599,42 @@ namespace PrEngine
 		for (auto it : entities_in_scene)
 		{
 			write_to_file(it.second + "~\n", scene_file, 0, 1);
-		}
+		}*/
 	}
 
 	Uint_32 EntityManagementSystem::get_active_camera()
 	{
-		for (int i = 1; i < MAX_CAMERA_COUNT; i++)
-		{
-			if (camera_entity_id[i])
-				return i;
-		}
-		return 0;
+		//for (int i = 1; i < MAX_CAMERA_COUNT; i++)
+		//{
+		//	if (camera_entity_id[i])
+		//		return i;
+		//}
+		//return 0;
+		return 1;	// temporary
 	}
 
 	Uint_32 EntityManagementSystem::add_script_to_entity(Uint_32 entity, Script* script, Uint_32 name_index)
 	{
-		Uint_32 scripting_id = entities[entity][COMP_SCRIPT];
+		Uint_32 scripting_id = scripting_system.get_component_id(entity);// entities[entity][COMP_SCRIPT];
 		if (!scripting_id)
 		{
-			scripting_id = entity_management_system->make_scripting_comp(entity);
+			scripting_id = scripting_system.make(entity);// entity_management_system->make_scripting_comp(entity);
 		}
-		Scripting& scripting = scripting_comps[entities[entity][COMP_SCRIPT]];
+		Scripting& scripting = scripting_system.get_component(scripting_id);// scripting_comps[entities[entity][COMP_SCRIPT]];
 		script->entity = entity;
 		return scripting.add_script(script, name_index);
 	}
+
+
+
+	ComponentSystem<Camera> camera_system(Max_camera_count);
+	ComponentSystem<Graphic> graphics_system(Max_graphics_count);
+	ComponentSystem<BatchedGraphic> batched_graphics_system(Max_batched_graphics_count);
+	ComponentSystem<Animator> animator_system(Max_animator_count);
+	ComponentSystem<Collider> collider_system(Max_collider_count);
+	ComponentSystem<Scripting> scripting_system(Max_scripting_count);
+
+
+
+
 }

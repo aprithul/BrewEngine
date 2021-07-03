@@ -288,10 +288,13 @@ namespace PrEngine {
 
 		//batched_graphics.emplace_back();
 		//auto& batch = batched_graphics.back();
-		BatchedGraphic& batch = batched_graphics[next_batched_graphic_pos];
+		Uint_32 entity = entity_management_system->make_entity();
+		Uint_32 batc_grap_id =  batched_graphics_system.make(entity);
+
+		BatchedGraphic& batch = batched_graphics_system.get_component(batc_grap_id);
 		LOG(LOGTYPE_WARNING, "load batch material");
 		batch.element.material = Material::load_material("Materials" + PATH_SEP + "Batch.mat", false, std::to_string(batch_count++));
-		next_batched_graphic_pos++;
+		//next_batched_graphic_pos++;
 		batch.transform_id = 0;	// use identity unless modified later ( eg. animations)
 
 		if (usage == GL_STATIC_DRAW)
@@ -371,7 +374,7 @@ namespace PrEngine {
 		index += 4;
 
 
-		Graphic& graphic = graphics[graphic_id];
+		Graphic& graphic = graphics_system.get_component(graphic_id);// graphics[graphic_id];
 		Uint_32 material_id = graphic.element.material;
 		assert(material_id);
 		Material* mat = Material::get_material(material_id);
@@ -492,10 +495,11 @@ namespace PrEngine {
 		else if (usage == GL_STREAM_DRAW)
 		{
 			batch_graphic_ids.push_back(graphic_id);
-			Uint_32 id_animator = graphics[graphic_id].animator_id;
+			Uint_32 id_animator = graphics_system.get_component(graphic_id).animator_id;
 			if (id_animator)
 			{
-				Animation& animation = animators[id_animator].get_current_animation();
+				//Animation& animation = animators[id_animator].get_current_animation();
+				Animation& animation = animator_system.get_component(id_animator).get_current_animation();
 				for (Keyframe& frame : animation.frames)
 				{
 					batch_textures_set.insert(frame.texture);
@@ -503,7 +507,7 @@ namespace PrEngine {
 			}
 			else
 			{
-				auto t = Material::get_material(graphics[graphic_id].element.material)->diffuse_textures[0];
+				auto t = Material::get_material(graphics_system.get_component(graphic_id).element.material)->diffuse_textures[0];
 				batch_textures_set.insert(t);
 			}
 
@@ -522,8 +526,8 @@ namespace PrEngine {
 
 	static bool compare(Uint_32 a, Uint_32 b )
 	{
-		auto t1 = Material::get_material(graphics[a].element.material)->diffuse_textures[0];
-		auto t2 = Material::get_material(graphics[b].element.material)->diffuse_textures[0];
+		auto t1 = Material::get_material(graphics_system.get_component(a).element.material)->diffuse_textures[0];
+		auto t2 = Material::get_material(graphics_system.get_component(b).element.material)->diffuse_textures[0];
 		
 		if (t1 < t2)
 			return true;
@@ -713,7 +717,7 @@ namespace PrEngine {
 	{
 		//Uint_32 mat_id = Material::load_material("shaders" + PATH_SEP + "DiffuseUnlit2D.shader", texture_file_path, mat_name);
 		// find the proper scale needed for the quad mesh
-		Graphic& graphic = graphics[graphic_id];
+		Graphic& graphic = graphics_system.get_component(graphic_id);
 		generate_sprite_graphics(graphic, graphic_id);
 
     }
@@ -769,7 +773,7 @@ namespace PrEngine {
         return nullptr;
     }
 
-	void RendererOpenGL2D::render_graphic(Graphic& graphic, Mat4x4& transformation, Camera& _camera, DirectionalLight& _light)
+	void RendererOpenGL2D::render_graphic(Graphic& graphic, Mat4x4& transformation, Camera& _camera)
 	{
 
 		GraphicsElement& element = graphic.element;

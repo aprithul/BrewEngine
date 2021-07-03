@@ -60,7 +60,7 @@ namespace PrEngine {
 			void draw_rect_with_transform(Rect<Float_32> rect, Vec4f color, const Mat4x4& transformation);
 			RenderLayer* get_layer(const std::string& layer_name);
 			void prepare_batches(std::vector<Uint_32> batched_grphic_ids, Uint_32 usage);
-			void render_graphic(Graphic& graphic, Mat4x4& transformation, Camera& _camera, DirectionalLight& _light);
+			void render_graphic(Graphic& graphic, Mat4x4& transformation, Camera& _camera);
 
 			//void prepare_dynmic_batches(std::vector<Uint_32> batched_grphic_ids);
 			//Matrix4x4<Float_32> view_matrix;

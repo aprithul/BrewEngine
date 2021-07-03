@@ -28,9 +28,9 @@ namespace PrEngine {
 		
 
 		// get camera
-		Camera& _camera = cameras[entity_management_system->get_active_camera()];
+		Camera& _camera = camera_system.get_component(entity_management_system->get_active_camera());// cameras[entity_management_system->get_active_camera()];
 		// get light
-		DirectionalLight& _light = directional_lights[1];
+		//DirectionalLight& _light = directional_lights[1];
 
 		if (move_gizmo.target_transform)
 		{
@@ -39,12 +39,12 @@ namespace PrEngine {
 
 			//draw gizmos
 			move_mat->diffuse_color = Vec4f(1, 0.26f, 0.26f, 1); // red
-			renderer->render_graphic(move_gizmo.graphic_x, move_gizmo.transform.transformation, _camera, _light);
+			renderer->render_graphic(move_gizmo.graphic_x, move_gizmo.transform.transformation, _camera);
 
 			move_gizmo.transform.Rotate(0, 0, 90);
 			move_gizmo.transform.update();
 			move_mat->diffuse_color = Vec4f(0.26f, 1, 0.52f, 1); // green
-			renderer->render_graphic(move_gizmo.graphic_y, move_gizmo.transform.transformation, _camera, _light);
+			renderer->render_graphic(move_gizmo.graphic_y, move_gizmo.transform.transformation, _camera);
 			move_gizmo.transform.Rotate(0, 0, -90);
 			move_gizmo.transform.update();
 
