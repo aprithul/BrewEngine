@@ -154,7 +154,7 @@ namespace PrEngine
 		Float_32 max_proj = -std::numeric_limits<Float_32>::infinity();
 		for (Uint_32 i = 0; i < col_A.collision_shape.point_count; i++)
 		{
-			Vec2f point = (transforms[col_A.transform_id].transformation * col_A.collision_shape.points[i]);
+			Vec2f point = (transform_system.get_component(col_A.transform_id).transformation * col_A.collision_shape.points[i]);
 			Float_32 proj = Dot(dir, point);
 			if (proj > max_proj)
 			{
@@ -168,7 +168,7 @@ namespace PrEngine
 		max_proj = -std::numeric_limits<Float_32>::infinity();
 		for (Uint_32 i = 0; i < col_B.collision_shape.point_count; i++)
 		{
-			Vec2f point = (transforms[col_B.transform_id].transformation * col_B.collision_shape.points[i]);
+			Vec2f point = (transform_system.get_component(col_B.transform_id).transformation * col_B.collision_shape.points[i]);
 			Float_32 proj = Dot(-dir, point);
 			if (proj > max_proj)
 			{

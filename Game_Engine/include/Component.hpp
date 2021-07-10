@@ -28,16 +28,16 @@ namespace PrEngine
         Component(ComponentType type);
         virtual ~Component();
 
-		Component(const Component&) = delete;
-		Component& operator=(const Component&) = delete;
-		Component(Component&&) = delete;
-		Component& operator=(Component&&) = delete;
+		Component(const Component&) = default;
+		Component& operator=(const Component&) = default;
+		//Component(Component&&) = default;
+		//Component& operator=(Component&&) = default;
 
 		virtual void awake();
         virtual void start();
         virtual void update();
         virtual void end();
-        const ComponentType type;
+        ComponentType type;
 
 		virtual std::string to_string() = 0;
     };

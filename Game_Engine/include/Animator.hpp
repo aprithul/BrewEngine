@@ -61,6 +61,11 @@ namespace PrEngine{
 			return animations_library[animation_ids[cur_anim_ind]];
 		}
 
+		inline Animation& get_animation(Int_32 anim_id)
+		{
+			return animations_library[anim_id];
+		}
+
 		static Uint_32 load_animation(const std::string& animation_file);
 		static std::vector<Animation> animations_library;
 		static std::vector<std::string> animation_clip_names;

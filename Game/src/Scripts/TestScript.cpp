@@ -12,7 +12,7 @@ void Test::update()
 {
 	if (input_manager->keyboard.get_key_down(SDLK_r))
 	{
-		Uint_32 sc = entities[entity][COMP_SCRIPT];
+		Uint_32 sc = scripting_system.get_component_id(entity);
 		Uint_32 ref = scripting_system.get_component(sc).get_script_ref("Foo");
 		if (ref)
 			LOG(LOGTYPE_GENERAL, "found script");

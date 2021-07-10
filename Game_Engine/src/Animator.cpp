@@ -21,6 +21,7 @@ namespace PrEngine
 		current_frame_index = 0;
 		animation_count = 0;
 		frame_time = 0;
+		cur_anim_ind = 0;
 	}
 
 	Animator::~Animator()

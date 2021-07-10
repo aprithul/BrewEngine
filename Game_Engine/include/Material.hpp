@@ -30,6 +30,14 @@ namespace PrEngine
 		u_Diffuse_Color,
 		u_Outline_Color,
 		u_Ambient_Strength,
+		u_sampler2darr0,
+		u_sampler2darr1,
+		u_sampler2darr2,
+		u_sampler2darr3,
+		u_sampler2darr4,
+		u_sampler2darr5,
+		u_sampler2darr6,
+		u_sampler2darr7,
 		u_count
 	};
 

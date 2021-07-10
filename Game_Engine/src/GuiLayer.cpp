@@ -289,9 +289,10 @@ namespace PrEngine
 
 		if (node_open)
 		{
-			for (auto it : *transforms[id_transform].children)
+			Transform3D& _transform = transform_system.get_component(id_transform);
+			for (auto it : *_transform.children)
 			{
-				if(transform_entity_id[it])
+				if(transform_system.get_entity(it))
 					add_child(it);
 			}
 			ImGui::TreePop();
@@ -339,7 +340,7 @@ namespace PrEngine
 				if (selected_transform == clicked_on_transform)	// 
 				{
 					drag_transform = selected_transform;
-					selection_offset = (Vec2f)transforms[selected_transform].get_global_position() - mouse_pos_ws;
+					selection_offset = (Vec2f)transform_system.get_component(selected_transform).get_global_position() - mouse_pos_ws;
 				}
 				else
 				{
@@ -361,24 +362,24 @@ namespace PrEngine
 		// draw rect around selected entity
 		if (selected_transform)
 		{
-			const Mat4x4& _transform = transforms[selected_transform].transformation;
-			Uint_32 entity_id = transform_entity_id[selected_transform];
-			Vec3f* vertices = Graphic::vertex_data[entities[entity_id][COMP_GRAPHICS]];
+			const Mat4x4& _transform = transform_system.get_component(selected_transform).transformation;
+			Uint_32 entity_id = transform_system.get_entity(selected_transform);
+			Uint_32 graphics_id = graphics_system.get_component_id(entity_id);
+			Vec3f* vertices = Graphic::vertex_data[graphics_id];
 
 			Rect<Float_32> rect = points_to_rect(vertices);
 			Vec4f color{ 0.8, 0.5, 0, 1 };
 			renderer->draw_rect_with_transform(rect, color,_transform);
 
 		}
-		//drag grpahic with mouse pointer
 		if (drag_transform)
 		{
 			if (input_manager->mouse.get_mouse_button(1))
 			{
-				Point3d drag_transform_pos = transforms[drag_transform].get_global_position();
+				Point3d drag_transform_pos = transform_system.get_component(drag_transform).get_global_position();
 				drag_transform_pos.x = mouse_pos_ws.x + selection_offset.x;
 				drag_transform_pos.y = mouse_pos_ws.y + selection_offset.y;
-				transforms[drag_transform].set_global_position(drag_transform_pos);
+				transform_system.get_component(drag_transform).set_global_position(drag_transform_pos);
 			}
 			else
 				drag_transform = 0;
@@ -391,7 +392,8 @@ namespace PrEngine
 		if (input_manager->keyboard.get_key(SDLK_LSHIFT))
 			cam_pan_speed = cam_pan_max_speed;
 
-		Point3d pos = transforms[cam_transform].get_local_position();
+
+		Point3d pos = transform_system.get_component(cam_transform).get_local_position();
 		if (input_manager->keyboard.get_key(SDLK_w))
 			pos.y = pos.y + (Time::Frame_time*cam_pan_speed);
 		if (input_manager->keyboard.get_key(SDLK_s))
@@ -400,7 +402,7 @@ namespace PrEngine
 			pos.x = pos.x + (Time::Frame_time*cam_pan_speed);
 		if (input_manager->keyboard.get_key(SDLK_a))
 			pos.x = pos.x - (Time::Frame_time*cam_pan_speed);
-		transforms[cam_transform].set_local_position(pos);
+		transform_system.get_component(cam_transform).set_local_position(pos);
 
 		if (input_manager->mouse.scroll != 0 && is_mouse_inside_viewport(mouse_pos_ss))
 		{
@@ -409,7 +411,16 @@ namespace PrEngine
 		}
 
 		if (input_manager->keyboard.get_key_down(SDLK_DELETE))
+		{
 			entity_management_system->delete_entity_by_transform(selected_transform);
+			selected_transform = 0;
+			drag_transform = 0;
+		}
+		if (input_manager->keyboard.get_key_down(SDLK_n))
+		{
+			EntityGenerator eg;
+			eg.make_sprite("Materials/Door1.mat", { 0,0,0 }, RENDER_UNTAGGED);
+		}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		draw_scene_hierarchy();
@@ -476,7 +487,7 @@ namespace PrEngine
 		{
 			//add_script(script_to_call);
 			Script* script = Scripting::get_script_instance(script_names[script_to_add].c_str());
-			Uint_32 slctd_tr_entity = transform_entity_id[selected_transform];
+			Uint_32 slctd_tr_entity = transform_system.get_entity(selected_transform);
 			entity_management_system->add_script_to_entity(slctd_tr_entity, script, script_to_add);
 			call_add_script = false;
 		}
@@ -521,10 +532,10 @@ namespace PrEngine
 
 		if (selected_transform)
 		{
-			Uint_32 entity = transform_entity_id[selected_transform];
+			Uint_32 entity = transform_system.get_entity(selected_transform);
 			if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
 			{
-				Point3d pos = transforms[selected_transform].get_local_position();// .get_global_position();
+				Point3d pos = transform_system.get_component(selected_transform).get_local_position();// .get_global_position();
 				float v3_p[3] = { pos.x, pos.y, pos.z };
 				//ImGui::InputFloat("input float", &pos.x, 0.01f, 1.0f, "%.3f");
 				ImGui::Text("Position:");
@@ -535,10 +546,10 @@ namespace PrEngine
 				pos.x = v3_p[0];
 				pos.y = v3_p[1];
 				pos.z = v3_p[2];
-				transforms[selected_transform].set_local_position(pos);
+				transform_system.get_component(selected_transform).set_local_position(pos);
 				//transforms[selected_transform].position = transforms[selected_transform].get_global_to_local_position(pos);
 
-				Vec3f rot = Quaternion::QuaternionToEuler(transforms[selected_transform].get_local_rotation());// transforms[selected_transform].get_local_rotation();// get_global_rotation();
+				Vec3f rot = Quaternion::QuaternionToEuler(transform_system.get_component(selected_transform).get_local_rotation());// transforms[selected_transform].get_local_rotation();// get_global_rotation();
 				float v3_r[3] = { rot.x, rot.y, rot.z };
 				//ImGui::InputFloat("input float", &pos.x, 0.01f, 1.0f, "%.3f");
 				ImGui::Text("Rotation:");
@@ -549,11 +560,11 @@ namespace PrEngine
 				rot.y = v3_r[1];
 				rot.z = v3_r[2];
 				ImGui::PopID();
-				transforms[selected_transform].set_local_rotation(rot);
+				transform_system.get_component(selected_transform).set_local_rotation(rot);
 				//transform_editor_data[selected_transform] = rot;
 				//transforms[selected_transform].rotation = transforms[selected_transform].get_global_to_local_rotation(rot);
 
-				Vec3f scl = transforms[selected_transform].get_local_scale();
+				Vec3f scl = transform_system.get_component(selected_transform).get_local_scale();
 				float v3_s[3] = { scl.x, scl.y, scl.z };
 				//ImGui::InputFloat("input float", &pos.x, 0.01f, 1.0f, "%.3f");
 				ImGui::Text("Scale:   ");
@@ -565,7 +576,7 @@ namespace PrEngine
 				scl.x = v3_s[0];
 				scl.y = v3_s[1];
 				scl.z = v3_s[2];
-				transforms[selected_transform].set_local_scale(scl);
+				transform_system.get_component(selected_transform).set_local_scale(scl);
 
 			}
 			last_selected_transform = selected_transform;
@@ -625,6 +636,107 @@ namespace PrEngine
 			{
 				if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_DefaultOpen))
 				{
+					Uint_32 camera_id = entity_management_system->get_active_camera();
+					Camera& camera = camera_system.get_component(camera_id);
+
+					auto avail_width = ImGui::GetContentRegionAvail().x;
+
+
+					ImGui::PushItemWidth(avail_width*0.25f);
+					ImGui::Text("Left  ");
+					ImGui::PopItemWidth();
+
+					ImGui::SameLine();
+
+					ImGui::PushItemWidth(avail_width*0.25f);
+					ImGui::PushID(&camera.left);
+					ImGui::DragFloat("", &camera.left, -0.5f, -1000.f, 1000.f, "%.2f", 1.f);
+					ImGui::PopItemWidth();
+					ImGui::PopID();
+
+					ImGui::SameLine();
+
+					ImGui::PushItemWidth(avail_width*0.25f);
+					ImGui::Text("Right ");
+					ImGui::PopItemWidth();
+
+					ImGui::SameLine();
+					
+					ImGui::PushID(&camera.right);
+					ImGui::PushItemWidth(avail_width*0.25f);
+					ImGui::DragFloat("", &camera.right, -0.5f, -1000.f, 1000.f, "%.2f", 1.f);
+					ImGui::PopItemWidth();
+					ImGui::PopID();
+
+					ImGui::NewLine();
+
+					ImGui::PushItemWidth(avail_width*0.25f);
+					ImGui::Text("Top   ");
+					ImGui::PopItemWidth();
+					
+					ImGui::SameLine();
+
+					ImGui::PushID(&camera.top);
+					ImGui::PushItemWidth(avail_width*0.25f);
+					ImGui::DragFloat("", &camera.top, -0.5f, -1000.f, 1000.f, "%.2f", 1.f);
+					ImGui::PopItemWidth();
+					ImGui::PopID();
+
+					ImGui::SameLine();
+
+					ImGui::PushItemWidth(avail_width*0.25f);
+					ImGui::Text("Bottom");
+					ImGui::PopItemWidth();
+
+					ImGui::SameLine();
+
+					ImGui::PushID(&camera.bottom);
+					ImGui::PushItemWidth(avail_width*0.25f);
+					ImGui::DragFloat("", &camera.bottom, -0.5f, -1000.f, 1000.f, "%.2f", 1.f);
+					ImGui::PopItemWidth();
+					ImGui::PopID();
+
+					ImGui::NewLine();
+
+					ImGui::PushItemWidth(avail_width*0.25f);
+					ImGui::Text("Near  ");
+					ImGui::PopItemWidth();
+
+					ImGui::SameLine();
+					
+					ImGui::PushItemWidth(avail_width*0.25f);
+					ImGui::PushID(&camera.near_);
+					ImGui::DragFloat("", &camera.near_, -0.5f, -1000.f, 1000.f, "%.2f", 1.f);
+					ImGui::PopItemWidth();
+					ImGui::PopID();
+
+					ImGui::SameLine();
+
+					ImGui::PushItemWidth(avail_width*0.25f);
+					ImGui::Text("Top   ");
+					ImGui::PopItemWidth();
+
+					ImGui::SameLine();
+
+					ImGui::PushID(&camera.far_);
+					ImGui::PushItemWidth(avail_width*0.25f);
+					ImGui::DragFloat("", &camera.far_, -0.5f, -1000.f, 1000.f, "%.2f", 1.f);
+					ImGui::PopItemWidth();
+					ImGui::PopID();
+
+					ImGui::NewLine();
+
+					ImGui::PushItemWidth(avail_width*0.25f);
+					ImGui::Text("Zoom Out");
+					ImGui::PopItemWidth();
+
+					ImGui::SameLine();
+
+					ImGui::PushID(&camera.zoom);
+					ImGui::PushItemWidth(-FLT_MIN);
+					ImGui::DragFloat("", &camera.zoom, 0.01f, 0.f, 1000.f, "%.2f", 1.f);
+					ImGui::PopItemWidth();
+					ImGui::PopID();
 
 				}
 			}
@@ -750,11 +862,11 @@ namespace PrEngine
 		//v_x = ImGui::GetWindowPos().x + ImGui::GetWindowWidth();
 
 		//Uint_32 max_hierarchy = 0;
-		for (int _i = 0; _i < next_transform_pos; _i++)
+		for (int _i = 1; _i < transform_system.new_id; _i++)
 		{
-			if (transform_entity_id[_i])
+			if (transform_system.get_entity(_i))
 			{
-				if (transforms[_i].parent_transform == 0)// max_hierarchy)
+				if (transform_system.get_component(_i).parent_transform == 0)// max_hierarchy)
 				{
 					//max_hierarchy = transform_hierarchy_level[id_t];
 					add_child(_i);
@@ -945,10 +1057,11 @@ namespace PrEngine
 		{
 			Uint_32 t_id = graphics_system.get_component(it.first).transform_id;// graphics[it.first].transform_id;
 			Vec2f points[4];
-			points[0] = transforms[t_id].transformation * it.second[0];
-			points[1] = transforms[t_id].transformation * it.second[1];
-			points[2] = transforms[t_id].transformation * it.second[2];
-			points[3] = transforms[t_id].transformation * it.second[3];
+			Mat4x4& _transformation = transform_system.get_component(t_id).transformation;
+			points[0] = _transformation * it.second[0];
+			points[1] = _transformation * it.second[1];
+			points[2] = _transformation * it.second[2];
+			points[3] = _transformation * it.second[3];
 
 			if (point_in_shape(points, 4, mouse_pos))
 				return it.first;

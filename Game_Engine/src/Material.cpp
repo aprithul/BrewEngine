@@ -138,11 +138,14 @@ namespace PrEngine
 		auto& _shader = Shader::shader_library[shader].id;
 		GL_CALL(
 			glUseProgram(_shader))
-			//for (int i = 0; i < MAX_TEXTURES; i++)
-			//{
-				Texture* tex = Texture::get_texture(diffuse_textures[0]);
-				tex->Bind(tex->bind_unit);
-			//}
+			for (int i = 0; i < MAX_TEXTURES; i++)
+			{
+				if (diffuse_textures[i])
+				{
+					Texture* tex = Texture::get_texture(diffuse_textures[i]);
+					tex->Bind(tex->bind_unit);
+				}
+			}
     }
 
     void Material::Unbind()
@@ -322,6 +325,22 @@ namespace PrEngine
 			_uniform = ShaderUniformName::u_Projection;
 		else if (uniform == "u_sampler2d")
 			_uniform = ShaderUniformName::u_sampler2d;
+		else if (uniform == "u_sampler2darr[0]")
+			_uniform = ShaderUniformName::u_sampler2darr0;
+		else if (uniform == "u_sampler2darr[1]")
+			_uniform = ShaderUniformName::u_sampler2darr1;
+		else if (uniform == "u_sampler2darr[2]")
+			_uniform = ShaderUniformName::u_sampler2darr2;
+		else if (uniform == "u_sampler2darr[3]")
+			_uniform = ShaderUniformName::u_sampler2darr3;
+		else if (uniform == "u_sampler2darr[4]")
+			_uniform = ShaderUniformName::u_sampler2darr4;
+		else if (uniform == "u_sampler2darr[5]")
+			_uniform = ShaderUniformName::u_sampler2darr5;
+		else if (uniform == "u_sampler2darr[6]")
+			_uniform = ShaderUniformName::u_sampler2darr6;
+		else if (uniform == "u_sampler2darr[7]")
+			_uniform = ShaderUniformName::u_sampler2darr7;
 		else if (uniform == "u_textures")
 			_uniform = ShaderUniformName::u_textures;
 		else if (uniform == "u_Dir_Light")
@@ -384,11 +403,26 @@ namespace PrEngine
 				std::size_t pos = u_name.find_first_of('['); // is the uniform an array
 				if (pos != -1)
 				{
-					u_name = u_name.substr(0, pos);
-				}
+					u_name = u_name.substr(0, pos)+"[0]";
+					load_uniform_location(u_name, u_type);
+					u_name = u_name.substr(0, pos) + "[1]";
+					load_uniform_location(u_name, u_type);
+					u_name = u_name.substr(0, pos) + "[2]";
+					load_uniform_location(u_name, u_type);
+					u_name = u_name.substr(0, pos) + "[3]";
+					load_uniform_location(u_name, u_type);
+					u_name = u_name.substr(0, pos) + "[4]";
+					load_uniform_location(u_name, u_type);
+					u_name = u_name.substr(0, pos) + "[5]";
+					load_uniform_location(u_name, u_type);
+					u_name = u_name.substr(0, pos) + "[6]";
+					load_uniform_location(u_name, u_type);
+					u_name = u_name.substr(0, pos) + "[7]";
+					load_uniform_location(u_name, u_type);
 
-                //LOG(LOGTYPE_GENERAL, u_type, " ",u_name);
-                load_uniform_location(u_name, u_type);
+				}
+				else
+	                load_uniform_location(u_name, u_type);
             }
 
 

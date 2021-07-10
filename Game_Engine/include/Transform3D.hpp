@@ -70,7 +70,7 @@ namespace PrEngine{
 		Vec3f local_scale;
     };
 
-	extern Transform3D transforms[];
+	//extern Transform3D transforms[];
 
 }
 #endif

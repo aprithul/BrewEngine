@@ -72,6 +72,8 @@ namespace PrEngine
         {
 			std::string resource_path = get_resource_path(path);
             data = stbi_load(resource_path.c_str(),&width, &height, &no_of_channels, 4);
+			
+			assert(data != nullptr);
 			LOG(LOGTYPE_GENERAL, "Image ", std::string(path), " loaded : " + std::to_string(bind_unit));
 
             if(data!=nullptr)
@@ -154,7 +156,6 @@ namespace PrEngine
 		glTexParameteri(bind_target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(bind_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(bind_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		LOG(LOGTYPE_WARNING, "7");
 
 		glBindTexture(bind_target, 0);
 

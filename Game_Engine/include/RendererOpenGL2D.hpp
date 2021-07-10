@@ -25,6 +25,22 @@
 
 namespace PrEngine {
 
+	struct BatchPool
+	{
+		Uint_32 pool_size;
+		BatchPool() = default;
+		BatchPool(Uint_32 _pool_size);
+		~BatchPool();
+		Uint_32 get_new_batch();
+		void return_batch(Uint_32 batch_id);
+		void return_all_batches();
+	private:
+		Uint_32* pool;
+		Bool_8* batch_in_use;
+
+
+	};
+
     struct RendererOpenGL2D : public Module
     {
 			std::vector<RenderLayer*> render_layers;
@@ -60,8 +76,12 @@ namespace PrEngine {
 			void draw_rect_with_transform(Rect<Float_32> rect, Vec4f color, const Mat4x4& transformation);
 			RenderLayer* get_layer(const std::string& layer_name);
 			void prepare_batches(std::vector<Uint_32> batched_grphic_ids, Uint_32 usage);
-			void render_graphic(Graphic& graphic, Mat4x4& transformation, Camera& _camera);
+			void render_graphic(const Graphic& graphic, Mat4x4& transformation, Camera& _camera);
 
+			void prepare_array_textures(std::vector<Uint_32>& graphic_ids);
+			BatchedGraphic* make_dynamic_batch(std::vector<Uint_32>& graphic_ids);
+			void add_to_batch(std::vector< Uint_32>& graphic_ids);
+			void add_to_batch(Uint_32 graphic_id);
 			//void prepare_dynmic_batches(std::vector<Uint_32> batched_grphic_ids);
 			//Matrix4x4<Float_32> view_matrix;
 			//Matrix4x4<Float_32> projection;
@@ -73,6 +93,11 @@ namespace PrEngine {
 			SDL_Window* window;
 			// the opengl context used with the window
 			SDL_GLContext glContext;
+			BatchPool* batch_pool;
+			Int_32 is_included_at_index[99999];
+			std::vector<Uint_32> array_textures;
+			GLint max_layers;
+
 
 			//static std::unordered_map<Uint_32, Uint_32> texture_to_index;
     };

@@ -26,13 +26,13 @@ namespace PrEngine
             glDeleteVertexArrays(1, &id))
     }
 
-    void VertexArray::Bind()
+    void VertexArray::Bind() const
     {
         GL_CALL(
             glBindVertexArray(id))
     }
 
-    void VertexArray::Unbind()
+    void VertexArray::Unbind() const
     {
         GL_CALL(
             glBindVertexArray(0))
@@ -102,13 +102,13 @@ namespace PrEngine
             glDeleteBuffers(1, &id));
     }
 
-    void IndexBuffer::Bind()
+    void IndexBuffer::Bind() const
     {
         GL_CALL(
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id));
     }
 
-    void IndexBuffer::Unbind()
+    void IndexBuffer::Unbind() const
     {
         GL_CALL(
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
@@ -124,6 +124,7 @@ namespace PrEngine
 		outline_alpha = 0.f;
 		animator_id = 0;
 		transform_id = 0;
+		batch_id = 0;
     }
 
 	void Graphic::start()
@@ -143,18 +144,68 @@ namespace PrEngine
 		element.Delete();
 	}
 
-	Uint_32 BatchedGraphic::current_batched_vertex_count = 0;
-	Uint_32 BatchedGraphic::current_batched_texture_count = 0;
+	//Uint_32 BatchedGraphic::current_batched_vertex_count = 0;
+	//Uint_32 BatchedGraphic::current_batched_texture_count = 0;
 
-	BatchedGraphic::BatchedGraphic()
+	//Uint_32 BatchedGraphic::animation_to_batch_id[Max_animation_count] = {};
+
+	BatchedGraphic::BatchedGraphic():current_batched_texture_count(0), current_batched_vertex_count(0)
 	{
 	}
 
 	BatchedGraphic::~BatchedGraphic()
 	{
-
+		delete[] indices;
 	}
 
+	static const Uint_32 ind_len = (BatchedGraphic::max_vertices_in_batch / 4) * 6;
+	void BatchedGraphic::initialize(Uint_32 batch_id)
+	{
+		
+		BatchedGraphic& batch = batched_graphics_system.get_component(batch_id);
+		batch.indices = new Uint_32[ind_len];
+
+		for (Uint_32 index = 0, pos = 0; pos < ind_len; index+=4, pos += 6)
+		{
+			batch.indices[pos] = index;
+			batch.indices[pos + 1] = index + 1;
+			batch.indices[pos + 2] = index + 2;
+			batch.indices[pos + 3] = index + 2;
+			batch.indices[pos + 4] = index + 3;
+			batch.indices[pos + 5] = index;
+		}
+
+		VertexLayout layout;
+		VertexAttribute attribute_0(0, 3, GL_FLOAT, GL_FALSE);
+		VertexAttribute attribute_1(1, 4, GL_FLOAT, GL_FALSE);
+		VertexAttribute attribute_2(2, 2, GL_FLOAT, GL_FALSE);
+		VertexAttribute attribute_3(3, 1, GL_FLOAT, GL_FALSE);
+
+		layout.add_attribute(attribute_0);
+		layout.add_attribute(attribute_1);
+		layout.add_attribute(attribute_2);
+		layout.add_attribute(attribute_3);
+
+		batch.element.material = Material::load_material("Materials" + PATH_SEP + "Batch.mat", false, std::to_string(batch_id));
+		batch.transform_id = 0;
+
+		batch.element.vao.Generate();
+		batch.element.vbo.Generate(nullptr, sizeof(Vertex) * BatchedGraphic::max_vertices_in_batch, GL_STREAM_DRAW);
+		batch.element.layout = layout;
+
+		for (Uint_32 _i = 0; _i < batch.element.layout.next_attrib; _i++)// != batch.element.layout.vertex_attributes.end(); attr++)
+		{
+			VertexAttribute* attr = &(batch.element.layout.vertex_attributes[_i]);
+			GL_CALL(
+				glEnableVertexAttribArray(attr->index))
+				//GL_CALL(
+				glVertexAttribPointer(attr->index, attr->count, attr->type, attr->normalized, layout.stride, (void*)attr->offset);//)
+		}
+
+		batch.element.ibo.Generate(&batch.indices[0], ind_len * sizeof(GLuint), ind_len);
+		batch.element.vao.Unbind();
+		batch.element.ibo.Unbind();
+	}
 
     std::string Graphic::to_string()
     {

@@ -42,13 +42,13 @@ namespace  PrEngine
 			translation(1, 3) = local_position.y;
 			translation(2, 3) = local_position.z;
 
-			transformation = transforms[parent_transform].transformation * translation * local_rotation.GetRotationMatrix() * scale_m;
+			transformation = transform_system.get_component(parent_transform).transformation * translation * local_rotation.GetRotationMatrix() * scale_m;
 		}
 
 		for (Uint_32 child : *children)
 		{
 			if (child)
-				transforms[child].update_transformation(is_dirty);
+				transform_system.get_component(child).update_transformation(is_dirty);
 		}
 
 		is_dirty = false;
@@ -143,24 +143,24 @@ namespace  PrEngine
 	void Transform3D::set_global_position(Float_32 _x, Float_32 _y, Float_32 _z)
 	{
 		Point3d new_glob_pos = { _x, _y, _z };
-		local_position = transforms[parent_transform].transformation.GetInverse() * new_glob_pos;
+		local_position = transform_system.get_component(parent_transform).transformation.GetInverse() * new_glob_pos;
 		is_dirty = true;
 	}
 	void Transform3D::set_global_position(Point3d _position)
 	{
-		local_position = transforms[parent_transform].transformation.GetInverse() * _position;
+		local_position = transform_system.get_component(parent_transform).transformation.GetInverse() * _position;
 		is_dirty = true;
 	}
 	void Transform3D::set_global_rotation(Float_32 _x, Float_32 _y, Float_32 _z)
 	{
 		Mat3x3 new_glob_rot = Quaternion::EulerToQuaternion({ _x, _y, _z }).GetRotationMatrix();
-		local_rotation.SetRotationMatrix(transforms[parent_transform].transformation.GetInverse() * new_glob_rot);
+		local_rotation.SetRotationMatrix(transform_system.get_component(parent_transform).transformation.GetInverse() * new_glob_rot);
 		local_rotation.Normalize();
 		is_dirty = true;
 	}
 	void Transform3D::set_global_rotation(Quaternion _rotation)
 	{
-		Mat4x4 _inv = transforms[parent_transform].transformation.GetInverse();
+		Mat4x4 _inv = transform_system.get_component(parent_transform).transformation.GetInverse();
 		Mat3x3 _rot = _rotation.GetRotationMatrix();
 		local_rotation.SetRotationMatrix( _inv * _rot);
 		is_dirty = true;
@@ -169,13 +169,13 @@ namespace  PrEngine
 	void Transform3D::set_global_scale(Float_32 _x, Float_32 _y, Float_32 _z)
 	{
 		Vec3f new_glob_scl = { _x, _y, _z };
-		local_scale = transforms[parent_transform].transformation.GetInverse() * new_glob_scl;
+		local_scale = transform_system.get_component(parent_transform).transformation.GetInverse() * new_glob_scl;
 		is_dirty = true;
 
 	}
 	void Transform3D::set_global_scale(Vec3f _scale)
 	{
-		local_scale = transforms[parent_transform].transformation.GetInverse() * _scale;
+		local_scale = transform_system.get_component(parent_transform).transformation.GetInverse() * _scale;
 		is_dirty = true;
 	}
 
@@ -215,21 +215,21 @@ namespace  PrEngine
 	{
 		//Vec3f parent_pos;
 
-		auto pos = transforms[parent_transform].transformation * local_position;
+		auto pos = transform_system.get_component(parent_transform).transformation * local_position;
 		return pos;
 	}
 
 	Vec3f Transform3D::get_global_scale()
 	{
 		//Vec3f parent_pos;
-		auto _scale = transforms[parent_transform].transformation * local_scale;
+		auto _scale = transform_system.get_component(parent_transform).transformation * local_scale;
 		return _scale;
 	}
 
 	Quaternion Transform3D::get_global_rotation()
 	{
 		Quaternion _rotation = Quaternion::GetIdentity();
-		_rotation.SetRotationMatrix(transforms[parent_transform].transformation * local_rotation.GetRotationMatrix());
+		_rotation.SetRotationMatrix(transform_system.get_component(parent_transform).transformation * local_rotation.GetRotationMatrix());
 		_rotation.Normalize();
 		return _rotation;
 	}

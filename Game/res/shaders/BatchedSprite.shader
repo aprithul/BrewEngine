@@ -45,7 +45,7 @@ precision mediump float;
 precision lowp sampler2DArray;
 
 //uniform float u_red;
-uniform sampler2DArray u_sampler2d;// [8];
+uniform sampler2DArray u_sampler2darr[8];// [8];
 uniform float u_Ambient_Strength;
 //uniform vec3 u_Camera_Position;
 
@@ -65,7 +65,9 @@ void main()
 	int _ind = int(out_mat_id);
 	
 	//vec4 _color = texture(u_textures[_ind], pan_tile) * out_color * vec4(out_diffuse_color, 1) * u_Ambient_Strength;// * out_light;// vec4(u_red, out_color.gba);//vec4(0.0,1.0,1.0,1.0);
-	vec4 texel = texture(u_sampler2d, vec3(out_texco.x, out_texco.y, _ind))*vec4(out_diffuse_color, 1);// *out_color * vec4(out_diffuse_color, 1) * u_Ambient_Strength;// * out_light;// vec4(u_red, out_color.gba);//vec4(0.0,1.0,1.0,1.0);
+	int arr_ind = _ind / 9;
+	int tex_ind = _ind % 9;
+	vec4 texel = texture(u_sampler2darr[arr_ind], vec3(out_texco.x, out_texco.y, tex_ind))*vec4(out_diffuse_color, 1);// *out_color * vec4(out_diffuse_color, 1) * u_Ambient_Strength;// * out_light;// vec4(u_red, out_color.gba);//vec4(0.0,1.0,1.0,1.0);
 	//if (_color.a < 0.5)
 	//	discard;
 	//else
@@ -76,17 +78,17 @@ void main()
 		if (out_outline_color.a < 0.5)
 			discard;
 
-		vec2 thickness = vec2(0.001, 0.001);// 1.0 / vec2(textureSize(u_sampler2d, 0)) * 2;
+		//vec2 thickness = vec2(0.001, 0.001);// 1.0 / vec2(textureSize(u_sampler2d, 0)) * 2;
 
-		vec4 top = texture(u_sampler2d, vec3(pan_tile.x, pan_tile.y + thickness.y, _ind));
-		vec4 bottom = texture(u_sampler2d, vec3(pan_tile.x, pan_tile.y - thickness.y, _ind));
-		vec4 left = texture(u_sampler2d, vec3(pan_tile.x - thickness.x, pan_tile.y, _ind));
-		vec4 right = texture(u_sampler2d, vec3(pan_tile.x + thickness.x, pan_tile.y, _ind));
+		//vec4 top = texture(u_sampler2darr[0], vec3(pan_tile.x, pan_tile.y + thickness.y, _ind));
+		//vec4 bottom = texture(u_sampler2darr[0], vec3(pan_tile.x, pan_tile.y - thickness.y, _ind));
+		//vec4 left = texture(u_sampler2darr[0], vec3(pan_tile.x - thickness.x, pan_tile.y, _ind));
+		//vec4 right = texture(u_sampler2darr[0], vec3(pan_tile.x + thickness.x, pan_tile.y, _ind));
 
-		if (top.a > 0.9 || bottom.a > 0.9 || left.a > 0.9 || right.a > 0.9)
-			color = out_outline_color;
-		else
-			discard;
+		//if (top.a > 0.9 || bottom.a > 0.9 || left.a > 0.9 || right.a > 0.9)
+		//	color = out_outline_color;
+		//else
+		//	discard;
 
 	}
 	else

@@ -17,8 +17,7 @@
 namespace PrEngine {
 
 	RendererOpenGL2D* renderer = nullptr;
-	GLint max_layers;
-	Uint_32 max_vertices_in_batch;
+	//Uint_32 max_vertices_in_batch;
 	GLint max_texture_units = 0;
 
 	RendererOpenGL2D::RendererOpenGL2D(Int_32 width, Int_32 height, Bool_8 full_screen, std::string& title, std::string module_name, Int_32 priority):Module(module_name, priority)
@@ -41,8 +40,8 @@ namespace PrEngine {
 		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 */
-		window = SDL_CreateWindow(this->title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL);// | (full_screen*SDL_WINDOW_FULLSCREEN) );
-		//window = SDL_CreateWindow(this->title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);// | (full_screen*SDL_WINDOW_FULLSCREEN) );
+		//window = SDL_CreateWindow(this->title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL);// | (full_screen*SDL_WINDOW_FULLSCREEN) );
+		window = SDL_CreateWindow(this->title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);// | (full_screen*SDL_WINDOW_FULLSCREEN) );
 		glContext = SDL_GL_CreateContext(window);
 
 
@@ -109,7 +108,6 @@ namespace PrEngine {
 		printf("---------------------------------------------------\n");
 
 
-
 		/*this->viewport_x = width * 0.7 / 6;
 		this->viewport_y = height / 4;
 		this->viewport_width = width * 4.3 / 6;
@@ -134,6 +132,8 @@ namespace PrEngine {
         //GeometryLayer* geometry_layer = new GeometryLayer(camera_handle);
         //render_layers.push_back(geometry_layer);
 
+		//std::memset(BatchedGraphic::animation_to_batch_id, 0, sizeof(Uint_32)*Max_animation_count);
+
         SpriteLayer* sprite_layer = new SpriteLayer();
         render_layers.push_back(sprite_layer);
 
@@ -147,10 +147,14 @@ namespace PrEngine {
 		render_layers.push_back(gui_layer);
 
 		renderer = this;
+		std::memset(is_included_at_index, -1, sizeof(Int_32) * 99999);
+		batch_pool = new BatchPool(10);
 
 
-		GL_CALL(glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &max_texture_units))
-		GL_CALL(glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &max_layers))	//max depth of array textures
+		GL_CALL(glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &max_texture_units));
+		GL_CALL(glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &max_layers));	//max depth of array textures
+	
+		max_layers = 9;
 
 		LOG(LOGTYPE_WARNING, "vao res: " + std::to_string(max_texture_units));
 		LOG(LOGTYPE_WARNING, "vao res: " + std::to_string(max_layers));
@@ -254,7 +258,7 @@ namespace PrEngine {
         SwapBuffers();
 		clock_t end = clock();
 		Double_64 elapsed = (Double_64)(end - begin) / CLOCKS_PER_SEC;
-
+		batch_pool->return_all_batches();
     }
 
     void RendererOpenGL2D::end()
@@ -273,91 +277,95 @@ namespace PrEngine {
 
 	inline void make_batch(std::vector<Uint_32>& texture_ids, Uint_32 usage)
 	{
-		VertexLayout layout;
-		VertexAttribute attribute_0(0, 3, GL_FLOAT, GL_FALSE);
-		VertexAttribute attribute_1(1, 4, GL_FLOAT, GL_FALSE);
-		//VertexAttribute attribute_2(2, 3, GL_FLOAT, GL_FALSE);
-		VertexAttribute attribute_3(2, 2, GL_FLOAT, GL_FALSE);
-		VertexAttribute attribute_4(3, 1, GL_FLOAT, GL_FALSE);
+		//Uint_32 entity = entity_management_system->make_entity();
+		//if (entity)
+		//{
+		//	VertexLayout layout;
+		//	VertexAttribute attribute_0(0, 3, GL_FLOAT, GL_FALSE);
+		//	VertexAttribute attribute_1(1, 4, GL_FLOAT, GL_FALSE);
+		//	//VertexAttribute attribute_2(2, 3, GL_FLOAT, GL_FALSE);
+		//	VertexAttribute attribute_3(2, 2, GL_FLOAT, GL_FALSE);
+		//	VertexAttribute attribute_4(3, 1, GL_FLOAT, GL_FALSE);
 
-		layout.add_attribute(attribute_0);
-		layout.add_attribute(attribute_1);
-		//layout.add_attribute(attribute_2);
-		layout.add_attribute(attribute_3);
-		layout.add_attribute(attribute_4);
+		//	layout.add_attribute(attribute_0);
+		//	layout.add_attribute(attribute_1);
+		//	//layout.add_attribute(attribute_2);
+		//	layout.add_attribute(attribute_3);
+		//	layout.add_attribute(attribute_4);
 
-		//batched_graphics.emplace_back();
-		//auto& batch = batched_graphics.back();
-		Uint_32 entity = entity_management_system->make_entity();
-		Uint_32 batc_grap_id =  batched_graphics_system.make(entity);
+		//	//batched_graphics.emplace_back();
+		//	//auto& batch = batched_graphics.back();
 
-		BatchedGraphic& batch = batched_graphics_system.get_component(batc_grap_id);
-		LOG(LOGTYPE_WARNING, "load batch material");
-		batch.element.material = Material::load_material("Materials" + PATH_SEP + "Batch.mat", false, std::to_string(batch_count++));
-		//next_batched_graphic_pos++;
-		batch.transform_id = 0;	// use identity unless modified later ( eg. animations)
+		//	Uint_32 batc_grap_id = batched_graphics_system.make(0); // we need a dummy entity, so using entity 0
 
-		if (usage == GL_STATIC_DRAW)
-			batch.tag = RENDER_STATIC;
-		else if (usage == GL_STREAM_DRAW)
-		{
-			batch.tag = RENDER_DYNAMIC;
-			batch.graphic_ids = batch_graphic_ids;
-			// store texture indices for dynamic vbo 
-			for (int _i = 0; _i < texture_ids.size(); _i++)
-			{
-				batch.texture_to_index[texture_ids[_i]] = _i;
-			}
-			
-		}
-		
-		Material* mat = Material::get_material(batch.element.material);
+		//	BatchedGraphic& batch = batched_graphics_system.get_component(batc_grap_id);
+		//	LOG(LOGTYPE_WARNING, "load batch material");
+		//	batch.element.material = Material::load_material("Materials" + PATH_SEP + "Batch.mat", false, std::to_string(batch_count++));
+		//	//next_batched_graphic_pos++;
+		//	batch.transform_id = 0;	// use identity unless modified later ( eg. animations)
 
-		//memcpy(mat->diffuse_textures, &texture_ids[0], sizeof(Uint_32) * texture_ids.size());
+		//	if (usage == GL_STATIC_DRAW)
+		//		batch.tag = RENDER_STATIC;
+		//	else if (usage == GL_STREAM_DRAW)
+		//	{
+		//		batch.tag = RENDER_DYNAMIC;
+		//		batch.graphic_ids = batch_graphic_ids;
+		//		// store texture indices for dynamic vbo 
+		//		for (int _i = 0; _i < texture_ids.size(); _i++)
+		//		{
+		//			batch.texture_to_index[texture_ids[_i]] = _i;
+		//		}
 
-		// make array texture
-		mat->diffuse_textures[0] = Texture::make_array_texture(texture_ids);
+		//	}
 
-		batch.element.vao.Generate();
-		LOG(LOGTYPE_WARNING, "vao generated: ",std::to_string(batch.element.vao.id));
-		if (usage == GL_STATIC_DRAW)
-		{
-			batch.element.vbo.Generate(&buffer[0], buffer.size() * sizeof(Vertex), GL_STATIC_DRAW);
-		}
-		else
-		{
-			batch.element.vbo.Generate(nullptr, sizeof(Vertex) * BatchedGraphic::max_vertices_in_batch, GL_STREAM_DRAW);
-		}
-		LOG(LOGTYPE_WARNING, "vbo generated");
+		//	Material* mat = Material::get_material(batch.element.material);
 
-		batch.element.layout = layout;
-		LOG(LOGTYPE_WARNING, "layout generated");
+		//	//memcpy(mat->diffuse_textures, &texture_ids[0], sizeof(Uint_32) * texture_ids.size());
 
-		for (Uint_32 _i=0; _i < batch.element.layout.next_attrib; _i++)// != batch.element.layout.vertex_attributes.end(); attr++)
-		{
-			VertexAttribute* attr = &(batch.element.layout.vertex_attributes[_i]);
-			GL_CALL(
-				glEnableVertexAttribArray(attr->index))
-				//GL_CALL(
-				glVertexAttribPointer(attr->index, attr->count, attr->type, attr->normalized, layout.stride, (void*)attr->offset);//)
-		}
+		//	// make array texture
+		//	mat->diffuse_textures[0] = Texture::make_array_texture(texture_ids);
 
-		batch.element.ibo.Generate(&indices[0], indices.size() * sizeof(GLuint), indices.size());
-		batch.element.num_of_triangles = (buffer.size() / 3);
-		LOG(LOGTYPE_WARNING, "ibo generated");
+		//	batch.element.vao.Generate();
+		//	LOG(LOGTYPE_WARNING, "vao generated: ", std::to_string(batch.element.vao.id));
+		//	if (usage == GL_STATIC_DRAW)
+		//	{
+		//		batch.element.vbo.Generate(&buffer[0], buffer.size() * sizeof(Vertex), GL_STATIC_DRAW);
+		//	}
+		//	else
+		//	{
+		//		batch.element.vbo.Generate(nullptr, sizeof(Vertex) * BatchedGraphic::max_vertices_in_batch, GL_STREAM_DRAW);
+		//	}
+		//	LOG(LOGTYPE_WARNING, "vbo generated");
 
-		batch.element.vao.Unbind();
-		batch.element.ibo.Unbind();
-		
+		//	batch.element.layout = layout;
+		//	LOG(LOGTYPE_WARNING, "layout generated");
 
-		buffer.clear();
-		indices.clear();
-		batch_texture_ids.clear();
-		batch_textures_set.clear();
-		batch_graphic_ids.clear();
-		index = 0;
+		//	for (Uint_32 _i = 0; _i < batch.element.layout.next_attrib; _i++)// != batch.element.layout.vertex_attributes.end(); attr++)
+		//	{
+		//		VertexAttribute* attr = &(batch.element.layout.vertex_attributes[_i]);
+		//		GL_CALL(
+		//			glEnableVertexAttribArray(attr->index))
+		//			//GL_CALL(
+		//			glVertexAttribPointer(attr->index, attr->count, attr->type, attr->normalized, layout.stride, (void*)attr->offset);//)
+		//	}
 
-		LOG(LOGTYPE_GENERAL, "Batch made: ", std::to_string(usage));
+		//	batch.element.ibo.Generate(&indices[0], indices.size() * sizeof(GLuint), indices.size());
+		//	batch.element.num_of_triangles = (buffer.size() / 3);
+		//	LOG(LOGTYPE_WARNING, "ibo generated");
+
+		//	batch.element.vao.Unbind();
+		//	batch.element.ibo.Unbind();
+
+
+		//	buffer.clear();
+		//	indices.clear();
+		//	batch_texture_ids.clear();
+		//	batch_textures_set.clear();
+		//	batch_graphic_ids.clear();
+		//	index = 0;
+
+		//	LOG(LOGTYPE_GENERAL, "Batch made: ", std::to_string(usage));
+		//}
 
 	}
 
@@ -365,160 +373,160 @@ namespace PrEngine {
 	void process_vertecies(Uint_32 graphic_id, Uint_32 usage)
 	{
 
-		indices.push_back(index);
-		indices.push_back(index + 1);
-		indices.push_back(index + 2);
-		indices.push_back(index + 2);
-		indices.push_back(index + 3);
-		indices.push_back(index);
-		index += 4;
+		//indices.push_back(index);
+		//indices.push_back(index + 1);
+		//indices.push_back(index + 2);
+		//indices.push_back(index + 2);
+		//indices.push_back(index + 3);
+		//indices.push_back(index);
+		//index += 4;
 
 
-		Graphic& graphic = graphics_system.get_component(graphic_id);// graphics[graphic_id];
-		Uint_32 material_id = graphic.element.material;
-		assert(material_id);
-		Material* mat = Material::get_material(material_id);
-		Texture* tex = Texture::get_texture(mat->diffuse_textures[0]); //Material::material_library[mat_id].diffuse_texture;
-		Float_32 x_scale = tex->width;
-		Float_32 y_scale = tex->height;
-		Float_32 texco_u = clamp(tex->width / (Float_32)MAX_TEXTURE_SIZE, 0.1f, 1.0f);
-		Float_32 texco_v = clamp(tex->height / (Float_32)MAX_TEXTURE_SIZE, 0.1f, 1.0f);
+		//Graphic& graphic = graphics_system.get_component(graphic_id);// graphics[graphic_id];
+		//Uint_32 material_id = graphic.element.material;
+		//assert(material_id);
+		//Material* mat = Material::get_material(material_id);
+		//Texture* tex = Texture::get_texture(mat->diffuse_textures[0]); //Material::material_library[mat_id].diffuse_texture;
+		//Float_32 x_scale = tex->width;
+		//Float_32 y_scale = tex->height;
+		//Float_32 texco_u = clamp(tex->width / (Float_32)MAX_TEXTURE_SIZE, 0.1f, 1.0f);
+		//Float_32 texco_v = clamp(tex->height / (Float_32)MAX_TEXTURE_SIZE, 0.1f, 1.0f);
 
-		if (x_scale > y_scale)
-		{
-			x_scale = (x_scale / y_scale);
-			y_scale = 1.f;
-		}
-		else
-		{
-			y_scale = y_scale / x_scale;
-			x_scale = 1.f;
-		}
-		GraphicEditorData ged = Graphic::editor_data[graphic_id];
-		x_scale *= ged.scale;
-		y_scale *= ged.scale;
+		//if (x_scale > y_scale)
+		//{
+		//	x_scale = (x_scale / y_scale);
+		//	y_scale = 1.f;
+		//}
+		//else
+		//{
+		//	y_scale = y_scale / x_scale;
+		//	x_scale = 1.f;
+		//}
+		//GraphicEditorData ged = Graphic::editor_data[graphic_id];
+		//x_scale *= ged.scale;
+		//y_scale *= ged.scale;
 
-		Transform3D& transform = transforms[graphic.transform_id];
-		Vec3f p1 =  Vec3f{ 0.5f*x_scale, 0.5f*y_scale, 0.0f };
-		Vec3f p2 =  Vec3f{ -0.5f*x_scale, 0.5f*y_scale, 0.0f };
-		Vec3f p3 =  Vec3f{ -0.5f*x_scale, -0.5f*y_scale, 0.0f };
-		Vec3f p4 =  Vec3f{ 0.5f*x_scale, -0.5f*y_scale, 0.0f };
+		//Transform3D& transform = transform_system.get_component(graphic.transform_id);
+		//Vec3f p1 =  Vec3f{ 0.5f*x_scale, 0.5f*y_scale, 0.0f };
+		//Vec3f p2 =  Vec3f{ -0.5f*x_scale, 0.5f*y_scale, 0.0f };
+		//Vec3f p3 =  Vec3f{ -0.5f*x_scale, -0.5f*y_scale, 0.0f };
+		//Vec3f p4 =  Vec3f{ 0.5f*x_scale, -0.5f*y_scale, 0.0f };
 
-		// save vertex data for collider
-		Graphic::vertex_data[graphic_id][0] = p1;
-		Graphic::vertex_data[graphic_id][1] = p2;
-		Graphic::vertex_data[graphic_id][2] = p3;
-		Graphic::vertex_data[graphic_id][3] = p4;
+		//// save vertex data for collider
+		//Graphic::vertex_data[graphic_id][0] = p1;
+		//Graphic::vertex_data[graphic_id][1] = p2;
+		//Graphic::vertex_data[graphic_id][2] = p3;
+		//Graphic::vertex_data[graphic_id][3] = p4;
 
-		if (usage == GL_STATIC_DRAW)
-		{
-			p1 = transform.transformation * p1;
-			p2 = transform.transformation * p2;
-			p3 = transform.transformation * p3;
-			p4 = transform.transformation * p4;
+		//if (usage == GL_STATIC_DRAW)
+		//{
+		//	p1 = transform.transformation * p1;
+		//	p2 = transform.transformation * p2;
+		//	p3 = transform.transformation * p3;
+		//	p4 = transform.transformation * p4;
 
-			Uint_32 texture_id = mat->diffuse_textures[0];
-			if (batch_texture_ids.size() == 0 || batch_texture_ids.back() != texture_id)
-			{
-				batch_texture_ids.push_back(texture_id);
-			}
-			Float_32 texture_index = batch_texture_ids.size() - 1;
-			// find index of texture in set
+		//	Uint_32 texture_id = mat->diffuse_textures[0];
+		//	if (batch_texture_ids.size() == 0 || batch_texture_ids.back() != texture_id)
+		//	{
+		//		batch_texture_ids.push_back(texture_id);
+		//	}
+		//	Float_32 texture_index = batch_texture_ids.size() - 1;
+		//	// find index of texture in set
 
-			/*auto it = std::find(texture_ids.begin(), texture_ids.end(), texture_id);
-			if (it != texture_ids.end())
-			{
-				texture_index = it - texture_ids.begin();
-			}
-			else {
-				LOG(LOGTYPE_ERROR, "Texture index not found when batching");
-			}
-			batch_texture_ids.insert(texture_id);*/
+		//	/*auto it = std::find(texture_ids.begin(), texture_ids.end(), texture_id);
+		//	if (it != texture_ids.end())
+		//	{
+		//		texture_index = it - texture_ids.begin();
+		//	}
+		//	else {
+		//		LOG(LOGTYPE_ERROR, "Texture index not found when batching");
+		//	}
+		//	batch_texture_ids.insert(texture_id);*/
 
-			Vertex v1 = {
-				p1.x, p1.y, p1.z,
+		//	Vertex v1 = {
+		//		p1.x, p1.y, p1.z,
 
-				1,1,1,1,
+		//		1,1,1,1,
 
-				texco_u,
-				texco_v,
+		//		texco_u,
+		//		texco_v,
 
-				texture_index
+		//		texture_index
 
-			};
+		//	};
 
-			Vertex v2 = {
-				p2.x, p2.y, p2.z,
+		//	Vertex v2 = {
+		//		p2.x, p2.y, p2.z,
 
-				1,1,1,1,
+		//		1,1,1,1,
 
-				0.f,
-				texco_v,
+		//		0.f,
+		//		texco_v,
 
-				texture_index
-			};
+		//		texture_index
+		//	};
 
-			Vertex v3 = {
-				p3.x, p3.y, p3.z,
+		//	Vertex v3 = {
+		//		p3.x, p3.y, p3.z,
 
-				1,1,1,1,
+		//		1,1,1,1,
 
-				0.0f,
-				0.0f,
+		//		0.0f,
+		//		0.0f,
 
-				texture_index
-			};
+		//		texture_index
+		//	};
 
-			Vertex v4 = {
-				p4.x, p4.y, p4.z,
+		//	Vertex v4 = {
+		//		p4.x, p4.y, p4.z,
 
-				1,1,1,1,
+		//		1,1,1,1,
 
-				texco_u,
-				0.0f,
+		//		texco_u,
+		//		0.0f,
 
-				texture_index
-			};
+		//		texture_index
+		//	};
 
-			buffer.push_back(v1);
-			buffer.push_back(v2);
-			buffer.push_back(v3);
-			buffer.push_back(v4);
+		//	buffer.push_back(v1);
+		//	buffer.push_back(v2);
+		//	buffer.push_back(v3);
+		//	buffer.push_back(v4);
 
-			if (batch_texture_ids.size() == max_layers)
-			{
-				//std::vector<Uint_32> batch_textures(batch_texture_ids.begin(), batch_texture_ids.end());
-				make_batch(batch_texture_ids, usage);
-			}
+		//	if (batch_texture_ids.size() == max_layers)
+		//	{
+		//		//std::vector<Uint_32> batch_textures(batch_texture_ids.begin(), batch_texture_ids.end());
+		//		make_batch(batch_texture_ids, usage);
+		//	}
 
-		}
-		else if (usage == GL_STREAM_DRAW)
-		{
-			batch_graphic_ids.push_back(graphic_id);
-			Uint_32 id_animator = graphics_system.get_component(graphic_id).animator_id;
-			if (id_animator)
-			{
-				//Animation& animation = animators[id_animator].get_current_animation();
-				Animation& animation = animator_system.get_component(id_animator).get_current_animation();
-				for (Keyframe& frame : animation.frames)
-				{
-					batch_textures_set.insert(frame.texture);
-				}
-			}
-			else
-			{
-				auto t = Material::get_material(graphics_system.get_component(graphic_id).element.material)->diffuse_textures[0];
-				batch_textures_set.insert(t);
-			}
+		//}
+		//else if (usage == GL_STREAM_DRAW)
+		//{
+		//	batch_graphic_ids.push_back(graphic_id);
+		//	Uint_32 id_animator = graphics_system.get_component(graphic_id).animator_id;
+		//	if (id_animator)
+		//	{
+		//		//Animation& animation = animators[id_animator].get_current_animation();
+		//		Animation& animation = animator_system.get_component(id_animator).get_current_animation();
+		//		for (Keyframe& frame : animation.frames)
+		//		{
+		//			batch_textures_set.insert(frame.texture);
+		//		}
+		//	}
+		//	else
+		//	{
+		//		auto t = Material::get_material(graphics_system.get_component(graphic_id).element.material)->diffuse_textures[0];
+		//		batch_textures_set.insert(t);
+		//	}
 
-			if (batch_textures_set.size() >= max_layers)
-			{
-				std::vector<Uint_32> batch_textures(batch_textures_set.begin(), batch_textures_set.end());
-				make_batch(batch_textures, usage);
-			}
-		}
-		
-		LOG(LOGTYPE_GENERAL, "Vertices processed: ", std::to_string(usage));
+		//	if (batch_textures_set.size() >= max_layers)
+		//	{
+		//		std::vector<Uint_32> batch_textures(batch_textures_set.begin(), batch_textures_set.end());
+		//		make_batch(batch_textures, usage);
+		//	}
+		//}
+		//
+		//LOG(LOGTYPE_GENERAL, "Vertices processed: ", std::to_string(usage));
 
 
 		
@@ -564,6 +572,202 @@ namespace PrEngine {
 	//		make_batch(batch_textures, GL_DYNAMIC_READ);
 	//	}
 	//}
+
+	void generate_array_texture(Uint_32 batch_id, std::vector<Uint_32>& texture_ids)
+	{
+		BatchedGraphic& last_batch = batched_graphics_system.get_component(batch_id);
+		Uint_32 arr_tex_id = Texture::make_array_texture(texture_ids);
+		Material::get_material(last_batch.element.material)->diffuse_textures[0] = arr_tex_id;
+	}
+	void RendererOpenGL2D::add_to_batch(std::vector< Uint_32>& graphic_ids)
+	{
+		//static Uint32 last_batch_id = 0;
+		//static std::vector<Uint_32> texture_ids;
+
+		//for (auto graphic_id : graphic_ids)
+		//{
+		//	Graphic& graphic = graphics_system.get_component(graphic_id);
+		//	if (graphic.animator_id)
+		//	{
+		//		Animator& animator = animator_system.get_component(graphic.animator_id);
+		//		for (Uint_32 _i = 0; _i < animator.animation_count; _i++)
+		//		{
+
+		//			Uint_32 animation_id = animator.animation_ids[_i];
+		//			if (animation_id)
+		//			{
+		//				Animation& animation = animator.get_animation(animation_id);
+		//				Uint_32 anim_frame_count = animation.frames.size();
+
+		//				Uint_32 batch_id = BatchedGraphic::animation_to_batch_id[animation_id];
+		//				if (batch_id)
+		//				{
+		//					BatchedGraphic& batch = batched_graphics_system.get_component(batch_id);
+		//					if (batch.current_batched_vertex_count <= batch.max_vertices_in_batch - 4)
+		//					{
+		//						if (graphic.batch_id != batch_id)
+		//						{
+		//							graphic.batch_id = batch_id;
+		//							batch.graphic_ids.push_back(graphic_id);
+		//						}
+		//						//batch.current_batched_vertex_count += 4;
+		//						last_batch_id = batch_id;
+		//						//return;
+		//					}
+		//					else
+		//					{
+		//						if (last_batch_id)
+		//						{
+		//							if (texture_ids.size() > 0)
+		//							{
+		//								generate_array_texture(last_batch_id, texture_ids);
+		//								texture_ids.clear();
+		//							}
+		//						}
+
+		//						Uint_32 new_batch_id = batched_graphics_system.make(0);
+		//						BatchedGraphic& new_batch = batched_graphics_system.get_component(new_batch_id);
+		//						new_batch.tag = RENDER_DYNAMIC;
+		//						new_batch.initialize(new_batch_id);
+		//						Material::get_material(new_batch.element.material)->diffuse_textures[0] = Material::get_material(batch.element.material)->diffuse_textures[0];
+		//						std::memcpy(new_batch.texture_to_index, batch.texture_to_index, 99999);
+		//						if (graphic.batch_id != new_batch_id)
+		//						{
+		//							graphic.batch_id = new_batch_id;
+		//							new_batch.graphic_ids.push_back(graphic_id);
+		//						}
+		//						//new_batch.current_batched_vertex_count += 4;
+		//						last_batch_id = new_batch_id;
+		//					}
+		//				}
+		//				else
+		//				{
+		//					if (last_batch_id)
+		//					{
+
+		//						BatchedGraphic& last_batch = batched_graphics_system.get_component(last_batch_id);
+		//						if (last_batch.current_batched_vertex_count >= last_batch.max_vertices_in_batch - 4 ||
+		//							last_batch.current_batched_texture_count >= max_layers - anim_frame_count)
+		//						{
+		//							if (texture_ids.size() > 0)
+		//							{
+		//								generate_array_texture(last_batch_id, texture_ids);
+		//								texture_ids.clear();
+		//							}
+
+		//							Uint_32 new_batch_id = batched_graphics_system.make(0);
+		//							BatchedGraphic& new_batch = batched_graphics_system.get_component(new_batch_id);
+		//							new_batch.tag = RENDER_DYNAMIC;
+		//							new_batch.initialize(new_batch_id);
+
+		//							last_batch = new_batch;
+		//							last_batch_id = new_batch_id;
+		//						}
+
+		//						if (graphic.batch_id != last_batch_id)
+		//						{
+		//							graphic.batch_id = last_batch_id;
+		//							last_batch.graphic_ids.push_back(graphic_id);
+		//						}
+		//						//last_batch.current_batched_vertex_count += 4;
+		//						last_batch.current_batched_texture_count += anim_frame_count;
+		//						for (auto& frame : animation.frames)
+		//						{
+		//							texture_ids.push_back(frame.texture);
+		//							last_batch.texture_to_index[frame.texture] = texture_ids.size() - 1;
+		//						}
+
+		//					}
+		//					else
+		//					{
+		//						Uint_32 new_batch_id = batched_graphics_system.make(0);
+		//						BatchedGraphic& new_batch = batched_graphics_system.get_component(new_batch_id);
+		//						new_batch.tag = RENDER_DYNAMIC;
+		//						new_batch.initialize(batch_id);
+
+		//						if (graphic.batch_id != new_batch_id)
+		//						{
+		//							graphic.batch_id = new_batch_id;
+		//							new_batch.graphic_ids.push_back(graphic_id);
+		//						}
+		//						//new_batch.current_batched_vertex_count += 4;
+		//						new_batch.current_batched_texture_count += anim_frame_count;
+		//						last_batch_id = new_batch_id;
+		//						for (auto& frame : animation.frames)
+		//						{
+		//							texture_ids.push_back(frame.texture);
+		//							new_batch.texture_to_index[frame.texture] = texture_ids.size() - 1;
+
+		//						}
+		//					}
+		//				}
+
+		//				if (BatchedGraphic::animation_to_batch_id[animation_id] == 0)
+		//					BatchedGraphic::animation_to_batch_id[animation_id] = last_batch_id;
+
+
+		//			}
+		//		}
+		//	}
+		//
+		//	batched_graphics_system.get_component(last_batch_id).current_batched_vertex_count += 4;
+		//}
+
+		//if (texture_ids.size() > 0)
+		//{
+		//	generate_array_texture(last_batch_id, texture_ids);
+		//	texture_ids.clear();
+		//}
+
+
+	}
+
+	BatchedGraphic* RendererOpenGL2D::make_dynamic_batch(std::vector<Uint_32>& graphic_ids)
+	{
+		BatchedGraphic& batch = batched_graphics_system.get_component(0);
+		batch_textures_set.clear();
+
+		// sort graphics ids by current animation so that same animation graphics are together
+		auto sort_lambda = [](Uint_32 a, Uint_32 b)
+		{
+			Uint_32 id_animator_a = graphics_system.get_component(a).animator_id;
+			Uint_32 id_animator_b = graphics_system.get_component(b).animator_id;
+
+			Animator& animt_a = animator_system.get_component(id_animator_a);
+			Animator& animt_b = animator_system.get_component(id_animator_b);
+
+			Int_32 ind_a = animt_a.cur_anim_ind;
+			Int_32 ind_b = animt_b.cur_anim_ind;
+
+			return  animt_a.animation_ids[ind_a] >= animt_a.animation_ids[ind_b];
+		};
+		std::sort(graphic_ids.begin(), graphic_ids.end(), sort_lambda);
+
+
+		//Uint_32 current_batch_remaining_layers = max_layers;
+		//Int_32 last_anim_ind = -1;
+		for (auto _id : graphic_ids)
+		{
+			Uint_32 id_animator = graphics_system.get_component(_id).animator_id;
+			if (id_animator)
+			{
+				Animator& animtr = animator_system.get_component(id_animator);
+				Animation& animation = animtr.get_current_animation();
+				Int_32 cur_anim_id = animtr.animation_ids[animtr.cur_anim_ind];
+
+				for (Keyframe& frame : animation.frames)
+				{
+					batch_textures_set.insert(frame.texture);
+				}
+			}
+			else
+			{
+				auto t = Material::get_material(graphics_system.get_component(_id).element.material)->diffuse_textures[0];
+				batch_textures_set.insert(t);
+			}
+		}
+		return &batch;
+	}
 
 
 	void RendererOpenGL2D::prepare_batches(std::vector<Uint_32> batched_graphic_ids, Uint_32 usage)
@@ -773,10 +977,10 @@ namespace PrEngine {
         return nullptr;
     }
 
-	void RendererOpenGL2D::render_graphic(Graphic& graphic, Mat4x4& transformation, Camera& _camera)
+	void RendererOpenGL2D::render_graphic(const Graphic& graphic, Mat4x4& transformation, Camera& _camera)
 	{
 
-		GraphicsElement& element = graphic.element;
+		const GraphicsElement& element = graphic.element;
 		Material* mat = Material::get_material(element.material);
 		if (mat == nullptr)
 		{
@@ -817,6 +1021,62 @@ namespace PrEngine {
 				case ShaderUniformName::u_sampler2d:
 				{
 					Texture* tex = Texture::get_texture(mat->diffuse_textures[0]);
+					//GL_CALL(
+					glUniform1i(_loc, tex->bind_unit);//)
+				}
+				break;
+				case ShaderUniformName::u_sampler2darr0:
+				{
+					Texture* tex = Texture::get_texture(mat->diffuse_textures[0]);
+					//GL_CALL(
+					glUniform1i(_loc, tex->bind_unit);//)
+				}
+				break;
+				case ShaderUniformName::u_sampler2darr1:
+				{
+					Texture* tex = Texture::get_texture(mat->diffuse_textures[1]);
+					//GL_CALL(
+					glUniform1i(_loc, tex->bind_unit);//)
+				}
+				break;
+				case ShaderUniformName::u_sampler2darr2:
+				{
+					Texture* tex = Texture::get_texture(mat->diffuse_textures[2]);
+					//GL_CALL(
+					glUniform1i(_loc, tex->bind_unit);//)
+				}
+				break;
+				case ShaderUniformName::u_sampler2darr3:
+				{
+					Texture* tex = Texture::get_texture(mat->diffuse_textures[3]);
+					//GL_CALL(
+					glUniform1i(_loc, tex->bind_unit);//)
+				}
+				break;
+				case ShaderUniformName::u_sampler2darr4:
+				{
+					Texture* tex = Texture::get_texture(mat->diffuse_textures[4]);
+					//GL_CALL(
+					glUniform1i(_loc, tex->bind_unit);//)
+				}
+				break;
+				case ShaderUniformName::u_sampler2darr5:
+				{
+					Texture* tex = Texture::get_texture(mat->diffuse_textures[5]);
+					//GL_CALL(
+					glUniform1i(_loc, tex->bind_unit);//)
+				}
+				break;
+				case ShaderUniformName::u_sampler2darr6:
+				{
+					Texture* tex = Texture::get_texture(mat->diffuse_textures[6]);
+					//GL_CALL(
+					glUniform1i(_loc, tex->bind_unit);//)
+				}
+				break;
+				case ShaderUniformName::u_sampler2darr7:
+				{
+					Texture* tex = Texture::get_texture(mat->diffuse_textures[7]);
 					//GL_CALL(
 					glUniform1i(_loc, tex->bind_unit);//)
 				}
@@ -924,6 +1184,242 @@ namespace PrEngine {
 		mat->Unbind();
 
 	}
+
+
+	// get all graphic_ids during scene loading and create array textures with their textures
+	// of max possible size (dictated by max_layers)
+	// no individual texture is duplicated
+
+	void RendererOpenGL2D::prepare_array_textures(std::vector<Uint_32>& graphic_ids)
+	{
+		static std::vector<Uint_32> tex_ids;
+
+		//get vector of unique textures
+		for (Uint_32 g_id : graphic_ids)
+		{
+			Uint_32 ent = graphics_system.get_entity(g_id);
+			Uint_32 a_id = animator_system.get_component_id(ent);
+			if (a_id)
+			{
+				Animator& animator = animator_system.get_component(a_id);
+				for (Uint_32 anim_id : animator.animation_ids)
+				{
+					if (anim_id)
+					{
+						Animation& animation = animator.get_animation(anim_id);
+						for (Keyframe frame : animation.frames)
+						{
+							if (is_included_at_index[frame.texture] == -1)
+							{
+								tex_ids.push_back(frame.texture);
+								is_included_at_index[frame.texture] = tex_ids.size()-1;
+							}
+						}
+					}
+				}
+			}
+			else
+			{
+				Material* mat = Material::get_material(graphics_system.get_component(g_id).element.material);
+				if (is_included_at_index[mat->diffuse_textures[0]] == -1)
+				{
+					tex_ids.push_back(mat->diffuse_textures[0]);
+					is_included_at_index[mat->diffuse_textures[0]] = tex_ids.size()-1;
+				}
+			}
+		}
+
+		// make texture from tex_ids
+		for (Uint_32 _i = 0; _i < tex_ids.size(); _i+=max_layers)
+		{
+			std::vector<Uint_32>::iterator start = tex_ids.begin() + _i;
+			std::vector<Uint_32>::iterator end = tex_ids.begin() + _i + max_layers;
+			if (_i + max_layers > tex_ids.size())
+				end = tex_ids.end();
+
+			std::vector<Uint_32> tex_id_for_tex_arr(start, end);
+			Uint_32 array_tex = Texture::make_array_texture(tex_id_for_tex_arr);
+			array_textures.push_back(array_tex);
+		}
+	}
+
+	static std::vector<Uint_32> current_batches;
+	void RendererOpenGL2D::add_to_batch(Uint_32 graphic_id)
+	{
+		
+
+		// get all textures referenced from graphic_id and it's animations
+		Uint_32 tex_id = 0;
+		Graphic& g = graphics_system.get_component(graphic_id);
+		Material* mat = Material::get_material(g.element.material);
+		if (!g.animator_id)
+			tex_id = mat->diffuse_textures[0];
+		else
+		{
+			Animator& animator = animator_system.get_component(g.animator_id);
+			Animation& animation = animator.get_current_animation();
+			tex_id = animation.frames[animator.current_frame_index].texture;
+			//for (Uint_32 _i = 0; _i < 8; _i++)
+			//{
+			//	for (Uint_32 anim_id : animator.animation_ids)
+			//	{
+			//		if (anim_id)
+			//		{
+			//			Animation& animation = animator.get_animation(anim_id);
+			//			for (Keyframe frame : animation.frames)
+			//			{
+			//				tex_ids.push_back(frame.texture);
+			//			}
+			//		}
+			//	}
+			//}
+		}
+
+		if(tex_id)
+		{
+			// which array texture contains this tex_id?
+			Uint_32 index = is_included_at_index[tex_id];
+			if (index != -1)
+			{
+				Uint_32 array_tex_index = (index) / max_layers;
+				Uint_32 index_in_arr_tex = (index) % max_layers;
+
+				// try adding graphic to an existing batch
+				for (Uint_32 batch_id : current_batches)
+				{
+					BatchedGraphic& batch = batched_graphics_system.get_component(batch_id);
+					Material* mat = Material::get_material(batch.element.material);
+					Uint_32 next_empty_tex_slot = -1;
+
+					for (Uint_32 _i = 0; _i < 8; _i++)
+					{
+						// empty slots start here?
+						if (mat->diffuse_textures[_i] == 0)
+						{
+							next_empty_tex_slot = _i;
+							break;
+						}	
+						// texture available, is it the one we need?
+						else if (mat->diffuse_textures[_i] == array_textures[array_tex_index])
+						{
+							if (batch.current_batched_vertex_count < BatchedGraphic::max_vertices_in_batch)
+							{
+								batch.graphic_ids.push_back({ graphic_id, _i });
+								batch.current_batched_vertex_count += 4;
+								return;
+							}
+							else
+								break;
+						}
+					}
+
+					// at least one empty tex slot is present in batch, so put our required texture there
+					if (next_empty_tex_slot != -1 && batch.current_batched_vertex_count < BatchedGraphic::max_vertices_in_batch)
+					{
+						mat->diffuse_textures[next_empty_tex_slot] = array_textures[array_tex_index];
+						batch.graphic_ids.push_back({ graphic_id, next_empty_tex_slot });
+						batch.current_batched_vertex_count += 4;
+						return;
+					}
+
+				}
+
+				// couldn't add to any available batches. 
+				// so put it in a new one.
+				Uint_32 new_batch = batch_pool->get_new_batch();
+				current_batches.push_back(new_batch);
+				BatchedGraphic& batch = batched_graphics_system.get_component(new_batch);
+				batch.tag = RENDER_DYNAMIC;
+				Material* mat = Material::get_material(batch.element.material);
+				mat->diffuse_textures[0] = array_textures[array_tex_index];
+				batch.graphic_ids.push_back({ graphic_id, 0 });
+				batch.current_batched_vertex_count += 4;
+				return;
+			}
+			else
+			{
+				// assert for debugging. 
+				LOG(LOGTYPE_ERROR, "Fatal Error: Must be in one of the array textures.");
+				assert(1);
+			}
+		}
+	}
+
+
+	BatchPool::BatchPool(Uint_32 pool_size)
+	{
+		this->pool_size = pool_size;
+		pool = new Uint_32[pool_size];
+		batch_in_use = new Bool_8[pool_size];
+		for(Uint_32 _i=0; _i<pool_size; _i++)
+		{
+			Uint_32 batch_id = batched_graphics_system.make(0);
+			BatchedGraphic& batch = batched_graphics_system.get_component(batch_id);
+			batch.tag = RENDER_DYNAMIC;
+
+			assert(batch_id);
+			BatchedGraphic::initialize(batch_id);
+
+			pool[_i] = batch_id;
+			batch_in_use[_i] = false;
+		}
+	}
+
+	BatchPool::~BatchPool()
+	{
+		//
+		delete[] pool;
+		delete[] batch_in_use;
+	}
+
+	Uint_32 BatchPool::get_new_batch()
+	{
+		for (Uint_32 _i = 0; _i < pool_size; _i++)
+		{
+			if (batch_in_use[_i] == false)
+			{
+				batch_in_use[_i] = true;
+				return pool[_i];
+			}
+		}
+
+		LOG(LOGTYPE_ERROR, "No batchs in pool available");
+		return 0;
+	}
+
+	void BatchPool::return_batch(Uint_32 batch_id)
+	{
+		for (Uint_32 _i = 0; _i < pool_size; _i++)
+		{
+			if (batch_id == pool[_i])
+			{
+				BatchedGraphic& batch = batched_graphics_system.get_component(batch_id);
+				Material* mat = Material::get_material(batch.element.material);
+				std::memset(mat->diffuse_textures, 0, sizeof(Uint_32) * 8);
+				batch_in_use[_i] = false;
+			}
+		}
+	}
+
+	void BatchPool::return_all_batches()
+	{
+		current_batches.clear();
+		for (Uint_32 _i = 0; _i < pool_size; _i++)
+		{
+			if (batch_in_use[_i])
+			{
+				batch_in_use[_i] = false;
+				BatchedGraphic& batch = batched_graphics_system.get_component(pool[_i]);
+				batch.current_batched_texture_count = 0;
+				batch.current_batched_vertex_count = 0;
+				batch.graphic_ids.clear();
+				Material* mat = Material::get_material(batch.element.material);
+				std::memset(mat->diffuse_textures, 0, sizeof(Uint_32) * 8);
+			}
+		}
+	}
+
+
 
 /*
     void Renderer3D::upload_mesh(const Mesh& mesh)

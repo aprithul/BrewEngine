@@ -86,7 +86,7 @@ namespace PrEngine {
 
 					//LOG(LOGTYPE_WARNING, p.to_string());
 					Vec2f transformed_points[4] = {};
-					Transform3D& transform = transforms[col.transform_id];
+					Transform3D& transform = transform_system.get_component(col.transform_id);
 					for (int _i = 0; _i < 4; _i++)
 					{
 						transformed_points[_i] = transform.transformation*col.collision_shape.points[_i];
@@ -136,15 +136,15 @@ namespace PrEngine {
 			Vec4f yellow_color{ 0.0, 1, 1, 1.0 };
 			Rect<Float_32> a = points_to_rect(collider_system.get_component(col_a).collision_shape.points);//, transforms[tr_a].transformation);
 			Rect<Float_32> b = points_to_rect(collider_system.get_component(col_b).collision_shape.points);//, transforms[tr_b].transformation);
-			renderer->draw_rect_with_transform(a, red_color, transforms[tr_a].transformation);
-			renderer->draw_rect_with_transform(b, red_color, transforms[tr_b].transformation);
-			renderer->draw_line(transforms[tr_b].get_local_position(), transforms[tr_b].get_local_position() + (Vec3f)contacts[_i].depth, yellow_color);
+			renderer->draw_rect_with_transform(a, red_color, transform_system.get_component(tr_a).transformation);
+			renderer->draw_rect_with_transform(b, red_color, transform_system.get_component(tr_b).transformation);
+			renderer->draw_line(transform_system.get_component(tr_b).get_local_position(), transform_system.get_component(tr_b).get_local_position() + (Vec3f)contacts[_i].depth, yellow_color);
 
 			Float_32 _len = contacts[_i].depth.GetMagnitude();
 
-			transforms[tr_a].Translate(-(Vec3f)(contacts[_i].depth*0.55));
+			transform_system.get_component(tr_a).Translate(-(Vec3f)(contacts[_i].depth*0.55));
 			//transforms[tr_a].update_transformation();
-			transforms[tr_b].Translate((Vec3f)(contacts[_i].depth*0.55));
+			transform_system.get_component(tr_b).Translate((Vec3f)(contacts[_i].depth*0.55));
 			//transforms[tr_b].update_transformation();
 		/*	Float_32 _x = abs<Float_32>(transforms[tr_a].get_position().x);
 			_x = abs<Float_32>(transforms[tr_b].get_position.x);

@@ -182,7 +182,8 @@ namespace PrEngine
 
 	//}
 
-	Float_32 texture_index = 0;
+	//Float_32 texture_index = 0;
+	std::vector<Uint_32> dynamic_batch_graphic_ids;
 	void SpriteLayer::update()
 	{
 
@@ -196,25 +197,44 @@ namespace PrEngine
 		//Vec3f _cam_pos = transforms[_camera.id_transform].position;
 		//Vec3f _dir = get_transform(_light.id_transform).get_forward();
 
-
-		for (Uint_32 _i = 0; _i < graphics_system.new_pos; _i++)
+		dynamic_batch_graphic_ids.clear();
+		//const Graphic* components = graphics_system.get_comp_array();
+		for (Uint_32 _i = 1; _i < graphics_system.new_id; _i++)
 		{
 
 			if (graphics_system.get_entity(_i))//  is_valid(graphic_active_status, graphics[_i].entity))
 			{
 				//UpdateTransforms(transform);
 				//Matrix4x4<Float_32> mvp = (projection) * (*(grp->model)) ;
-				auto& graphic = graphics_system.get_component(_i);
-				if (graphic.tag != RENDER_UNTAGGED)
-					continue;
-
-				auto& transform = transforms[graphic.transform_id];
-				renderer->render_graphic(graphic, transform.transformation, _camera);
-				
+				//const auto& graphic = components[_i];
+				const auto& graphic = graphics_system.get_component(_i);
+				if (graphic.tag == RENDER_UNTAGGED)
+				{
+					auto& transform = transform_system.get_component(graphic.transform_id);
+					renderer->render_graphic(graphic, transform.transformation, _camera);
+				}
+				else if (graphic.tag == RENDER_DYNAMIC)
+				{
+					renderer->add_to_batch(_i);
+				}
+				//else if (graphic.tag == RENDER_DYNAMIC)
+				//{
+				//	if(!graphic.batch_id)	//may not contain the correct batch id (since animations can be in different batches)
+				//		dynamic_batch_graphic_ids.push_back(_i);
+				//	//renderer->add_to_batch(_i);
+				//}
 			}
-
-			//continue;
 		}
+
+		/*if (dynamic_batch_graphic_ids.size() > 0)
+		{
+			renderer->add_to_batch(dynamic_batch_graphic_ids);
+			dynamic_batch_graphic_ids.clear();
+		}*/
+
+
+
+		//renderer->prepare_batches(dynamic_batch_graphic_ids, GL_STREAM_DRAW);
 
 
 		clock_t begin = clock();
@@ -228,9 +248,12 @@ namespace PrEngine
 				std::vector<Vertex> buffer;
 
 
+
 				for (int _i=0; _i<batch.graphic_ids.size(); _i++)
 				{
-					Uint_32 g_id = batch.graphic_ids[_i];
+					Graphic_TexID graphic_texid = batch.graphic_ids[_i];
+					Uint_32 g_id = graphic_texid.graphic_id;
+					
 
 					Graphic& graphic = graphics_system.get_component(g_id);
 					Uint_32 material_id = graphic.element.material;
@@ -251,7 +274,14 @@ namespace PrEngine
 						texture_id = mat->diffuse_textures[0];
 
 					}
-					texture_index = batch.texture_to_index[texture_id];
+
+					//first get the index between [0,max_layers). Then add the tex location in batch diffuse tex array to it
+					// to get the final 'encoded' texture index
+					Uint_32 texture_index = renderer->is_included_at_index[texture_id] % renderer->max_layers;
+					texture_index = (graphic_texid.batched_diffuse_index * renderer->max_layers + texture_index);
+
+
+					//texture_index = batch.texture_to_index[texture_id];
 					//LOG(LOGTYPE_WARNING, std::to_string(texture_index));
 					Texture* tex = Texture::get_texture(texture_id); //Material::material_library[mat_id].diffuse_texture;
 					Float_32 x_scale = tex->width;
@@ -273,7 +303,7 @@ namespace PrEngine
 					x_scale *= ged.scale;
 					y_scale *= ged.scale;
 
-					Transform3D& transform = transforms[graphic.transform_id];
+					Transform3D& transform = transform_system.get_component(graphic.transform_id);
 					Vec3f p1 = transform.transformation * Vec3f{ 0.5f*x_scale, 0.5f*y_scale, 0.0f };
 					Vec3f p2 = transform.transformation * Vec3f{ -0.5f*x_scale, 0.5f*y_scale, 0.0f };
 					Vec3f p3 = transform.transformation * Vec3f{ -0.5f*x_scale, -0.5f*y_scale, 0.0f };
@@ -361,10 +391,11 @@ namespace PrEngine
 			}
 			
 			
-			auto& t = transforms[batch.transform_id].transformation;
+			Mat4x4& _transformation = transform_system.get_component(batch.transform_id).transformation;
 			//if (batch.id_animator)
 			//	t = animators[batch.id_animator].translation * t;
-			renderer->render_graphic(batch, t, _camera); // transforms[0] is an 'identity' transformation
+			renderer->render_graphic(batch, _transformation, _camera); // transforms[0] is an 'identity' transformation
+			
 		}
 				//LOG(LOGTYPE_WARNING, "Draw calls : ", std::to_string(draw_calls));
 

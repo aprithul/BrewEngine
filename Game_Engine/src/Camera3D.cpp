@@ -62,7 +62,7 @@ namespace PrEngine
         //view_matrix(1,3) = -transforms[id_transform].position.y;
         //view_matrix(2,3) = -transforms[id_transform].position.z;
 		//Mat4x4 reverse_rot = Mat4x4::Identity();// transforms[id_transform].transformation.GetTransformInverse();
-		view_matrix = transforms[id_transform].transformation.GetTransformInverse();// reverse_rot * view_matrix;
+		view_matrix = transform_system.get_component(id_transform).transformation.GetTransformInverse();// reverse_rot * view_matrix;
         
         //if(projection_type==PERSPECTIVE)
        //     projection_matrix = Mat4x4::perspective(near_, far_,width, height, fov);

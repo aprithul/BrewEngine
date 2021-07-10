@@ -34,7 +34,7 @@ namespace PrEngine {
 
 		if (move_gizmo.target_transform)
 		{
-			Transform3D& target_transform = transforms[move_gizmo.target_transform];
+			Transform3D& target_transform = transform_system.get_component(move_gizmo.target_transform);
 			move_gizmo.transform.set_local_position(target_transform.get_local_position().x, target_transform.get_local_position().y, 1);
 
 			//draw gizmos

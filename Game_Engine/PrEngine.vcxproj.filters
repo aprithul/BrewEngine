@@ -216,6 +216,9 @@
     <ClInclude Include="include\Vertex.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\Constants.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Vendor\imgui-master\backends\imgui_impl_opengl3.cpp">
