@@ -219,6 +219,12 @@
     <ClInclude Include="include\Constants.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\Rigidbody2D.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ComponentSystem.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Vendor\imgui-master\backends\imgui_impl_opengl3.cpp">
@@ -372,6 +378,9 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\Script.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Rigidbody2D.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

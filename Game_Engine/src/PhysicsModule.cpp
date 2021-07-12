@@ -3,6 +3,7 @@
 #include "RendererOpenGL2D.hpp"
 namespace PrEngine {
 
+	ComponentSystem<Rigidbody2D> PhysicsModule::rigidbody2d_system(Max_rigidbody2d_count);
 	PhysicsModule* physics_module = nullptr;
 
 	std::vector<Contact> PhysicsModule::contacts;
@@ -20,6 +21,8 @@ namespace PrEngine {
 
 	void PhysicsModule::start()
 	{
+		rigidbody2d_system.start();
+
 		for (Uint_32 _i = 0; _i<collider_system.new_pos; _i++)
 		{
 			if (collider_system.get_entity(_i))
@@ -50,20 +53,6 @@ namespace PrEngine {
 				}
 			}
 		}
-
-
-		//// test
-		//Vec2f col_points[4];
-		//col_points[0] = Vec2f{ -1, 1 };
-		//col_points[1] = Vec2f{ 1, 1 };
-		//col_points[2] = Vec2f{ 1,-1 };
-		//col_points[3] = Vec2f{ -1,-1 };
-		//
-		//Bool_8 res = point_in_shape(col_points, 4, Vec2f(0,0));
-
-		//return;
-
-
 	}
 
 
@@ -122,7 +111,12 @@ namespace PrEngine {
 
 	void PhysicsModule::update()
 	{
-		auto _s = contacts.size();
+
+		// update rigidbodies
+		rigidbody2d_system.update();
+
+
+
 		for (int _i = 0; _i < contacts.size(); _i++)
 		{
 			Uint_32 col_a = contacts[_i].collider_a;
@@ -160,7 +154,7 @@ namespace PrEngine {
 
 	void PhysicsModule::end()
 	{
-
+		rigidbody2d_system.end();
 	}
 
 }

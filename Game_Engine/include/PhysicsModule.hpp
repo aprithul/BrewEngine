@@ -4,15 +4,20 @@
 #include "Module.hpp"
 #include "Vec.hpp"
 #include "Collider.hpp"
+#include "Rigidbody2D.hpp"
 #include "Math.hpp"
+#include "Constants.hpp"
 #include "Utils.hpp"
+#include "ComponentSystem.hpp"
 #include <vector>
 #include <queue>
 namespace PrEngine {
-
+	
+	
 
 	struct PhysicsModule : public Module
 	{
+		static ComponentSystem<Rigidbody2D> rigidbody2d_system;
 		static std::vector<Contact> contacts;
 
 		PhysicsModule(std::string name, Int_32 priority);

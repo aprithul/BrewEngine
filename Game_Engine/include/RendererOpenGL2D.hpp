@@ -81,7 +81,8 @@ namespace PrEngine {
 			void prepare_array_textures(std::vector<Uint_32>& graphic_ids);
 			BatchedGraphic* make_dynamic_batch(std::vector<Uint_32>& graphic_ids);
 			void add_to_batch(std::vector< Uint_32>& graphic_ids);
-			void add_to_batch(Uint_32 graphic_id);
+			void add_to_static_batch(std::vector< Uint_32>& graphic_ids);
+			void add_to_batch(Uint_32 graphic_id, RenderTag render_mode);
 			//void prepare_dynmic_batches(std::vector<Uint_32> batched_grphic_ids);
 			//Matrix4x4<Float_32> view_matrix;
 			//Matrix4x4<Float_32> projection;

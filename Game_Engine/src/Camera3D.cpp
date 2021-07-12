@@ -79,7 +79,7 @@ namespace PrEngine
     std::string Camera::to_string()
     {
 		if (projection_type == ORTHOGRAPHIC)
-			return std::to_string(COMP_CAMERA) + "," + std::to_string(projection_type) + "," + std::to_string(left) + "," + std::to_string(right) + "," + std::to_string(bottom) + "," + std::to_string(top) + "," + std::to_string(near_) + "," + std::to_string(far_);
+			return std::to_string(COMP_CAMERA) + "," + std::to_string(projection_type) + "," + std::to_string(left) + "," + std::to_string(right) + "," + std::to_string(bottom) + "," + std::to_string(top) + "," + std::to_string(near_) + "," + std::to_string(far_) + ","+std::to_string(zoom);
 		else
 			return std::to_string(COMP_CAMERA) + "," + std::to_string(projection_type) + "," + std::to_string(width) + "," + std::to_string(height) + "," + std::to_string(near_) + "," + std::to_string(far_) + "," + std::to_string(fov);
 	}

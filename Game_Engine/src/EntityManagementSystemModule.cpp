@@ -67,6 +67,12 @@ namespace PrEngine
 			collider_system.remove(collider_id);
 		}
 
+		Uint_32 rigidbody_id = PhysicsModule::rigidbody2d_system.get_component_id(entity);
+		if (rigidbody_id)
+		{
+			PhysicsModule::rigidbody2d_system.remove(rigidbody_id);
+		}
+
     }
 
 	Uint_32 EntityManagementSystem::make_entity()
@@ -113,7 +119,10 @@ namespace PrEngine
 
     void EntityManagementSystem::start()
     {
-		;
+		transform_system.start();
+		animator_system.start();
+		scripting_system.start();
+		camera_system.start();
     }
 
 
@@ -170,59 +179,75 @@ namespace PrEngine
 
     void EntityManagementSystem::end()
     {
-
+		transform_system.end();
+		animator_system.end();
+		scripting_system.end();
+		camera_system.end();
     }
 
 	void EntityManagementSystem::save_scene(const std::string& scene_file)
 	{
-		/*
+		
 		write_to_file("", scene_file, 0, 0); //clears file
 		std::unordered_map<int, std::string> entities_in_scene;
 
-		for (Uint_32 i = 1; i < next_transform_pos; i++)
+		for (Uint_32 i = 1; i < transform_system.new_id; i++)
 		{
-			//int j = transform_order[i];
-			if (transform_entity_id[i])
-				entities_in_scene[transform_entity_id[i]] = transforms[i].to_string() + ","+ std::to_string(i) + "\n";
+			Uint_32 transform_entity = transform_system.get_entity(i);
+			if (transform_entity)
+			{
+				entities_in_scene[transform_entity] = transform_system.get_component(i).to_string() + "," + std::to_string(i) + "\n";
+			}
 		}
 
-		for (Uint_32 i = 0; i < next_camera_pos; i++)
+		for (Uint_32 i = 1; i < camera_system.new_id; i++)
 		{
-			if (camera_entity_id[i])
-				entities_in_scene[camera_entity_id[i]] += cameras[i].to_string() + "\n";
+			Uint_32 camera_entity = camera_system.get_entity(i);
+			if (camera_entity)
+			{
+				entities_in_scene[camera_entity] += camera_system.get_component(i).to_string() + "," + std::to_string(i) + "\n";
+			}
 		}
 
-		for (Uint_32 i = 0; i < next_directional_light_pos; i++)
+
+		for (Uint_32 i = 1; i < animator_system.new_id; i++)
 		{
-			if (directional_light_entity_id[i])
-				entities_in_scene[directional_light_entity_id[i]] += directional_lights[i].to_string() + "\n";
-		}
-		for (Uint_32 i = 0; i < next_animator_pos; i++)
-		{
-			if (animator_entity_id[i])
-				entities_in_scene[animator_entity_id[i]] += animators[i].to_string() + "\n";
+			Uint_32 animator_entity = animator_system.get_entity(i);
+			if (animator_entity)
+			{
+				entities_in_scene[animator_entity] += animator_system.get_component(i).to_string() + "," + std::to_string(i) + "\n";
+			}
 		}
 
-		for (Uint_32 i = 0; i < next_graphic_pos; i++)
+		for (Uint_32 i = 1; i < graphics_system.new_id; i++)
 		{
-			if (graphics_entity_id[i])
+			Uint_32 graphics_entity = graphics_system.get_entity(i);
+			if (graphics_entity)
 			{
 				auto ed = Graphic::editor_data[i];
-				entities_in_scene[graphics_entity_id[i]] += graphics[i].to_string() + "," + std::to_string(ed.future_tag)
+				entities_in_scene[graphics_entity] += graphics_system.get_component(i).to_string() + "," + std::to_string(ed.future_tag)
 					+ "," + std::to_string(ed.scale) + "\n";
 			}
 		}
 
-		for (Uint_32 i = 0; i < next_collider_pos; i++)
+		for (Uint_32 i = 0; i < collider_system.new_id; i++)
 		{
-			if (collider_entity_id[i])
-				entities_in_scene[collider_entity_id[i]] += colliders[i].to_string() + "\n";
+			Uint_32 collider_entity = collider_system.get_entity(i);
+			if (collider_entity)
+				entities_in_scene[collider_entity] += collider_system.get_component(i).to_string() + "\n";
+		}
+
+		for (Uint_32 i = 0; i < PhysicsModule::rigidbody2d_system.new_id; i++)
+		{
+			Uint_32 rigidbody2d_entity = PhysicsModule::rigidbody2d_system.get_entity(i);
+			if (rigidbody2d_entity)
+				entities_in_scene[rigidbody2d_entity] += PhysicsModule::rigidbody2d_system.get_component(i).to_string() + "\n";
 		}
 
 		for (auto it : entities_in_scene)
 		{
 			write_to_file(it.second + "~\n", scene_file, 0, 1);
-		}*/
+		}
 	}
 
 	Uint_32 EntityManagementSystem::get_active_camera()

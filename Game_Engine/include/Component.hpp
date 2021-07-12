@@ -20,6 +20,7 @@ namespace PrEngine
 		COMP_ANIMATOR,
 		COMP_COLLIDER,
 		COMP_SCRIPT,
+		COMP_RIGIDBODY_2D,
         COMP_COUNT_MAX,
     };
 

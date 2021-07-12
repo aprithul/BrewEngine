@@ -1243,8 +1243,9 @@ namespace PrEngine {
 		}
 	}
 
-	static std::vector<Uint_32> current_batches;
-	void RendererOpenGL2D::add_to_batch(Uint_32 graphic_id)
+	static std::vector<Uint_32> current_dynamic_batches;
+	static std::vector<Uint_32> current_static_batches;
+	void RendererOpenGL2D::add_to_batch(Uint_32 graphic_id, RenderTag render_mode)
 	{
 		
 
@@ -1283,6 +1284,11 @@ namespace PrEngine {
 			{
 				Uint_32 array_tex_index = (index) / max_layers;
 				Uint_32 index_in_arr_tex = (index) % max_layers;
+
+
+				std::vector<Uint_32>& current_batches = current_dynamic_batches;
+				if (render_mode == RENDER_STATIC)
+					current_batches = current_static_batches;
 
 				// try adding graphic to an existing batch
 				for (Uint_32 batch_id : current_batches)
@@ -1326,10 +1332,21 @@ namespace PrEngine {
 
 				// couldn't add to any available batches. 
 				// so put it in a new one.
-				Uint_32 new_batch = batch_pool->get_new_batch();
-				current_batches.push_back(new_batch);
+				Uint_32 new_batch = 0;
+				if (render_mode == RENDER_DYNAMIC)
+				{
+					new_batch = batch_pool->get_new_batch();
+					current_dynamic_batches.push_back(new_batch);
+				}
+				else if (render_mode == RENDER_STATIC)
+				{
+					new_batch = batched_graphics_system.make(0);
+					BatchedGraphic::initialize(new_batch, RENDER_STATIC);
+					current_static_batches.push_back(new_batch);
+				}
+
 				BatchedGraphic& batch = batched_graphics_system.get_component(new_batch);
-				batch.tag = RENDER_DYNAMIC;
+				batch.tag = render_mode;
 				Material* mat = Material::get_material(batch.element.material);
 				mat->diffuse_textures[0] = array_textures[array_tex_index];
 				batch.graphic_ids.push_back({ graphic_id, 0 });
@@ -1345,6 +1362,28 @@ namespace PrEngine {
 		}
 	}
 
+	void RendererOpenGL2D::add_to_static_batch(std::vector<Uint_32>& graphic_ids)
+	{
+		/*static Uint_32 last_batch_id = 0;
+
+		for (Uint_32 g_id : graphic_ids)
+		{
+			if (g_id)
+			{
+				Graphic& graphic = graphics_system.get_component(g_id);
+				if (graphic.tag == RENDER_STATIC)
+				{
+					Uint_32 tex_id = 0;
+					Material* mat = Material::get_material(graphic.element.material);
+					tex_id = mat->diffuse_textures[0];
+
+				}
+
+
+
+			}
+		}*/
+	}
 
 	BatchPool::BatchPool(Uint_32 pool_size)
 	{
@@ -1358,7 +1397,7 @@ namespace PrEngine {
 			batch.tag = RENDER_DYNAMIC;
 
 			assert(batch_id);
-			BatchedGraphic::initialize(batch_id);
+			BatchedGraphic::initialize(batch_id, RENDER_DYNAMIC);
 
 			pool[_i] = batch_id;
 			batch_in_use[_i] = false;
@@ -1403,7 +1442,7 @@ namespace PrEngine {
 
 	void BatchPool::return_all_batches()
 	{
-		current_batches.clear();
+		current_dynamic_batches.clear();
 		for (Uint_32 _i = 0; _i < pool_size; _i++)
 		{
 			if (batch_in_use[_i])

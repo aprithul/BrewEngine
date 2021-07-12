@@ -150,7 +150,7 @@ namespace PrEngine
 		Uint_32 current_batched_vertex_count;
 		Uint_32 current_batched_texture_count;
 		
-		static void initialize(Uint_32 batch_id);
+		static void initialize(Uint_32 batch_id, RenderTag render_mode);
 		BatchedGraphic();
 		//BatchedGraphic(const BatchedGraphic& other) = delete;
 		//BatchedGraphic& operator=(const BatchedGraphic& other) = delete;

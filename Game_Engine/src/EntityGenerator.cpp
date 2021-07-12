@@ -6,7 +6,7 @@
  */
 
 #include "EntityGenerator.hpp"
-
+#include "PhysicsModule.hpp"
 namespace PrEngine{
 
 	std::unordered_map<int, int> EntityGenerator::transform_id_mapping;
@@ -141,10 +141,11 @@ namespace PrEngine{
 			}
 			break;
 			case RENDER_STATIC:
-				static_batched_graphic_ids.push_back(graphic_id);
-				//renderer->generate_batched_sprite_graphics(id_graphic);
-				break;
 			case RENDER_DYNAMIC:
+				//static_batched_graphic_ids.push_back(graphic_id);
+				//renderer->generate_batched_sprite_graphics(id_graphic);
+				//break;
+			
 				//renderer->generate_sprite_graphics(id_graphic);
 				dynamic_batched_graphic_ids.push_back(graphic_id);
 				break;
@@ -339,7 +340,7 @@ namespace PrEngine{
 							Float_32 top = std::stof(tokens[5]);
 							Float_32 _near = std::stof(tokens[6]);
 							Float_32 _far = std::stof(tokens[7]);
-
+							Float_32 _zoom = std::stof(tokens[8]);
 							/*Uint_32 id_camera = entity_management_system->make_camera_comp(entity);
 							cameras[id_camera].set_orthographic(left, right, bottom, top, _near, _far);
 							assert(transform_id);
@@ -347,6 +348,7 @@ namespace PrEngine{
 							Uint_32 id_camera = camera_system.make(entity);
 							Camera& camera = camera_system.get_component(id_camera);
 							camera.set_orthographic(left, right, bottom, top, _near, _far);
+							camera.zoom = _zoom;
 							assert(transform_id);
 							camera.id_transform = transform_id;
 
@@ -375,14 +377,14 @@ namespace PrEngine{
 
 							//Comment for benchmarking purpose, Uncomment in build
 #ifdef EDITOR_MODE
-		//if (render_tag == RENDER_STATIC) render_tag = RENDER_DYNAMIC;
-							render_tag = RENDER_UNTAGGED;
+		if (render_tag == RENDER_STATIC) render_tag = RENDER_UNTAGGED;
+							//render_tag = RENDER_UNTAGGED;
 #endif
 							if (animator_id)
 								render_tag = RENDER_DYNAMIC;
 
 							////////////////////////////
-							render_tag = RENDER_DYNAMIC;
+							//render_tag = RENDER_DYNAMIC;
 
 							make_sprite(entity, import_scale, render_tag, animator_id, transform_id, material_path);
 
@@ -418,6 +420,29 @@ namespace PrEngine{
 							//transforms[transform_id].update_transformation();
 							break;
 						}
+						case COMP_RIGIDBODY_2D:
+						{
+							Vec2f _velocity = { std::stof(tokens[1]), std::stof(tokens[2]) };
+							Vec2f _acceleration = { std::stof(tokens[3]), std::stof(tokens[4]) };
+							Float_32 _angular_velocity = std::stof(tokens[5]);
+							Float_32 _angular_acceleration = std::stof(tokens[6]);
+							assert(transform_id);
+							Uint_32 rigidbody_id = PhysicsModule::rigidbody2d_system.make(entity);
+							if (rigidbody_id)
+							{
+								Rigidbody2D& rigidbody2d = PhysicsModule::rigidbody2d_system.get_component(rigidbody_id);
+								rigidbody2d.velocity = _velocity;
+								rigidbody2d.acceleration = _acceleration;
+								rigidbody2d.angular_acceleration = _angular_acceleration;
+								rigidbody2d.angular_velocity = _angular_velocity;
+								rigidbody2d.transform_id = transform_id;
+							}
+							else
+								LOG(LOGTYPE_ERROR, "Max rigidbody2d count reached, couldn't load from scene graph");
+
+
+						}
+						break;
 						case COMP_UNKNOWN:
 							LOG(LOGTYPE_ERROR, "Couldn't determine componenet type : ", std::to_string(comp_type));
 							break;

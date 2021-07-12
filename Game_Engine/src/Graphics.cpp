@@ -159,7 +159,7 @@ namespace PrEngine
 	}
 
 	static const Uint_32 ind_len = (BatchedGraphic::max_vertices_in_batch / 4) * 6;
-	void BatchedGraphic::initialize(Uint_32 batch_id)
+	void BatchedGraphic::initialize(Uint_32 batch_id, RenderTag render_mode)
 	{
 		
 		BatchedGraphic& batch = batched_graphics_system.get_component(batch_id);
@@ -190,7 +190,8 @@ namespace PrEngine
 		batch.transform_id = 0;
 
 		batch.element.vao.Generate();
-		batch.element.vbo.Generate(nullptr, sizeof(Vertex) * BatchedGraphic::max_vertices_in_batch, GL_STREAM_DRAW);
+		batch.element.vbo.Generate(nullptr, sizeof(Vertex) * BatchedGraphic::max_vertices_in_batch, 
+																		render_mode==RENDER_DYNAMIC? GL_STREAM_DRAW : GL_STATIC_DRAW);
 		batch.element.layout = layout;
 
 		for (Uint_32 _i = 0; _i < batch.element.layout.next_attrib; _i++)// != batch.element.layout.vertex_attributes.end(); attr++)

@@ -14,6 +14,7 @@ namespace PrEngine
 	static const Uint_32 Max_camera_count = 1;
 	static const Uint_32 Max_scripting_count = Max_entity_count * 16;
 	static const Uint_32 Max_collider_count = Max_entity_count * 2;
+	static const Uint_32 Max_rigidbody2d_count = Max_entity_count;
 }
 
 #endif

@@ -184,8 +184,11 @@ namespace PrEngine
 
 	//Float_32 texture_index = 0;
 	std::vector<Uint_32> dynamic_batch_graphic_ids;
+	Bool_8 static_batches_prepared = false;
 	void SpriteLayer::update()
 	{
+
+		static Bool_8 generated_static_batches = false;
 
 		//insertion_sort(sprite_list, sprite_list.size());
 		Uint_32 camera_id = entity_management_system->get_active_camera();
@@ -213,9 +216,9 @@ namespace PrEngine
 					auto& transform = transform_system.get_component(graphic.transform_id);
 					renderer->render_graphic(graphic, transform.transformation, _camera);
 				}
-				else if (graphic.tag == RENDER_DYNAMIC)
+				else if (graphic.tag == RENDER_DYNAMIC || !static_batches_prepared)
 				{
-					renderer->add_to_batch(_i);
+					renderer->add_to_batch(_i, graphic.tag);
 				}
 				//else if (graphic.tag == RENDER_DYNAMIC)
 				//{
@@ -243,11 +246,9 @@ namespace PrEngine
 		{
 			//BatchedGraphic& batch = batched_graphics[_i];
 			BatchedGraphic& batch = batched_graphics_system.get_component(_i);
-			if (batch.tag == RENDER_DYNAMIC)
+			if (batch.tag == RENDER_DYNAMIC || !static_batches_prepared)
 			{
 				std::vector<Vertex> buffer;
-
-
 
 				for (int _i=0; _i<batch.graphic_ids.size(); _i++)
 				{
@@ -308,6 +309,17 @@ namespace PrEngine
 					Vec3f p2 = transform.transformation * Vec3f{ -0.5f*x_scale, 0.5f*y_scale, 0.0f };
 					Vec3f p3 = transform.transformation * Vec3f{ -0.5f*x_scale, -0.5f*y_scale, 0.0f };
 					Vec3f p4 = transform.transformation * Vec3f{ 0.5f*x_scale, -0.5f*y_scale, 0.0f };
+
+
+					if (!static_batches_prepared)
+					{
+						Graphic::vertex_data[g_id][0] = Vec3f{ 0.5f*x_scale, 0.5f*y_scale, 0.0f };
+						Graphic::vertex_data[g_id][1] = Vec3f{ -0.5f*x_scale, 0.5f*y_scale, 0.0f };
+						Graphic::vertex_data[g_id][2] = Vec3f{ -0.5f*x_scale, -0.5f*y_scale, 0.0f };
+						Graphic::vertex_data[g_id][3] = Vec3f{ 0.5f*x_scale, -0.5f*y_scale, 0.0f };
+					}
+					
+					
 
 
 					// save vertex data for collider
@@ -377,6 +389,11 @@ namespace PrEngine
 						texture_index
 					};
 
+
+					{	// save vertex data for collider
+						
+					}
+
 					buffer.push_back(v1);
 					buffer.push_back(v2);
 					buffer.push_back(v3);
@@ -398,6 +415,8 @@ namespace PrEngine
 			
 		}
 				//LOG(LOGTYPE_WARNING, "Draw calls : ", std::to_string(draw_calls));
+
+		static_batches_prepared = true;
 
 		clock_t end = clock();
 
