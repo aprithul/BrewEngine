@@ -79,27 +79,27 @@ namespace PrEngine
 		return false;
 	}
 
-	Bool_8 point_in_shape(Vec2f* points, Uint_32 count, Vec2f p)
+	Bool_8 point_in_shape(Vec2f* shape_points, Uint_32 count, Vec2f p)
 	{
 		// at least 3 points needed to contain another point
 		if (count < 3)
 			return false;
 
-		Float_32 x_min = points[0].x;
-		Float_32 x_max = points[0].x;
-		Float_32 y_min = points[0].y;
-		Float_32 y_max = points[0].y;
+		Float_32 x_min = shape_points[0].x;
+		Float_32 x_max = shape_points[0].x;
+		Float_32 y_min = shape_points[0].y;
+		Float_32 y_max = shape_points[0].y;
 
 		for (int _i = 1; _i < count; _i++)
 		{
-			if (points[_i].x < x_min)
-				x_min = points[_i].x;
-			if (points[_i].x > x_max)
-				x_max = points[_i].x;
-			if (points[_i].y < y_min)
-				y_min = points[_i].y;
-			if (points[_i].y > y_max)
-				y_max = points[_i].y;
+			if (shape_points[_i].x < x_min)
+				x_min = shape_points[_i].x;
+			if (shape_points[_i].x > x_max)
+				x_max = shape_points[_i].x;
+			if (shape_points[_i].y < y_min)
+				y_min = shape_points[_i].y;
+			if (shape_points[_i].y > y_max)
+				y_max = shape_points[_i].y;
 		}
 
 		// Can't be inside shape if not in AABB
@@ -118,8 +118,8 @@ namespace PrEngine
 		for (int _i = 0; _i < count; _i++)
 		{
 			// two points of line 2 ( an edge of shape)
-			Vec2f l2_p1 = points[_i];
-			Vec2f l2_p2 = points[(_i + 1) % count];
+			Vec2f l2_p1 = shape_points[_i];
+			Vec2f l2_p2 = shape_points[(_i + 1) % count];
 
 			Bool_8 intersection_res = intersect_line_line(l1_p1, l1_p2, l2_p1, l2_p2);
 			if (intersection_res)
@@ -145,7 +145,7 @@ namespace PrEngine
 
 	}
 
-	Vec2f support(Vec2f dir, Collider& col_A, Collider& col_B)
+	Vec2f support(Vec2f dir, const Collider& col_A, const Collider& col_B)
 	{
 		//assert(col_A.transform_id && col_B.transform_id);
 
@@ -244,7 +244,7 @@ namespace PrEngine
 		}
 	}
 
-	Bool_8 intersect_GJK(Collider& col_A, Collider& col_B)
+	Bool_8 intersect_GJK(const Collider& col_A, const Collider& col_B)
 	{
 		static Vec2f origin{ 0,0 };
 
@@ -272,7 +272,7 @@ namespace PrEngine
 
 	}
 
-	Vec2f do_EPA(Collider& col_A, Collider& col_B)
+	Vec2f do_EPA(const Collider& col_A, const Collider& col_B)
 	{
 		static Float_32 tolerance = 0.0001;
 		Float_32 current_dist = 0;
@@ -329,6 +329,26 @@ namespace PrEngine
 		return Vec2f{0, 0};
 		
 	}
+	Rect<Float_32> points_to_rect(Vec3f* points, const Mat4x4& transformation)
+	{
+		Rect<Float_32> rect = points_to_rect(points);
+		Point3d p = { rect.x, rect.y, 0 };
+		p = transformation * p;
+		rect.x = p.x;
+		rect.y = p.y;
+		return rect;
+	}
+
+	Rect<Float_32> points_to_rect(Vec2f* points, const Mat4x4& transformation)
+	{
+		Rect<Float_32> rect = points_to_rect(points);
+		Point3d p = { rect.x, rect.y, 0};
+		p = transformation * p;
+		rect.x = p.x;
+		rect.y = p.y;
+		return rect;
+	}
+
 
 	Rect<Float_32> points_to_rect(Vec2f* points)
 	{

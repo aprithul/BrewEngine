@@ -65,8 +65,8 @@ void main()
 	int _ind = int(out_mat_id);
 	
 	//vec4 _color = texture(u_textures[_ind], pan_tile) * out_color * vec4(out_diffuse_color, 1) * u_Ambient_Strength;// * out_light;// vec4(u_red, out_color.gba);//vec4(0.0,1.0,1.0,1.0);
-	int arr_ind = _ind / 9;
-	int tex_ind = _ind % 9;
+	int arr_ind = _ind / 2048;
+	int tex_ind = _ind % 2048;
 	vec4 texel = texture(u_sampler2darr[arr_ind], vec3(out_texco.x, out_texco.y, tex_ind))*vec4(out_diffuse_color, 1);// *out_color * vec4(out_diffuse_color, 1) * u_Ambient_Strength;// * out_light;// vec4(u_red, out_color.gba);//vec4(0.0,1.0,1.0,1.0);
 	//if (_color.a < 0.5)
 	//	discard;

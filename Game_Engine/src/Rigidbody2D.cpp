@@ -5,7 +5,7 @@
 
 namespace PrEngine
 {
-	Rigidbody2D::Rigidbody2D():angular_acceleration(0),angular_velocity(0),Component(COMP_RIGIDBODY_2D)
+	Rigidbody2D::Rigidbody2D():angular_acceleration(0),angular_velocity(0),mass_inverse(1.0f),is_kinematic(false), Component(COMP_RIGIDBODY_2D)
 	{
 
 	}
@@ -30,6 +30,7 @@ namespace PrEngine
 		if (transform_id)
 		{
 			Transform3D& transform = transform_system.get_component(transform_id);
+			acceleration = accumulated_force * mass_inverse;
 			velocity = velocity + (acceleration * Time::Frame_time);
 			Vec3f global_pos = transform.get_global_position();
 			Vec2f new_pos =  global_pos + (velocity*Time::Frame_time);
@@ -46,7 +47,8 @@ namespace PrEngine
 	{
 		return (std::to_string(COMP_RIGIDBODY_2D) + "," + std::to_string(velocity.x) + "," + std::to_string(velocity.y) + "," +
 			std::to_string(acceleration.x) + "," + std::to_string(acceleration.y) + "," +
-			std::to_string(angular_velocity) + "," + std::to_string(angular_acceleration));
+			std::to_string(angular_velocity) + "," + std::to_string(angular_acceleration) + 
+			"," + std::to_string(mass_inverse) + "," + std::to_string(is_kinematic));
 	}
 	
 }

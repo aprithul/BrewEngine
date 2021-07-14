@@ -214,7 +214,7 @@ namespace PrEngine
 				if (graphic.tag == RENDER_UNTAGGED)
 				{
 					auto& transform = transform_system.get_component(graphic.transform_id);
-					renderer->render_graphic(graphic, transform.transformation, _camera);
+					renderer->render_graphic(graphic, 6, transform.transformation, _camera);
 				}
 				else if (graphic.tag == RENDER_DYNAMIC || !static_batches_prepared)
 				{
@@ -263,17 +263,19 @@ namespace PrEngine
 
 					Uint_32 animator_id = graphic.animator_id;
 					Uint_32 texture_id = 0;
-					Mat4x4 anim_tr = Mat4x4::Identity();
+					//Mat4x4 anim_tr = Mat4x4::Identity();
+					texture_id = mat->diffuse_textures[0];
+
 					if (animator_id)
 					{
 						//Animator& anim = animators[animator_id];
 						Animator& anim = animator_system.get_component(animator_id);
-						anim_tr = anim.translation*anim.rotation.GetRotationMatrix()*anim.scale;
-						texture_id = anim.get_current_animation().frames[anim.current_frame_index].texture;
-					}
-					else {
-						texture_id = mat->diffuse_textures[0];
-
+						Animation& animation = anim.get_current_animation();
+						if (animation.frames.size() > anim.current_frame_index)
+						{
+							//anim_tr = anim.translation*anim.rotation.GetRotationMatrix()*anim.scale;
+							texture_id = animation.frames[anim.current_frame_index].texture;
+						}
 					}
 
 					//first get the index between [0,max_layers). Then add the tex location in batch diffuse tex array to it
@@ -290,7 +292,7 @@ namespace PrEngine
 					Float_32 texco_u = clamp(tex->width / (Float_32)MAX_TEXTURE_SIZE, 0.1f, 1.0f);
 					Float_32 texco_v = clamp(tex->height / (Float_32)MAX_TEXTURE_SIZE, 0.1f, 1.0f);
 
-					if (x_scale > y_scale)
+					if (x_scale >= y_scale)
 					{
 						x_scale = (x_scale / y_scale);
 						y_scale = 1.f;
@@ -311,7 +313,7 @@ namespace PrEngine
 					Vec3f p4 = transform.transformation * Vec3f{ 0.5f*x_scale, -0.5f*y_scale, 0.0f };
 
 
-					if (!static_batches_prepared)
+					//if ( !static_batches_prepared)
 					{
 						Graphic::vertex_data[g_id][0] = Vec3f{ 0.5f*x_scale, 0.5f*y_scale, 0.0f };
 						Graphic::vertex_data[g_id][1] = Vec3f{ -0.5f*x_scale, 0.5f*y_scale, 0.0f };
@@ -399,19 +401,31 @@ namespace PrEngine
 					buffer.push_back(v3);
 					buffer.push_back(v4);
 				}
-				batch.element.vbo.Bind();
-				glBufferSubData(GL_ARRAY_BUFFER, 0, buffer.size() * sizeof(Vertex), &buffer[0]);
-				//glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(Vertex), &buffer[0], GL_STREAM_DRAW);
-				batch.element.vbo.Unbind();
-
+				if (buffer.size() > 0)
+				{
+					/*if (buffer.size() == 4)
+					{
+						buffer.push_back({ 0,0,0,0,0,0,0,0,0,0 });
+						buffer.push_back({ 0,0,0,0,0,0,0,0,0,0 });
+						buffer.push_back({ 0,0,0,0,0,0,0,0,0,0 });
+						buffer.push_back({ 0,0,0,0,0,0,0,0,0,0 });
+					}*/
+					batch.element.vbo.Bind();
+					glBufferSubData(GL_ARRAY_BUFFER, 0, buffer.size() * sizeof(Vertex), &buffer[0]);
+					//glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(Vertex), &buffer[0], GL_STREAM_DRAW);
+					batch.element.vbo.Unbind();
+				}
 				draw_calls = 0;
 			}
 			
 			
-			Mat4x4& _transformation = transform_system.get_component(batch.transform_id).transformation;
-			//if (batch.id_animator)
-			//	t = animators[batch.id_animator].translation * t;
-			renderer->render_graphic(batch, _transformation, _camera); // transforms[0] is an 'identity' transformation
+			if (batch.graphic_ids.size() > 0)
+			{
+				Mat4x4& _transformation = transform_system.get_component(batch.transform_id).transformation;
+				//if (batch.id_animator)
+				//	t = animators[batch.id_animator].translation * t;
+				renderer->render_graphic(batch, batch.graphic_ids.size() * 6, _transformation, _camera); // transforms[0] is an 'identity' transformation
+			}
 			
 		}
 				//LOG(LOGTYPE_WARNING, "Draw calls : ", std::to_string(draw_calls));

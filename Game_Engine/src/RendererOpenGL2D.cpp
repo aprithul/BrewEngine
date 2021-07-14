@@ -119,11 +119,6 @@ namespace PrEngine {
         // create the openGL context from the window  that was created
         //glContext = SDL_GL_CreateContext(window);
 
-        std::cout<<"Loading default texture"<<std::endl;
-        //Texture::load_default_texture();
-		Uint_32 mat = Material::load_material("Materials/Default.mat", true);
-		
-		assert(Material::material_creation_status); // default material has to be created for engine to work
 
         //data = stbi_load( get_resource_path("default.jpg").c_str() ,&width, &height, &no_of_channels, 0);
 
@@ -154,7 +149,7 @@ namespace PrEngine {
 		GL_CALL(glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &max_texture_units));
 		GL_CALL(glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &max_layers));	//max depth of array textures
 	
-		max_layers = 9;
+		//max_layers = 9;
 
 		LOG(LOGTYPE_WARNING, "vao res: " + std::to_string(max_texture_units));
 		LOG(LOGTYPE_WARNING, "vao res: " + std::to_string(max_layers));
@@ -248,7 +243,7 @@ namespace PrEngine {
     void RendererOpenGL2D::update()
     {
 		SDL_GetWindowSize(window, &width, &height);
-        Clear(0,0,0.3f,1);
+        Clear(0.2f,0.2f,0.2f,1);
 		clock_t begin = clock();
 
 		for (std::vector<RenderLayer*>::iterator layer = render_layers.begin(); layer != render_layers.end(); layer++)
@@ -933,6 +928,15 @@ namespace PrEngine {
 		lines.push_back({ color, p1,p2 });
 	}
 
+	void RendererOpenGL2D::draw_line_with_transform(Vec3f p1, Vec3f p2, Vec4f color, const Mat4x4& transformation)
+	{
+		//return;
+		p1 = transformation * p1;
+		p2 = transformation * p2;
+
+		lines.push_back({ color, p1,p2 });
+	}
+
 	
 
 	void RendererOpenGL2D::draw_rect(Rect<Float_32> rect, Vec4f color)
@@ -977,7 +981,7 @@ namespace PrEngine {
         return nullptr;
     }
 
-	void RendererOpenGL2D::render_graphic(const Graphic& graphic, Mat4x4& transformation, Camera& _camera)
+	void RendererOpenGL2D::render_graphic(const Graphic& graphic, Uint_32 element_count, Mat4x4& transformation, Camera& _camera)
 	{
 
 		const GraphicsElement& element = graphic.element;
@@ -1178,7 +1182,7 @@ namespace PrEngine {
 		element.ibo.Bind();
 		GL_CALL(
 			//glDrawArrays(GL_TRIANGLES,0, grp->element.num_of_triangles*3))
-			glDrawElements(GL_TRIANGLES, element.ibo.count, GL_UNSIGNED_INT, nullptr));
+			glDrawElements(GL_TRIANGLES, element_count, GL_UNSIGNED_INT, nullptr));
 		element.vao.Unbind();
 		element.ibo.Unbind();
 		mat->Unbind();
@@ -1192,7 +1196,10 @@ namespace PrEngine {
 
 	void RendererOpenGL2D::prepare_array_textures(std::vector<Uint_32>& graphic_ids)
 	{
+
 		static std::vector<Uint_32> tex_ids;
+		tex_ids.push_back(0); // default texture
+		is_included_at_index[0] = tex_ids.size() - 1;
 
 		//get vector of unique textures
 		for (Uint_32 g_id : graphic_ids)
@@ -1253,13 +1260,13 @@ namespace PrEngine {
 		Uint_32 tex_id = 0;
 		Graphic& g = graphics_system.get_component(graphic_id);
 		Material* mat = Material::get_material(g.element.material);
-		if (!g.animator_id)
-			tex_id = mat->diffuse_textures[0];
-		else
+		tex_id = mat->diffuse_textures[0];
+		if(g.animator_id)
 		{
 			Animator& animator = animator_system.get_component(g.animator_id);
 			Animation& animation = animator.get_current_animation();
-			tex_id = animation.frames[animator.current_frame_index].texture;
+			if(animation.frames.size() > animator.current_frame_index)
+				tex_id = animation.frames[animator.current_frame_index].texture;
 			//for (Uint_32 _i = 0; _i < 8; _i++)
 			//{
 			//	for (Uint_32 anim_id : animator.animation_ids)
@@ -1276,89 +1283,86 @@ namespace PrEngine {
 			//}
 		}
 
-		if(tex_id)
+		// which array texture contains this tex_id?
+		Uint_32 index = is_included_at_index[tex_id];
+		if (index != -1)
 		{
-			// which array texture contains this tex_id?
-			Uint_32 index = is_included_at_index[tex_id];
-			if (index != -1)
+			Uint_32 array_tex_index = (index) / max_layers;
+			Uint_32 index_in_arr_tex = (index) % max_layers;
+
+
+			std::vector<Uint_32>& current_batches = current_dynamic_batches;
+			if (render_mode == RENDER_STATIC)
+				current_batches = current_static_batches;
+
+			// try adding graphic to an existing batch
+			for (Uint_32 batch_id : current_batches)
 			{
-				Uint_32 array_tex_index = (index) / max_layers;
-				Uint_32 index_in_arr_tex = (index) % max_layers;
-
-
-				std::vector<Uint_32>& current_batches = current_dynamic_batches;
-				if (render_mode == RENDER_STATIC)
-					current_batches = current_static_batches;
-
-				// try adding graphic to an existing batch
-				for (Uint_32 batch_id : current_batches)
-				{
-					BatchedGraphic& batch = batched_graphics_system.get_component(batch_id);
-					Material* mat = Material::get_material(batch.element.material);
-					Uint_32 next_empty_tex_slot = -1;
-
-					for (Uint_32 _i = 0; _i < 8; _i++)
-					{
-						// empty slots start here?
-						if (mat->diffuse_textures[_i] == 0)
-						{
-							next_empty_tex_slot = _i;
-							break;
-						}	
-						// texture available, is it the one we need?
-						else if (mat->diffuse_textures[_i] == array_textures[array_tex_index])
-						{
-							if (batch.current_batched_vertex_count < BatchedGraphic::max_vertices_in_batch)
-							{
-								batch.graphic_ids.push_back({ graphic_id, _i });
-								batch.current_batched_vertex_count += 4;
-								return;
-							}
-							else
-								break;
-						}
-					}
-
-					// at least one empty tex slot is present in batch, so put our required texture there
-					if (next_empty_tex_slot != -1 && batch.current_batched_vertex_count < BatchedGraphic::max_vertices_in_batch)
-					{
-						mat->diffuse_textures[next_empty_tex_slot] = array_textures[array_tex_index];
-						batch.graphic_ids.push_back({ graphic_id, next_empty_tex_slot });
-						batch.current_batched_vertex_count += 4;
-						return;
-					}
-
-				}
-
-				// couldn't add to any available batches. 
-				// so put it in a new one.
-				Uint_32 new_batch = 0;
-				if (render_mode == RENDER_DYNAMIC)
-				{
-					new_batch = batch_pool->get_new_batch();
-					current_dynamic_batches.push_back(new_batch);
-				}
-				else if (render_mode == RENDER_STATIC)
-				{
-					new_batch = batched_graphics_system.make(0);
-					BatchedGraphic::initialize(new_batch, RENDER_STATIC);
-					current_static_batches.push_back(new_batch);
-				}
-
-				BatchedGraphic& batch = batched_graphics_system.get_component(new_batch);
-				batch.tag = render_mode;
+				BatchedGraphic& batch = batched_graphics_system.get_component(batch_id);
 				Material* mat = Material::get_material(batch.element.material);
-				mat->diffuse_textures[0] = array_textures[array_tex_index];
-				batch.graphic_ids.push_back({ graphic_id, 0 });
-				batch.current_batched_vertex_count += 4;
-				return;
+				Uint_32 next_empty_tex_slot = -1;
+
+				for (Uint_32 _i = 0; _i < 8; _i++)
+				{
+					// empty slots start here?
+					if (mat->diffuse_textures[_i] == -1)
+					{
+						next_empty_tex_slot = _i;
+						break;
+					}	
+					// texture available, is it the one we need?
+					else if (mat->diffuse_textures[_i] == array_textures[array_tex_index])
+					{
+						if (batch.current_batched_vertex_count < BatchedGraphic::max_vertices_in_batch)
+						{
+							batch.graphic_ids.push_back({ graphic_id, _i });
+							batch.current_batched_vertex_count += 4;
+							return;
+						}
+						else
+							break;
+					}
+				}
+
+				// at least one empty tex slot is present in batch, so put our required texture there
+				if (next_empty_tex_slot != -1 && batch.current_batched_vertex_count < BatchedGraphic::max_vertices_in_batch)
+				{
+					mat->diffuse_textures[next_empty_tex_slot] = array_textures[array_tex_index];
+					batch.graphic_ids.push_back({ graphic_id, next_empty_tex_slot });
+					batch.current_batched_vertex_count += 4;
+					return;
+				}
+
 			}
-			else
+
+			// couldn't add to any available batches. 
+			// so put it in a new one.
+			Uint_32 new_batch = 0;
+			if (render_mode == RENDER_DYNAMIC)
 			{
-				// assert for debugging. 
-				LOG(LOGTYPE_ERROR, "Fatal Error: Must be in one of the array textures.");
-				assert(1);
+				new_batch = batch_pool->get_new_batch();
+				current_dynamic_batches.push_back(new_batch);
 			}
+			else if (render_mode == RENDER_STATIC)
+			{
+				new_batch = batched_graphics_system.make(0);
+				BatchedGraphic::initialize(new_batch, RENDER_STATIC);
+				current_static_batches.push_back(new_batch);
+			}
+
+			BatchedGraphic& batch = batched_graphics_system.get_component(new_batch);
+			batch.tag = render_mode;
+			Material* mat = Material::get_material(batch.element.material);
+			mat->diffuse_textures[0] = array_textures[array_tex_index];
+			batch.graphic_ids.push_back({ graphic_id, 0 });
+			batch.current_batched_vertex_count += 4;
+			return;
+		}
+		else
+		{
+			// assert for debugging. 
+			LOG(LOGTYPE_ERROR, "Fatal Error: Must be in one of the array textures.");
+			assert(1);
 		}
 	}
 
@@ -1434,7 +1438,7 @@ namespace PrEngine {
 			{
 				BatchedGraphic& batch = batched_graphics_system.get_component(batch_id);
 				Material* mat = Material::get_material(batch.element.material);
-				std::memset(mat->diffuse_textures, 0, sizeof(Uint_32) * 8);
+				std::memset(mat->diffuse_textures, -1, sizeof(Uint_32) * 8);
 				batch_in_use[_i] = false;
 			}
 		}
@@ -1453,7 +1457,7 @@ namespace PrEngine {
 				batch.current_batched_vertex_count = 0;
 				batch.graphic_ids.clear();
 				Material* mat = Material::get_material(batch.element.material);
-				std::memset(mat->diffuse_textures, 0, sizeof(Uint_32) * 8);
+				std::memset(mat->diffuse_textures, -1, sizeof(Uint_32) * 8);
 			}
 		}
 	}

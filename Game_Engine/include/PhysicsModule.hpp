@@ -18,6 +18,8 @@ namespace PrEngine {
 	struct PhysicsModule : public Module
 	{
 		static ComponentSystem<Rigidbody2D> rigidbody2d_system;
+		static ComponentSystem<Collider> collider_system;
+
 		static std::vector<Contact> contacts;
 
 		PhysicsModule(std::string name, Int_32 priority);

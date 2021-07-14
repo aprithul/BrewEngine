@@ -114,9 +114,21 @@ namespace PrEngine
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
     }
 
-	std::unordered_map<Float_32, GraphicEditorData> Graphic::editor_data;
-	std::unordered_map < Uint_32, Vec3f[4]> Graphic::vertex_data;
+	GraphicEditorData::GraphicEditorData()
+	{
+		scale = 1.f;
+		future_tag = RENDER_DYNAMIC;
+	}
 
+	GraphicEditorData::GraphicEditorData(Float_32 _scale, Int_32 _future_tag)
+	{
+		scale = _scale;
+		future_tag = _future_tag;
+	}
+
+	std::unordered_map<Float_32, GraphicEditorData> Graphic::editor_data;
+	//std::unordered_map < Uint_32, Vec3f[4]> Graphic::vertex_data;
+	Vec3f Graphic::vertex_data[Max_graphics_count][4];
 
     Graphic::Graphic():Component(COMP_GRAPHICS)
     {

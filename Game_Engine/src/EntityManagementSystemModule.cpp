@@ -11,9 +11,10 @@ namespace PrEngine
 	ComponentSystem<Graphic> graphics_system(Max_graphics_count);
 	ComponentSystem<BatchedGraphic> batched_graphics_system(Max_batched_graphics_count);
 	ComponentSystem<Animator> animator_system(Max_animator_count);
-	ComponentSystem<Collider> collider_system(Max_collider_count);
 	ComponentSystem<Scripting> scripting_system(Max_scripting_count);
 	TransformSystem transform_system(Max_transform_count);
+
+	std::string EntityManagementSystem::entity_names[Max_entity_count];
 
     EntityManagementSystem::EntityManagementSystem(std::string name, Int_32 priority) : Module(name, priority)
     {
@@ -61,10 +62,10 @@ namespace PrEngine
 			scripting_system.remove(scripting_id);
 		}
 
-		Uint_32 collider_id = collider_system.get_component_id(entity);
+		Uint_32 collider_id = PhysicsModule::collider_system.get_component_id(entity);
 		if (collider_id)
 		{
-			collider_system.remove(collider_id);
+			PhysicsModule::collider_system.remove(collider_id);
 		}
 
 		Uint_32 rigidbody_id = PhysicsModule::rigidbody2d_system.get_component_id(entity);
@@ -73,9 +74,11 @@ namespace PrEngine
 			PhysicsModule::rigidbody2d_system.remove(rigidbody_id);
 		}
 
+		released_entity_positions.push(entity);
+
     }
 
-	Uint_32 EntityManagementSystem::make_entity()
+	Uint_32 EntityManagementSystem::make_entity(const std::string& entity_name)
     {
 		Uint_32 entity = new_entity_pos;
 		if (released_entity_positions.empty() != true)
@@ -87,6 +90,7 @@ namespace PrEngine
 		if (entity <= Max_entity_count)
 		{
 			new_entity_pos++;
+			entity_names[entity] = entity_name;
 			return entity;
 		}
 		else
@@ -133,47 +137,8 @@ namespace PrEngine
 		scripting_system.update();
 		camera_system.update();
 
-		// find collision
-//		for (Uint_32 i = 0; i < next_collider_pos; i++)
-//		{
-//			if (collider_entity_id[i])
-//			{
-//				Uint_32 t_id_i = colliders[i].transform_id;
-//				if (!t_id_i)continue;
-//				//Rect<Float_32> r1 = points_to_rect_with_transform(colliders[i].collision_shape.points, transforms[t_id_i].transformation);
-//
-//				for (Uint_32 j = i+1; j < next_collider_pos; j++)
-//				{
-//					if (collider_entity_id[j])
-//					{
-//						Uint_32 t_id_j = colliders[j].transform_id;
-//						if (!t_id_j)continue;
-//						//Rect<Float_32> r2 = points_to_rect_with_transform(colliders[j].collision_shape.points, transforms[t_id_j].transformation);
-//						
-//						//clock_t begin = clock();
-//						Bool_8 did_intersect = intersect_GJK(colliders[i], colliders[j]);
-//						//clock_t end = clock();
-//						//Double_64 elapsed = (Double_64)(end - begin) / CLOCKS_PER_SEC;
-//
-//						if (did_intersect)
-//						{
-//							//clock_t begin = clock();
-//							Vec2f col_pen_vec = do_EPA(colliders[i], colliders[j]);
-//							//clock_t end = clock();
-//							//Double_64 elapsed = (Double_64)(end - begin) / CLOCKS_PER_SEC;
-//
-//							physics_module->contacts.push_back(Contact{ col_pen_vec, i, j });
-//						}
-///*
-//						if (intersect_AABB_AABB(r1, r2))
-//						{
-//							physics_module->contacts.push_back(Contact{ i, j });
-//						}*/
-//					}
-//				}
-//
-//			}
-//		}
+		//find collision
+		
 		return;
     }
 
@@ -196,7 +161,8 @@ namespace PrEngine
 			Uint_32 transform_entity = transform_system.get_entity(i);
 			if (transform_entity)
 			{
-				entities_in_scene[transform_entity] = transform_system.get_component(i).to_string() + "," + std::to_string(i) + "\n";
+				entities_in_scene[transform_entity] = 
+				entities_in_scene[transform_entity] = entity_names[transform_entity] + "\n" + transform_system.get_component(i).to_string() + "," + std::to_string(i) + "\n";
 			}
 		}
 
@@ -230,11 +196,11 @@ namespace PrEngine
 			}
 		}
 
-		for (Uint_32 i = 0; i < collider_system.new_id; i++)
+		for (Uint_32 i = 0; i < PhysicsModule::collider_system.new_id; i++)
 		{
-			Uint_32 collider_entity = collider_system.get_entity(i);
+			Uint_32 collider_entity = PhysicsModule::collider_system.get_entity(i);
 			if (collider_entity)
-				entities_in_scene[collider_entity] += collider_system.get_component(i).to_string() + "\n";
+				entities_in_scene[collider_entity] += PhysicsModule::collider_system.get_component(i).to_string() + "\n";
 		}
 
 		for (Uint_32 i = 0; i < PhysicsModule::rigidbody2d_system.new_id; i++)

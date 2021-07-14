@@ -146,6 +146,7 @@ namespace PrEngine
 		{
 			Uint_32 t_id = diffuse_textures[i];
 			_t = Texture::get_texture(t_id);
+			assert(_t->width <= width && _t->height <= height);	
 			//TextureData& td = Texture::texture_data_library[Texture::texture_names[_t->path]];
 			glTexSubImage3D(bind_target, 0, 0, 0, i, _t->width, _t->height, 1, GL_RGBA, GL_UNSIGNED_BYTE, _t->data);
 		}

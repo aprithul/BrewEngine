@@ -66,7 +66,7 @@ namespace PrEngine
 		Vec3f diffuse_color;
 		Vec2f tiling;
 		Vec2f panning;
-		Uint_32 diffuse_textures[MAX_TEXTURES] = {}; // length depends on the total combined textures allowed by opengl
+		Int_32 diffuse_textures[MAX_TEXTURES]; // length depends on the total combined textures allowed by opengl
 		Uint_32 shader;
 
 		Material();

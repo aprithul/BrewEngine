@@ -22,6 +22,7 @@ namespace PrEngine
 		animation_count = 0;
 		frame_time = 0;
 		cur_anim_ind = 0;
+		std::memset(animation_ids, 0, sizeof(Uint_32) * 8);
 	}
 
 	Animator::~Animator()
@@ -40,62 +41,54 @@ namespace PrEngine
 		//frame_time = 0;
 		frame_time += Time::Frame_time;
 		Animation& animation = get_current_animation();
-		Keyframe frame = animation.frames[current_frame_index];
-		
-		if (frame.timestamp <= frame_time * animation_speed)
-		{
-			//transform->translate(frame.position);
-			
-			translation = Mat4x4::Identity();
-			if (anim_transform_update_flags[ANIM_TRANSLATE])
+		if(animation.frames.size() > current_frame_index)
+		{		
+			Keyframe frame = animation.frames[current_frame_index];
+			Transform3D& transformation = transform_system.get_component(id_transform);
+			if (frame.timestamp <= frame_time * animation_speed)
 			{
-				translation(0, 3) = frame.position.x;
-				translation(1, 3) = frame.position.y;
-				translation(2, 3) = frame.position.z;
+				//transform->translate(frame.position);
+				if(anim_transform_update_flags[ANIM_TRANSLATE])
+					transformation.set_local_position( frame.position.x, frame.position.y, frame.position.z);
+
+				if (anim_transform_update_flags[ANIM_ROTATE])
+				{
+
+					transformation.set_local_rotation(frame.rotation.x, frame.rotation.y, frame.rotation.z);
+					//rotation = Mat4x4::Identity();
+					//rotation(0, 0) = cosf(b) * cosf(c);
+					//rotation(0, 1) = cosf(b) * sinf(c);
+					//rotation(0, 2) = -sinf(b);
+
+					//rotation(1, 0) = (sinf(a) * sinf(b) * cosf(c)) - (cosf(a) * sinf(c));
+					//rotation(1, 1) = (sinf(a) * sinf(b) * sinf(c)) + (cosf(a) * cosf(c));
+					//rotation(1, 2) = sinf(a)*cosf(b);
+
+					//rotation(2, 0) = (cosf(a) * sinf(b) * cosf(c)) + (sinf(a) * sinf(c));
+					//rotation(2, 1) = (cosf(a) * sinf(b) * sinf(c)) - (sinf(a) * cosf(c));
+					//rotation(2, 2) = cosf(a) * cosf(b);
+					//rotation = Quaternion::EulerToQuaternion(Vec3f{ a,b,c });
+				}
+
+				//scale = Mat3x3::Identity();
+				if (anim_transform_update_flags[ANIM_SCALE])
+				{
+					transformation.set_local_scale(frame.scale.x, frame.scale.y, frame.scale.z);
+				}
+
+
+				//LOG(LOGTYPE_GENERAL, "Anim id: " + std::to_string(id_transform));
+				//transforms[id_transform].position = frame.position;
+				//transforms[id_transform].scale = frame.scale;
+				//transforms[id_transform].rotation = frame.rotation;
+				//transform_dirty_flag[id_transform] = true;
+				//set_valid(transform_dirty_flag, id_transform);
+
+				//Material* mat = Material::get_material(graphics[id_graphic].element.material);
+				//mat->diffuse_textures[0] = frame.texture;
+				current_frame_index = (current_frame_index + 1) % ((Int_32)(animation.frames.size()));
+				frame_time = 0;
 			}
-
-			rotation = Quaternion::GetIdentity();
-			if (anim_transform_update_flags[ANIM_ROTATE])
-			{
-				Float_32 a = frame.rotation.x * PI / 180.f;
-				Float_32 b = frame.rotation.y * PI / 180.f;
-				Float_32 c = frame.rotation.z * PI / 180.f;
-
-				//rotation = Mat4x4::Identity();
-				//rotation(0, 0) = cosf(b) * cosf(c);
-				//rotation(0, 1) = cosf(b) * sinf(c);
-				//rotation(0, 2) = -sinf(b);
-
-				//rotation(1, 0) = (sinf(a) * sinf(b) * cosf(c)) - (cosf(a) * sinf(c));
-				//rotation(1, 1) = (sinf(a) * sinf(b) * sinf(c)) + (cosf(a) * cosf(c));
-				//rotation(1, 2) = sinf(a)*cosf(b);
-
-				//rotation(2, 0) = (cosf(a) * sinf(b) * cosf(c)) + (sinf(a) * sinf(c));
-				//rotation(2, 1) = (cosf(a) * sinf(b) * sinf(c)) - (sinf(a) * cosf(c));
-				//rotation(2, 2) = cosf(a) * cosf(b);
-				rotation = Quaternion::EulerToQuaternion(Vec3f{ a,b,c });
-			}
-
-			scale = Mat3x3::Identity();
-			if (anim_transform_update_flags[ANIM_SCALE])
-			{
-				scale(0, 0) = frame.scale.x;
-				scale(1, 1) = frame.scale.y;
-				scale(2, 2) = frame.scale.z;
-			}
-
-
-			//LOG(LOGTYPE_GENERAL, "Anim id: " + std::to_string(id_transform));
-			//transforms[id_transform].position = frame.position;
-			//transforms[id_transform].scale = frame.scale;
-			//transforms[id_transform].rotation = frame.rotation;
-			//transform_dirty_flag[id_transform] = true;
-			//set_valid(transform_dirty_flag, id_transform);
-
-			//Material* mat = Material::get_material(graphics[id_graphic].element.material);
-			//mat->diffuse_textures[0] = frame.texture;
-			current_frame_index = (current_frame_index+1)%((Int_32)(animation.frames.size()));
-			frame_time = 0;
 		}
 	}
 

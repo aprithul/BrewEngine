@@ -19,7 +19,7 @@ namespace PrEngine{
 	Uint_32 EntityGenerator::make_camera_orthographic(Float_32 width, Float_32 height, Float_32 _near, Float_32 _far)
 	{
 		//std::string entity_name = "Camera";
-		Uint_32 entity = entity_management_system->make_entity();
+		Uint_32 entity = entity_management_system->make_entity("Camera");
 		
 		Uint_32 transform_id = transform_system.make(entity);
 		transform_system.get_component(transform_id).set_local_position( 0.f, 0.f, -6.f );
@@ -43,7 +43,7 @@ namespace PrEngine{
 
 	Uint_32 EntityGenerator::make_sprite(const std::string& material_path, Point3d position, RenderTag render_tag)
 	{
-		Uint_32 entity = entity_management_system->make_entity();
+		Uint_32 entity = entity_management_system->make_entity("Sprite");
 		if (entity)
 		{
 			Uint_32 transform_id = transform_system.make(entity);// entity_management_system->make_transform_comp(entity);
@@ -57,7 +57,7 @@ namespace PrEngine{
 	
 	Uint_32 EntityGenerator::make_animated_sprite(Point3d position, const std::string& animation_path, const std::string& material_path)
 	{
-		Uint_32 entity = entity_management_system->make_entity();
+		Uint_32 entity = entity_management_system->make_entity("Animated Sprite");
 		
 		Uint_32 transform_id = transform_system.make(entity);
 		transform_system.get_component(transform_id).set_local_position(position);
@@ -85,7 +85,7 @@ namespace PrEngine{
 
 	Uint_32 EntityGenerator::make_light_entity()
 	{
-		Uint_32 entity = entity_management_system->make_entity();
+		Uint_32 entity = entity_management_system->make_entity("Light");
 
 		//Uint_32 id_transform = entity_management_system->make_transform_comp(entity);
 		//get_transform(id_transform).set_local_rotation(0, 0, 90);
@@ -203,7 +203,11 @@ namespace PrEngine{
 
 	void EntityGenerator::load_scenegraph(const std::string& scene_file_name) 
 	{
-		auto s = sizeof(Material);
+		//auto s = sizeof(Material);
+
+		std::cout << "Loading default material and texture" << std::endl;
+		Uint_32 mat = Material::load_material("Materials/Default.mat", true);
+		assert(Material::material_creation_status); // default material has to be created for engine to work
 
 		std::string scene_data = read_file( scene_file_name);
 		std::stringstream input(scene_data);
@@ -216,9 +220,10 @@ namespace PrEngine{
 			trim(entity_str);
 			std::stringstream ent(entity_str);
 			std::string comp_str;
-			std::string entity_name = "-.-";
+			std::string entity_name = "";
+			std::getline(ent, entity_name);
 			//Entity* entity = EntityManagementSystem::entity_management_system->make_entity(entity_name);
-			Uint_32 entity = entity_management_system->make_entity();
+			Uint_32 entity = entity_management_system->make_entity(entity_name);
 			if (entity)
 			{
 				Uint_32 transform_id = 0;
@@ -242,6 +247,7 @@ namespace PrEngine{
 						{
 							/*case COMP_SPRITE:
 							{
+
 								Sprite* sprite = new Sprite(std::stoi(tokens[1]));
 								sprite->add_to_renderer(renderer);
 								entity->add_componenet(sprite);
@@ -254,8 +260,8 @@ namespace PrEngine{
 							//Uint_32 collider_id = entity_management_system->make_collider_comp(entity);
 							//Collider& col = colliders[collider_id];
 
-							Uint_32 collider_id = collider_system.make(entity);
-							Collider& col = collider_system.get_component(collider_id);
+							Uint_32 collider_id = PhysicsModule::collider_system.make(entity);
+							Collider& col = PhysicsModule::collider_system.get_component(collider_id);
 
 							col.graphic_id = graphic_id;
 							col.transform_id = transform_id;
@@ -380,7 +386,7 @@ namespace PrEngine{
 		if (render_tag == RENDER_STATIC) render_tag = RENDER_UNTAGGED;
 							//render_tag = RENDER_UNTAGGED;
 #endif
-							if (animator_id)
+							//if (animator_id)
 								render_tag = RENDER_DYNAMIC;
 
 							////////////////////////////
@@ -426,6 +432,8 @@ namespace PrEngine{
 							Vec2f _acceleration = { std::stof(tokens[3]), std::stof(tokens[4]) };
 							Float_32 _angular_velocity = std::stof(tokens[5]);
 							Float_32 _angular_acceleration = std::stof(tokens[6]);
+							Float_32 _mass_inverse = std::stof(tokens[7]);
+							Bool_8 _is_kinematic = std::stoi(tokens[8]);
 							assert(transform_id);
 							Uint_32 rigidbody_id = PhysicsModule::rigidbody2d_system.make(entity);
 							if (rigidbody_id)
@@ -436,6 +444,8 @@ namespace PrEngine{
 								rigidbody2d.angular_acceleration = _angular_acceleration;
 								rigidbody2d.angular_velocity = _angular_velocity;
 								rigidbody2d.transform_id = transform_id;
+								rigidbody2d.mass_inverse = _mass_inverse;
+								rigidbody2d.is_kinematic = _is_kinematic;
 							}
 							else
 								LOG(LOGTYPE_ERROR, "Max rigidbody2d count reached, couldn't load from scene graph");

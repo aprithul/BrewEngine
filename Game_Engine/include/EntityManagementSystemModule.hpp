@@ -28,19 +28,18 @@ namespace PrEngine
 	extern ComponentSystem<Graphic> graphics_system;
 	extern ComponentSystem<BatchedGraphic> batched_graphics_system;
 	extern ComponentSystem<Animator> animator_system;
-	extern ComponentSystem<Collider> collider_system;
 	extern ComponentSystem<Scripting> scripting_system;
 	extern TransformSystem transform_system;
 
 
     struct EntityManagementSystem : public Module
     {
-
+		static std::string entity_names[Max_entity_count];
 		EntityManagementSystem(std::string name, Int_32 priority);
 		~EntityManagementSystem();
 
 		void delete_entity_by_transform(Uint_32 id);
-		Uint_32 make_entity();
+		Uint_32 make_entity(const std::string& entity_name);
 
 		void set_parent_transform(Uint_32 parent_transform, Uint_32 child_transform);
 		Uint_32 get_active_camera();

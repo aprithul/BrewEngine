@@ -61,6 +61,7 @@ namespace PrEngine
 	Material::Material()
 	{
 		shader = 0;
+		std::memset(diffuse_textures, -1, sizeof(Int_32) * 8);
 	}
 
 	Material::Material(Uint_32 shader, Uint_32 texture, const std::string& name)
@@ -71,6 +72,7 @@ namespace PrEngine
         panning = Vec2f(0,0);
 		diffuse_color = Vec3f{ 1,1,1 };
 
+		std::memset(diffuse_textures, -1, sizeof(Int_32) * 8);
 
 		this->shader = shader;
 		this->diffuse_textures[0] = texture;
@@ -140,7 +142,7 @@ namespace PrEngine
 			glUseProgram(_shader))
 			for (int i = 0; i < MAX_TEXTURES; i++)
 			{
-				if (diffuse_textures[i])
+				if (diffuse_textures[i] >= 0)
 				{
 					Texture* tex = Texture::get_texture(diffuse_textures[i]);
 					tex->Bind(tex->bind_unit);
@@ -152,9 +154,12 @@ namespace PrEngine
     {
         GL_CALL(
             glUseProgram(0))
-			//for (int i = 0; i < MAX_TEXTURES; i++)
+			for (int i = 0; i < MAX_TEXTURES; i++)
 			{
-				Texture::get_texture(diffuse_textures[0])->Unbind();
+				if (diffuse_textures[i] >= 0)
+				{
+					Texture::get_texture(diffuse_textures[0])->Unbind();
+				}
 			}
     }
 

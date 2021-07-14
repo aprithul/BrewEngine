@@ -4,6 +4,8 @@
 namespace PrEngine {
 
 	ComponentSystem<Rigidbody2D> PhysicsModule::rigidbody2d_system(Max_rigidbody2d_count);
+	ComponentSystem<Collider> PhysicsModule::collider_system(Max_collider_count);
+
 	PhysicsModule* physics_module = nullptr;
 
 	std::vector<Contact> PhysicsModule::contacts;
@@ -23,36 +25,36 @@ namespace PrEngine {
 	{
 		rigidbody2d_system.start();
 
-		for (Uint_32 _i = 0; _i<collider_system.new_pos; _i++)
-		{
-			if (collider_system.get_entity(_i))
-			{
-				Collider& collider = collider_system.get_component(_i);
-				Uint_32 graphic_id = collider.graphic_id;// colliders[_i].graphic_id;
-				if (graphic_id)
-				{
-					Vec2f* col_points = collider.collision_shape.points;
-					Vec3f* g_points = Graphic::vertex_data[graphic_id];
-					col_points[0] = g_points[0];
-					col_points[1] = g_points[1];
-					col_points[2] = g_points[2];
-					col_points[3] = g_points[3];
-					collider.collision_shape.type = SHAPE_RECT;
-					collider.collision_shape.point_count = 4;
-				}
-				else
-				{
-					Vec2f* col_points = collider.collision_shape.points;
-					col_points[0] = Vec2f{ -1, 1 };
-					col_points[1] = Vec2f{  1, 1 };
-					col_points[2] = Vec2f{  1,-1 };
-					col_points[3] = Vec2f{ -1,-1 };
-					collider.collision_shape.type = SHAPE_RECT;
-					collider.collision_shape.point_count = 4;
+		//for (Uint_32 _i = 0; _i<collider_system.new_pos; _i++)
+		//{
+		//	if (collider_system.get_entity(_i))
+		//	{
+		//		Collider& collider = collider_system.get_component(_i);
+		//		Uint_32 graphic_id = collider.graphic_id;// colliders[_i].graphic_id;
+		//		if (graphic_id)
+		//		{
+		//			Vec2f* col_points = collider.collision_shape.points;
+		//			Vec3f* g_points = Graphic::vertex_data[graphic_id];
+		//			col_points[0] = g_points[0];
+		//			col_points[1] = g_points[1];
+		//			col_points[2] = g_points[2];
+		//			col_points[3] = g_points[3];
+		//			collider.collision_shape.type = SHAPE_RECT;
+		//			collider.collision_shape.point_count = 4;
+		//		}
+		//		else
+		//		{
+		//			Vec2f* col_points = collider.collision_shape.points;
+		//			col_points[0] = Vec2f{ -1, 1 };
+		//			col_points[1] = Vec2f{  1, 1 };
+		//			col_points[2] = Vec2f{  1,-1 };
+		//			col_points[3] = Vec2f{ -1,-1 };
+		//			collider.collision_shape.type = SHAPE_RECT;
+		//			collider.collision_shape.point_count = 4;
 
-				}
-			}
-		}
+		//		}
+		//	}
+		//}
 	}
 
 
@@ -115,7 +117,47 @@ namespace PrEngine {
 		// update rigidbodies
 		rigidbody2d_system.update();
 
+		// do collision check
+		for (Uint_32 i = 0; i < collider_system.new_pos; i++)
+		{
+			//if (collider_entity_id[i])
+			{
+				Uint_32 t_id_i = collider_system.get_comp_array()[i].transform_id;
+				if (!t_id_i)continue;
+				//Rect<Float_32> r1 = points_to_rect_with_transform(colliders[i].collision_shape.points, transforms[t_id_i].transformation);
 
+				for (Uint_32 j = i + 1; j < collider_system.new_pos; j++)
+				{
+					//if (collider_entity_id[j])
+					{
+						Uint_32 t_id_j = collider_system.get_comp_array()[i].transform_id;
+						if (!t_id_j)continue;
+						//Rect<Float_32> r2 = points_to_rect_with_transform(colliders[j].collision_shape.points, transforms[t_id_j].transformation);
+
+						//clock_t begin = clock();
+						Bool_8 did_intersect = intersect_GJK(collider_system.get_comp_array()[i], collider_system.get_comp_array()[j]);
+						//clock_t end = clock();
+						//Double_64 elapsed = (Double_64)(end - begin) / CLOCKS_PER_SEC;
+
+						if (did_intersect)
+						{
+							//clock_t begin = clock();
+							Vec2f col_pen_vec = do_EPA(collider_system.get_comp_array()[i], collider_system.get_comp_array()[j]);
+							//clock_t end = clock();
+							//Double_64 elapsed = (Double_64)(end - begin) / CLOCKS_PER_SEC;
+
+							physics_module->contacts.push_back(Contact{ col_pen_vec, i, j });
+						}
+						/*
+												if (intersect_AABB_AABB(r1, r2))
+												{
+													physics_module->contacts.push_back(Contact{ i, j });
+												}*/
+					}
+				}
+
+			}
+		}
 
 		for (int _i = 0; _i < contacts.size(); _i++)
 		{

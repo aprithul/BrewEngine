@@ -19,7 +19,12 @@ namespace PrEngine
 	std::vector<std::string> shader_directories;
 	std::vector<std::string> texture_directories;
 	std::vector<std::string> animation_directories;
+	static Uint_32 rename_transform = 0;
 
+	Bool_8 do_edit_collider = false;
+	Uint_32 edit_collider_id = 0;
+	Bool_8 inside_collider_edit_area = false;
+	Bool_8 edge_id[4] = {};	// top, left, bottom, right
 	void load_materials();
 	void load_textures();
 	void load_animations();
@@ -241,13 +246,16 @@ namespace PrEngine
 
 	void add_child(Uint_32 id_transform)
 	{
-		char buffer[64];
-#ifdef _WIN64
-		sprintf_s(buffer, "%d", id_transform);
-#elif	_SWITCH
-		sprintf(buffer, "%d", id_transform);
-#endif // _WIN64
-
+		Uint_32 entity = transform_system.get_entity(id_transform);
+		char entity_name[128];
+		std::memcpy(entity_name, EntityManagementSystem::entity_names[entity].c_str(), 128);
+//		char buffer[64];
+//#ifdef _WIN64
+//		sprintf_s(buffer, "%s", EntityManagementSystem::entity_names[entity].c_str());
+//#elif	_SWITCH
+//		sprintf(buffer, "%d", id_transform);
+//#endif // _WIN64
+//
 		//transform_queue.pop();
 
 		static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
@@ -255,14 +263,65 @@ namespace PrEngine
 		if(selected_transform == id_transform)
 			node_flags |= ImGuiTreeNodeFlags_Selected;
 		
-		bool node_open = ImGui::TreeNodeEx(buffer, node_flags, buffer, id_transform);
-	
+		if (rename_transform == id_transform)
+		{
+
+		}
+		bool node_open = false;
+		if (rename_transform == id_transform)
+		{
+			//ImGui::SetItemAllowOverlap();
+			ImVec2 prev_cursor_pos = ImGui::GetCursorPos();
+			//ImGui::SetCursorPos(node_cursor_pos);
+			//ImGui::GetTextLineHeight();
+			char buffer[128];
+			Uint_32 selected_entity = transform_system.get_entity(rename_transform);
+			sprintf_s(buffer, "%s", EntityManagementSystem::entity_names[selected_entity].c_str());
+
+			ImGui::PushID(&rename_transform);
+
+			ImGui::SetKeyboardFocusHere();
+			ImGui::InputText("", buffer, 128, ImGuiInputTextFlags_AutoSelectAll);
+			ImGui::PopID();
+
+			EntityManagementSystem::entity_names[selected_entity] = std::string(buffer);
+		}
+		else
+		{
+			ImGui::PushID(id_transform);
+			node_open = ImGui::TreeNodeEx(entity_name, node_flags, entity_name, id_transform);
+			ImGui::PopID();
+		}
+
 		
 		if (ImGui::IsItemClicked())
 		{
+			if (selected_transform != id_transform)
+			{
+				do_edit_collider = false;
+				edit_collider_id = 0;
+				//collider_being_edited = 0;
+			}
+			
 			selected_transform = id_transform;
 			GizmoLayer::move_gizmo.target_transform = selected_transform;
 		}
+
+
+
+		if (input_manager->keyboard.get_key_down(SDLK_F2))
+		{
+			rename_transform = selected_transform;
+		}
+
+		if (selected_transform != rename_transform || input_manager->keyboard.get_key_down(SDLK_RETURN))
+		{
+			rename_transform = 0;
+
+		}
+
+
+
 
 		//if (input_manager->mouse.get_mouse_button(SDL_BUTTON_LEFT) && selected_transform)
 		//{
@@ -344,16 +403,23 @@ namespace PrEngine
 				}
 				else
 				{
+					do_edit_collider = false;
+					edit_collider_id = 0;
 					selected_transform = clicked_on_transform;
 					drag_transform = 0;
+					//collider_being_edited = 0;
+
 				}
 			}
 			else
 			{
 				// check if click was inside viewport
-				if(is_mouse_inside_viewport(mouse_pos_ss))
+				if(is_mouse_inside_viewport(mouse_pos_ss) && inside_collider_edit_area == false)
 				{
 					selected_transform = 0;
+					do_edit_collider = false;
+					edit_collider_id = 0;
+					//collider_being_edited = 0;
 					GizmoLayer::move_gizmo.target_transform = 0;
 					drag_transform = 0;
 				}
@@ -367,22 +433,66 @@ namespace PrEngine
 			Uint_32 graphics_id = graphics_system.get_component_id(entity_id);
 			Vec3f* vertices = Graphic::vertex_data[graphics_id];
 
-			Rect<Float_32> rect = points_to_rect(vertices);
-			Vec4f color{ 0.8, 0.5, 0, 1 };
-			renderer->draw_rect_with_transform(rect, color,_transform);
+			if (!do_edit_collider)
+			{
+				Rect<Float_32> rect = points_to_rect(vertices);
+				Vec4f color{ 0.8, 0.5, 0, 1 };
+				renderer->draw_rect_with_transform(rect, color,_transform);
+			}
 
 		}
 		if (drag_transform)
 		{
+			if (inside_collider_edit_area == false)
+			{
+				if (input_manager->mouse.get_mouse_button(1))
+				{
+					Point3d drag_transform_pos = transform_system.get_component(drag_transform).get_global_position();
+					drag_transform_pos.x = mouse_pos_ws.x + selection_offset.x;
+					drag_transform_pos.y = mouse_pos_ws.y + selection_offset.y;
+					transform_system.get_component(drag_transform).set_global_position(drag_transform_pos);
+				}
+				else
+					drag_transform = 0;
+			}
+		}
+
+		if (edit_collider_id)
+		{
 			if (input_manager->mouse.get_mouse_button(1))
 			{
-				Point3d drag_transform_pos = transform_system.get_component(drag_transform).get_global_position();
-				drag_transform_pos.x = mouse_pos_ws.x + selection_offset.x;
-				drag_transform_pos.y = mouse_pos_ws.y + selection_offset.y;
-				transform_system.get_component(drag_transform).set_global_position(drag_transform_pos);
+				Collider& col = PhysicsModule::collider_system.get_component(edit_collider_id);
+				Mat4x4& trans_inv = transform_system.get_component(col.transform_id).transformation.GetInverse();
+
+				if (edge_id[0]) // top
+				{
+					col.collision_shape.points[0].y = (trans_inv * mouse_pos_ws).y;
+					col.collision_shape.points[1].y = (trans_inv * mouse_pos_ws).y;
+				}
+				else if (edge_id[1])
+				{
+					col.collision_shape.points[1].x = (trans_inv * mouse_pos_ws).x;
+					col.collision_shape.points[2].x = (trans_inv * mouse_pos_ws).x;
+
+				}
+				else if (edge_id[2])
+				{
+					col.collision_shape.points[2].y = (trans_inv * mouse_pos_ws).y;
+					col.collision_shape.points[3].y = (trans_inv * mouse_pos_ws).y;
+
+				}
+				else if (edge_id[3])
+				{
+					col.collision_shape.points[3].x = (trans_inv * mouse_pos_ws).x;
+					col.collision_shape.points[0].x = (trans_inv * mouse_pos_ws).x;
+				}
 			}
-			else
-				drag_transform = 0;
+			
+			if (input_manager->mouse.get_mouse_button_up(1))
+			{
+				std::memset(edge_id, 0, sizeof(Bool_8) * 4);
+				edit_collider_id = 0;
+			}
 		}
 		
 		
@@ -416,11 +526,7 @@ namespace PrEngine
 			selected_transform = 0;
 			drag_transform = 0;
 		}
-		if (input_manager->keyboard.get_key_down(SDLK_n))
-		{
-			EntityGenerator eg;
-			eg.make_sprite("Materials/Door1.mat", { 0,0,0 }, RENDER_UNTAGGED);
-		}
+
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		draw_scene_hierarchy();
@@ -505,11 +611,90 @@ namespace PrEngine
 		{
 			if (selected_transform)
 			{
+				Uint_32 selected_entity = transform_system.get_entity(selected_transform);
 				if (ImGui::BeginMenu("Add..."))
 				{
-					ImGui::MenuItem("Graphics", NULL);
-					ImGui::MenuItem("Animator", NULL);
-					ImGui::MenuItem("Collider", NULL);
+					if (ImGui::MenuItem("Graphics", NULL))
+					{
+						if (!graphics_system.get_component_id(selected_entity))
+						{
+							Uint_32 graphic_id = graphics_system.make(selected_entity);
+							if (graphic_id)
+							{
+								Graphic& graphic = graphics_system.get_component(graphic_id);
+								graphic.transform_id = selected_transform;
+								graphic.tag = RENDER_DYNAMIC;
+								graphic.element.material = Material::load_material("Materials/Default.mat", false);
+								LOG(LOGTYPE_GENERAL, std::to_string(graphic.element.material));
+							}
+						}
+					}
+					if (ImGui::MenuItem("Animator", NULL))
+					{
+						if (!animator_system.get_component_id(selected_entity))
+						{
+							Uint_32 animator_id = animator_system.make(selected_entity);
+							if (animator_id)
+							{
+								Graphic::editor_data[graphics_system.get_component_id(selected_entity)].future_tag = RENDER_DYNAMIC;
+								Graphic& graphic = graphics_system.get_component(graphics_system.get_component_id(selected_entity));
+								graphic.tag = RENDER_DYNAMIC;
+
+								Animator& animator = animator_system.get_component(animator_id);
+								animator.id_transform = selected_transform;
+
+							}
+						}
+					}
+					if (ImGui::MenuItem("Collider", NULL))
+					{
+						if (!PhysicsModule::collider_system.get_component_id(selected_entity))
+						{
+							Uint_32 collider_id = PhysicsModule::collider_system.make(selected_entity);
+							if (collider_id)
+							{
+								Collider& collider = PhysicsModule::collider_system.get_component(collider_id);
+								collider.transform_id = selected_transform;
+								collider.graphic_id = graphics_system.get_component_id(selected_entity);
+
+								collider.collision_shape.type = SHAPE_AABB;
+								collider.collision_shape.point_count = 4;
+								if (collider.graphic_id)
+								{
+									collider.collision_shape.points[0] = Graphic::vertex_data[collider.graphic_id][0];
+									collider.collision_shape.points[1] = Graphic::vertex_data[collider.graphic_id][1];
+									collider.collision_shape.points[2] = Graphic::vertex_data[collider.graphic_id][2];
+									collider.collision_shape.points[3] = Graphic::vertex_data[collider.graphic_id][3];
+								}
+								else
+								{
+									collider.collision_shape.points[0] = { -1,-1 };
+									collider.collision_shape.points[1] = { 1,-1 };
+									collider.collision_shape.points[2] = { 1, 1 };
+									collider.collision_shape.points[3] = { -1, 1 };
+								}
+
+								LOG(LOGTYPE_GENERAL, "Collider added");
+							}
+						}
+					}
+					if (ImGui::MenuItem("Camera", NULL))
+					{
+						if (!camera_system.get_component_id(selected_entity))
+						{
+							Uint_32 cam_id = camera_system.make(selected_entity);
+						}
+					}
+					if (ImGui::MenuItem("Rigidbody 2D", NULL))
+					{
+						if (!camera_system.get_component_id(selected_entity))
+						{
+							Uint_32 rigidbody_id= PhysicsModule::rigidbody2d_system.make(selected_entity);
+							Rigidbody2D& rigidbody = PhysicsModule::rigidbody2d_system.get_component(rigidbody_id);
+							rigidbody.transform_id = transform_system.get_component_id(selected_entity);
+						}
+					}
+
 					if (ImGui::BeginMenu("Script"))
 					{
 						for (Uint_32 _i = 1; _i < script_names.size(); _i++)
@@ -596,41 +781,231 @@ namespace PrEngine
 					if (ImGui::TreeNode("Material"))
 					{
 						Uint_32 mat_id = g.element.material;
-						if (mat_id)
+						std::string& mat_name = Material::material_names[mat_id];
+						ImGui::Text(mat_name.c_str());
+						if (ImGui::BeginDragDropTarget())
 						{
-							std::string& mat_name = Material::material_names[mat_id];
-							ImGui::Text(mat_name.c_str());
-							if (ImGui::BeginDragDropTarget())
+							const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Material");
+							if (payload)
 							{
-								const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Material");
-								if (payload)
-								{
-									IM_ASSERT(payload->DataSize == sizeof(Int_32));
-									auto p = material_directories[*(const Int_32*)payload->Data];
-									Uint_32 mat_id = Material::load_material(p, true);
-									if (mat_id)
-										g.element.material = mat_id;// *(const int*)payload->Data;
-									else
-										LOG(LOGTYPE_ERROR, "material couldn't be created");
-								}
-								ImGui::EndDragDropTarget();
-
+								IM_ASSERT(payload->DataSize == sizeof(Int_32));
+								auto p = material_directories[*(const Int_32*)payload->Data];
+								Uint_32 mat_id = Material::load_material(p, true);
+								if (mat_id)
+									g.element.material = mat_id;// *(const int*)payload->Data;
+								else
+									LOG(LOGTYPE_ERROR, "material couldn't be created");
 							}
+							ImGui::EndDragDropTarget();
+
 						}
 						ImGui::TreePop();
 					}
 				}
 			}
 
-			
-
-			/*if (ent[COMP_LIGHT])
+			if (PhysicsModule::rigidbody2d_system.get_component_id(entity))
 			{
-				if (ImGui::CollapsingHeader("Light", ImGuiTreeNodeFlags_DefaultOpen))
+				if (ImGui::CollapsingHeader("Rigidbody2D", ImGuiTreeNodeFlags_DefaultOpen))
 				{
+					Uint_32 rigidbody_id = PhysicsModule::rigidbody2d_system.get_component_id(entity);
+					Rigidbody2D& rigidbody2d = PhysicsModule::rigidbody2d_system.get_component(rigidbody_id);
+					ImGui::Text("Mass");
+					ImGui::SameLine();
+					ImGui::PushID(&rigidbody2d.mass_inverse);
+					Float_32 mass = 0.00001f;
+					ImGui::PushItemWidth(-0.0001f);
+					ImGui::DragFloat("", &mass, 0.001f, 0.0001f, 1000);
+					ImGui::PopItemWidth();
+					rigidbody2d.mass_inverse = 1.f / mass;
+					ImGui::PopID();
+
+					ImGui::NewLine();
+
+					ImGui::Text("Velocity");
+					ImGui::SameLine();
+					ImGui::PushID(&rigidbody2d.velocity);
+					ImGui::PushItemWidth(-0.0001f);
+					ImGui::DragFloat2("", (Float_32*)(&rigidbody2d.velocity), 0.001f, -100.f, 100.f);
+					ImGui::PopItemWidth();
+					ImGui::PopID();
+
+					ImGui::NewLine();
+
+					ImGui::Text("Acceleration");
+					ImGui::SameLine();
+					ImGui::PushID(&rigidbody2d.acceleration);
+					ImGui::PushItemWidth(-0.0001f);
+					ImGui::DragFloat2("", (Float_32*)(&rigidbody2d.acceleration), 0.001f, -100.f, 100.f);
+					ImGui::PopItemWidth();
+					ImGui::PopID();
+
+					ImGui::NewLine();
+
+					ImGui::Text("Angular Velocity");
+					ImGui::SameLine();
+					ImGui::PushID(&rigidbody2d.angular_velocity);
+					ImGui::PushItemWidth(-0.0001f);
+					ImGui::DragFloat("", &rigidbody2d.angular_velocity, 0.001f, -100.f, 100.f);
+					ImGui::PopItemWidth();
+					ImGui::PopID();
+
+					ImGui::NewLine();
+
+					ImGui::Text("Angular Acceleration");
+					ImGui::SameLine();
+					ImGui::PushID(&rigidbody2d.angular_acceleration);
+					ImGui::PushItemWidth(-0.0001f);
+					ImGui::DragFloat("", &rigidbody2d.angular_acceleration, 0.001f, -100.f, 100.f);
+					ImGui::PopItemWidth();
+					ImGui::PopID();
+
+
+					ImGui::NewLine();
+
+					ImGui::Text("Kinematic");
+					ImGui::SameLine();
+					ImGui::PushID(&rigidbody2d.is_kinematic);
+					ImGui::PushItemWidth(-0.0001f);
+					ImGui::Checkbox("", &rigidbody2d.is_kinematic);
+					ImGui::PopItemWidth();
+					ImGui::PopID();
+
 
 				}
-			}*/
+			}
+
+			Uint_32 col_id = PhysicsModule::collider_system.get_component_id(entity);
+			//edit_collider_id = 0;
+			if (col_id)
+			{
+				if (ImGui::CollapsingHeader("Collider", ImGuiTreeNodeFlags_DefaultOpen))
+				{
+					Collider& collider = PhysicsModule::collider_system.get_component(col_id);
+
+					ImGui::Text("Edit Edges");
+					ImGui::SameLine();
+					ImGui::PushID(&collider);
+					ImGui::Checkbox("", &do_edit_collider);
+					ImGui::PopID();
+					ImGui::NewLine();
+
+					if (do_edit_collider)
+					{
+						static Float_32 col_width = collider.collision_shape.points[0].x - collider.collision_shape.points[1].x;
+						static Float_32 col_height = collider.collision_shape.points[0].y - collider.collision_shape.points[3].y;
+
+						ImGui::Text("Width");
+						ImGui::SameLine();
+						ImGui::PushID(&col_width);
+						ImGui::DragFloat("", &col_width, 0.01f);
+						ImGui::PopID();
+
+						ImGui::NewLine();
+
+						ImGui::Text("Width");
+						ImGui::SameLine();
+						ImGui::PushID(&col_height);
+						ImGui::DragFloat("", &col_height, 0.01f);
+						ImGui::PopID();
+
+						Float_32 cur_w = collider.collision_shape.points[0].x - collider.collision_shape.points[1].x;
+						Float_32 cur_h = collider.collision_shape.points[0].y - collider.collision_shape.points[3].y;
+
+						Float_32 _x_h_dif = (col_width - cur_w) / 2.f;
+						Float_32 _y_h_dif = (col_height - cur_h) / 2.f;
+
+						collider.collision_shape.points[0].x += _x_h_dif;
+						collider.collision_shape.points[3].x += _x_h_dif;
+						collider.collision_shape.points[1].x -= _x_h_dif;
+						collider.collision_shape.points[2].x -= _x_h_dif;
+
+						collider.collision_shape.points[0].y += _y_h_dif;
+						collider.collision_shape.points[1].y += _y_h_dif;
+						collider.collision_shape.points[2].y -= _y_h_dif;
+						collider.collision_shape.points[3].y -= _y_h_dif;
+					}
+
+					const Mat4x4& selected_transformation = transform_system.get_component(selected_transform).transformation;
+					Vec2f points[4];
+					std::memcpy(points, collider.collision_shape.points, sizeof(Vec2f) * 4);
+					points[0] *= 1.3f;
+					points[1] *= 1.3f;
+					points[2] *= 1.3f;
+					points[3] *= 1.3f;
+					Rect<Float_32> collision_area_rect = points_to_rect(points, selected_transformation);
+					Rect<Float_32> collision_rect = points_to_rect(collider.collision_shape.points, selected_transformation);
+					
+
+					//renderer->draw_rect_with_transform(collision_rect, { 0,0.8f,0.2f,1 }, selected_transformation);
+					//Vec4f collider_color = { 0, 0.5f, 0.5f, 1.f };
+					//Vec4f collider_color_near_line = { 0, 1.f, 0.f, 1.f };
+					Vec4f top_color = { 0.1f, 0.5f, 0.3f, 1.f };
+					Vec4f left_color = { 0.1f, 0.5f, 0.3f, 1.f };
+					Vec4f bottom_color = { 0.1f, 0.5f, 0.3f, 1.f };
+					Vec4f right_color = { 0.1f, 0.5f, 0.3f, 1.f };
+
+
+					//if (collider.transform_id == selected_)
+					if (do_edit_collider)
+					{
+						if (0)//(point_in_AABB(mouse_pos_ws, collision_area_rect))
+						{
+							if (abs<Float_32>(collision_rect.y + collision_rect.h - mouse_pos_ws.y) <= 0.2f)
+							{
+								top_color = { 0, 1.f, 0.f, 1.f };
+								if (input_manager->mouse.get_mouse_button_down(1))
+								{
+									edge_id[0] = 1;
+									edit_collider_id = col_id;
+								}
+							}
+							else if (abs<Float_32>(collision_rect.x - mouse_pos_ws.x) <= 0.2f)
+							{
+								left_color = { 0, 1.f, 0.f, 1.f };
+								if (input_manager->mouse.get_mouse_button_down(1))
+								{
+									edge_id[1] = 1;
+									edit_collider_id = col_id;
+								}
+							}
+							else if (abs<Float_32>(collision_rect.y - mouse_pos_ws.y) <= 0.2f)
+							{
+								bottom_color = { 0, 1.f, 0.f, 1.f };
+								if (input_manager->mouse.get_mouse_button_down(1))
+								{
+									edge_id[2] = 1;
+									edit_collider_id = col_id;
+								}
+							}
+							else if (abs<Float_32>(collision_rect.x + collision_rect.w - mouse_pos_ws.x) <= 0.2f)
+							{
+								right_color = { 0, 1.f, 0.f, 1.f };
+								if (input_manager->mouse.get_mouse_button_down(1))
+								{
+									edge_id[3] = 1;
+									edit_collider_id = col_id;
+								}
+							}
+						}
+
+						renderer->draw_line_with_transform(collider.collision_shape.points[0], collider.collision_shape.points[1], top_color, selected_transformation);
+						renderer->draw_line_with_transform(collider.collision_shape.points[1], collider.collision_shape.points[2], left_color, selected_transformation);
+						renderer->draw_line_with_transform(collider.collision_shape.points[2], collider.collision_shape.points[3], bottom_color, selected_transformation);
+						renderer->draw_line_with_transform(collider.collision_shape.points[3], collider.collision_shape.points[0], right_color, selected_transformation);
+
+						inside_collider_edit_area = true;
+					}
+					else
+						inside_collider_edit_area = false;
+					
+				}
+
+
+			}
+
+
+
 
 			if (camera_system.get_component_id(entity))
 			{
@@ -767,7 +1142,7 @@ namespace PrEngine
 					ImGui::Checkbox("Rotate", &animator.anim_transform_update_flags[ANIM_ROTATE]);
 					ImGui::Checkbox("Scale", &animator.anim_transform_update_flags[ANIM_SCALE]);
 
-					ImGui::BeginChild("Animations",ImVec2(0,0),true,0);
+					ImGui::BeginChild("Animations",ImVec2(0, animator.animation_count*25),true,0);
 
 					//Int_32 no_of_animations = 0;
 					for (int _i = 0; _i < animator.animation_count; _i++)
@@ -806,6 +1181,9 @@ namespace PrEngine
 							if (anim_i)
 							{
 								animator.add_animation(anim_i);
+								Uint_32 g_id = graphics_system.get_component_id(transform_system.get_entity(selected_transform));
+								Graphic& graphic = graphics_system.get_component(g_id);
+								graphic.animator_id = id_animator;
 							}
 							else
 							{
@@ -853,10 +1231,29 @@ namespace PrEngine
 	void GuiLayer::draw_scene_hierarchy()
 	{
 		//if (!ImGui::Begin("Scene Hierarchy", 0, ImGuiWindowFlags_NoMove))
-		if (!ImGui::Begin("Scene Hierarchy", 0))
+		ImGuiWindowFlags flags = ImGuiWindowFlags_MenuBar;
+		if (!ImGui::Begin("Scene Hierarchy", 0, flags))
 		{
 			ImGui::End();
 			return;
+		}
+
+
+		if (ImGui::BeginMenuBar())
+		{
+			if (ImGui::BeginMenu("Add..."))
+			{
+				if (ImGui::MenuItem("Entity"))
+				{
+					Uint_32 new_entity = entity_management_system->make_entity("New Entity");
+					Uint_32 transform_id = transform_system.make(new_entity);
+					if (!transform_id)
+						LOG(LOGTYPE_ERROR, "Failed to creae new transform");
+				}
+
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenuBar();
 		}
 
 		//v_x = ImGui::GetWindowPos().x + ImGui::GetWindowWidth();
@@ -1053,18 +1450,22 @@ namespace PrEngine
 
 	Uint_32 is_mouse_in_any_graphic(Vec2f mouse_pos)
 	{
-		for (auto& it : Graphic::vertex_data)
+		for (int _i=0; _i<graphics_system.new_id; _i++)
 		{
-			Uint_32 t_id = graphics_system.get_component(it.first).transform_id;// graphics[it.first].transform_id;
-			Vec2f points[4];
-			Mat4x4& _transformation = transform_system.get_component(t_id).transformation;
-			points[0] = _transformation * it.second[0];
-			points[1] = _transformation * it.second[1];
-			points[2] = _transformation * it.second[2];
-			points[3] = _transformation * it.second[3];
+			if (graphics_system.get_entity(_i))
+			{
+				Uint_32 t_id = graphics_system.get_component(_i).transform_id;// graphics[it.first].transform_id;
+				Vec2f points[4];
+				Mat4x4& _transformation = transform_system.get_component(t_id).transformation;
+				Vec3f* vertices = Graphic::vertex_data[_i];
+				points[0] = _transformation * vertices[0];
+				points[1] = _transformation * vertices[1];
+				points[2] = _transformation * vertices[2];
+				points[3] = _transformation * vertices[3];
 
-			if (point_in_shape(points, 4, mouse_pos))
-				return it.first;
+				if (point_in_shape(points, 4, mouse_pos))
+					return _i;
+			}
 		}
 
 		return 0;

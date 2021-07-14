@@ -100,6 +100,9 @@ namespace PrEngine
 
 	struct GraphicEditorData // data only required for loading and saving
 	{
+		GraphicEditorData();
+		GraphicEditorData(Float_32 scale, Int_32 future_tag);
+
 		Float_32 scale;
 		Int_32 future_tag;
 	};
@@ -107,7 +110,8 @@ namespace PrEngine
     struct Graphic : public Component	// 184 bytes
     {
 		static std::unordered_map<Float_32, GraphicEditorData> editor_data;
-		static std::unordered_map < Uint_32, Vec3f[4]> vertex_data;
+		//static std::unordered_map < Uint_32, Vec3f[4]> vertex_data;
+		static Vec3f vertex_data[Max_graphics_count][4];
 
 		GraphicsElement element;			//156
 		Vec3f outline_color;				//12

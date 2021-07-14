@@ -36,9 +36,9 @@ namespace PrEngine{
 		Animator();
 		~Animator();
 
-		Mat4x4 translation;// = Matrix4x4<Float_32>::identity();
-		Quaternion rotation;// = Matrix4x4<Float_32>::identity();
-		Mat3x3 scale;// = Matrix4x4<Float_32>::identity();
+		//Mat4x4 translation;// = Matrix4x4<Float_32>::identity();
+		//Quaternion rotation;// = Matrix4x4<Float_32>::identity();
+		//Mat3x3 scale;// = Matrix4x4<Float_32>::identity();
 		Float_32 animation_speed;
 		Uint_32 id_transform;
 		Uint_32 animation_ids[8]; // we can hold a max of 8 animations

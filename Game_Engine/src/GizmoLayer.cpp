@@ -39,12 +39,12 @@ namespace PrEngine {
 
 			//draw gizmos
 			move_mat->diffuse_color = Vec4f(1, 0.26f, 0.26f, 1); // red
-			renderer->render_graphic(move_gizmo.graphic_x, move_gizmo.transform.transformation, _camera);
+			renderer->render_graphic(move_gizmo.graphic_x, 6, move_gizmo.transform.transformation, _camera);
 
 			move_gizmo.transform.Rotate(0, 0, 90);
 			move_gizmo.transform.update();
 			move_mat->diffuse_color = Vec4f(0.26f, 1, 0.52f, 1); // green
-			renderer->render_graphic(move_gizmo.graphic_y, move_gizmo.transform.transformation, _camera);
+			renderer->render_graphic(move_gizmo.graphic_y, 6, move_gizmo.transform.transformation, _camera);
 			move_gizmo.transform.Rotate(0, 0, -90);
 			move_gizmo.transform.update();
 

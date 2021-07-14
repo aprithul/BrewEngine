@@ -499,8 +499,20 @@ namespace PrEngine {
 		key_binding[SDLK_9] = SDLK_9;
 		key_binding[SDLK_0] = SDLK_0;
 		
+		key_binding[SDLK_F1] = SDLK_F1;
+		key_binding[SDLK_F2] = SDLK_F2;
+		key_binding[SDLK_F3] = SDLK_F3;
+		key_binding[SDLK_F4] = SDLK_F4;
 		key_binding[SDLK_F5] = SDLK_F5;
+		key_binding[SDLK_F6] = SDLK_F6;
+		key_binding[SDLK_F7] = SDLK_F7;
+		key_binding[SDLK_F8] = SDLK_F8;
+		key_binding[SDLK_F9] = SDLK_F9;
+		key_binding[SDLK_F10] = SDLK_F10;
+		key_binding[SDLK_F11] = SDLK_F11;
+		key_binding[SDLK_F12] = SDLK_F12;
 
+		key_binding[SDLK_RETURN] = SDLK_RETURN;
         key_binding[SDLK_LSHIFT] = SDLK_LSHIFT;
         key_binding[SDLK_SPACE] = SDLK_SPACE;
         key_binding[SDLK_LCTRL] = SDLK_LCTRL;

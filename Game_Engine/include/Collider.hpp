@@ -49,7 +49,7 @@ namespace PrEngine {
 
 	Bool_8 intersect_AABB_AABB(Rect<Float_32>& rect_a, Rect<Float_32>& rect_b);
 
-	Bool_8 point_in_shape(Vec2f* points, Uint_32 count, Vec2f p);
+	Bool_8 point_in_shape(Vec2f* shape_points, Uint_32 count, Vec2f p);
 
 	Float_32 solve_line(Vec2f v1, Vec2f v2, Vec2f p);
 
@@ -57,11 +57,13 @@ namespace PrEngine {
 
 	Bool_8 do_simplex(std::vector<Vec2f>& simplex, Vec2f& dir);
 
-	Bool_8 intersect_GJK(Collider& col_A, Collider& col_B);
+	Bool_8 intersect_GJK(const Collider& col_A, const Collider& col_B);
 	
-	Vec2f do_EPA(Collider& col_A, Collider& col_B);
+	Vec2f do_EPA(const Collider& col_A, const Collider& col_B);
 
 	// useful for drawing bounding rects
+	Rect<Float_32> points_to_rect(Vec2f* points, const Mat4x4& transformation);
+	Rect<Float_32> points_to_rect(Vec3f* points, const Mat4x4& transformation);
 	Rect<Float_32> points_to_rect(Vec2f* points);
 	Rect<Float_32> points_to_rect(Vec3f* points);
 	Rect<Float_32> points_to_rect_with_transform(Vec2f*  points, Mat4x4& transformation);
