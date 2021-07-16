@@ -1,1 +1,1 @@
-2D opengl game engien based on the 'other' 3d engien I'd been working on.
+Opengl based 2D game engine.
