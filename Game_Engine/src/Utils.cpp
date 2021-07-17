@@ -114,8 +114,11 @@ namespace PrEngine{
 
 	void trim(std::string& str)
 	{
-		str.erase(0, str.find_first_not_of("\t\n\v\f\r ")); // left trim
-		str.erase(str.find_last_not_of("\t\n\v\f\r ") + 1); // right trim
+		if (!str.empty())
+		{
+			str.erase(0, str.find_first_not_of("\t\n\v\f\r ")); // left trim
+			str.erase(str.find_last_not_of("\t\n\v\f\r ") + 1); // right trim
+		}
 	}
 
 /*    Bool_8 inside(Vec2f pos, SDL_FRect& rect, Bool_8 centered)

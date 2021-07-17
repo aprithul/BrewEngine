@@ -11,7 +11,7 @@ namespace PrEngine
     {
     }
 
-    void Component::awake()
+    void Component::initialize()
     {
 
     }

@@ -6,10 +6,29 @@ namespace PrEngine
 {
 	Collider::Collider() :Component(COMP_COLLIDER)
 	{
-		graphic_id = 0;
-		transform_id= 0;
+		initialize();
 	}
 
+	void Collider::initialize()
+	{
+		graphic_id = 0;
+		transform_id = 0;
+	}
+
+	void Collider::start()
+	{
+
+	}
+
+	void Collider::update()
+	{
+
+	}
+
+	void Collider::end()
+	{
+
+	}
 
 	std::string Collider::to_string()
 	{

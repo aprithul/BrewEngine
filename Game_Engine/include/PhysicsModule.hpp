@@ -19,7 +19,7 @@ namespace PrEngine {
 	{
 		static ComponentSystem<Rigidbody2D> rigidbody2d_system;
 		static ComponentSystem<Collider> collider_system;
-
+		static Vec2f gravity;
 		static std::vector<Contact> contacts;
 
 		PhysicsModule(std::string name, Int_32 priority);

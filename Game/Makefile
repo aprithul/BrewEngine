@@ -67,6 +67,9 @@ endif
 OBJECTS := \
 	$(OBJDIR)/EngineMaine.o \
 	$(OBJDIR)/Game.o \
+	$(OBJDIR)/ScriptGenerator.o \
+	$(OBJDIR)/FooScript.o \
+	$(OBJDIR)/TestScript.o \
 	$(OBJDIR)/main.o \
 
 RESOURCES := \
@@ -130,6 +133,15 @@ $(OBJDIR)/EngineMaine.o: src/EngineMaine.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/Game.o: src/Game.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/ScriptGenerator.o: src/ScriptGenerator.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/FooScript.o: src/Scripts/FooScript.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/TestScript.o: src/Scripts/TestScript.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/main.o: src/main.cpp

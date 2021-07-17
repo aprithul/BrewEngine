@@ -82,6 +82,8 @@ OBJECTS := \
 	$(OBJDIR)/Collider.o \
 	$(OBJDIR)/Component.o \
 	$(OBJDIR)/DirectionalLight.o \
+	$(OBJDIR)/ECS.o \
+	$(OBJDIR)/EditorLayer.o \
 	$(OBJDIR)/EditorUtils.o \
 	$(OBJDIR)/Engine.o \
 	$(OBJDIR)/Entity.o \
@@ -89,20 +91,22 @@ OBJECTS := \
 	$(OBJDIR)/EntityManagementSystemModule.o \
 	$(OBJDIR)/FrameRateCounterModule.o \
 	$(OBJDIR)/FrameRateRegulatorModule.o \
+	$(OBJDIR)/GizmoLayer.o \
 	$(OBJDIR)/GlAssert.o \
 	$(OBJDIR)/Graphics.o \
-	$(OBJDIR)/GuiLayer.o \
+	$(OBJDIR)/ImGuiConfiguration.o \
 	$(OBJDIR)/InputModule.o \
 	$(OBJDIR)/Logger.o \
 	$(OBJDIR)/Material.o \
-	$(OBJDIR)/Matrix3x3f.o \
 	$(OBJDIR)/Mesh.o \
 	$(OBJDIR)/Module.o \
 	$(OBJDIR)/NetworkManager.o \
 	$(OBJDIR)/PhysicsModule.o \
 	$(OBJDIR)/RenderLayer.o \
 	$(OBJDIR)/RendererOpenGL2D.o \
+	$(OBJDIR)/Rigidbody2D.o \
 	$(OBJDIR)/SceneManager.o \
+	$(OBJDIR)/Script.o \
 	$(OBJDIR)/ScriptComponent.o \
 	$(OBJDIR)/Serializable.o \
 	$(OBJDIR)/ShapesLayer.o \
@@ -223,6 +227,12 @@ $(OBJDIR)/Component.o: src/Component.cpp
 $(OBJDIR)/DirectionalLight.o: src/DirectionalLight.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/ECS.o: src/ECS.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/EditorLayer.o: src/EditorLayer.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/EditorUtils.o: src/EditorUtils.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
@@ -244,13 +254,16 @@ $(OBJDIR)/FrameRateCounterModule.o: src/FrameRateCounterModule.cpp
 $(OBJDIR)/FrameRateRegulatorModule.o: src/FrameRateRegulatorModule.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/GizmoLayer.o: src/GizmoLayer.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/GlAssert.o: src/GlAssert.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/Graphics.o: src/Graphics.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
-$(OBJDIR)/GuiLayer.o: src/GuiLayer.cpp
+$(OBJDIR)/ImGuiConfiguration.o: src/ImGuiConfiguration.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/InputModule.o: src/InputModule.cpp
@@ -260,9 +273,6 @@ $(OBJDIR)/Logger.o: src/Logger.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/Material.o: src/Material.cpp
-	@echo $(notdir $<)
-	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
-$(OBJDIR)/Matrix3x3f.o: src/Matrix3x3f.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/Mesh.o: src/Mesh.cpp
@@ -283,7 +293,13 @@ $(OBJDIR)/RenderLayer.o: src/RenderLayer.cpp
 $(OBJDIR)/RendererOpenGL2D.o: src/RendererOpenGL2D.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/Rigidbody2D.o: src/Rigidbody2D.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/SceneManager.o: src/SceneManager.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/Script.o: src/Script.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/ScriptComponent.o: src/ScriptComponent.cpp

@@ -1,4 +1,4 @@
-#include "GuiLayer.hpp"
+#include "EditorLayer.hpp"
 #include "Logger.hpp"
 #include "EntityManagementSystemModule.hpp"
 #include "RendererOpenGL2D.hpp"
@@ -9,10 +9,11 @@
 #include "Math.hpp"
 #include "SceneManager.hpp"
 #include "GizmoLayer.hpp"
+#include "ImGuiConfiguration.hpp"
+
 namespace PrEngine
 {
 
-#ifdef EDITOR_MODE
 	Uint_32 selected_transform = 0;
 	Uint_32 last_selected_transform = 0;
 	std::vector<std::string> material_directories;
@@ -20,6 +21,7 @@ namespace PrEngine
 	std::vector<std::string> texture_directories;
 	std::vector<std::string> animation_directories;
 	static Uint_32 rename_transform = 0;
+	Bool_8 is_editor_on = 1;
 
 	Bool_8 do_edit_collider = false;
 	Uint_32 edit_collider_id = 0;
@@ -31,7 +33,6 @@ namespace PrEngine
 	void load_shaders();
 
 	Uint_32 is_mouse_in_any_graphic(Vec2f mouse_pos);
-#endif // 
 
 
 
@@ -43,54 +44,32 @@ namespace PrEngine
 		return point_in_AABB(mouse_pos, r);
 	}
 
-    GuiLayer::GuiLayer(SDL_Window* sdl_window, SDL_GLContext* gl_context):window(sdl_window),gl_context(gl_context)
+    EditorLayer::EditorLayer(SDL_Window* sdl_window, SDL_GLContext* gl_context):window(sdl_window),gl_context(gl_context)
     {
         this->name = "GUI";
         panning = nullptr;
         tiling = nullptr;
 		this->fps = 0;
-
 		
+		load_textures();
+		load_materials();
+		load_animations();
+		load_shaders();
 	}
 
-    GuiLayer::~GuiLayer()
+	EditorLayer::~EditorLayer()
     {
         
     }
 
-    void GuiLayer::start()
+    void EditorLayer::start()
     {
-        IMGUI_CHECKVERSION();
-        ImGui::CreateContext();
-        ImGui_ImplSDL2_InitForOpenGL(window, gl_context);
-		ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-        ImGuiIO& io = ImGui::GetIO(); (void)io;
-#ifdef _WIN64
-		io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
-        io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
-#elif _SWITCH
-		io.BackendFlags |= ImGuiBackendFlags_HasGamepad;
-#endif
-        // Setup Dear ImGui style
-        ImGui::StyleColorsDark();
-        ImGui_ImplOpenGL3_Init("#version 300 es");
-        //inspector initialization
-        inspector_active = true;
-        //ImGui::StyleColorsClassic();
 
-
-#ifdef EDITOR_MODE
-
-		load_materials();
-		load_textures();
-		load_animations();
-		load_shaders();
-
+		
 		// gizmo arrows
 		//EntityGenerator eg;
 		//eg.make_sprite("Materials" + PATH_SEP + "Gizmo.mat", Point3d{ 2,0,0 }, RENDER_UNTAGGED);
 
-#endif // EDITOR_MODE
 
     }
 
@@ -191,8 +170,58 @@ namespace PrEngine
 		ImGui::End();
 	}
 
+	void setup_viewport(SDL_Window* window)
+	{
+		Uint_32 cam_id = entity_management_system->get_active_camera();
+		if (cam_id)
+		{
+			Int_32 w, h;
+			SDL_GetWindowSize(window, &w, &h);
 
-    void GuiLayer::update()
+			Camera& camera = camera_system.get_component(cam_id);
+			Float_32 cam_asp_ratio = camera.width / camera.height;
+
+			Int_32 center_hole_w = ImGui::max_viewport.x - ImGui::min_viewport.x;
+			Int_32 center_hole_h = ImGui::max_viewport.y - ImGui::min_viewport.y;
+			if (center_hole_w == 0 || center_hole_h == 0)
+				return;
+
+
+			Float_32 hole_asp_ratio = center_hole_w / (Float_32)center_hole_h;
+			static int c_ = 100;
+			c_--;
+
+			if (hole_asp_ratio >= cam_asp_ratio)
+			{
+				Int_32 center_hole_half_y = (h - (ImGui::max_viewport.y + ImGui::min_viewport.y) / 2);
+				Int_32 target_h = center_hole_w / (Float_32)cam_asp_ratio;
+				Int_32 target_min_y = center_hole_half_y - (target_h / 2);
+				//Int_32 target_max_y = center_hole_half_y + (target_h / 2);
+
+				renderer->update_viewport_size(ImGui::min_viewport.x, target_min_y, center_hole_w, target_h);
+
+			}
+			else
+			{
+				Int_32 center_hole_half_x = (ImGui::max_viewport.x + ImGui::min_viewport.x) / 2;
+				Int_32 target_w = center_hole_h * cam_asp_ratio;
+				Int_32 target_min_x = center_hole_half_x - (target_w / 2);
+				//Int_32 target_max_x = center_hole_half_x + (target_w / 2);
+
+				renderer->update_viewport_size(target_min_x, h - ImGui::max_viewport.y, target_w, center_hole_h);
+
+				//renderer->update_viewport_size(ImGui::min_viewport.x, h - ImGui::max_viewport.y,
+				//	ImGui::max_viewport.x - ImGui::min_viewport.x, ImGui::max_viewport.y - ImGui::min_viewport.y);
+			}
+
+			//cam.v_mod = (cam_w / (v_ar*cam_h));
+			//renderer->update_viewport_size(v_x, v_y, v_w, v_h);
+
+		}
+	}
+
+
+    void EditorLayer::update()
     {
 
         IM_ASSERT(ImGui::GetCurrentContext() != NULL && "Missing dear imgui context. Refer to examples app!"); // Exceptionally add an extra assert here for people confused with initial dear imgui setup
@@ -204,13 +233,12 @@ namespace PrEngine
 		ImGui_ImplSDL2_NewFrame(window);
 		ImGui::NewFrame();
 		static Bool_8 show = true;
-		ImGui::ShowDemoWindow();
 		ShowExampleAppDockSpace(0);
-#ifdef EDITOR_MODE
-		draw_editor(window);
+		if(is_editor_on)
+			draw_editor(window);
 		//ImGui::ShowMetricsWindow();
 		//ImGui::ShowDemoWindow();
-		
+		setup_viewport(window);
 
 		if (input_manager->keyboard.get_key_down(SDLK_F5))
 		{
@@ -218,31 +246,26 @@ namespace PrEngine
 			LOG(LOGTYPE_WARNING, "scene file saved");
 		}
 
+		if (input_manager->keyboard.get_key_down(SDLK_F10))
+		{
+			is_editor_on = !is_editor_on;
+		}
+
 		if (input_manager->keyboard.get_key_down(SDLK_ESCAPE))
 		{
 			input_manager->was_crossed = true;
 		}
 
-	
-
-#endif // EDITOR_MODE
-
-#ifdef DEBUG
-
-		draw_debug_window(io.Framerate);
-#endif // DEBUG
-
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
 
-    void GuiLayer::end()
+    void EditorLayer::end()
     {
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplSDL2_Shutdown();
     }
 	
-#ifdef EDITOR_MODE
 
 	void add_child(Uint_32 id_transform)
 	{
@@ -276,7 +299,7 @@ namespace PrEngine
 			//ImGui::GetTextLineHeight();
 			char buffer[128];
 			Uint_32 selected_entity = transform_system.get_entity(rename_transform);
-			sprintf_s(buffer, "%s", EntityManagementSystem::entity_names[selected_entity].c_str());
+			sprintf(buffer, "%s", EntityManagementSystem::entity_names[selected_entity].c_str());
 
 			ImGui::PushID(&rename_transform);
 
@@ -366,7 +389,8 @@ namespace PrEngine
 	Vec2f mouse_pos_ss;
 	Uint_32 drag_transform;
 	float v_x, v_y, v_w, v_h;
-	void GuiLayer::draw_editor(SDL_Window* window)
+
+	void EditorLayer::draw_editor(SDL_Window* window)
 	{
 		//axis lines
 		renderer->draw_line(Vec3f{0, 0, 0}, Vec3f{100, 0, 0}, Vec4f{1, 0, 0, 1});
@@ -462,7 +486,7 @@ namespace PrEngine
 			if (input_manager->mouse.get_mouse_button(1))
 			{
 				Collider& col = PhysicsModule::collider_system.get_component(edit_collider_id);
-				Mat4x4& trans_inv = transform_system.get_component(col.transform_id).transformation.GetInverse();
+				const Mat4x4& trans_inv = transform_system.get_component(col.transform_id).transformation.GetInverse();
 
 				if (edge_id[0]) // top
 				{
@@ -503,16 +527,19 @@ namespace PrEngine
 			cam_pan_speed = cam_pan_max_speed;
 
 
-		Point3d pos = transform_system.get_component(cam_transform).get_local_position();
-		if (input_manager->keyboard.get_key(SDLK_w))
-			pos.y = pos.y + (Time::Frame_time*cam_pan_speed);
-		if (input_manager->keyboard.get_key(SDLK_s))
-			pos.y = pos.y - (Time::Frame_time*cam_pan_speed);
-		if (input_manager->keyboard.get_key(SDLK_d))
-			pos.x = pos.x + (Time::Frame_time*cam_pan_speed);
-		if (input_manager->keyboard.get_key(SDLK_a))
-			pos.x = pos.x - (Time::Frame_time*cam_pan_speed);
-		transform_system.get_component(cam_transform).set_local_position(pos);
+		if (!rename_transform)
+		{
+			Point3d pos = transform_system.get_component(cam_transform).get_local_position();
+			if (input_manager->keyboard.get_key(SDLK_w))
+				pos.y = pos.y + (Time::Frame_time*cam_pan_speed);
+			if (input_manager->keyboard.get_key(SDLK_s))
+				pos.y = pos.y - (Time::Frame_time*cam_pan_speed);
+			if (input_manager->keyboard.get_key(SDLK_d))
+				pos.x = pos.x + (Time::Frame_time*cam_pan_speed);
+			if (input_manager->keyboard.get_key(SDLK_a))
+				pos.x = pos.x - (Time::Frame_time*cam_pan_speed);
+			transform_system.get_component(cam_transform).set_local_position(pos);
+		}
 
 		if (input_manager->mouse.scroll != 0 && is_mouse_inside_viewport(mouse_pos_ss))
 		{
@@ -532,56 +559,12 @@ namespace PrEngine
 		draw_scene_hierarchy();
 		draw_inspector_window();
 		draw_asset_window();
+		//ImGui::ShowDemoWindow();
+		draw_debug_window(ImGui::GetIO().Framerate);
 
-		Uint_32 cam_id = entity_management_system->get_active_camera();
-		if (cam_id)
-		{
-			Int_32 w, h;
-			SDL_GetWindowSize(window, &w, &h);
-
-			//Camera& cam = cameras[cam_id];
-			Float_32 cam_asp_ratio = camera.width / camera.height;
-
-			Int_32 center_hole_w = ImGui::max_viewport.x - ImGui::min_viewport.x;
-			Int_32 center_hole_h = ImGui::max_viewport.y - ImGui::min_viewport.y;
-			if (center_hole_w == 0 || center_hole_h == 0)
-				return;
-			
-
-			Float_32 hole_asp_ratio = center_hole_w / (Float_32)center_hole_h;
-			static int c_ = 100;
-			c_--;
-
-			if (hole_asp_ratio >= cam_asp_ratio)
-			{
-				Int_32 center_hole_half_y = (h - (ImGui::max_viewport.y + ImGui::min_viewport.y) / 2);
-				Int_32 target_h = center_hole_w / (Float_32)cam_asp_ratio;
-				Int_32 target_min_y = center_hole_half_y - (target_h / 2);
-				//Int_32 target_max_y = center_hole_half_y + (target_h / 2);
-
-				renderer->update_viewport_size(ImGui::min_viewport.x, target_min_y, center_hole_w, target_h);
-
-			}
-			else
-			{
-				Int_32 center_hole_half_x = (ImGui::max_viewport.x + ImGui::min_viewport.x) / 2;
-				Int_32 target_w = center_hole_h * cam_asp_ratio;
-				Int_32 target_min_x = center_hole_half_x - (target_w / 2);
-				//Int_32 target_max_x = center_hole_half_x + (target_w / 2);
-
-				renderer->update_viewport_size(target_min_x, h - ImGui::max_viewport.y, target_w, center_hole_h);
-
-				//renderer->update_viewport_size(ImGui::min_viewport.x, h - ImGui::max_viewport.y,
-				//	ImGui::max_viewport.x - ImGui::min_viewport.x, ImGui::max_viewport.y - ImGui::min_viewport.y);
-			}
-
-			//cam.v_mod = (cam_w / (v_ar*cam_h));
-			//renderer->update_viewport_size(v_x, v_y, v_w, v_h);
-
-		}
 	}
 
-	void GuiLayer::draw_inspector_window()
+	void EditorLayer::draw_inspector_window()
 	{
 		// flags and data for menubar
 		static Bool_8 call_add_script = false;
@@ -633,6 +616,19 @@ namespace PrEngine
 					{
 						if (!animator_system.get_component_id(selected_entity))
 						{
+							if (!graphics_system.get_component_id(selected_entity))
+							{
+								Uint_32 graphic_id = graphics_system.make(selected_entity);
+								if (graphic_id)
+								{
+									Graphic& graphic = graphics_system.get_component(graphic_id);
+									graphic.transform_id = selected_transform;
+									graphic.tag = RENDER_DYNAMIC;
+									graphic.element.material = Material::load_material("Materials/Default.mat", false);
+									LOG(LOGTYPE_GENERAL, std::to_string(graphic.element.material));
+								}
+							}
+
 							Uint_32 animator_id = animator_system.make(selected_entity);
 							if (animator_id)
 							{
@@ -657,7 +653,7 @@ namespace PrEngine
 								collider.transform_id = selected_transform;
 								collider.graphic_id = graphics_system.get_component_id(selected_entity);
 
-								collider.collision_shape.type = SHAPE_AABB;
+								collider.collision_shape.type = SHAPE_RECT;
 								collider.collision_shape.point_count = 4;
 								if (collider.graphic_id)
 								{
@@ -782,21 +778,62 @@ namespace PrEngine
 					{
 						Uint_32 mat_id = g.element.material;
 						std::string& mat_name = Material::material_names[mat_id];
-						ImGui::Text(mat_name.c_str());
-						if (ImGui::BeginDragDropTarget())
+						ImGui::SetNextItemOpen(true);
+						if (ImGui::TreeNode(mat_name.c_str()))
 						{
-							const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Material");
-							if (payload)
+							if (ImGui::BeginDragDropTarget())
 							{
-								IM_ASSERT(payload->DataSize == sizeof(Int_32));
-								auto p = material_directories[*(const Int_32*)payload->Data];
-								Uint_32 mat_id = Material::load_material(p, true);
-								if (mat_id)
-									g.element.material = mat_id;// *(const int*)payload->Data;
-								else
-									LOG(LOGTYPE_ERROR, "material couldn't be created");
+								const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Material");
+									if (payload)
+									{
+										IM_ASSERT(payload->DataSize == sizeof(Int_32));
+											auto p = material_directories[*(const Int_32*)payload->Data];
+											Uint_32 mat_id = Material::load_material(p, false);
+											if (mat_id)
+												g.element.material = mat_id;// *(const int*)payload->Data;
+											else
+												LOG(LOGTYPE_ERROR, "material couldn't be created");
+									}
+								ImGui::EndDragDropTarget();
+
 							}
-							ImGui::EndDragDropTarget();
+
+							ImGui::BeginChild("Textures", ImVec2(0, 8 * 25), true, 0);
+							Material* material = Material::get_material(mat_id);
+							for (Uint_32 _tex_ind = 0; _tex_ind < 8; _tex_ind++)
+							{
+								//no_of_animations++;
+								Uint_32 tex_id = material->diffuse_textures[_tex_ind];
+								if (tex_id != -1)
+								{
+									std::string& _texture_name = Texture::texture_names[tex_id];
+									std::string _node_label = _texture_name;
+									ImGui::Text(_node_label.c_str());
+									if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+									{
+										ImGui::SetDragDropPayload("Texture", &tex_id, sizeof(Uint_32));
+										ImGui::EndDragDropSource();
+									}
+								}
+								else
+									ImGui::Text("...");
+
+								if (ImGui::BeginDragDropTarget())
+								{
+									const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Texture");
+									if (payload)
+									{
+										IM_ASSERT(payload->DataSize == sizeof(Uint_32));
+										Uint_32 t_id = *(Uint_32*)payload->Data;
+										LOG(LOGTYPE_GENERAL, "Assigned texture : ", std::to_string(t_id));
+										material->diffuse_textures[_tex_ind] = t_id;// *(const int*)payload->Data;
+									}
+									ImGui::EndDragDropTarget();
+								}
+							}
+							ImGui::EndChild();
+
+							ImGui::TreePop();
 
 						}
 						ImGui::TreePop();
@@ -813,11 +850,29 @@ namespace PrEngine
 					ImGui::Text("Mass");
 					ImGui::SameLine();
 					ImGui::PushID(&rigidbody2d.mass_inverse);
-					Float_32 mass = 0.00001f;
+					Float_32 mass = 1.f / rigidbody2d.mass_inverse;;
 					ImGui::PushItemWidth(-0.0001f);
-					ImGui::DragFloat("", &mass, 0.001f, 0.0001f, 1000);
+					ImGui::DragFloat("", &mass, 0.001f, 0.000001f, 1000, "%.6f");
 					ImGui::PopItemWidth();
 					rigidbody2d.mass_inverse = 1.f / mass;
+					ImGui::PopID();
+
+					ImGui::NewLine();
+
+					ImGui::Text("Drag");
+					ImGui::SameLine();
+					ImGui::PushID(&rigidbody2d.drag);
+					ImGui::PushItemWidth(-0.0001f);
+					ImGui::DragFloat("", &rigidbody2d.drag, 0.001f, 0.f, 100.f, "%.3f");
+					ImGui::PopID();
+
+					ImGui::NewLine();
+
+					ImGui::Text("Angular drag");
+					ImGui::SameLine();
+					ImGui::PushID(&rigidbody2d.angular_drag);
+					ImGui::PushItemWidth(-0.0001f);
+					ImGui::DragFloat("", &rigidbody2d.angular_drag, 0.001f, 0.f, 100.f, "%.3f");
 					ImGui::PopID();
 
 					ImGui::NewLine();
@@ -1003,9 +1058,6 @@ namespace PrEngine
 
 
 			}
-
-
-
 
 			if (camera_system.get_component_id(entity))
 			{
@@ -1228,7 +1280,7 @@ namespace PrEngine
 		ImGui::End();
 	}
 
-	void GuiLayer::draw_scene_hierarchy()
+	void EditorLayer::draw_scene_hierarchy()
 	{
 		//if (!ImGui::Begin("Scene Hierarchy", 0, ImGuiWindowFlags_NoMove))
 		ImGuiWindowFlags flags = ImGuiWindowFlags_MenuBar;
@@ -1299,7 +1351,7 @@ namespace PrEngine
 		{
 			auto p = material_directories[i].substr(dir.size());
 			material_directories[i] = p;
-			//Material::load_material(mat_path, false);
+			Material::load_material(p, false);
 		}
 	}
 
@@ -1320,10 +1372,14 @@ namespace PrEngine
 		std::string dir = get_resource_path("");// +"Materials" + PATH_SEP;
 		get_files_in_dir(dir, ".png", texture_directories);
 		get_files_in_dir(dir, ".jpg", texture_directories);
+		get_files_in_dir(dir, ".gif", texture_directories);
 		for (int i = 0; i < texture_directories.size(); i++)
 		{
 			auto p = texture_directories[i].substr(dir.size());
 			texture_directories[i] = p;
+
+			Uint_32 tex_id = Texture::load_texture(p, false);
+			EntityGenerator::batched_texture_ids.push_back(tex_id);
 			//Material::load_material(mat_path, false);
 		}
 	}
@@ -1340,7 +1396,7 @@ namespace PrEngine
 		}
 	}
 
-	void GuiLayer::draw_asset_window()
+	void EditorLayer::draw_asset_window()
 	{
 		if (!ImGui::Begin("Assets", 0))//, ImGuiWindowFlags_NoMove))
 		{
@@ -1411,7 +1467,7 @@ namespace PrEngine
 		}
 		else if (selected == 2)
 		{
-			for (int j = 0; j < texture_directories.size(); j++)
+			for (Uint_32 j = 0; j < texture_directories.size(); j++)
 			{
 				if (ImGui::Selectable(texture_directories[j].c_str(), selected_col_2 == j))
 				{
@@ -1420,7 +1476,8 @@ namespace PrEngine
 
 				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
 				{
-					ImGui::SetDragDropPayload("Texture", &j, sizeof(Int_32));
+					Uint_32 t_id = Texture::load_texture(texture_directories[j], false);
+					ImGui::SetDragDropPayload("Texture", &t_id, sizeof(Uint_32));
 					ImGui::Text(texture_directories[j].c_str());
 					ImGui::EndDragDropSource();
 				}
@@ -1472,20 +1529,17 @@ namespace PrEngine
 	}
 
 
-	void GuiLayer::add_script(Uint_32 entity, std::string& script_name)
+	void EditorLayer::add_script(Uint_32 entity, std::string& script_name)
 	{
 	}
-#endif
 
-#ifdef DEBUG
-	void GuiLayer::draw_debug_window(Float_32 fps)
+	void EditorLayer::draw_debug_window(Float_32 fps)
 	{
 		if (!ImGui::Begin("Info: ", 0))//, ImGuiWindowFlags_NoMove))
 		{
 			ImGui::End();
 			return;
 		}
-#ifdef EDITOR_MODE
 
 		/*ImVec2 _pos = ImGui::GetWindowPos();
 		ImVec2 _size = ImGui::GetWindowSize();
@@ -1494,11 +1548,9 @@ namespace PrEngine
 
 		ImGui::Text(("(WS): " + std::to_string(mouse_pos_ws.x)+","+ std::to_string(mouse_pos_ws.y)).c_str());
 		ImGui::Text(("(SS): " + std::to_string(mouse_pos_ss.x)+","+ std::to_string(mouse_pos_ss.y)).c_str());
-#endif
 		ImGui::Text("(%.1f FPS)", fps);
 		
 		ImGui::End();
 	}
-#endif // DEBUG
 
 }

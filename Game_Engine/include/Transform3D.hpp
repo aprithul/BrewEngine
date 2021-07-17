@@ -24,7 +24,11 @@ namespace PrEngine{
 
 		Transform3D();
 		~Transform3D() override;
+		void initialize() override;
+		void start() override;
 		void update() override;
+		void end() override;
+
 		std::string to_string() override;
 
 		void Translate(const Vec3f& translation);

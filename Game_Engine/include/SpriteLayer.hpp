@@ -7,7 +7,6 @@
 #include "EntityManagementSystemModule.hpp"
 #include "DirectionalLight.hpp"
 #include "Camera3D.hpp"
-#include "Matrix4x4f.hpp"
 #include <vector>
 #include "Sprite.hpp"
 #include "Transform3D.hpp"

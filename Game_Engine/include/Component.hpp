@@ -34,7 +34,7 @@ namespace PrEngine
 		//Component(Component&&) = default;
 		//Component& operator=(Component&&) = default;
 
-		virtual void awake();
+		virtual void initialize();
         virtual void start();
         virtual void update();
         virtual void end();

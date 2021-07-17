@@ -17,7 +17,7 @@ namespace PrEngine
 		~Scripting();
 
 		std::string to_string() override;
-		void awake() override;
+		void initialize() override;
 		void start() override;
 		void update() override;
 		void end() override;

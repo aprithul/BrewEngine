@@ -1,2 +1,2 @@
-texture braid\tim_run\6.gif
-shader shaders\DiffuseUnlit2D.shader
+texture braid/tim_run/6.gif
+shader shaders/DiffuseUnlit2D.shader

@@ -27,7 +27,7 @@ namespace PrEngine
 		Vec3f get_screen_to_world_pos(Vec2f screen_pos);
 		void zoom_in(Float_32 zoom_speed);
 		void zoom_out(Float_32 zoom_speed);
-		void awake() override;
+		void initialize() override;
 		void start() override;
 		void update() override;
 		void end() override;     
@@ -47,7 +47,6 @@ namespace PrEngine
 		Float_32 top;
 		Float_32 zoom;
 
-		Float_32 h_mod;
 
 		ProjectionType projection_type;
 

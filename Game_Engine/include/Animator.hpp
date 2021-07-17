@@ -49,11 +49,14 @@ namespace PrEngine{
 		Float_32 frame_time;
 		//Uint_32 id_graphic;
 
+		void initialize() override;
 		void start() override;
+		void update() override;
+		void end() override;
+
 		void play();
 		void pause();
 		void stop();
-		void update() override;
 		std::string to_string() override;
 		void add_animation(Uint_32 animtion_id);
 		inline Animation& get_current_animation()

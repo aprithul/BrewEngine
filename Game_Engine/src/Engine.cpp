@@ -95,7 +95,6 @@ namespace PrEngine {
             //LOG(LOGTYPE_GENERAL, "Updating: ");
             // update all components
 			//clock_t begin = clock();
-
             for(Int_32 _i=0; _i<engine_modules.size(); _i++)
             {
 				clock_t begin = clock();

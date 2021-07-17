@@ -11,13 +11,13 @@
 #include <string>
 namespace PrEngine
 {
-    class GuiLayer : public RenderLayer
+    class EditorLayer : public RenderLayer
     {
         public:
 			// needs to be assigned from game code
 
-            GuiLayer(SDL_Window* sdl_window, SDL_GLContext* gl_context);
-            ~GuiLayer();
+            EditorLayer(SDL_Window* sdl_window, SDL_GLContext* gl_context);
+            ~EditorLayer();
 
             void start() override;
             void update() override;
@@ -37,9 +37,7 @@ namespace PrEngine
 			void draw_inspector_window();
 			void draw_asset_window();
 			void draw_editor(SDL_Window* window);
-#ifdef DEBUG
 			void draw_debug_window(Float_32 fps);
-#endif // DEBUG
 			//void draw_editor();
 
 

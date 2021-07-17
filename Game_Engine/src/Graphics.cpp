@@ -132,16 +132,32 @@ namespace PrEngine
 
     Graphic::Graphic():Component(COMP_GRAPHICS)
     {
+		start();
+    }
+
+	void Graphic::initialize()
+	{
 		outline_color = Vec3f{ 1,1,1 };
 		outline_alpha = 0.f;
 		animator_id = 0;
 		transform_id = 0;
 		batch_id = 0;
-    }
-
+	}
 	void Graphic::start()
 	{
+
 	}
+
+	void Graphic::update()
+	{
+
+	}
+
+	void Graphic::end()
+	{
+
+	}
+
 
     Graphic::~Graphic()
     {
@@ -161,13 +177,32 @@ namespace PrEngine
 
 	//Uint_32 BatchedGraphic::animation_to_batch_id[Max_animation_count] = {};
 
-	BatchedGraphic::BatchedGraphic():current_batched_texture_count(0), current_batched_vertex_count(0)
+	BatchedGraphic::BatchedGraphic()
 	{
+		initialize();
 	}
 
 	BatchedGraphic::~BatchedGraphic()
 	{
 		delete[] indices;
+	}
+
+	void BatchedGraphic::initialize()
+	{
+		current_batched_texture_count = 0;
+		current_batched_vertex_count = 0;
+	}
+
+	void BatchedGraphic::start()
+	{
+	}
+
+	void BatchedGraphic::update()
+	{
+	}
+
+	void BatchedGraphic::end()
+	{
 	}
 
 	static const Uint_32 ind_len = (BatchedGraphic::max_vertices_in_batch / 4) * 6;

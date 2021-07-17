@@ -4,11 +4,12 @@
 #include "GlAssert.hpp"
 #include <unordered_map>
 #include "../Vendor/include/stb_image.h"
+#include "../Vendor/include/stb_image_resize.h"
 #include "Logger.hpp"
 #include <vector>
 #include <string>
 
-#define MAX_TEXTURE_SIZE 256
+#define MAX_TEXTURE_SIZE 1024
 
 namespace PrEngine
 {

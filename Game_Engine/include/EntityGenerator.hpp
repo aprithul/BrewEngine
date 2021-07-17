@@ -23,6 +23,8 @@ namespace PrEngine{
 	class EntityGenerator
 	{
 	public:
+		static std::vector<Uint_32> batched_texture_ids;
+
 		EntityGenerator();
 		Uint_32 make_sprite(Uint_32 entity, Float_32 import_scale, RenderTag render_tag, Uint_32 animator_id, Uint_32 transform_id, const std::string& material_name);
 		Uint_32 make_sprite(const  std::string& material_path, Point3d position, RenderTag render_tag);
@@ -35,8 +37,7 @@ namespace PrEngine{
 
 	private:
 		static std::unordered_map<int, int> transform_id_mapping;
-		std::vector<Uint_32> static_batched_graphic_ids;
-		std::vector<Uint_32> dynamic_batched_graphic_ids;
+		//std::vector<Uint_32> static_batched_graphic_ids;
 	};
 
 }

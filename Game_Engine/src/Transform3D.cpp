@@ -4,8 +4,17 @@ namespace  PrEngine
 {
 	Transform3D::Transform3D() :Component(COMP_TRANSFORM_3D)
 	{
+		initialize();
+	}
+
+	Transform3D::~Transform3D()
+	{
+
+	}
+
+	void Transform3D::initialize()
+	{
 		transformation = Mat4x4::Identity();
-		//rotation_transformation = Mat4x4::Identity();
 
 		local_position = Point3d(0, 0, 0);
 		local_scale = Vec3f(1, 1, 1);
@@ -15,11 +24,15 @@ namespace  PrEngine
 		is_dirty = true;
 	}
 
-	Transform3D::~Transform3D()
+	void Transform3D::start()
 	{
 
 	}
 
+	void Transform3D::end()
+	{
+
+	}
 
 	void Transform3D::update_transformation(Bool_8 is_parent_dirty)
 	{
@@ -77,7 +90,9 @@ namespace  PrEngine
 
 	void Transform3D::Translate(const Vec3f& translation)
 	{
-		local_position += translation;
+		set_global_position(get_global_position() + translation);
+//		local_position += translation;
+		//is_dirty = true;
 	}
 
 	void Transform3D::Rotate(Float_32 _x, Float_32 _y, Float_32 _z)

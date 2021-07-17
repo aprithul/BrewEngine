@@ -5,6 +5,7 @@ namespace PrEngine {
 
 	ComponentSystem<Rigidbody2D> PhysicsModule::rigidbody2d_system(Max_rigidbody2d_count);
 	ComponentSystem<Collider> PhysicsModule::collider_system(Max_collider_count);
+	Vec2f PhysicsModule::gravity;
 
 	PhysicsModule* physics_module = nullptr;
 
@@ -14,6 +15,8 @@ namespace PrEngine {
 	{
 		if(!physics_module)
 			physics_module = this;
+
+		gravity = { 0, -9.8f };
 	}
 
 	PhysicsModule::~PhysicsModule()
@@ -111,86 +114,104 @@ namespace PrEngine {
 		return false;
 	}
 
+
+
 	void PhysicsModule::update()
 	{
 
 		// update rigidbodies
 		rigidbody2d_system.update();
 
-		// do collision check
-		for (Uint_32 i = 0; i < collider_system.new_pos; i++)
-		{
-			//if (collider_entity_id[i])
+		Uint_32 iterations = 1;
+		
+		while (iterations-- > 0)
+		{		// do collision check
+			for (Uint_32 i = 0; i < collider_system.new_id; i++)
 			{
-				Uint_32 t_id_i = collider_system.get_comp_array()[i].transform_id;
-				if (!t_id_i)continue;
-				//Rect<Float_32> r1 = points_to_rect_with_transform(colliders[i].collision_shape.points, transforms[t_id_i].transformation);
-
-				for (Uint_32 j = i + 1; j < collider_system.new_pos; j++)
+				if (collider_system.get_entity(i))
 				{
-					//if (collider_entity_id[j])
+					Uint_32 t_id_i = collider_system.get_component(i).transform_id;
+					if (!t_id_i)continue;
+
+					for (Uint_32 j = i + 1; j < collider_system.new_id; j++)
 					{
-						Uint_32 t_id_j = collider_system.get_comp_array()[i].transform_id;
-						if (!t_id_j)continue;
-						//Rect<Float_32> r2 = points_to_rect_with_transform(colliders[j].collision_shape.points, transforms[t_id_j].transformation);
-
-						//clock_t begin = clock();
-						Bool_8 did_intersect = intersect_GJK(collider_system.get_comp_array()[i], collider_system.get_comp_array()[j]);
-						//clock_t end = clock();
-						//Double_64 elapsed = (Double_64)(end - begin) / CLOCKS_PER_SEC;
-
-						if (did_intersect)
+						if (collider_system.get_entity(j))
 						{
+							Uint_32 t_id_j = collider_system.get_component(j).transform_id;
+							if (!t_id_j)continue;
+							//Rect<Float_32> r2 = points_to_rect_with_transform(colliders[j].collision_shape.points, transforms[t_id_j].transformation);
+
 							//clock_t begin = clock();
-							Vec2f col_pen_vec = do_EPA(collider_system.get_comp_array()[i], collider_system.get_comp_array()[j]);
+							Bool_8 did_intersect = intersect_GJK(collider_system.get_component(i), collider_system.get_component(j));
 							//clock_t end = clock();
 							//Double_64 elapsed = (Double_64)(end - begin) / CLOCKS_PER_SEC;
 
-							physics_module->contacts.push_back(Contact{ col_pen_vec, i, j });
+							if (did_intersect)
+							{
+								//clock_t begin = clock();
+								Vec2f col_pen_vec = do_EPA(collider_system.get_component(i), collider_system.get_component(j));
+								//clock_t end = clock();
+								//Double_64 elapsed = (Double_64)(end - begin) / CLOCKS_PER_SEC;
+
+								physics_module->contacts.push_back(Contact{ col_pen_vec, i, j });
+							}
+							/*
+													if (intersect_AABB_AABB(r1, r2))
+													{
+														physics_module->contacts.push_back(Contact{ i, j });
+													}*/
 						}
-						/*
-												if (intersect_AABB_AABB(r1, r2))
-												{
-													physics_module->contacts.push_back(Contact{ i, j });
-												}*/
 					}
+
 				}
+			}
+
+			for (int _i = 0; _i < contacts.size(); _i++)
+			{
+				Collider& collider_a = collider_system.get_component(contacts[_i].collider_a);
+				Transform3D& transform_a = transform_system.get_component(collider_a.transform_id);
+				Collider& collider_b = collider_system.get_component(contacts[_i].collider_b);
+				Transform3D& transform_b = transform_system.get_component(collider_b.transform_id);
+
+				//assert(tr_a && tr_b);
+
+				Vec4f red_color{ 1.0, 0, 0, 1.0 };
+				Vec4f cyan_color{ 0.0, 1, 1, 1.0 };
+				Rect<Float_32> a = points_to_rect(collider_a.collision_shape.points);//, transforms[tr_a].transformation);
+				Rect<Float_32> b = points_to_rect(collider_b.collision_shape.points);//, transforms[tr_b].transformation);
+				renderer->draw_rect_with_transform(a, red_color, transform_a.transformation);
+				renderer->draw_rect_with_transform(b, red_color, transform_b.transformation);
+				renderer->draw_line(transform_a.get_global_position(), transform_a.get_global_position() + (Vec3f)contacts[_i].depth, cyan_color);
+
+				Float_32 _len = contacts[_i].depth.GetMagnitude();
+
+				Uint_32 t_a_ent = transform_system.get_entity(collider_a.transform_id);
+				Uint_32 t_b_ent = transform_system.get_entity(collider_b.transform_id);
+				Uint_32 rb_a = rigidbody2d_system.get_component_id(t_a_ent);
+				Uint_32 rb_b = rigidbody2d_system.get_component_id(t_b_ent);
+
+				if (rb_a)
+				{
+					Rigidbody2D& rb = rigidbody2d_system.get_component(rb_a);
+					if (!rb.is_kinematic)
+						transform_a.Translate(-(Vec3f)(contacts[_i].depth*0.5f));
+				}
+				if (rb_b)
+				{
+					Rigidbody2D& rb = rigidbody2d_system.get_component(rb_b);
+					if (!rb.is_kinematic)
+						transform_b.Translate((Vec3f)(contacts[_i].depth*0.5f));
+				}
+				/*	Float_32 _x = abs<Float_32>(transforms[tr_a].get_position().x);
+					_x = abs<Float_32>(transforms[tr_b].get_position.x);
+					continue;*/
+					//LOG(LOGTYPE_GENERAL, std::to_string(contacts[_i].depth.length()));
 
 			}
+
+			// all consumed
+			contacts.clear();
 		}
-
-		for (int _i = 0; _i < contacts.size(); _i++)
-		{
-			Uint_32 col_a = contacts[_i].collider_a;
-			Uint_32 tr_a = collider_system.get_component(col_a).transform_id;
-			Uint_32 col_b = contacts[_i].collider_b;
-			Uint_32 tr_b = collider_system.get_component(col_b).transform_id;
-
-			assert(tr_a && tr_b);
-
-			Vec4f red_color{ 1.0, 0, 0, 1.0 };
-			Vec4f yellow_color{ 0.0, 1, 1, 1.0 };
-			Rect<Float_32> a = points_to_rect(collider_system.get_component(col_a).collision_shape.points);//, transforms[tr_a].transformation);
-			Rect<Float_32> b = points_to_rect(collider_system.get_component(col_b).collision_shape.points);//, transforms[tr_b].transformation);
-			renderer->draw_rect_with_transform(a, red_color, transform_system.get_component(tr_a).transformation);
-			renderer->draw_rect_with_transform(b, red_color, transform_system.get_component(tr_b).transformation);
-			renderer->draw_line(transform_system.get_component(tr_b).get_local_position(), transform_system.get_component(tr_b).get_local_position() + (Vec3f)contacts[_i].depth, yellow_color);
-
-			Float_32 _len = contacts[_i].depth.GetMagnitude();
-
-			transform_system.get_component(tr_a).Translate(-(Vec3f)(contacts[_i].depth*0.55));
-			//transforms[tr_a].update_transformation();
-			transform_system.get_component(tr_b).Translate((Vec3f)(contacts[_i].depth*0.55));
-			//transforms[tr_b].update_transformation();
-		/*	Float_32 _x = abs<Float_32>(transforms[tr_a].get_position().x);
-			_x = abs<Float_32>(transforms[tr_b].get_position.x);
-			continue;*/
-			//LOG(LOGTYPE_GENERAL, std::to_string(contacts[_i].depth.length()));
-
-		}
-
-		// all consumed
-		contacts.clear();
 	}
 
 

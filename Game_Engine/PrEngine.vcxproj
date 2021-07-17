@@ -90,6 +90,7 @@
   <ItemGroup>
     <ClInclude Include="include\ComponentSystem.hpp" />
     <ClInclude Include="include\Constants.hpp" />
+    <ClInclude Include="include\ImGuiConfiguration.hpp" />
     <ClInclude Include="include\Rigidbody2D.hpp" />
     <ClInclude Include="Vendor\imgui-master\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="Vendor\imgui-master\backends\imgui_impl_sdl.h" />
@@ -102,6 +103,7 @@
     <ClInclude Include="Vendor\imgui-master\misc\cpp\imgui_stdlib.h" />
     <ClInclude Include="Vendor\imgui-master\misc\single_file\imgui_single_file.h" />
     <ClInclude Include="Vendor\include\stb_image.h" />
+    <ClInclude Include="Vendor\include\stb_image_resize.h" />
     <ClInclude Include="Vendor\include\tiny_obj_loader.h" />
     <ClInclude Include="include\Animation.hpp" />
     <ClInclude Include="include\Animator.hpp" />
@@ -121,7 +123,7 @@
     <ClInclude Include="include\GizmoLayer.hpp" />
     <ClInclude Include="include\GlAssert.hpp" />
     <ClInclude Include="include\Graphics.hpp" />
-    <ClInclude Include="include\GuiLayer.hpp" />
+    <ClInclude Include="include\EditorLayer.hpp" />
     <ClInclude Include="include\InputModule.hpp" />
     <ClInclude Include="include\Logger.hpp" />
     <ClInclude Include="include\Mat.hpp" />
@@ -154,6 +156,7 @@
     <ClInclude Include="include\Vertex.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\ImGuiConfiguration.cpp" />
     <ClCompile Include="src\Rigidbody2D.cpp" />
     <ClCompile Include="src\Script.cpp" />
     <ClCompile Include="Vendor\imgui-master\backends\imgui_impl_opengl3.cpp" />
@@ -184,7 +187,7 @@
     <ClCompile Include="src\GizmoLayer.cpp" />
     <ClCompile Include="src\GlAssert.cpp" />
     <ClCompile Include="src\Graphics.cpp" />
-    <ClCompile Include="src\GuiLayer.cpp" />
+    <ClCompile Include="src\EditorLayer.cpp" />
     <ClCompile Include="src\InputModule.cpp" />
     <ClCompile Include="src\Logger.cpp" />
     <ClCompile Include="src\Material.cpp" />

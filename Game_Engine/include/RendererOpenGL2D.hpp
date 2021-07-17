@@ -20,7 +20,9 @@
 #include "SpriteLayer.hpp"
 #include "ShapesLayer.hpp"
 #include "GizmoLayer.hpp"
-#include "GuiLayer.hpp"
+#ifdef EDITOR_MODE
+#include "EditorLayer.hpp"
+#endif
 #include <vector>
 
 namespace PrEngine {
@@ -73,13 +75,14 @@ namespace PrEngine {
 			void generate_sprite_graphics(Graphic& graphic, Uint_32 graphic_id = 0);
 			void draw_line(Vec3f p1, Vec3f p2, Vec4f color);
 			void draw_line_with_transform(Vec3f p1, Vec3f p2, Vec4f color, const Mat4x4& transformation);
+			void draw_ray(Vec3f origin, Vec3f dir, Float_32 len, Vec4f color);
 			void draw_rect(Rect<Float_32> rect, Vec4f color);
 			void draw_rect_with_transform(Rect<Float_32> rect, Vec4f color, const Mat4x4& transformation);
 			RenderLayer* get_layer(const std::string& layer_name);
 			void prepare_batches(std::vector<Uint_32> batched_grphic_ids, Uint_32 usage);
 			void render_graphic(const Graphic& graphic, Uint_32 elemtn_count, Mat4x4& transformation, Camera& _camera);
 
-			void prepare_array_textures(std::vector<Uint_32>& graphic_ids);
+			void prepare_array_textures(std::vector<Uint_32>& texture_ids);
 			BatchedGraphic* make_dynamic_batch(std::vector<Uint_32>& graphic_ids);
 			void add_to_batch(std::vector< Uint_32>& graphic_ids);
 			void add_to_static_batch(std::vector< Uint_32>& graphic_ids);

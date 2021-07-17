@@ -204,8 +204,9 @@ namespace PrEngine
 			}
 		}
 
+	
 		Uint_32 material_id = 0;
-		//std::unordered_map<Uint_32, Material*>::iterator _mat_it = Material::material_library.find(material_id);
+		//std::unordered_map<Uint_32, Material*>::iterator _mats_it = Material::material_library.find(material_id);
 		if (do_make_gl_texture || present_at == -1)
 		{
 			std::string texture_name = "";
@@ -229,13 +230,19 @@ namespace PrEngine
 
 				if (material_tokens[0] == "texture")
 				{
-					texture_name = material_tokens[1];
-					trim(texture_name);
+					if (material_tokens.size() > 1)
+					{
+						texture_name = material_tokens[1];
+						trim(texture_name);
+					}
 				}
 				else if (material_tokens[0] == "shader")
 				{
-					shader_name = material_tokens[1];
-					trim(shader_name);
+					if (material_tokens.size() > 1)
+					{
+						shader_name = material_tokens[1];
+						trim(shader_name);
+					}
 				}
 				else
 				{
@@ -253,26 +260,61 @@ namespace PrEngine
 
 			material_creation_status = 1;
 			Uint_32 shader = Shader::load_shader(std::string(shader_name));
-			Uint_32 diffuse_texture = Texture::load_texture(texture_name, do_make_gl_texture);
-			if (!Texture::texture_create_status)
+			std::vector<std::string> texture_names;
+			tokenize_string(texture_name, ',', texture_names);
+			if (material_name == "Materials/Tim.mat")
 			{
-				material_creation_status = 0;
-				LOG(LOGTYPE_ERROR, "Material creation failed, error creating texture");
+				LOG(LOGTYPE_GENERAL, "  ");
 			}
-			else if (!Shader::shader_creation_status)
+			for (Uint_32 _i = 0; _i < texture_names.size(); _i++)
 			{
-				material_creation_status = 0;
-				LOG(LOGTYPE_ERROR, "Material creation failed, error creating shader");
+				std::string& tex = texture_names[_i];
+				Uint_32 diffuse_texture = Texture::load_texture(tex, do_make_gl_texture);
 
+				if (!Texture::texture_create_status)
+				{
+					material_creation_status = 0;
+					LOG(LOGTYPE_ERROR, "Material creation failed, error creating texture");
+				}
+				else if (!Shader::shader_creation_status)
+				{
+					material_creation_status = 0;
+					LOG(LOGTYPE_ERROR, "Material creation failed, error creating shader");
+
+				}
+				else if (present_at == -1)
+				{
+					if (_i == 0)
+					{
+						Material::material_library.emplace_back(shader, diffuse_texture, material_name);
+						Material::material_names.push_back(material_name + name_modifier);
+						material_id = material_library.size() - 1;
+						//present_at = material_id;
+					}
+					else
+					{
+						Material* material = Material::get_material(material_id);
+						Uint_32 _tex_index = 0;
+						for (; _tex_index < 8; _tex_index++)
+						{
+							if (material->diffuse_textures[_tex_index] == -1)
+							{
+								material->diffuse_textures[_tex_index] = diffuse_texture;
+								break;
+							}
+						}
+						if (_tex_index == 8)
+							LOG(LOGTYPE_ERROR, "Too many textures to load in material : ", material_name);
+
+					}
+
+				}
+				else
+				{
+					material_id = present_at;
+
+				}
 			}
-			else if (present_at == -1)
-			{
-				Material::material_library.emplace_back(shader, diffuse_texture, material_name);
-				Material::material_names.push_back(material_name + name_modifier);
-				material_id = material_library.size() - 1;
-			}
-			else
-				material_id = present_at;
 		}
 		else
 			material_id = present_at;

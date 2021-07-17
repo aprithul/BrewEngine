@@ -34,7 +34,7 @@ namespace PrEngine
 
     struct EntityManagementSystem : public Module
     {
-		static std::string entity_names[Max_entity_count];
+		static std::string entity_names[Max_entity_count+1];
 		EntityManagementSystem(std::string name, Int_32 priority);
 		~EntityManagementSystem();
 

@@ -76,6 +76,16 @@ namespace PrEngine
 			assert(data != nullptr);
 			LOG(LOGTYPE_GENERAL, "Image ", std::string(path), " loaded : " + std::to_string(bind_unit));
 
+			if (width > MAX_TEXTURE_SIZE || height > MAX_TEXTURE_SIZE)
+			{
+				stbi_uc* new_data = (stbi_uc*)std::malloc(4 * 1024 * 1024);
+				stbir_resize_uint8(data, width, height, 0, new_data, 1024, 1024, 0, no_of_channels);
+				free(data);
+				data = new_data;
+				width = 1024;
+				height = 1024;
+			}
+
             if(data!=nullptr)
             {
                 TextureData td;
@@ -146,9 +156,9 @@ namespace PrEngine
 		{
 			Uint_32 t_id = diffuse_textures[i];
 			_t = Texture::get_texture(t_id);
-			assert(_t->width <= width && _t->height <= height);	
+			if(_t->width <= MAX_TEXTURE_SIZE && _t->height <= MAX_TEXTURE_SIZE)
+				glTexSubImage3D(bind_target, 0, 0, 0, i, _t->width, _t->height, 1, GL_RGBA, GL_UNSIGNED_BYTE, _t->data);
 			//TextureData& td = Texture::texture_data_library[Texture::texture_names[_t->path]];
-			glTexSubImage3D(bind_target, 0, 0, 0, i, _t->width, _t->height, 1, GL_RGBA, GL_UNSIGNED_BYTE, _t->data);
 		}
 		glGenerateMipmap(bind_target);
 
@@ -162,7 +172,7 @@ namespace PrEngine
 
 	}
 /*
-    Texture* Texture::load_default_texture()
+    Texture* Texture::default_texture()
     {
     	Texture* _tex = new Texture("default.jpg");
 		if (texture_create_status)

@@ -280,7 +280,7 @@ namespace PrEngine
 
 					//first get the index between [0,max_layers). Then add the tex location in batch diffuse tex array to it
 					// to get the final 'encoded' texture index
-					Uint_32 texture_index = renderer->is_included_at_index[texture_id] % renderer->max_layers;
+					Float_32 texture_index = renderer->is_included_at_index[texture_id] % renderer->max_layers;
 					texture_index = (graphic_texid.batched_diffuse_index * renderer->max_layers + texture_index);
 
 

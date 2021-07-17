@@ -103,8 +103,9 @@ Int_32 make_engine_and_start_game(){
 		delete game_engine;
 
 	} while (restart);
-
-	#else
+	#endif
+	
+	#ifdef EMSCRIPTEN
 			emscripten_set_main_loop_arg(main_loop, game_engine, 0, 1);
 	#endif
 

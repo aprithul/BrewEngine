@@ -17,17 +17,24 @@ namespace PrEngine
 
 	Animator::Animator():Component(COMP_ANIMATOR)
 	{
-		animation_speed = 1.f;
-		current_frame_index = 0;
-		animation_count = 0;
-		frame_time = 0;
-		cur_anim_ind = 0;
-		std::memset(animation_ids, 0, sizeof(Uint_32) * 8);
+		initialize();
 	}
 
 	Animator::~Animator()
 	{
 
+	}
+
+	void Animator::initialize()
+	{
+		animation_speed = 1.f;
+		id_transform = 0;
+		std::memset(animation_ids, 0, sizeof(Uint_32) * 8);
+		animation_count = 0;
+		cur_anim_ind = 0;
+		current_frame_index = 0;
+		std::memset(anim_transform_update_flags, 0, sizeof(Bool_8) * 3);
+		frame_time = 0;
 	}
 
 	void Animator::start()
@@ -90,6 +97,11 @@ namespace PrEngine
 				frame_time = 0;
 			}
 		}
+	}
+
+	void Animator::end()
+	{
+
 	}
 
 	void Animator::add_animation(Uint_32 animation_id)

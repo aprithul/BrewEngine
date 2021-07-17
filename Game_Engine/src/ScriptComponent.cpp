@@ -5,9 +5,9 @@ namespace PrEngine{
 
 	Script* (*Scripting::get_script_instance)(const char* name);
 
-	Scripting::Scripting() : Component(COMP_SCRIPT),script_pos(1),ref_table_pos(1)
+	Scripting::Scripting() : Component(COMP_SCRIPT)
 	{
-		
+		start();
 	}
 
 	Scripting::~Scripting()
@@ -19,9 +19,14 @@ namespace PrEngine{
 		}
 	}
 
-	void Scripting::awake()
+
+	void Scripting::initialize()
 	{
-		
+		script_pos = 1;
+		ref_table_pos = 1;
+		std::memset(script_name_indices, 0, sizeof(Uint_32)*(MAX_SCRIPTS_PER_ENTITY + 1));
+		std::memset(scripts, 0, sizeof(Script*)*(MAX_SCRIPTS_PER_ENTITY + 1));
+
 	}
 
 	void Scripting::start()

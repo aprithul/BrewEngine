@@ -123,9 +123,6 @@
     <ClInclude Include="include\Graphics.hpp">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\GuiLayer.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\InputModule.hpp">
       <Filter>include</Filter>
     </ClInclude>
@@ -225,6 +222,15 @@
     <ClInclude Include="include\ComponentSystem.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\EditorLayer.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ImGuiConfiguration.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Vendor\include\stb_image_resize.h">
+      <Filter>Vendor\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Vendor\imgui-master\backends\imgui_impl_opengl3.cpp">
@@ -311,9 +317,6 @@
     <ClCompile Include="src\Graphics.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\GuiLayer.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="src\InputModule.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -381,6 +384,12 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\Rigidbody2D.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\EditorLayer.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ImGuiConfiguration.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

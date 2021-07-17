@@ -9,6 +9,8 @@
 #include "PhysicsModule.hpp"
 namespace PrEngine{
 
+	std::vector<Uint_32> EntityGenerator::batched_texture_ids;
+
 	std::unordered_map<int, int> EntityGenerator::transform_id_mapping;
 
 	EntityGenerator::EntityGenerator()
@@ -67,9 +69,9 @@ namespace PrEngine{
 		{
 			Animator& animator = animator_system.get_component(animator_id);
 			animator.cur_anim_ind = 0;
-			animator.anim_transform_update_flags[ANIM_TRANSLATE] = true;
-			animator.anim_transform_update_flags[ANIM_ROTATE] = true;
-			animator.anim_transform_update_flags[ANIM_SCALE] = true;
+			animator.anim_transform_update_flags[ANIM_TRANSLATE] = false;
+			animator.anim_transform_update_flags[ANIM_ROTATE] = false;
+			animator.anim_transform_update_flags[ANIM_SCALE] = false;
 			animator.id_transform = transform_id;
 			Uint_32 a_id = 0;
 			if (a_id = Animator::load_animation(animation_path))
@@ -147,7 +149,12 @@ namespace PrEngine{
 				//break;
 			
 				//renderer->generate_sprite_graphics(id_graphic);
-				dynamic_batched_graphic_ids.push_back(graphic_id);
+				Material* material = Material::get_material(mat_id);
+				for (Uint_32 _i = 0; _i < 8; _i++)
+				{
+					if(material->diffuse_textures[_i] != -1)
+						batched_texture_ids.push_back(material->diffuse_textures[0]);
+				}
 				break;
 			}
 			LOG(LOGTYPE_GENERAL, "added to batch list");
@@ -209,12 +216,35 @@ namespace PrEngine{
 		Uint_32 mat = Material::load_material("Materials/Default.mat", true);
 		assert(Material::material_creation_status); // default material has to be created for engine to work
 
+
+		///////////////////
+
+		//Uint_32 count = 500;
+		//Float_32 x = -(count*1.f) / 2.f;
+		//Float_32 y = -(count*1.25f) / 2.f;
+
+		//for (; x < (count * 1.f)/2.f; x += 1.f)
+		//{
+		//	for (y = -(count*1.25f) / 2.f; y < (count * 1.25f)/2.f; y += 1.25f)
+		//	{
+		//		//make_animated_sprite({ x,y,0 }, "Animations/run.anim", "Materials/Tim.mat");
+		//		make_sprite("Materials/Tim.mat", { x,y,0 }, RENDER_STATIC);
+		//	}
+		//}
+
+
+
+
+
+
+
+
 		std::string scene_data = read_file( scene_file_name);
 		std::stringstream input(scene_data);
 		std::string entity_str;
 		std::vector<Transform3D*> loaded_transforms;
 		int no_of_graphics = 0;
-		std::vector<Uint_32> unbatched_grpahic_ids;
+		//std::vector<Uint_32> unbatched_grpahic_ids;
 		while (std::getline(input, entity_str, '~')) // get an entity
 		{
 			trim(entity_str);
@@ -298,6 +328,12 @@ namespace PrEngine{
 									if (a_id = Animator::load_animation(tokens[t_i]))
 									{
 										animator.add_animation(a_id);
+										Animation& animation = animator.get_animation(a_id);
+
+										for (Keyframe frame : animation.frames)
+										{
+											batched_texture_ids.push_back(frame.texture);
+										}
 									}
 									else
 										LOG(LOGTYPE_ERROR, "Couldn't create animator");
@@ -386,7 +422,7 @@ namespace PrEngine{
 		if (render_tag == RENDER_STATIC) render_tag = RENDER_UNTAGGED;
 							//render_tag = RENDER_UNTAGGED;
 #endif
-							//if (animator_id)
+							if (animator_id)
 								render_tag = RENDER_DYNAMIC;
 
 							////////////////////////////
@@ -434,6 +470,8 @@ namespace PrEngine{
 							Float_32 _angular_acceleration = std::stof(tokens[6]);
 							Float_32 _mass_inverse = std::stof(tokens[7]);
 							Bool_8 _is_kinematic = std::stoi(tokens[8]);
+							Float_32 _drag = std::stof(tokens[9]);
+							Float_32 _angular_drag = std::stof(tokens[10]);
 							assert(transform_id);
 							Uint_32 rigidbody_id = PhysicsModule::rigidbody2d_system.make(entity);
 							if (rigidbody_id)
@@ -446,6 +484,9 @@ namespace PrEngine{
 								rigidbody2d.transform_id = transform_id;
 								rigidbody2d.mass_inverse = _mass_inverse;
 								rigidbody2d.is_kinematic = _is_kinematic;
+								rigidbody2d.drag = _drag;
+								rigidbody2d.angular_drag = _angular_drag;
+
 							}
 							else
 								LOG(LOGTYPE_ERROR, "Max rigidbody2d count reached, couldn't load from scene graph");
@@ -466,7 +507,7 @@ namespace PrEngine{
 		//entity_management_system->update_transforms();
 		generate_batches();
 
-		//Texture::delete_all_texture_data();
+		Texture::delete_all_texture_data();
 		//renderer->prepare_dynmic_batches(dynamic_batched_graphic_ids);
 		// resolve transform hierarchy
 		/*for (std::vector<Transform3D*>::iterator it = loaded_transforms.begin(); it != loaded_transforms.end(); it++)
@@ -479,9 +520,8 @@ namespace PrEngine{
 	{
 		LOG(LOGTYPE_GENERAL, "will make batches (static)");
 		//renderer->prepare_batches(static_batched_graphic_ids, GL_STATIC_DRAW);
-		renderer->prepare_array_textures(dynamic_batched_graphic_ids);
+		renderer->prepare_array_textures(batched_texture_ids);
 		//LOG(LOGTYPE_GENERAL, "will make batches (dynamic)");
 		//renderer->prepare_batches(dynamic_batched_graphic_ids, GL_STREAM_DRAW);
 	}
-	
 }

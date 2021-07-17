@@ -216,6 +216,7 @@ struct Quaternion
 Float_32 Dot(const Vec3f& a, const Vec3f& b);
 Float_32 Dot(const Vec2f& a, const Vec2f& b);
 Vec3f Cross(const Vec3f& a, const Vec3f& b);
+Float_32 Cross(const Vec2f& a, const Vec2f& b);
 
 
 #endif // !VEC_HPP
@@ -804,18 +805,18 @@ Point3d Point3d::operator-(const Vec3f& other) const
 	{
 		Float_32 t0 = 2.0f * ((q.w * q.x) + (q.y * q.z));
 		Float_32 t1 = 1.0f - 2.0f * ((q.x * q.x) + (q.y * q.y));
-		Float_32 roll = std::atan2(t0, t1);
+		Float_32 roll = atan2(t0, t1);
 
 		Float_32 t2 = 2.0f * (q.w*q.y - q.z*q.x);
 		if (t2 > 1.0)
 			t2 = 1.0f;
 		if (t2 < -1.0)
 			t2 = -1.0f;
-		Float_32 pitch = std::asin(t2);	// pitch ( around y axis) is restricted to prevent NaN
+		Float_32 pitch = asin(t2);	// pitch ( around y axis) is restricted to prevent NaN
 
 		Float_32 t3 = 2.0f*(q.w*q.z + q.x*q.y);
 		Float_32 t4 = 1.0f - 2.0f * (q.y*q.y + q.z*q.z);
-		Float_32 yaw = std::atan2(t3, t4);
+		Float_32 yaw = atan2(t3, t4);
 
 
 		return Vec3f(roll/ 0.0174533f, pitch/ 0.0174533f, yaw/ 0.0174533f);	// magic value converts radians to degrees
@@ -1382,6 +1383,11 @@ Point3d Point3d::operator-(const Vec3f& other) const
 			a.z*b.x - a.x*b.z,
 			a.x*b.y - a.y*b.x
 		};
+	}
+	
+	Float_32 Cross(const Vec2f& a, const Vec2f& b)
+	{
+		return a.x*b.y - a.y*b.x;
 	}
 #pragma endregion
 

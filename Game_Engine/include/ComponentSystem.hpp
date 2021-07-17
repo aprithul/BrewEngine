@@ -46,12 +46,14 @@ namespace PrEngine {
 			{
 				Uint_32 _id = new_id;
 				id_to_comp_pos[_id] = new_pos;
+				reinterpret_cast<Transform3D*>(&components[new_pos])->initialize();
 
 				comp_id_to_entity[_id] = entity;
 				entity_to_comp_id[entity] = _id;
 
 				transform_children[new_pos].clear();
-				reinterpret_cast<Transform3D*>(&components[_id])->children = &transform_children[new_pos];
+				reinterpret_cast<Transform3D*>(&components[new_pos])->children = &transform_children[new_pos];
+				//reinterpret_cast<Component*>(&components[new_pos])->start();
 
 				new_id++;
 				new_pos++;
@@ -62,7 +64,7 @@ namespace PrEngine {
 				return 0;
 		}
 
-		TransformSystem::TransformSystem(Uint_32 size) :ComponentSystem<Transform3D>(size)
+		TransformSystem(Uint_32 size) :ComponentSystem<Transform3D>(size)
 		{
 
 		}
@@ -102,8 +104,11 @@ namespace PrEngine {
 			Uint_32 _id = new_id;
 			id_to_comp_pos[_id] = new_pos;
 
+			reinterpret_cast<Component*>(&components[new_pos])->initialize();
+
 			comp_id_to_entity[_id] = entity;
 			entity_to_comp_id[entity] = _id;
+
 
 			new_id++;
 			new_pos++;
@@ -127,6 +132,8 @@ namespace PrEngine {
 		Uint_32 comp_pos = id_to_comp_pos[comp_id];
 		id_to_comp_pos[comp_id] = 0;
 		components[comp_pos] = components[new_pos - 1];
+
+
 
 		entity_to_comp_id[comp_id_to_entity[comp_id]] = 0;
 		comp_id_to_entity[comp_id] = 0;

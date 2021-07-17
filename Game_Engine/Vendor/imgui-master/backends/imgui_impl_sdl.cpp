@@ -57,10 +57,11 @@
 #ifdef _WEB
 #include <SDL.h>
 #include <SDL_syswm.h>
-#endif // 
-
+#else
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
+#endif // 
+
 #if defined(__APPLE__)
 #include "TargetConditionals.h"
 #endif

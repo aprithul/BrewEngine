@@ -5,7 +5,6 @@
 #include "Material.hpp"
 #include "Component.hpp"
 #include "Vertex.hpp"
-#include "Matrix4x4f.hpp"
 #include "Transform3D.hpp"
 #include "Constants.hpp"
 #include <unordered_map>
@@ -126,7 +125,10 @@ namespace PrEngine
         ~Graphic();
 		//Graphic(const Graphic& other) = delete;
 		//Graphic& operator=(const Graphic& other) = delete;
+		void initialize() override;
 		void start() override;
+		void update() override;
+		void end() override;
 		void Delete();
         std::string to_string() override;
 		
@@ -150,11 +152,15 @@ namespace PrEngine
 		//Uint_32 texture_to_index[99999] = {};
 		std::vector<Graphic_TexID> graphic_ids;
 
-		static const Uint_32 max_vertices_in_batch = 4 * 1000; // 4 vertex per quad * 1000000 quads. each vertex 40 bytes.
+		static const Uint_32 max_vertices_in_batch = 4 * 10000; // 4 vertex per quad * 1000000 quads. each vertex 40 bytes.
 		Uint_32 current_batched_vertex_count;
 		Uint_32 current_batched_texture_count;
 		
 		static void initialize(Uint_32 batch_id, RenderTag render_mode);
+		void initialize() override;
+		void start() override;
+		void update() override;
+		void end() override;
 		BatchedGraphic();
 		//BatchedGraphic(const BatchedGraphic& other) = delete;
 		//BatchedGraphic& operator=(const BatchedGraphic& other) = delete;

@@ -14,7 +14,7 @@ namespace PrEngine
 	ComponentSystem<Scripting> scripting_system(Max_scripting_count);
 	TransformSystem transform_system(Max_transform_count);
 
-	std::string EntityManagementSystem::entity_names[Max_entity_count];
+	std::string EntityManagementSystem::entity_names[Max_entity_count + 1];
 
     EntityManagementSystem::EntityManagementSystem(std::string name, Int_32 priority) : Module(name, priority)
     {
@@ -153,7 +153,6 @@ namespace PrEngine
 	void EntityManagementSystem::save_scene(const std::string& scene_file)
 	{
 		
-		write_to_file("", scene_file, 0, 0); //clears file
 		std::unordered_map<int, std::string> entities_in_scene;
 
 		for (Uint_32 i = 1; i < transform_system.new_id; i++)
@@ -193,6 +192,25 @@ namespace PrEngine
 				auto ed = Graphic::editor_data[i];
 				entities_in_scene[graphics_entity] += graphics_system.get_component(i).to_string() + "," + std::to_string(ed.future_tag)
 					+ "," + std::to_string(ed.scale) + "\n";
+
+
+				// save material
+				Graphic& graphic = graphics_system.get_component(i);
+				Material* mat = Material::get_material(graphic.element.material);
+				std::string& mat_name = Material::material_names[graphic.element.material];
+				std::string& shader_name = Shader::shader_names[mat->shader];
+				std::string mat_line = "texture ";
+
+				for (Uint_32 _tex_id = 0; _tex_id < 8; _tex_id++)
+				{
+					if (mat->diffuse_textures[_tex_id] != -1)
+						mat_line += Texture::texture_names[mat->diffuse_textures[_tex_id]] + ",";
+				}
+
+				mat_line = mat_line.substr(0, mat_line.size() - 1);
+				std::string shader_line = "shader " + shader_name;
+				std::string material_definition = mat_line + "\n" + shader_line;
+				write_to_file(material_definition, get_resource_path( mat_name), 1, 0);
 			}
 		}
 
@@ -210,6 +228,7 @@ namespace PrEngine
 				entities_in_scene[rigidbody2d_entity] += PhysicsModule::rigidbody2d_system.get_component(i).to_string() + "\n";
 		}
 
+		write_to_file("", scene_file, 0, 0); //clears file
 		for (auto it : entities_in_scene)
 		{
 			write_to_file(it.second + "~\n", scene_file, 0, 1);

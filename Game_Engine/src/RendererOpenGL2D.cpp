@@ -8,6 +8,7 @@
 #include <SDL2/SDL.h>
 #include "GlAssert.hpp"
 #include "RendererOpenGL2D.hpp"
+#include "ImGuiConfiguration.hpp"
 #include "Math.hpp"
 #include <cmath>
 #include <set>
@@ -138,13 +139,16 @@ namespace PrEngine {
 		//GizmoLayer* gizmo_layer = new GizmoLayer();
 		//render_layers.push_back(gizmo_layer);
 
-		GuiLayer* gui_layer = new GuiLayer(window, &glContext);
-		render_layers.push_back(gui_layer);
+#ifdef EDITOR_MODE
+		EditorLayer* editor_layer = new EditorLayer(window, &glContext);
+		render_layers.push_back(editor_layer);
+#endif // EDITOR_MODE
 
 		renderer = this;
 		std::memset(is_included_at_index, -1, sizeof(Int_32) * 99999);
-		batch_pool = new BatchPool(10);
+		batch_pool = new BatchPool(100);
 
+		initialize_imgui(window, glContext);
 
 		GL_CALL(glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &max_texture_units));
 		GL_CALL(glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &max_layers));	//max depth of array textures
@@ -928,6 +932,15 @@ namespace PrEngine {
 		lines.push_back({ color, p1,p2 });
 	}
 
+	void RendererOpenGL2D::draw_ray(Vec3f origin, Vec3f dir, Float_32 len, Vec4f color)
+	{
+		Vec3f p2 = origin + (dir*len);
+		lines.push_back({ color, origin, p2});
+
+	}
+
+	
+
 	void RendererOpenGL2D::draw_line_with_transform(Vec3f p1, Vec3f p2, Vec4f color, const Mat4x4& transformation)
 	{
 		//return;
@@ -1194,55 +1207,66 @@ namespace PrEngine {
 	// of max possible size (dictated by max_layers)
 	// no individual texture is duplicated
 
-	void RendererOpenGL2D::prepare_array_textures(std::vector<Uint_32>& graphic_ids)
+	void RendererOpenGL2D::prepare_array_textures(std::vector<Uint_32>& texture_ids)
 	{
 
-		static std::vector<Uint_32> tex_ids;
-		tex_ids.push_back(0); // default texture
-		is_included_at_index[0] = tex_ids.size() - 1;
+		static std::vector<Uint_32> unique_tex_ids;
+		unique_tex_ids.push_back(0); // default texture
+		is_included_at_index[0] = unique_tex_ids.size() - 1;
 
 		//get vector of unique textures
-		for (Uint_32 g_id : graphic_ids)
+		for (Uint_32 t_id : texture_ids)
 		{
-			Uint_32 ent = graphics_system.get_entity(g_id);
-			Uint_32 a_id = animator_system.get_component_id(ent);
-			if (a_id)
+			if (is_included_at_index[t_id] == -1)
 			{
-				Animator& animator = animator_system.get_component(a_id);
-				for (Uint_32 anim_id : animator.animation_ids)
-				{
-					if (anim_id)
-					{
-						Animation& animation = animator.get_animation(anim_id);
-						for (Keyframe frame : animation.frames)
-						{
-							if (is_included_at_index[frame.texture] == -1)
-							{
-								tex_ids.push_back(frame.texture);
-								is_included_at_index[frame.texture] = tex_ids.size()-1;
-							}
-						}
-					}
-				}
-			}
-			else
-			{
-				Material* mat = Material::get_material(graphics_system.get_component(g_id).element.material);
-				if (is_included_at_index[mat->diffuse_textures[0]] == -1)
-				{
-					tex_ids.push_back(mat->diffuse_textures[0]);
-					is_included_at_index[mat->diffuse_textures[0]] = tex_ids.size()-1;
-				}
+				unique_tex_ids.push_back(t_id);
+				is_included_at_index[t_id] = unique_tex_ids.size()-1;
+
 			}
 		}
 
+
+		//for (Uint_32 g_id : graphic_ids)
+		//{
+		//	Uint_32 ent = graphics_system.get_entity(g_id);
+		//	Uint_32 a_id = animator_system.get_component_id(ent);
+		//	if (a_id)
+		//	{
+		//		Animator& animator = animator_system.get_component(a_id);
+		//		for (Uint_32 anim_id : animator.animation_ids)
+		//		{
+		//			if (anim_id)
+		//			{
+		//				Animation& animation = animator.get_animation(anim_id);
+		//				for (Keyframe frame : animation.frames)
+		//				{
+		//					if (is_included_at_index[frame.texture] == -1)
+		//					{
+		//						tex_ids.push_back(frame.texture);
+		//						is_included_at_index[frame.texture] = tex_ids.size()-1;
+		//					}
+		//				}
+		//			}
+		//		}
+		//	}
+		//	else
+		//	{
+		//		Material* mat = Material::get_material(graphics_system.get_component(g_id).element.material);
+		//		if (is_included_at_index[mat->diffuse_textures[0]] == -1)
+		//		{
+		//			tex_ids.push_back(mat->diffuse_textures[0]);
+		//			is_included_at_index[mat->diffuse_textures[0]] = tex_ids.size()-1;
+		//		}
+		//	}
+		//}
+
 		// make texture from tex_ids
-		for (Uint_32 _i = 0; _i < tex_ids.size(); _i+=max_layers)
+		for (Uint_32 _i = 0; _i < unique_tex_ids.size(); _i+=max_layers)
 		{
-			std::vector<Uint_32>::iterator start = tex_ids.begin() + _i;
-			std::vector<Uint_32>::iterator end = tex_ids.begin() + _i + max_layers;
-			if (_i + max_layers > tex_ids.size())
-				end = tex_ids.end();
+			std::vector<Uint_32>::iterator start = unique_tex_ids.begin() + _i;
+			std::vector<Uint_32>::iterator end = unique_tex_ids.begin() + _i + max_layers;
+			if (_i + max_layers > unique_tex_ids.size())
+				end = unique_tex_ids.end();
 
 			std::vector<Uint_32> tex_id_for_tex_arr(start, end);
 			Uint_32 array_tex = Texture::make_array_texture(tex_id_for_tex_arr);
@@ -1284,7 +1308,7 @@ namespace PrEngine {
 		}
 
 		// which array texture contains this tex_id?
-		Uint_32 index = is_included_at_index[tex_id];
+		Int_32 index = is_included_at_index[tex_id];
 		if (index != -1)
 		{
 			Uint_32 array_tex_index = (index) / max_layers;

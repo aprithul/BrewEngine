@@ -7,7 +7,7 @@ namespace PrEngine
 
 	Camera::Camera():Component(COMP_CAMERA)
 	{
-		this->h_mod = 1;
+		initialize();
 	}
 
     void Camera::set_perspective(Float_32 width, Float_32 height, Float_32 near_, Float_32 far_, Float_32 fov)
@@ -43,14 +43,13 @@ namespace PrEngine
     {
 
     }
-    void Camera::awake()
+    void Camera::initialize()
     {
 
     }
 
     void Camera::start()
     {
-		
     }
 
     void Camera::update()
@@ -67,8 +66,9 @@ namespace PrEngine
         //if(projection_type==PERSPECTIVE)
        //     projection_matrix = Mat4x4::perspective(near_, far_,width, height, fov);
         //else
-            projection_matrix = Mat4x4::Orthogrpahic(h_mod*left*zoom, h_mod*right*zoom, bottom*zoom, top*zoom, near_, far_);
-            //projection_matrix = Mat4x4::ortho(0, width,0, height, near_, far_);
+		//projection_matrix = Mat4x4::Orthogrpahic(h_mod*left*zoom, h_mod*right*zoom, bottom*zoom, top*zoom, near_, far_);
+		projection_matrix = Mat4x4::Orthogrpahic(left*zoom, right*zoom, bottom*zoom, top*zoom, near_, far_);
+		//projection_matrix = Mat4x4::ortho(0, width,0, height, near_, far_);
     }
 
     void Camera::end()

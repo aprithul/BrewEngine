@@ -5,7 +5,6 @@
 #include "Vec.hpp"
 #include "Math.hpp"
 #include "Utils.hpp"
-#include "Matrix4x4f.hpp"
 #include "Transform3D.hpp"
 namespace PrEngine {
 	
@@ -33,6 +32,10 @@ namespace PrEngine {
 		Uint_32 transform_id;
 		CollisionShape2D collision_shape;
 		Collider();
+		void initialize() override;
+		void start() override;
+		void update() override;
+		void end() override;
 		std::string to_string() override;
 	};
 	
