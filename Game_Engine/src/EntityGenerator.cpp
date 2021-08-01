@@ -295,13 +295,14 @@ namespace PrEngine{
 
 							col.graphic_id = graphic_id;
 							col.transform_id = transform_id;
-							col.collision_shape.type = (Shape2DTypes)std::atoi(tokens[1].c_str());
-							for (int _i = 2; _i < tokens.size(); _i += 2)
+							col.type = (Shape2DTypes)std::atoi(tokens[1].c_str());
+							for (int _i = 2; _i < tokens.size()-1; _i += 2)
 							{
 								Vec2f p{ std::strtof(tokens[_i].c_str(), nullptr), std::strtof(tokens[_i + 1].c_str(), nullptr) };
-								col.collision_shape.points[(_i / 2) - 1] = p;
-								col.collision_shape.point_count++;
+								col.points[(_i / 2) - 1] = p;
+								col.point_count++;
 							}
+
 							LOG(LOGTYPE_WARNING, "made collider");
 
 						}
@@ -472,6 +473,9 @@ namespace PrEngine{
 							Bool_8 _is_kinematic = std::stoi(tokens[8]);
 							Float_32 _drag = std::stof(tokens[9]);
 							Float_32 _angular_drag = std::stof(tokens[10]);
+							Float_32 _static_friction = std::stof(tokens[11]);
+							Float_32 _dynamic_friction = std::stof(tokens[12]);
+							Float_32 _coefficient_of_restitution = std::stof(tokens[13]);
 							assert(transform_id);
 							Uint_32 rigidbody_id = PhysicsModule::rigidbody2d_system.make(entity);
 							if (rigidbody_id)
@@ -486,6 +490,9 @@ namespace PrEngine{
 								rigidbody2d.is_kinematic = _is_kinematic;
 								rigidbody2d.drag = _drag;
 								rigidbody2d.angular_drag = _angular_drag;
+								rigidbody2d.static_friction = _static_friction;
+								rigidbody2d.dynamic_friction = _dynamic_friction;
+								rigidbody2d.coefficient_of_restitution = _coefficient_of_restitution;
 
 							}
 							else

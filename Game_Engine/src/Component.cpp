@@ -21,7 +21,7 @@ namespace PrEngine
 
     }
 
-    void Component::update()
+    void Component::update(Float_32 dt)
     {
 
     }

@@ -950,7 +950,54 @@ namespace PrEngine {
 		lines.push_back({ color, p1,p2 });
 	}
 
-	
+	void RendererOpenGL2D::draw_point(Vec3f pos)
+	{
+		Vec2f points[4];
+		points[0] = pos + Vec2f{ 0.01f, 0.01f };
+		points[1] = pos + Vec2f{ -0.01f, 0.01f };
+		points[2] = pos + Vec2f{ -0.01f, -0.01f };
+		points[3] = pos + Vec2f{ 0.01f, -0.01f };
+		Rect<Float_32> _contact_point = points_to_rect(points);
+		renderer->draw_rect(_contact_point, { 1,1,1,1 });
+	}
+
+	void RendererOpenGL2D::draw_shape(Vec2f* points, Uint_32 point_count, const Vec4f& color)
+	{
+		for (Uint_32 _i = 1; _i < point_count; _i++)
+		{
+			draw_line(points[_i - 1], points[_i], color);
+		}
+		draw_line(points[point_count-1], points[0], color);
+	}
+
+	void RendererOpenGL2D::draw_shape_with_transform(Vec2f* points, Uint_32 point_count, const Mat4x4& transformation, const Vec4f& color)
+	{
+		Vec2f transformed_points[16];
+		for (Uint_32 _i = 0; _i < point_count; _i++)
+		{
+			transformed_points[_i] = transformation * points[_i];
+		}
+
+		draw_shape(transformed_points, point_count, color);
+	}
+
+	void RendererOpenGL2D::draw_circle(Vec2f origin, Float_32 radius, Vec4f color)
+	{
+		const static int sides = 16;
+		const static Float_32 angle_step = (2 * PI) / sides;
+		Vec2f shape_points[sides];
+		for (Uint_32 _i = 0; _i < sides; _i++)
+		{
+			Float_32 _x = std::cosf(_i*angle_step);
+			Float_32 _y = std::sinf(_i*angle_step);
+
+			Vec2f point = { _x, _y };
+			LOG(LOGTYPE_GENERAL, std::to_string(point.x), ",", std::to_string(point.y));
+			shape_points[_i] = origin + (point * radius);
+		}
+
+		draw_shape(shape_points, 32, color);
+	}
 
 	void RendererOpenGL2D::draw_rect(Rect<Float_32> rect, Vec4f color)
 	{

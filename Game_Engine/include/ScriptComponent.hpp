@@ -19,7 +19,7 @@ namespace PrEngine
 		std::string to_string() override;
 		void initialize() override;
 		void start() override;
-		void update() override;
+		void update(Float_32 dt) override;
 		void end() override;
 
 		Uint_32 add_script(Script* script, Uint_32 name_index);

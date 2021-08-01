@@ -24,7 +24,7 @@ namespace PrEngine {
 	void GizmoLayer::update()
 	{
 		// update transforms
-		move_gizmo.transform.update();
+		move_gizmo.transform.update(Time::Frame_time);
 		
 
 		// get camera
@@ -42,11 +42,11 @@ namespace PrEngine {
 			renderer->render_graphic(move_gizmo.graphic_x, 6, move_gizmo.transform.transformation, _camera);
 
 			move_gizmo.transform.Rotate(0, 0, 90);
-			move_gizmo.transform.update();
+			move_gizmo.transform.update(Time::Frame_time);
 			move_mat->diffuse_color = Vec4f(0.26f, 1, 0.52f, 1); // green
 			renderer->render_graphic(move_gizmo.graphic_y, 6, move_gizmo.transform.transformation, _camera);
 			move_gizmo.transform.Rotate(0, 0, -90);
-			move_gizmo.transform.update();
+			move_gizmo.transform.update(Time::Frame_time);
 
 		}
 	}

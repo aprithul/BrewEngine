@@ -26,7 +26,7 @@ namespace PrEngine{
 		~Transform3D() override;
 		void initialize() override;
 		void start() override;
-		void update() override;
+		void update(Float_32 dt) override;
 		void end() override;
 
 		std::string to_string() override;
@@ -62,7 +62,7 @@ namespace PrEngine{
 		const Vec3f get_right();
 		const Vec3f get_up();
 
-		Point3d get_global_position();
+		Point3d get_global_position() const;
 		Quaternion get_global_rotation();
 		Vec3f get_global_scale();
 		/*Point3d get_global_to_local_position(Point3d global_pos);

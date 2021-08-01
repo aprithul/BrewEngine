@@ -121,6 +121,8 @@ struct Point3d : Vec3f
 	Point3d operator+(const Vec3f& other) const;
 	Vec3f operator-(const Point3d& other) const;
 	Point3d operator-(const Vec3f& other) const;
+	operator Vec3f() const;
+	operator Vec2f() const;
 
 };
 
@@ -217,6 +219,7 @@ Float_32 Dot(const Vec3f& a, const Vec3f& b);
 Float_32 Dot(const Vec2f& a, const Vec2f& b);
 Vec3f Cross(const Vec3f& a, const Vec3f& b);
 Float_32 Cross(const Vec2f& a, const Vec2f& b);
+Vec2f Cross(Float_32 s, const Vec2f& v);
 
 
 #endif // !VEC_HPP
@@ -505,6 +508,18 @@ Vec3f Point3d::operator-(const Point3d& other) const
 Point3d Point3d::operator-(const Vec3f& other) const
 {
 	return Point3d{ x + other.x, y + other.y, z + other.z };
+}
+
+Point3d::operator Vec3f() const
+{
+	//return *((Vec2f*)this);
+	return Vec3f{ x, y, z };
+}
+
+Point3d::operator Vec2f() const
+{
+	//return *((Vec2f*)this);
+	return Vec2f{ x, y };
 }
 
 ////////////////////////////////////////////////
@@ -1388,6 +1403,11 @@ Point3d Point3d::operator-(const Vec3f& other) const
 	Float_32 Cross(const Vec2f& a, const Vec2f& b)
 	{
 		return a.x*b.y - a.y*b.x;
+	}
+
+	Vec2f Cross(Float_32 s, const Vec2f& v)
+	{
+		return { -s * v.y, s*v.x };
 	}
 #pragma endregion
 

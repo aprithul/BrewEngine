@@ -41,6 +41,13 @@ namespace PrEngine
 		else
 			return 0;
 	}
+
+	template<typename T>
+	T Max(T v, T min)
+	{
+		return v > min ? v : min;
+	}
+
 }
 
 

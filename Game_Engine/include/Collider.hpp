@@ -20,30 +20,52 @@ namespace PrEngine {
 
 	struct CollisionShape2D
 	{
-		Vec2f points[16];
-		Shape2DTypes type;
-		int point_count;
+
 	};
 
 
 	struct Collider :public Component
 	{
+		Vec2f points[16];
 		Uint_32 graphic_id;
 		Uint_32 transform_id;
-		CollisionShape2D collision_shape;
+		Shape2DTypes type;
+		Uint_32 point_count;
+
 		Collider();
 		void initialize() override;
 		void start() override;
-		void update() override;
+		void update(Float_32 dt) override;
 		void end() override;
 		std::string to_string() override;
 	};
 	
 	struct Contact
 	{
-		Vec2f depth;
-		Uint_32 collider_a;
-		Uint_32 collider_b;
+		Vec2f position;
+		Vec2f normal;
+		Vec2f rA;
+		Vec2f rB;
+		Uint_32 Rigidbody2d_a;
+		Uint_32 Rigidbody2d_b;
+		Float_32 depth;
+		Float_32 normal_mass;
+		Float_32 tangent_mass;
+	};
+
+	struct ContactManidfold
+	{
+		
+		
+
+
+	};
+
+	struct SimplexPoint
+	{
+		Vec2f cso_point;
+		Vec2f support_point_1;
+		Vec2f support_point_2;
 	};
 
 	Bool_8 point_in_AABB(Vec2f p, Rect<Float_32>& rect);
@@ -56,13 +78,13 @@ namespace PrEngine {
 
 	Float_32 solve_line(Vec2f v1, Vec2f v2, Vec2f p);
 
-	Vec2f support(Vec2f dir, Collider& col_A, Collider& col_B);
+	Vec2f support(Vec2f dir, Collider& col_A);
 
-	Bool_8 do_simplex(std::vector<Vec2f>& simplex, Vec2f& dir);
+	//Bool_8 do_simplex(std::vector<Vec2f>& simplex, Vec2f& dir);
 
-	Bool_8 intersect_GJK(const Collider& col_A, const Collider& col_B);
+	Bool_8 intersect_GJK(const Collider& col_A, const Collider& col_B, std::vector<SimplexPoint>& simplex);
 	
-	Vec2f do_EPA(const Collider& col_A, const Collider& col_B);
+	Vec2f do_EPA(const Collider& col_A, const Collider& col_B, std::vector<SimplexPoint>& simplex);
 
 	// useful for drawing bounding rects
 	Rect<Float_32> points_to_rect(Vec2f* points, const Mat4x4& transformation);

@@ -148,7 +148,7 @@ namespace PrEngine
 
 	}
 
-	void Graphic::update()
+	void Graphic::update(Float_32 dt)
 	{
 
 	}
@@ -197,7 +197,7 @@ namespace PrEngine
 	{
 	}
 
-	void BatchedGraphic::update()
+	void BatchedGraphic::update(Float_32 dt)
 	{
 	}
 

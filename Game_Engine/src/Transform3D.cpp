@@ -67,7 +67,7 @@ namespace  PrEngine
 		is_dirty = false;
 	}
 
-	void Transform3D::update()
+	void Transform3D::update(Float_32 dt)
 	{
 		// only gets called for top level transforms, so parent won't be dirty
 		update_transformation(false);
@@ -226,7 +226,7 @@ namespace  PrEngine
     }
 
 
-	Point3d Transform3D::get_global_position()
+	Point3d Transform3D::get_global_position() const 
 	{
 		//Vec3f parent_pos;
 

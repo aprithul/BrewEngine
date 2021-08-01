@@ -132,10 +132,10 @@ namespace PrEngine
 
     void EntityManagementSystem::update()
     {
-		transform_system.update();
-		animator_system.update();
-		scripting_system.update();
-		camera_system.update();
+		transform_system.update(Time::Frame_time);
+		animator_system.update(Time::Frame_time);
+		scripting_system.update(Time::Frame_time);
+		camera_system.update(Time::Frame_time);
 
 		//find collision
 		

@@ -43,10 +43,10 @@ namespace PrEngine
 	}
 
 	
-	void Animator::update()
+	void Animator::update(Float_32 dt)
 	{
 		//frame_time = 0;
-		frame_time += Time::Frame_time;
+		frame_time += dt;
 		Animation& animation = get_current_animation();
 		if(animation.frames.size() > current_frame_index)
 		{		

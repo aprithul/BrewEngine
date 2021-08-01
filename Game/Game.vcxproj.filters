@@ -49,4 +49,7 @@
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\texture\color_circle.png" />
+  </ItemGroup>
 </Project>

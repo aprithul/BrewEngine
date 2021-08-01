@@ -63,8 +63,8 @@ namespace PrEngine {
 
 		for (int _i = 0; _i < lines.size(); _i++)
 		{	
-			Vertex v1 = { lines[_i].p1.x , lines[_i].p1.y, -10,  lines[_i].color.x, lines[_i].color.y, lines[_i].color.z, lines[_i].color.w, 0,0, 0 };
-			Vertex v2 = { lines[_i].p2.x , lines[_i].p2.y, -10,  lines[_i].color.x, lines[_i].color.y, lines[_i].color.z, lines[_i].color.w, 0,0, 0 };
+			Vertex v1 = { lines[_i].p1.x , lines[_i].p1.y, 1,  lines[_i].color.x, lines[_i].color.y, lines[_i].color.z, lines[_i].color.w, 0,0, 0 };
+			Vertex v2 = { lines[_i].p2.x , lines[_i].p2.y, 1,  lines[_i].color.x, lines[_i].color.y, lines[_i].color.z, lines[_i].color.w, 0,0, 0 };
 			lines_buffer.push_back(v1);
 			lines_buffer.push_back(v2);
 		}

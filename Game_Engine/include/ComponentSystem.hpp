@@ -24,7 +24,7 @@ namespace PrEngine {
 		const T* get_comp_array();
 
 		void start();
-		void update();
+		void update(Float_32 dt);
 		void end();
 
 	protected:
@@ -189,12 +189,12 @@ namespace PrEngine {
 	}
 
 	template <typename T>
-	void ComponentSystem<T>::update()
+	void ComponentSystem<T>::update(Float_32 dt)
 	{
 		for (Uint_32 _i = 1; _i < new_pos; _i++)
 		{
 			//reinterpret_cast<T*>(&components[_i])->update();
-			components[_i].update();
+			components[_i].update(dt);
 
 		}
 	}

@@ -38,7 +38,7 @@ namespace PrEngine{
 		}
 	}
 
-	void Scripting::update()
+	void Scripting::update(Float_32 dt)
 	{
 		for (auto script : scripts)
 		{

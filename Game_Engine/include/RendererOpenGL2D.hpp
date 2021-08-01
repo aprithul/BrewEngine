@@ -77,6 +77,10 @@ namespace PrEngine {
 			void draw_line_with_transform(Vec3f p1, Vec3f p2, Vec4f color, const Mat4x4& transformation);
 			void draw_ray(Vec3f origin, Vec3f dir, Float_32 len, Vec4f color);
 			void draw_rect(Rect<Float_32> rect, Vec4f color);
+			void draw_shape(Vec2f* points, Uint_32 point_count, const Vec4f& color);
+			void draw_shape_with_transform(Vec2f* points, Uint_32 point_count, const Mat4x4& transformation, const Vec4f& color);
+			void draw_circle(Vec2f origin, Float_32 radius, Vec4f color);
+			void draw_point(Vec3f pos);
 			void draw_rect_with_transform(Rect<Float_32> rect, Vec4f color, const Mat4x4& transformation);
 			RenderLayer* get_layer(const std::string& layer_name);
 			void prepare_batches(std::vector<Uint_32> batched_grphic_ids, Uint_32 usage);

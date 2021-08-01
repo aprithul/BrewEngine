@@ -51,7 +51,7 @@ namespace PrEngine{
 
 		void initialize() override;
 		void start() override;
-		void update() override;
+		void update(Float_32 dt) override;
 		void end() override;
 
 		void play();

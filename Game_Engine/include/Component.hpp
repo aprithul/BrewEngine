@@ -36,7 +36,7 @@ namespace PrEngine
 
 		virtual void initialize();
         virtual void start();
-        virtual void update();
+        virtual void update(Float_32 dt);
         virtual void end();
         ComponentType type;
 

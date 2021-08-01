@@ -20,8 +20,8 @@ Engine* setup_engine_with_parameters(Uint_32 window_width, Uint_32 window_height
 	// render, frame regulator and frame counter should be the last three components updated ( and so added to engine )
 	game_engine->add_module(new Time("Time", 0));
 	game_engine->add_module(new InputManager("Input", 1));
-	game_engine->add_module(new EntityManagementSystem("EMS", 2));
-	game_engine->add_module(new PhysicsModule("Physics", 4));
+	game_engine->add_module(new PhysicsModule("Physics", 2));
+	game_engine->add_module(new EntityManagementSystem("EMS", 4));
 
 
 	//game_engine->add_module(new FrameRateRegulator("Frame Rate Regulator", 100000));

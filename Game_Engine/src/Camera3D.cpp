@@ -52,7 +52,7 @@ namespace PrEngine
     {
     }
 
-    void Camera::update()
+    void Camera::update(Float_32 dt)
     {
 
         // set view matrix based on camera

@@ -99,6 +99,9 @@
       <Project>{5DA1A940-496E-044C-7287-F2F35EB339DA}</Project>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\texture\color_circle.png" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
