@@ -24,6 +24,8 @@ namespace PrEngine{
 
 		Transform3D();
 		~Transform3D() override;
+		Transform3D(const Transform3D&);
+
 		void initialize() override;
 		void start() override;
 		void update(Float_32 dt) override;

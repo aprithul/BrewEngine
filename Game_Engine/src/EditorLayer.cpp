@@ -256,6 +256,15 @@ namespace PrEngine
 			input_manager->was_crossed = true;
 		}
 
+		if (input_manager->keyboard.get_key(SDLK_LCTRL) && input_manager->keyboard.get_key_down(SDLK_d))
+		{
+			LOG(LOGTYPE_GENERAL, "Duplicate ", std::to_string(selected_transform));
+
+			EntityGenerator eg;
+			Uint_32 selected_entity = transform_system.get_entity(selected_transform);
+			eg.duplicate_entity(selected_entity);
+		}
+
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
@@ -416,36 +425,39 @@ namespace PrEngine
 		static Vec2f selection_offset;
 		if (input_manager->mouse.get_mouse_button_down(1))
 		{
-			Uint_32 clicked_on_graphic= is_mouse_in_any_graphic(mouse_pos_ws);
-			if (clicked_on_graphic)
+			if (is_mouse_inside_viewport(mouse_pos_ss))
 			{
-				Uint_32 clicked_on_transform = graphics_system.get_component(clicked_on_graphic).transform_id;// graphics[clicked_on_graphic].transform_id;
-				if (selected_transform == clicked_on_transform)	// 
+				Uint_32 clicked_on_graphic = is_mouse_in_any_graphic(mouse_pos_ws);
+				if (clicked_on_graphic)
 				{
-					drag_transform = selected_transform;
-					selection_offset = (Vec2f)transform_system.get_component(selected_transform).get_global_position() - mouse_pos_ws;
+					Uint_32 clicked_on_transform = graphics_system.get_component(clicked_on_graphic).transform_id;// graphics[clicked_on_graphic].transform_id;
+					if (selected_transform == clicked_on_transform)	// 
+					{
+						drag_transform = selected_transform;
+						selection_offset = (Vec2f)transform_system.get_component(selected_transform).get_global_position() - mouse_pos_ws;
+					}
+					else
+					{
+						do_edit_collider = false;
+						edit_collider_id = 0;
+						selected_transform = clicked_on_transform;
+						drag_transform = 0;
+						//collider_being_edited = 0;
+
+					}
 				}
 				else
 				{
-					do_edit_collider = false;
-					edit_collider_id = 0;
-					selected_transform = clicked_on_transform;
-					drag_transform = 0;
-					//collider_being_edited = 0;
-
-				}
-			}
-			else
-			{
-				// check if click was inside viewport
-				if(is_mouse_inside_viewport(mouse_pos_ss) && inside_collider_edit_area == false)
-				{
-					selected_transform = 0;
-					do_edit_collider = false;
-					edit_collider_id = 0;
-					//collider_being_edited = 0;
-					GizmoLayer::move_gizmo.target_transform = 0;
-					drag_transform = 0;
+					// check if click was inside viewport
+					if (inside_collider_edit_area == false)
+					{
+						selected_transform = 0;
+						do_edit_collider = false;
+						edit_collider_id = 0;
+						//collider_being_edited = 0;
+						GizmoLayer::move_gizmo.target_transform = 0;
+						drag_transform = 0;
+					}
 				}
 			}
 		}

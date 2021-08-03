@@ -746,7 +746,7 @@ namespace PrEngine {
 
 
 			
-			for (int iter = 0; iter < 10; iter++)
+			for (int iter = 0; iter < 20; iter++)
 			{			// apply impulses
 				for (int _i = 0; _i < contacts.size(); _i++)
 				{
@@ -778,7 +778,7 @@ namespace PrEngine {
 						Vec2f point_vel_a = rb_A.velocity + Cross(rb_A.angular_velocity, contact.rA);
 						Vec2f point_vel_b = rb_B.velocity + Cross(rb_B.angular_velocity, contact.rB);
 						Vec2f rel_vel = point_vel_b - point_vel_a;
-						Float_32 cor = 0.f;// (rb_A.coefficient_of_restitution * rb_B.coefficient_of_restitution);
+						Float_32 cor =  (rb_A.coefficient_of_restitution * rb_B.coefficient_of_restitution);
 						Float_32 static_friction = rb_A.static_friction * rb_B.static_friction;
 						Float_32 dynamic_friction = rb_A.dynamic_friction * rb_B.dynamic_friction;
 

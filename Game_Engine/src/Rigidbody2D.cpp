@@ -13,6 +13,33 @@ namespace PrEngine
 		initialize();
 	}
 
+	Rigidbody2D::Rigidbody2D(const Rigidbody2D& other):Component(COMP_RIGIDBODY_2D)
+	{
+		position = other.position;
+		rotation = other.rotation;
+
+		velocity = other.velocity;
+		acceleration = other.acceleration;
+		angular_velocity = other.angular_velocity;
+		angular_acceleration = other.angular_acceleration;
+		mass_inverse = other.mass_inverse;
+		drag = other.drag;
+		angular_drag = other.angular_drag;
+		is_kinematic = other.is_kinematic;
+		inertia_inverse = other.inertia_inverse;
+		coefficient_of_restitution = other.coefficient_of_restitution;
+		static_friction = other.static_friction;
+		dynamic_friction = other.dynamic_friction;
+
+		transform_id = 0;
+		collider_id = 0;
+
+		accumulated_force = {0,0};
+		accumulated_torque = {};
+		calculated_inertia = true;
+	}
+
+
 	Rigidbody2D::~Rigidbody2D()
 	{
 
@@ -21,8 +48,8 @@ namespace PrEngine
 	void Rigidbody2D::initialize()
 	{
 
-		Vec2f position = { 0,0 };
-		Float_32 rotation = 0;
+		position = { 0,0 };
+		rotation = 0;
 
 		velocity = {};
 		acceleration = {};

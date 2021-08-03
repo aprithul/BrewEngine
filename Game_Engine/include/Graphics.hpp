@@ -123,8 +123,7 @@ namespace PrEngine
 
         Graphic();// const Vertex* vertices, GLuint vertices_size, const GLuint* indices, GLuint indices_size, GLsizei indices_count, Material material,Texture texture, VertexLayout layout);
         ~Graphic();
-		//Graphic(const Graphic& other) = delete;
-		//Graphic& operator=(const Graphic& other) = delete;
+		Graphic(const Graphic& other);
 		void initialize() override;
 		void start() override;
 		void update(Float_32 dt) override;

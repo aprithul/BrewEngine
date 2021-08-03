@@ -158,43 +158,6 @@ namespace PrEngine{
 				break;
 			}
 			LOG(LOGTYPE_GENERAL, "added to batch list");
-
-
-			// to be moved
-			/*Uint_32 collider_id = entity_management_system->make_collider_comp(entity);
-			Collider& col = colliders[collider_id];
-			col.graphic_id = graphic_id;
-			col.transform_id = transform_id;
-			col.collision_shape.type = SHAPE_RECT;*/
-			/*for (int _i = 2; _i < tokens.size(); _i += 2)
-			{
-				Vec2f p{ std::strtof(tokens[_i].c_str(), nullptr), std::strtof(tokens[_i + 1].c_str(), nullptr) };
-				col.collision_shape.points[(_i / 2) - 1] = p;
-				col.collision_shape.point_count++;
-			}*/
-
-
-
-
-
-			//braid\\tim_run\\0.gif
-			/*Graphic* graphics = renderer->generate_sprite_graphics(tokens[1], "sprite_mat_" + tokens[1]);
-			entity->add_componenet(graphics);*/
-
-			/*auto e = entity_management_system->make_entity();
-			auto t_id = entity_management_system->make_transform_comp(e);
-
-			auto g_id = entity_management_system->make_graphic_comp(e);
-			//renderer->generate_sprite_graphics(g_id, image_file_path, std::string("sprite_mat_") + image_file_path);
-
-			Uint_32 mat_id = Material::load_material(material_name, true);
-			graphics[g_id].element.material = mat_id;
-
-			renderer->generate_sprite_graphics(g_id);
-
-			graphics[g_id].transform_id = t_id;
-
-			return e;*/
 		}
 		return graphic_id;
 	}
@@ -207,6 +170,83 @@ namespace PrEngine{
 
 	}
 #endif //  EDITOR_MODE
+
+
+	Uint_32 EntityGenerator::duplicate_entity(Uint_32 entity)
+	{
+		std::string name = entity_management_system->entity_names[entity] + " (Copy)";
+		Uint_32 new_entity = entity_management_system->make_entity(name);
+		if (new_entity)
+		{
+			Uint_32 transform_id = 0;
+			Uint_32 graphic_id = 0;
+			Uint_32 collider_id = 0;
+
+			// duplicate transform
+			Uint_32 other_transform_id = transform_system.get_component_id(entity);
+			if (other_transform_id)
+			{
+				Transform3D& other_transform = transform_system.get_component(other_transform_id);
+				transform_id = transform_system.make(new_entity);
+				if (transform_id)
+				{
+					Transform3D transform_copy(other_transform);
+					Transform3D& transform = transform_system.get_component(transform_id);
+					transform_copy.children = transform.children;
+
+					transform = transform_copy;
+					//transform = transform_system.get_component(transform_system.get_component_id(entity));
+				}
+			}
+
+			// duplicate grpahic
+			Uint_32 other_graphic_id = graphics_system.get_component_id(entity);
+			if (other_graphic_id)
+			{
+				Graphic& other_graphic = graphics_system.get_component(other_graphic_id);
+				std::string& mat_name = Material::material_names[other_graphic.element.material];
+				graphic_id = make_sprite(new_entity, Graphic::editor_data[other_graphic_id].scale, (RenderTag)Graphic::editor_data[other_graphic_id].future_tag, 0, transform_id, mat_name);
+			}
+
+
+			// duplicate Collider
+			Uint_32 other_collider_id = PhysicsModule::collider_system.get_component_id(entity);
+			if (other_collider_id)
+			{
+				Collider& other_collider = PhysicsModule::collider_system.get_component(other_collider_id);
+				collider_id = PhysicsModule::collider_system.make(new_entity);
+				if (collider_id)
+				{
+					Collider collider(other_collider);
+					collider.graphic_id = graphic_id;
+					collider.transform_id = transform_id;
+					PhysicsModule::collider_system.get_component(collider_id) = collider;
+				}
+			}
+
+
+			// duplicate rigidbody2d
+			Uint_32 other_rigidbody2d_id = PhysicsModule::rigidbody2d_system.get_component_id(entity);
+			if (other_rigidbody2d_id)
+			{
+				Rigidbody2D& other_rigidbody2d = PhysicsModule::rigidbody2d_system.get_component(other_rigidbody2d_id);
+				Uint_32 rigidbody2d_id = PhysicsModule::rigidbody2d_system.make(new_entity);
+				if (rigidbody2d_id)
+				{
+					Rigidbody2D rigidbody2d(other_rigidbody2d);
+					rigidbody2d.transform_id = transform_id;
+					rigidbody2d.collider_id = collider_id;
+					PhysicsModule::rigidbody2d_system.get_component(rigidbody2d_id) = rigidbody2d;
+				}
+			}
+
+
+		}
+
+		return new_entity;
+
+	}
+
 
 	void EntityGenerator::load_scenegraph(const std::string& scene_file_name) 
 	{

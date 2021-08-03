@@ -31,6 +31,7 @@ namespace PrEngine{
 		Uint_32 make_animated_sprite(Point3d position, const std::string& animation_path, const std::string& material_path);
 		Uint_32 make_light_entity();
 		Uint_32 make_camera_orthographic(Float_32 width, Float_32 height, Float_32 _near, Float_32 _far);
+		Uint_32 duplicate_entity(Uint_32 entity);
 		void load_scenegraph(const std::string& scene_file_name);
 		void generate_batches();
 

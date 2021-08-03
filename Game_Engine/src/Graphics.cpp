@@ -135,6 +135,17 @@ namespace PrEngine
 		start();
     }
 
+	Graphic::Graphic(const Graphic& other):Component(COMP_GRAPHICS)
+	{
+		outline_color = other.outline_color;
+		outline_alpha = other.outline_alpha;		
+
+		animator_id = 0;
+		transform_id = 0;
+		batch_id = 0;
+	}
+
+
 	void Graphic::initialize()
 	{
 		outline_color = Vec3f{ 1,1,1 };

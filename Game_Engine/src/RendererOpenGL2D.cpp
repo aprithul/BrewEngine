@@ -996,7 +996,7 @@ namespace PrEngine {
 			shape_points[_i] = origin + (point * radius);
 		}
 
-		draw_shape(shape_points, 32, color);
+		draw_shape(shape_points, sides, color);
 	}
 
 	void RendererOpenGL2D::draw_rect(Rect<Float_32> rect, Vec4f color)

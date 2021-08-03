@@ -37,12 +37,18 @@ namespace PrEngine
     {
 		Uint_32 entity = transform_system.get_entity(id_transform);
 		transform_system.remove(id_transform);
+		assert(transform_system.get_entity(id_transform) == 0);
+		assert(transform_system.get_component_id(entity) == 0);
 
 		Uint_32 graphics_id = graphics_system.get_component_id(entity);
 		if (graphics_id)
 		{
 			graphics_system.remove(graphics_id);
+			assert(graphics_system.get_entity(graphics_id) == 0);
+			assert(graphics_system.get_component_id(entity) == 0);
+
 		}
+
 
 		Uint_32 animator_id = animator_system.get_component_id(entity);
 		if (animator_id)

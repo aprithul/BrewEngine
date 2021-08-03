@@ -12,6 +12,19 @@ namespace  PrEngine
 
 	}
 
+	Transform3D::Transform3D(const Transform3D& other):Component(COMP_TRANSFORM_3D)
+	{
+		transformation = other.transformation;
+
+		local_position = other.local_position;
+		local_scale = other.local_scale;
+		local_rotation = other.local_rotation;
+
+		parent_transform = other.parent_transform;
+		is_dirty = true;
+	}
+
+
 	void Transform3D::initialize()
 	{
 		transformation = Mat4x4::Identity();

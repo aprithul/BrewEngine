@@ -9,6 +9,15 @@ namespace PrEngine
 		initialize();
 	}
 
+	Collider::Collider(const Collider& other) : Component(COMP_COLLIDER)
+	{
+		graphic_id = 0;
+		transform_id = 0;
+		point_count = other.point_count;
+		type = other.type;
+		memcpy(points, other.points, sizeof(Vec2f) * Collider_Max_Point_Count);
+	}
+
 	void Collider::initialize()
 	{
 		graphic_id = 0;
@@ -272,7 +281,10 @@ namespace PrEngine
 			//{
 			Vec3f perp = Cross(Cross(vec2, vec1), vec2);
 			dir = (Vec2f)(perp.GetNormalized());
-			return false;
+			if (dir.GetSqrdMagnitude() <= EPSILON)
+				return true;
+			else
+				return false;
 			//}
 			//else
 			//{
@@ -291,7 +303,8 @@ namespace PrEngine
 		static Vec2f support_p2;
 		static Vec2f origin{ 0,0 };
 		Vec2f support_points[2];
-		Vec2f dir{ 1,0 };
+		Vec2f dir{ RandomFraction(-1,1), RandomFraction(-1,1) };
+		dir.Normalize();
 
 		support_p1 = support( dir, col_A);
 		support_p2 = support(-dir, col_B);

@@ -1,2 +1,2 @@
-texture braid/tim_run/9.gif
+texture texture/color_circle.png
 shader shaders/DiffuseUnlit2D.shader

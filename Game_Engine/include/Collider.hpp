@@ -24,15 +24,18 @@ namespace PrEngine {
 	};
 
 
+	const Uint_32 Collider_Max_Point_Count = 16;
+
 	struct Collider :public Component
 	{
-		Vec2f points[16];
+		Vec2f points[Collider_Max_Point_Count];
 		Uint_32 graphic_id;
 		Uint_32 transform_id;
 		Shape2DTypes type;
 		Uint_32 point_count;
 
 		Collider();
+		Collider(const Collider&);
 		void initialize() override;
 		void start() override;
 		void update(Float_32 dt) override;

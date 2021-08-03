@@ -26,6 +26,7 @@ namespace PrEngine
 
 		Rigidbody2D();
 		~Rigidbody2D();
+		Rigidbody2D(const Rigidbody2D& other);
 		void initialize() override;
 		void start() override;
 		void update(Float_32 dt) override;
