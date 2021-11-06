@@ -8,6 +8,7 @@
 #include "Animator.hpp"
 #include "EntityManagementSystemModule.hpp"
 #include "Graphics.hpp"
+#include <mutex>
 
 namespace PrEngine
 {
@@ -103,9 +104,10 @@ namespace PrEngine
 	{
 
 	}
-
+	std::mutex add_animation_mutex;
 	void Animator::add_animation(Uint_32 animation_id)
 	{
+		add_animation_mutex.lock();
 		for (Uint_32 a : animation_ids)
 		{
 			if (a == animation_id)
@@ -119,27 +121,33 @@ namespace PrEngine
 		}
 		else
 			LOG(LOGTYPE_ERROR, "Max number of animations already added to animator");
+
+		add_animation_mutex.unlock();
 	}
+
+	std::mutex animation_loader_mutex;
 	Uint_32 Animator::load_animation(const std::string& file_name)
 	{
-		Animation::animation_load_status = 1;
-		Int_32 present_at = -1;
-		for (int _i = 0; _i < animation_clip_names.size(); _i++)
-		{
-			if (animation_clip_names[_i] == file_name)
+		animation_loader_mutex.lock();
+			Animation::animation_load_status = 1;
+			Int_32 present_at = -1;
+			for (int _i = 0; _i < animation_clip_names.size(); _i++)
 			{
-				present_at = _i;
-				break;
+				if (animation_clip_names[_i] == file_name)
+				{
+					present_at = _i;
+					break;
+				}
 			}
-		}
 
-		Uint_32 animation_pos = present_at;
-		if (present_at == -1)
-		{
-			animations_library.emplace_back(file_name);
-			animation_clip_names.push_back(file_name);
-			animation_pos = animations_library.size() - 1;
-		}
+			Uint_32 animation_pos = present_at;
+			if (present_at == -1)
+			{
+				animations_library.emplace_back(file_name);
+				animation_clip_names.push_back(file_name);
+				animation_pos = animations_library.size() - 1;
+			}
+		animation_loader_mutex.unlock();
 
 		return animation_pos;
 	}

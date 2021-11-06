@@ -20,6 +20,7 @@ namespace PrEngine {
 	RendererOpenGL2D* renderer = nullptr;
 	//Uint_32 max_vertices_in_batch;
 	GLint max_texture_units = 0;
+	bool created_shapes_layer = false;
 
 	RendererOpenGL2D::RendererOpenGL2D(Int_32 width, Int_32 height, Bool_8 full_screen, std::string& title, std::string module_name, Int_32 priority):Module(module_name, priority)
     {
@@ -133,8 +134,9 @@ namespace PrEngine {
         SpriteLayer* sprite_layer = new SpriteLayer();
         render_layers.push_back(sprite_layer);
 
-		ShapesLayer* shapes_layer = new ShapesLayer();
-		render_layers.push_back(shapes_layer);
+		//ShapesLayer* shapes_layer = new ShapesLayer();
+		//render_layers.push_back(shapes_layer);
+		//created_shapes_layer = true;
 
 		//GizmoLayer* gizmo_layer = new GizmoLayer();
 		//render_layers.push_back(gizmo_layer);
@@ -929,13 +931,17 @@ namespace PrEngine {
 	void RendererOpenGL2D::draw_line(Vec3f p1, Vec3f p2, Vec4f color)
 	{
 		//return;
-		lines.push_back({ color, p1,p2 });
+		if(created_shapes_layer)
+			lines.push_back({ color, p1,p2 });
 	}
 
 	void RendererOpenGL2D::draw_ray(Vec3f origin, Vec3f dir, Float_32 len, Vec4f color)
 	{
-		Vec3f p2 = origin + (dir*len);
-		lines.push_back({ color, origin, p2});
+		if (created_shapes_layer)
+		{
+			Vec3f p2 = origin + (dir*len);
+			lines.push_back({ color, origin, p2 });
+		}
 
 	}
 
@@ -946,8 +952,8 @@ namespace PrEngine {
 		//return;
 		p1 = transformation * p1;
 		p2 = transformation * p2;
-
-		lines.push_back({ color, p1,p2 });
+		if (created_shapes_layer)
+			lines.push_back({ color, p1,p2 });
 	}
 
 	void RendererOpenGL2D::draw_point(Vec3f pos)

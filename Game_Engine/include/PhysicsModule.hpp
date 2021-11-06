@@ -19,9 +19,10 @@ namespace PrEngine {
 	{
 		static ComponentSystem<Rigidbody2D> rigidbody2d_system;
 		static ComponentSystem<Collider> collider_system;
+		static std::vector<std::thread> contact_generator_threads;
+
 		static Vec2f gravity;
 		static std::vector<Contact> contacts;
-
 		PhysicsModule(std::string name, Int_32 priority);
 		~PhysicsModule();
 
@@ -32,6 +33,10 @@ namespace PrEngine {
 		void start() override;
 		void update() override;
 		void end() override;
+
+	private:
+		static void generate_contact(int i, int j);
+		static void make_thread_pool();
 	};
 
 	extern PhysicsModule* physics_module;

@@ -91,8 +91,6 @@ namespace PrEngine
 	}
 	Vec3f Camera::get_screen_to_world_pos(Vec2f screen_pos)
 	{
-		static int _wait = 60;
-		_wait--;
 		//screen_pos.x = 155;
 		//screen_pos.y = 202;
 		Int_32 _x = clamp<Float_32>(screen_pos.x, renderer->viewport_pos.x, renderer->viewport_pos.x+renderer->viewport_size.x);

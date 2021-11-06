@@ -1,6 +1,8 @@
 #include "Material.hpp"
 #include <cctype>
 #include <assert.h>
+#include <mutex>
+
 namespace PrEngine
 {
 	//Material empty_material;
@@ -192,8 +194,10 @@ namespace PrEngine
         
     }
 
+	std::mutex load_material_mutex;
 	Uint_32 Material::load_material( const std::string& material_name, Bool_8 do_make_gl_texture, const std::string& name_modifier)
 	{
+		load_material_mutex.lock();
 		Int_32 present_at = -1;
 		for (int _i=0; _i<material_names.size(); _i++)
 		{
@@ -255,6 +259,7 @@ namespace PrEngine
 			{
 				material_creation_status = 0;
 				LOG(LOGTYPE_ERROR, "Material definition incomplete");
+				load_material_mutex.unlock();
 				return material_id;
 			}
 
@@ -320,7 +325,7 @@ namespace PrEngine
 			material_id = present_at;
 		
 		//LOG(LOGTYPE_ERROR, "Material creation failed, error creating texture or shader");
-
+		load_material_mutex.unlock();
 		return material_id;
 	}
 

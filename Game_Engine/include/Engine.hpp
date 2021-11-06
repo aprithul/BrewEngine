@@ -47,6 +47,8 @@ namespace PrEngine {
         void end();
         void set_frame_rate(Int_32 frame_rate);
         Bool_8 compare(std::string a, std::string b);
+		Bool_8 is_running;
+
     private:
         // map to store all components
         // sorted in execution order
@@ -55,7 +57,6 @@ namespace PrEngine {
         std::vector<Module*> engine_modules;
         Int_32 frame_rate;
         Double_64 frame_delta;
-        Bool_8 is_running;
 
     };
 

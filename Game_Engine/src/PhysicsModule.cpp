@@ -1,7 +1,38 @@
 #include "PhysicsModule.hpp"
 #include "EntityManagementSystemModule.hpp"
 #include "RendererOpenGL2D.hpp"
+#include "Engine.hpp"
+#include <thread>
+#include <mutex>
+#include <queue>
+#include <atomic>
 namespace PrEngine {
+
+
+	struct ThreadSafeQueue
+	{
+		std::mutex _lock;
+		std::queue<std::pair<int, int>> instance;
+	};
+
+	//static Bool_8 run_physics_threads = true;
+	ThreadSafeQueue jobs;
+	std::atomic_int job_count;
+	std::atomic_bool jobs_ready;
+
+	std::vector<std::thread> PhysicsModule::contact_generator_threads;
+
+	void PhysicsModule::make_thread_pool()
+	{
+		Uint_32 max_threads = std::thread::hardware_concurrency();
+		for (Uint_32 i = 0; i < 2; i++)
+		{
+			contact_generator_threads.emplace_back(generate_contact, 0, 0);
+		}
+	}
+
+
+
 
 	ComponentSystem<Rigidbody2D> PhysicsModule::rigidbody2d_system(Max_rigidbody2d_count);
 	ComponentSystem<Collider> PhysicsModule::collider_system(Max_collider_count);
@@ -17,6 +48,9 @@ namespace PrEngine {
 			physics_module = this;
 
 		gravity = { 0, -10.f };
+
+		jobs_ready.store(false);
+		make_thread_pool();
 	}
 
 	PhysicsModule::~PhysicsModule()
@@ -149,8 +183,357 @@ namespace PrEngine {
 		contact.tangent_mass += inertia_inv_A * (Dot(contact.rA, contact.rA) - rt1 * rt1) + inertia_inv_B * (Dot(contact.rB, contact.rB) - rt2 * rt2);
 	}
 
+
+	std::mutex contact_generation_mtx;
+	void PhysicsModule::generate_contact(int i, int j)
+	{
+		while (Engine::engine->is_running)
+		{		
+			//contact_generation_mtx.lock();
+
+			//LOG(LOGTYPE_GENERAL, "iteration");
+			while (!jobs_ready.load() && Engine::engine->is_running);
+
+			jobs._lock.lock();
+			if (jobs.instance.empty())
+			{
+				jobs._lock.unlock();
+				continue;
+			}
+
+			std::pair<int, int> i_j = jobs.instance.front();
+			jobs.instance.pop();
+			jobs._lock.unlock();
+
+			i = i_j.first;
+			j = i_j.second;
+			Rigidbody2D& rb_A = rigidbody2d_system.get_component(i);
+			Rigidbody2D& rb_B = rigidbody2d_system.get_component(j);
+			Collider& col_a = collider_system.get_component(rb_A.collider_id);
+			Collider& col_b = collider_system.get_component(rb_B.collider_id);
+
+			std::vector<SimplexPoint> simplex;
+			Bool_8 did_intersect = intersect_GJK(col_a, col_b, simplex);
+
+			std::vector<Vec2f> simplex_points;
+			if (did_intersect)
+			{
+				SimplexPoint sp_closest;
+
+				std::vector<Vec2f> shape_a_points;
+				std::vector<Vec2f> shape_b_points;
+
+				for (SimplexPoint sp : simplex)
+				{
+					shape_a_points.push_back(sp.support_point_1);
+					shape_b_points.push_back(sp.support_point_2);
+				}
+
+				Vec2f penetration = do_EPA(col_a, col_b, simplex);
+				/*Contact contact;
+				contact.normal = penetration.GetNormalized();
+				contact.depth = penetration.GetMagnitude();
+				contact.collider_a = i;
+				contact.collider_b = j;*/
+
+				Vec2f a_p0;
+				Vec2f a_p1;
+				Float_32 _max = 0;
+				Vec2f contact_normal = penetration.GetNormalized();
+				Vec2f points[4];
+				Uint_32 point_count = 0;
+				Uint_32 third_point_ind = 0;
+
+				if (contact_normal.GetSqrdMagnitude() > EPSILON)
+				{
+					for (Uint_32 _k = 0; _k < shape_a_points.size(); _k++)
+					{
+						Vec3f p0 = shape_a_points[_k];
+						Vec3f p1 = shape_a_points[(_k + 1) % shape_a_points.size()];
+						Vec3f p2 = shape_a_points[(_k + 2) % shape_a_points.size()];
+						Vec3f _dir = (p0 - p1).Normalize();
+						Vec3f _crossed = Cross(_dir, (Vec3f)contact_normal);
+						Vec3f dir_to_surface = Cross(_crossed, _dir);
+						Float_32 p2_proj = Dot(dir_to_surface, p2 - p1);
+						if (p2_proj <= EPSILON)
+						{
+							Float_32 p = get_parallelity(p0, p1, contact_normal);
+							if (p > _max)
+							{
+								a_p0 = shape_a_points[_k];
+								a_p1 = shape_a_points[(_k + 1) % shape_a_points.size()];
+								_max = p;
+							}
+						}
+					}
+
+
+
+					if (_max >= 0.99f)
+					{
+						points[0] = a_p0;
+						points[1] = a_p1;
+						point_count += 2;
+					}
+					else
+					{
+
+						if ((a_p0 - a_p1).GetSqrdMagnitude() <= EPSILON)	// only one unique point
+						{
+							points[0] = shape_a_points[0];
+						}
+						else
+						{
+							Float_32 proj_p0 = Dot(contact_normal, a_p0);
+							Float_32 proj_p1 = Dot(contact_normal, a_p1);
+							if (proj_p0 > proj_p1)
+							{
+								points[0] = a_p0;
+							}
+							else
+							{
+								points[0] = a_p1;
+							}
+						}
+
+						points[1] = { 0, 0 };
+						point_count++;
+						third_point_ind = 0;
+					}
+
+
+
+					Vec2f b_p0;
+					Vec2f b_p1;
+					_max = 0;
+					for (Uint_32 _k = 0; _k < shape_b_points.size(); _k++)
+					{
+						Vec3f p0 = shape_b_points[_k];
+						Vec3f p1 = shape_b_points[(_k + 1) % shape_b_points.size()];
+						Vec3f p2 = shape_b_points[(_k + 2) % shape_b_points.size()];
+						Vec3f _dir = (p0 - p1).Normalize();
+						Vec3f _crossed = Cross(_dir, -(Vec3f)contact_normal);
+						Vec3f dir_to_surface = Cross(_crossed, _dir);
+						Float_32 p2_proj = Dot(dir_to_surface, p2 - p1);
+						if (p2_proj <= EPSILON)
+						{
+							Float_32 p = get_parallelity(shape_b_points[_k], shape_b_points[(_k + 1) % shape_b_points.size()], contact_normal);
+							if (p > _max)
+							{
+								b_p0 = shape_b_points[_k];
+								b_p1 = shape_b_points[(_k + 1) % shape_b_points.size()];
+								_max = p;
+							}
+						}
+					}
+					//if (_max >= 1.f - EPSILON)
+					if (_max >= 0.99f)
+					{
+						points[2] = b_p0;
+						points[3] = b_p1;
+						point_count += 2;
+					}
+					else
+					{
+						if ((b_p0 - b_p1).GetSqrdMagnitude() <= EPSILON)	// only one unique point
+						{
+							points[2] = shape_b_points[0];
+						}
+						else
+						{
+							Float_32 proj_p0 = Dot(-contact_normal, b_p0);
+							Float_32 proj_p1 = Dot(-contact_normal, b_p1);
+							if (proj_p0 > proj_p1)
+							{
+								points[2] = b_p0;
+							}
+							else
+							{
+								points[2] = b_p1;
+							}
+						}
+						points[3] = { 0, 0 };
+						point_count++;
+						third_point_ind = 2;
+					}
+				}
+
+
+				if (point_count == 4)
+				{
+
+					/*if (abs<Float_32>(rb_A.angular_velocity) < 0.5f)
+						rb_A.angular_velocity *= 0.5f;
+					if (abs<Float_32>(rb_B.angular_velocity) < 0.5f)
+						rb_B.angular_velocity *= 0.5;*/
+
+					Vec2f p0 = points[0];
+					Vec2f p1 = points[1];
+					Vec2f p2 = points[2];
+					Vec2f p3 = points[3];
+
+					Vec2f proj_dir = (p1 - p0);
+					Vec2f proj_dir_norm = proj_dir.GetNormalized();
+					Float_32 proj_len = proj_dir.GetMagnitude();
+
+					Float_32 p2_proj = Dot(proj_dir_norm, p2 - p0);
+					Float_32 p3_proj = Dot(proj_dir_norm, p3 - p0);
+
+					// p3 must always have largest projection along proj_dir
+					if (p2_proj > p3_proj)
+					{
+						std::swap(p2, p3);
+						std::swap(p2_proj, p3_proj);
+					}
+
+
+
+					// figure out impact point from overlap
+					if (p2_proj < 0 && (p3_proj >= 0 && p3_proj <= proj_len))
+					{
+
+						{
+							Contact c1{ p0, penetration.GetNormalized(), { 0,0 }, { 0,0 }, i, j, penetration.GetMagnitude() };
+							calculate_contact_mass(p0, contact_normal, rb_A, rb_B, c1);
+
+							contact_generation_mtx.lock();
+							contacts.push_back(c1);
+							contact_generation_mtx.unlock();
+						}
+
+						{
+							Contact c1{ p3, penetration.GetNormalized(),{0,0},{0,0}, i,j, penetration.GetMagnitude() };
+							calculate_contact_mass(p3, contact_normal, rb_A, rb_B, c1);
+							contact_generation_mtx.lock();
+							contacts.push_back(c1);
+							contact_generation_mtx.unlock();
+
+						}
+						//impact_point = (p0 + p3) / 2;
+					}
+					else if ((p2_proj >= 0 && p2_proj <= proj_len) && p3_proj > proj_len)
+					{
+						{
+							Contact c1{ p2, penetration.GetNormalized(),{0,0},{0,0},i,j, penetration.GetMagnitude() };
+							calculate_contact_mass(p2, contact_normal, rb_A, rb_B, c1);
+							contact_generation_mtx.lock();
+							contacts.push_back(c1);
+							contact_generation_mtx.unlock();					
+						}
+
+						{
+							Contact c1{ p1, penetration.GetNormalized(),{0,0},{0,0},i,j, penetration.GetMagnitude() };
+							calculate_contact_mass(p1, contact_normal, rb_A, rb_B, c1);
+							contact_generation_mtx.lock();
+							contacts.push_back(c1);
+							contact_generation_mtx.unlock();
+						}
+
+						//impact_point = (p1 + p2) / 2;
+					}
+					else if (p2_proj <0 && p3_proj > proj_len)
+					{
+						{
+
+							Contact c1{ p0, penetration.GetNormalized(),{0,0},{0,0},i,j, penetration.GetMagnitude() };
+							calculate_contact_mass(p0, contact_normal, rb_A, rb_B, c1);
+							contact_generation_mtx.lock();
+							contacts.push_back(c1);
+							contact_generation_mtx.unlock();
+						}
+
+						{
+
+							Contact c1{ p1, penetration.GetNormalized(),{0,0},{0,0},i,j, penetration.GetMagnitude() };
+							calculate_contact_mass(p1, contact_normal, rb_A, rb_B, c1);
+							contact_generation_mtx.lock();
+							contacts.push_back(c1);
+							contact_generation_mtx.unlock();
+						}
+
+						//impact_point = (p0 + p1) / 2;
+					}
+					else
+					{
+						{
+							Contact c1{ p2, penetration.GetNormalized(),{0,0},{0,0},i,j, penetration.GetMagnitude() };
+							calculate_contact_mass(p2, contact_normal, rb_A, rb_B, c1);
+							contact_generation_mtx.lock();
+							contacts.push_back(c1);
+							contact_generation_mtx.unlock();
+						}
+
+						{
+							Contact c1{ p3, penetration.GetNormalized(),{0,0},{0,0},i,j, penetration.GetMagnitude() };
+							calculate_contact_mass(p3, contact_normal, rb_A, rb_B, c1);
+							contact_generation_mtx.lock();
+							contacts.push_back(c1);
+							contact_generation_mtx.unlock();
+						}
+
+						//impact_point = (p2 + p3) / 2;
+					}
+
+				}
+				else if (point_count == 3)
+				{
+					//Vec2f impact_point;
+					Vec2f p = points[third_point_ind];
+
+					Contact c1{ p, penetration.GetNormalized(),{0,0},{0,0},i,j, penetration.GetMagnitude() };
+					calculate_contact_mass(p, contact_normal, rb_A, rb_B, c1);
+
+					contact_generation_mtx.lock();
+					contacts.push_back(c1);
+					contact_generation_mtx.unlock();
+					//impact_point = contact.points[contact.third_point_ind].global_position;
+				}
+				else if (point_count == 2)
+				{
+					Vec2f p = (points[0] + points[2]) / 2.f;
+					Contact c1{ p, penetration.GetNormalized(),{0,0},{0,0},i,j, penetration.GetMagnitude() };
+					calculate_contact_mass(p, contact_normal, rb_A, rb_B, c1);
+					contact_generation_mtx.lock();
+					contacts.push_back(c1);
+					contact_generation_mtx.unlock();
+					//impact_point = (contact.points[0].global_position + contact.points[2].global_position) / 2;
+				}
+				else if (point_count == 1)
+				{
+					Vec2f p = points[0];
+					Contact c1{ p, penetration.GetNormalized(),{0,0},{0,0},i,j, penetration.GetMagnitude() };
+					calculate_contact_mass(p, contact_normal, rb_A, rb_B, c1);
+					contact_generation_mtx.lock();
+					contacts.push_back(c1);
+					contact_generation_mtx.unlock();
+					//impact_points.push_back(contact.points[0]);
+					//impact_point = contact.points[0].global_position;
+					//LOG(LOGTYPE_ERROR, "Shouldn't be here!");
+				}
+
+				Vec4f red_color{ 1.0, 0, 0, 1.0 };
+				Vec4f cyan_color{ 0.0, 1, 1, 1.0 };
+				Rect<Float_32> a = points_to_rect(collider_system.get_component(i).points);//, transforms[tr_a].transformation);
+				Rect<Float_32> b = points_to_rect(collider_system.get_component(j).points);//, transforms[tr_b].transformation);
+			}
+
+			job_count.fetch_sub(1);
+		}
+
+		LOG(LOGTYPE_GENERAL, "closing thread");
+		//contact_generation_mtx.unlock();
+
+	}
+
 	void PhysicsModule::update()
 	{
+
+		/*if(input_manager->keyboard.get_key_down(SDLK_y))
+			run_physics_threads = false;*/
+
+
+		void(*generate_contact_func_ptr)(int,int) = generate_contact;
+
 		static Vec2f contact_p1;
 		static Vec2f contact_p2;
 
@@ -175,7 +558,7 @@ namespace PrEngine {
 			if(!rb.is_kinematic)
 				rb.velocity += gravity * dt;
 		}
-
+		std::vector<std::thread> generate_contact_threads;
 
 		while (accumulator >= dt)
 		{
@@ -186,566 +569,21 @@ namespace PrEngine {
 			{
 				for (Uint_32 j = i+1; j < rigidbody2d_system.new_id; j++)
 				{
-					Rigidbody2D& rb_A = rigidbody2d_system.get_component(i);
-					Rigidbody2D& rb_B = rigidbody2d_system.get_component(j);
-					Collider& col_a = collider_system.get_component(rb_A.collider_id);
-					Collider& col_b = collider_system.get_component(rb_B.collider_id);
-					
-					std::vector<SimplexPoint> simplex;
-					Bool_8 did_intersect = intersect_GJK(col_a, col_b, simplex);
-
-					std::vector<Vec2f> simplex_points;
-					if (did_intersect)
-					{
-						SimplexPoint sp_closest;
-
-						std::vector<Vec2f> shape_a_points;
-						std::vector<Vec2f> shape_b_points;
-
-						for (SimplexPoint sp : simplex)
-						{
-							shape_a_points.push_back(sp.support_point_1);
-							shape_b_points.push_back(sp.support_point_2);
-						}
-
-						Vec2f penetration = do_EPA(col_a, col_b, simplex);
-						/*Contact contact;
-						contact.normal = penetration.GetNormalized();
-						contact.depth = penetration.GetMagnitude();
-						contact.collider_a = i;
-						contact.collider_b = j;*/
-
-						Vec2f a_p0;
-						Vec2f a_p1;
-						Float_32 _max = 0;
-						Vec2f contact_normal = penetration.GetNormalized();
-						Vec2f points[4];
-						Uint_32 point_count = 0;
-						Uint_32 third_point_ind = 0;
-
-						if (contact_normal.GetSqrdMagnitude() > EPSILON)
-						{
-							for (Uint_32 _k = 0; _k < shape_a_points.size(); _k++)
-							{
-								Vec3f p0 = shape_a_points[_k];
-								Vec3f p1 = shape_a_points[(_k + 1) % shape_a_points.size()];
-								Vec3f p2 = shape_a_points[(_k + 2) % shape_a_points.size()];
-								Vec3f _dir = (p0 - p1).Normalize();
-								Vec3f _crossed = Cross(_dir, (Vec3f)contact_normal);
-								Vec3f dir_to_surface = Cross(_crossed, _dir);
-								Float_32 p2_proj = Dot(dir_to_surface, p2 - p1);
-								if (p2_proj <= EPSILON)
-								{
-									Float_32 p = get_parallelity(p0, p1, contact_normal);
-									if (p > _max)
-									{
-										a_p0 = shape_a_points[_k];
-										a_p1 = shape_a_points[(_k + 1) % shape_a_points.size()];
-										_max = p;
-									}
-								}
-							}
-
-							
-
-							if (_max >= 0.99f)
-							{
-								points[0] = a_p0;
-								points[1] = a_p1;
-								point_count += 2;
-							}
-							else
-							{
-
-								if ((a_p0 - a_p1).GetSqrdMagnitude() <= EPSILON)	// only one unique point
-								{
-									points[0] = shape_a_points[0];
-								}
-								else
-								{
-									Float_32 proj_p0 = Dot(contact_normal, a_p0);
-									Float_32 proj_p1 = Dot(contact_normal, a_p1);
-									if (proj_p0 > proj_p1)
-									{
-										points[0] = a_p0;
-									}
-									else
-									{
-										points[0] = a_p1;
-									}
-								}
-
-								points[1]= { 0, 0 };
-								point_count++;
-								third_point_ind = 0;
-							}
-
-
-
-							Vec2f b_p0;
-							Vec2f b_p1;
-							_max = 0;
-							for (Uint_32 _k = 0; _k < shape_b_points.size(); _k++)
-							{
-								Vec3f p0 = shape_b_points[_k];
-								Vec3f p1 = shape_b_points[(_k + 1) % shape_b_points.size()];
-								Vec3f p2 = shape_b_points[(_k + 2) % shape_b_points.size()];
-								Vec3f _dir = (p0 - p1).Normalize();
-								Vec3f _crossed = Cross(_dir, -(Vec3f)contact_normal);
-								Vec3f dir_to_surface = Cross(_crossed, _dir);
-								Float_32 p2_proj = Dot(dir_to_surface, p2 - p1);
-								if (p2_proj <= EPSILON)
-								{
-									Float_32 p = get_parallelity(shape_b_points[_k], shape_b_points[(_k + 1) % shape_b_points.size()], contact_normal);
-									if (p > _max)
-									{
-										b_p0 = shape_b_points[_k];
-										b_p1 = shape_b_points[(_k + 1) % shape_b_points.size()];
-										_max = p;
-									}
-								}
-							}
-							//if (_max >= 1.f - EPSILON)
-							if (_max >= 0.99f)
-							{
-								points[2] = b_p0;
-								points[3] = b_p1;
-								point_count += 2;
-							}
-							else
-							{
-								if ((b_p0 - b_p1).GetSqrdMagnitude() <= EPSILON)	// only one unique point
-								{
-									points[2] = shape_b_points[0];
-								}
-								else
-								{
-									Float_32 proj_p0 = Dot(-contact_normal, b_p0);
-									Float_32 proj_p1 = Dot(-contact_normal, b_p1);
-									if (proj_p0 > proj_p1)
-									{
-										points[2] = b_p0;
-									}
-									else
-									{
-										points[2] = b_p1;
-									}
-								}
-								points[3] = { 0, 0 };
-								point_count++;
-								third_point_ind = 2;
-							}
-						}
-						/*Uint_32 tr_id_a = collider_system.get_component(contact.collider_a).transform_id;
-						Transform3D& tr_a = transform_system.get_component(tr_id_a);
-						Uint_32 tr_id_b = collider_system.get_component(contact.collider_b).transform_id;
-						Transform3D& tr_b = transform_system.get_component(tr_id_b);*/
-
-						//Uint_32 ent_a = collider_system.get_entity(i);
-						//Uint_32 ent_b = collider_system.get_entity(j);
-						//Uint_32 rb_a_id = rigidbody2d_system.get_component_id(ent_a);
-						//Uint_32 rb_b_id = rigidbody2d_system.get_component_id(ent_b);
-
-						//Vec2f vel_a;
-						//Vec2f vel_b;
-						////Vec2f pos_a = rb_A.position;// transform_system.get_component(t_id_i).get_global_position();
-						////Vec2f pos_b = rb_B.position;// transform_system.get_component(t_id_j).get_global_position();
-
-
-						//if (rb_a_id)
-						//{
-						//	Rigidbody2D& rb_a = rigidbody2d_system.get_component(rb_a_id);
-						//	vel_a = rb_a.velocity;
-						//}
-
-						//if (rb_b_id)
-						//{
-						//	Rigidbody2D& rb_b = rigidbody2d_system.get_component(rb_b_id);
-						//	vel_b = rb_b.velocity;
-						//}
-
-
-						
-
-
-
-						if (point_count == 4)
-						{
-
-							/*if (abs<Float_32>(rb_A.angular_velocity) < 0.5f)
-								rb_A.angular_velocity *= 0.5f;
-							if (abs<Float_32>(rb_B.angular_velocity) < 0.5f)
-								rb_B.angular_velocity *= 0.5;*/
-
-							Vec2f p0 = points[0];
-							Vec2f p1 = points[1];
-							Vec2f p2 = points[2];
-							Vec2f p3 = points[3];
-
-							Vec2f proj_dir = (p1 - p0);
-							Vec2f proj_dir_norm = proj_dir.GetNormalized();
-							Float_32 proj_len = proj_dir.GetMagnitude();
-
-							Float_32 p2_proj = Dot(proj_dir_norm, p2 - p0);
-							Float_32 p3_proj = Dot(proj_dir_norm, p3 - p0);
-
-							// p3 must always have largest projection along proj_dir
-							if (p2_proj > p3_proj)
-							{
-								std::swap(p2, p3);
-								std::swap(p2_proj, p3_proj);
-							}
-
-							
-
-							// figure out impact point from overlap
-							if (p2_proj < 0 && (p3_proj >= 0 && p3_proj <= proj_len))
-							{
-
-								{
-									Contact c1{ p0, penetration.GetNormalized(), { 0,0 }, { 0,0 }, i, j, penetration.GetMagnitude()};
-									calculate_contact_mass(p0, contact_normal, rb_A, rb_B, c1);
-
-									contacts.push_back(c1);
-								}
-
-								{
-									Contact c1{ p3, penetration.GetNormalized(),{0,0},{0,0}, i,j, penetration.GetMagnitude()};
-									calculate_contact_mass(p3, contact_normal, rb_A, rb_B, c1);
-									contacts.push_back(c1);
-								}
-								//impact_point = (p0 + p3) / 2;
-							}
-							else if ((p2_proj >= 0 && p2_proj <= proj_len) && p3_proj > proj_len)
-							{
-								{
-									Contact c1{ p2, penetration.GetNormalized(),{0,0},{0,0},i,j, penetration.GetMagnitude()};
-									calculate_contact_mass(p2, contact_normal, rb_A, rb_B,c1);
-									contacts.push_back(c1);
-								}
-
-								{
-									Contact c1{ p1, penetration.GetNormalized(),{0,0},{0,0},i,j, penetration.GetMagnitude()};
-									calculate_contact_mass(p1, contact_normal, rb_A, rb_B, c1);
-									contacts.push_back(c1);
-								}
-
-								//impact_point = (p1 + p2) / 2;
-							}
-							else if (p2_proj <0 && p3_proj > proj_len)
-							{
-								{
-
-									Contact c1{ p0, penetration.GetNormalized(),{0,0},{0,0},i,j, penetration.GetMagnitude()};
-									calculate_contact_mass(p0, contact_normal, rb_A, rb_B, c1);
-									contacts.push_back(c1);
-
-								}
-
-								{
-
-									Contact c1{ p1, penetration.GetNormalized(),{0,0},{0,0},i,j, penetration.GetMagnitude()};
-									calculate_contact_mass(p1, contact_normal, rb_A, rb_B, c1);
-									contacts.push_back(c1);
-								}
-
-								//impact_point = (p0 + p1) / 2;
-							}
-							else
-							{
-								{
-									Contact c1{ p2, penetration.GetNormalized(),{0,0},{0,0},i,j, penetration.GetMagnitude()};
-									calculate_contact_mass(p2, contact_normal, rb_A, rb_B, c1);
-									contacts.push_back(c1);
-								}
-
-								{
-									Contact c1{ p3, penetration.GetNormalized(),{0,0},{0,0},i,j, penetration.GetMagnitude()};
-									calculate_contact_mass(p3, contact_normal, rb_A, rb_B, c1);
-									contacts.push_back(c1);
-								}
-
-								//impact_point = (p2 + p3) / 2;
-							}
-
-						}
-						else if (point_count == 3)
-						{
-							//Vec2f impact_point;
-							Vec2f p = points[third_point_ind];
-
-							Contact c1{ p, penetration.GetNormalized(),{0,0},{0,0},i,j, penetration.GetMagnitude()};
-							calculate_contact_mass(p, contact_normal, rb_A, rb_B, c1);
-
-							contacts.push_back(c1);
-							//impact_point = contact.points[contact.third_point_ind].global_position;
-						}
-						else if (point_count == 2)
-						{
-							Vec2f p = (points[0] + points[2]) / 2.f;
-							Contact c1{ p, penetration.GetNormalized(),{0,0},{0,0},i,j, penetration.GetMagnitude()};
-							calculate_contact_mass(p, contact_normal, rb_A, rb_B, c1);
-							contacts.push_back(c1);
-							//impact_point = (contact.points[0].global_position + contact.points[2].global_position) / 2;
-						}
-						else if (point_count == 1)
-						{
-							Vec2f p = points[0];
-							Contact c1{ p, penetration.GetNormalized(),{0,0},{0,0},i,j, penetration.GetMagnitude()};
-							calculate_contact_mass(p, contact_normal, rb_A, rb_B, c1);
-							contacts.push_back(c1);
-							//impact_points.push_back(contact.points[0]);
-							//impact_point = contact.points[0].global_position;
-							//LOG(LOGTYPE_ERROR, "Shouldn't be here!");
-						}
-
-						Vec4f red_color{ 1.0, 0, 0, 1.0 };
-						Vec4f cyan_color{ 0.0, 1, 1, 1.0 };
-						Rect<Float_32> a = points_to_rect(collider_system.get_component(i).points);//, transforms[tr_a].transformation);
-						Rect<Float_32> b = points_to_rect(collider_system.get_component(j).points);//, transforms[tr_b].transformation);
-					}
+					//generate_contact_threads.emplace_back(generate_contact_func_ptr, i,j);
+					//std::thread t(generate_contact_func_ptr, i, j);
+					//t.join();
+					//generate_contact(i, j);
+					jobs.instance.push({ i,j });
+					job_count.fetch_add(1);
 				}
 			}
 
-
-			/*
-			// do collision check and find contact information
-			for (Uint_32 i = 0; i < collider_system.new_id; i++)
-			{
-				if (collider_system.get_entity(i))
-				{
-					Uint_32 t_id_i = collider_system.get_component(i).transform_id;
-					//if (!t_id_i)continue;
-
-					for (Uint_32 j = i + 1; j < collider_system.new_id; j++)
-					{
-						{
-							Uint_32 t_id_j = collider_system.get_component(j).transform_id;
-							//if (!t_id_j)continue;
-						
-							Collider& col_a = collider_system.get_component(i);
-							Collider& col_b = collider_system.get_component(j);
-							//Transform3D& tr_a = transform_system.get_component(col_a.transform_id);
-							//Transform3D& tr_b = transform_system.get_component(col_b.transform_id);
-
-							std::vector<SimplexPoint> simplex;
-							Bool_8 did_intersect = intersect_GJK(collider_system.get_component(i), collider_system.get_component(j), simplex);
-
-							std::vector<Vec2f> simplex_points;
+			//LOG(LOGTYPE_GENERAL, std::to_string(job_count.load()));
+			jobs_ready.store(true);
+			while (job_count.load() > 0);
+			jobs_ready.store(false);
 
 
-							if (did_intersect)
-							{
-								SimplexPoint sp_closest;
-
-								std::vector<Vec2f> shape_a_points;
-								std::vector<Vec2f> shape_b_points;
-
-								for (SimplexPoint sp : simplex)
-								{
-									shape_a_points.push_back(sp.support_point_1);
-									shape_b_points.push_back(sp.support_point_2);
-								}
-
-								ContactManidfold& contact_manifold = do_EPA(i, j, simplex);
-
-								Vec2f a_p0;
-								Vec2f a_p1;
-								Float_32 _max = 0;
-								Vec2f ref = contact_manifold.normal.GetNormalized();
-								if (ref.GetMagnitude() > EPSILON)
-								{
-									for (Uint_32 _k = 0; _k < shape_a_points.size(); _k++)
-									{
-										Vec3f p0 = shape_a_points[_k];
-										Vec3f p1 = shape_a_points[(_k + 1) % shape_a_points.size()];
-										Vec3f p2 = shape_a_points[(_k + 2) % shape_a_points.size()];
-										Vec3f _dir = (p0 - p1).Normalize();
-										Vec3f _crossed = Cross(_dir, (Vec3f)ref);
-										Vec3f dir_to_surface = Cross(_crossed, _dir);
-										Float_32 p2_proj = Dot(dir_to_surface, p2 - p1);
-										if (p2_proj <= EPSILON)
-										{
-											Float_32 p = get_parallelity(p0, p1, ref);
-											if (p > _max)
-											{
-												a_p0 = shape_a_points[_k];
-												a_p1 = shape_a_points[(_k + 1) % shape_a_points.size()];
-												_max = p;
-											}
-										}
-									}
-
-									
-									if (_max >= 0.99f)
-									{
-										contact_manifold.points[0].global_position = a_p0;
-										contact_manifold.points[0].local_position = tr_a.transformation.GetInverse() * a_p0;
-
-										contact_manifold.points[1].global_position = a_p1;
-										contact_manifold.points[1].local_position = tr_a.transformation.GetInverse() * a_p1;
-
-										//renderer->draw_point(a_p0);
-										//renderer->draw_point(a_p1);
-										contact_manifold.point_count += 2;
-									}
-									else
-									{
-
-										if ((a_p0 - a_p1).GetMagnitude() <= EPSILON)	// only one unique point
-										{
-											contact_manifold.points[0].global_position = shape_a_points[0];
-											contact_manifold.points[0].local_position = tr_a.transformation.GetInverse() * shape_a_points[0];
-
-											//renderer->draw_point(a_p1);
-										}
-										else
-										{
-											Float_32 proj_p0 = Dot(ref, a_p0);
-											Float_32 proj_p1 = Dot(ref, a_p1);
-											if (proj_p0 > proj_p1)
-											{
-												contact_manifold.points[0].global_position = a_p0;
-												contact_manifold.points[0].local_position = tr_a.transformation.GetInverse() * a_p0;
-
-												//renderer->draw_point(a_p0);
-											}
-											else
-											{
-												contact_manifold.points[0].global_position = a_p1;
-												contact_manifold.points[0].local_position = tr_a.transformation.GetInverse() * a_p1;
-
-												//renderer->draw_point(a_p1);
-											}
-										}
-
-										contact_manifold.points[1].global_position = { 0, 0 };
-										contact_manifold.points[1].local_position = { 0, 0 };
-										contact_manifold.point_count++;
-
-									}
-
-
-
-									Vec2f b_p0;
-									Vec2f b_p1;
-									_max = 0;
-									for (Uint_32 _k = 0; _k < shape_b_points.size(); _k++)
-									{
-										Vec3f p0 = shape_b_points[_k];
-										Vec3f p1 = shape_b_points[(_k + 1) % shape_b_points.size()];
-										Vec3f p2 = shape_b_points[(_k + 2) % shape_b_points.size()];
-										Vec3f _dir = (p0 - p1).Normalize();
-										Vec3f _crossed = Cross(_dir, -(Vec3f)ref);
-										Vec3f dir_to_surface = Cross(_crossed, _dir);
-										Float_32 p2_proj = Dot(dir_to_surface, p2 - p1);
-										if (p2_proj <= EPSILON)
-										{
-											Float_32 p = get_parallelity(shape_b_points[_k], shape_b_points[(_k + 1) % shape_b_points.size()], ref);
-											if (p > _max)
-											{
-												b_p0 = shape_b_points[_k];
-												b_p1 = shape_b_points[(_k + 1) % shape_b_points.size()];
-												_max = p;
-											}
-										}
-									}
-									//if (_max >= 1.f - EPSILON)
-									if (_max >= 0.99f)
-									{
-										contact_manifold.points[2].global_position = b_p0;
-										contact_manifold.points[2].local_position = tr_b.transformation.GetInverse() * b_p0;
-
-										contact_manifold.points[3].global_position = b_p1;
-										contact_manifold.points[3].local_position = tr_b.transformation.GetInverse() * b_p1;
-
-										//renderer->draw_point(b_p0);
-										//renderer->draw_point(b_p1);
-										contact_manifold.point_count += 2;
-									}
-									else
-									{
-										if ((b_p0 - b_p1).GetMagnitude() <= EPSILON)	// only one unique point
-										{
-											contact_manifold.points[2].global_position = shape_b_points[0];
-											contact_manifold.points[2].local_position = tr_b.transformation.GetInverse() * shape_b_points[0];
-											
-										//	renderer->draw_point(a_p1);
-										}
-										else
-										{
-											Float_32 proj_p0 = Dot(-ref, b_p0);
-											Float_32 proj_p1 = Dot(-ref, b_p1);
-											if (proj_p0 > proj_p1)
-											{
-												contact_manifold.points[2].global_position = b_p0;
-												contact_manifold.points[2].local_position = tr_b.transformation.GetInverse() * b_p0;
-
-											//	renderer->draw_point(b_p0);
-											}
-											else
-											{
-												contact_manifold.points[2].global_position = b_p1;
-												contact_manifold.points[2].local_position = tr_b.transformation.GetInverse() * b_p1;
-
-											//	renderer->draw_point(b_p1);
-											}
-										}
-										contact_manifold.points[3].global_position = { 0, 0 };
-										contact_manifold.points[3].local_position = { 0, 0 };
-										contact_manifold.point_count++;
-									}
-								}
-								Uint_32 tr_id_a = collider_system.get_component(contact_manifold.collider_a).transform_id;
-								Transform3D& tr_a = transform_system.get_component(tr_id_a);
-								Uint_32 tr_id_b = collider_system.get_component(contact_manifold.collider_b).transform_id;
-								Transform3D& tr_b = transform_system.get_component(tr_id_b);
-
-								Uint_32 ent_a = collider_system.get_entity(i);
-								Uint_32 ent_b = collider_system.get_entity(j);
-								Uint_32 rb_a_id = rigidbody2d_system.get_component_id(ent_a);
-								Uint_32 rb_b_id = rigidbody2d_system.get_component_id(ent_b);
-
-								Vec2f vel_a;
-								Vec2f vel_b;
-								Vec2f pos_a = transform_system.get_component(t_id_i).get_global_position();
-								Vec2f pos_b = transform_system.get_component(t_id_j).get_global_position();
-
-
-								if (rb_a_id)
-								{
-									Rigidbody2D& rb_a = rigidbody2d_system.get_component(rb_a_id);
-									vel_a = rb_a.velocity;
-								}
-
-								if (rb_b_id)
-								{
-									Rigidbody2D& rb_b = rigidbody2d_system.get_component(rb_b_id);
-									vel_b = rb_b.velocity;
-								}
-								physics_module->contacts.push_back(contact_manifold);
-
-								Vec4f red_color{ 1.0, 0, 0, 1.0 };
-								Vec4f cyan_color{ 0.0, 1, 1, 1.0 };
-								Rect<Float_32> a = points_to_rect(collider_system.get_component(i).points);//, transforms[tr_a].transformation);
-								Rect<Float_32> b = points_to_rect(collider_system.get_component(j).points);//, transforms[tr_b].transformation);
-
-								//renderer->draw_rect_with_transform(a, red_color, transform_system.get_component(t_id_i).transformation);
-								//renderer->draw_rect_with_transform(b, red_color, transform_system.get_component(t_id_j).transformation);
-							}
-
-						}
-					}
-
-				}
-			}
-
-			*/
-
-			
-
-
-			
 			for (int iter = 0; iter < 20; iter++)
 			{			// apply impulses
 				for (int _i = 0; _i < contacts.size(); _i++)
@@ -840,6 +678,13 @@ namespace PrEngine {
 
 	void PhysicsModule::end()
 	{
+		//run_physics_threads = false;
+		for (auto& t : contact_generator_threads)
+		{
+			if(t.joinable())
+				t.join();
+		}
+
 		rigidbody2d_system.end();
 	}
 

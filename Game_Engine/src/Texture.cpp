@@ -112,11 +112,10 @@ namespace PrEngine
         }
     }
 
-
 	Texture::Texture(const std::vector<Uint_32> diffuse_textures, Int_32 target)
 	{
-		Texture* _t = Texture::get_texture(diffuse_textures[0]);
-		Uint_32 _size = _t->width* _t->height*_t->no_of_channels;
+		Texture* _t;// = Texture::get_texture(diffuse_textures[0]);
+		//Uint_32 _size = _t->width* _t->height*_t->no_of_channels;
 		bind_target = target;
 
 		GLuint texture = 0;

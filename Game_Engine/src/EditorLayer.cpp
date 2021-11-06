@@ -51,10 +51,19 @@ namespace PrEngine
         tiling = nullptr;
 		this->fps = 0;
 		
-		load_textures();
-		load_materials();
-		load_animations();
-		load_shaders();
+		{
+			PerformanceTimer pt;
+			load_textures();
+			load_materials();
+			load_animations();
+			load_shaders();
+		}
+		char c = 821;
+		unsigned char uc = 821;
+		char nc = -129;
+		unsigned char nuc = -129;
+		std::cout << "hello";
+
 	}
 
 	EditorLayer::~EditorLayer()

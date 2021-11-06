@@ -28,6 +28,7 @@ namespace PrEngine {
 
 	struct ShapesLayer : public RenderLayer
 	{
+		ShapesLayer();
 		void start() override;
 		void update() override;
 		void end() override;

@@ -2,6 +2,8 @@
 #include "PhysicsModule.hpp"
 #include <algorithm>
 #include <time.h>
+#include <mutex>
+
 namespace PrEngine
 {
 	EntityManagementSystem* entity_management_system = nullptr;
@@ -84,8 +86,10 @@ namespace PrEngine
 
     }
 
+	std::mutex make_entity_mutex;
 	Uint_32 EntityManagementSystem::make_entity(const std::string& entity_name)
     {
+		make_entity_mutex.lock();
 		Uint_32 entity = new_entity_pos;
 		if (released_entity_positions.empty() != true)
 		{
@@ -97,10 +101,13 @@ namespace PrEngine
 		{
 			new_entity_pos++;
 			entity_names[entity] = entity_name;
+			make_entity_mutex.unlock();
 			return entity;
 		}
-		else
+		else {
+			make_entity_mutex.unlock();
 			return 0;
+		}
     }
 
 

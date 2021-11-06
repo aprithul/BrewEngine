@@ -299,9 +299,9 @@ namespace PrEngine
 	Bool_8 intersect_GJK(const Collider& col_A, const Collider& col_B, std::vector<SimplexPoint>& simplex)
 	{
 
-		static Vec2f support_p1;
-		static Vec2f support_p2;
-		static Vec2f origin{ 0,0 };
+		Vec2f support_p1;
+		Vec2f support_p2;
+		Vec2f origin{ 0,0 };
 		Vec2f support_points[2];
 		Vec2f dir{ RandomFraction(-1,1), RandomFraction(-1,1) };
 		dir.Normalize();

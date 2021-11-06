@@ -10,6 +10,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <chrono>
 #include "Vec.hpp"
 #include "Logger.hpp"
 #include "Platform.hpp"
@@ -50,5 +51,12 @@ namespace PrEngine
 	//Bool_8 inside(Vec2f pos, SDL_FRect& rect, Bool_8 centered = false);
 
 	void tokenize_string(const std::string& str, char delim, std::vector<std::string>& tokens);
+
+	struct PerformanceTimer
+	{
+		std::chrono::high_resolution_clock::time_point start;
+		PerformanceTimer();
+		~PerformanceTimer();
+	};
 }
 #endif

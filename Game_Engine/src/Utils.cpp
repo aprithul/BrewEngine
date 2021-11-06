@@ -155,4 +155,18 @@ namespace PrEngine{
 			tokens.push_back(token);
 		}
 	}
+
+
+	PerformanceTimer::PerformanceTimer()
+	{
+		start = std::chrono::high_resolution_clock::now();
+	}
+
+	PerformanceTimer::~PerformanceTimer()
+	{
+		using namespace std::chrono;
+		auto _now = high_resolution_clock::now();
+		duration<double> time_span = duration_cast<duration<double>>(_now - start);
+		std::cout << "Duration: "<< time_span.count() << std::endl;
+	}
 }

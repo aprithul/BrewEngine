@@ -11,6 +11,7 @@
 #include "Engine.hpp"
 #include <time.h>
 #include "Utils.hpp"
+#include "PhysicsModule.hpp"
 namespace PrEngine {
     
     Engine* Engine::engine;
@@ -20,7 +21,7 @@ namespace PrEngine {
         engine = this;
         frame_rate = 0;
         frame_delta = 0;
-        is_running = false;
+        is_running = true;
     }
     
     Engine::~Engine()
@@ -95,6 +96,7 @@ namespace PrEngine {
             //LOG(LOGTYPE_GENERAL, "Updating: ");
             // update all components
 			//clock_t begin = clock();
+
             for(Int_32 _i=0; _i<engine_modules.size(); _i++)
             {
 				clock_t begin = clock();
@@ -103,6 +105,10 @@ namespace PrEngine {
 				Double_64 elapsed = (Double_64)(end - begin) / CLOCKS_PER_SEC;
 				continue;
             }
+
+			if (input_manager->was_crossed || input_manager->get_gamecontroller(0)->any_button_state)
+				is_running = false;
+
 			//clock_t end = clock();
 			//Float_32 elap = ((Float_32)(end - begin) / CLOCKS_PER_SEC);
 			//accum += elap;
@@ -116,8 +122,7 @@ namespace PrEngine {
             // check if window was crossed
 			//if (accum >= 600)
 			//	is_running = false;
-            if(input_manager->was_crossed || input_manager->get_gamecontroller(0)->any_button_state)
-                is_running = false;
+
             
             //if(input_handler->get_key_down(SDLK_q))
             //{
@@ -125,6 +130,8 @@ namespace PrEngine {
             //    LOG(LOGTYPE_GENERAL, "Key 'q' pressed");
             //}
         }
+		
+		
 
 		//write_to_file(_text, get_resource_path("log.txt"), false, false);
     }

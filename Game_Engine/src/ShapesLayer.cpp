@@ -1,7 +1,7 @@
 #include "ShapesLayer.hpp"
 #include "RendererOpenGL2D.hpp"
 #include <time.h>
-#define MAX_LINES 2000
+#define MAX_LINES 2000000
 
 namespace PrEngine {
 	std::vector<Line> lines;
@@ -46,6 +46,11 @@ namespace PrEngine {
 		line_graphic.element.ibo.Generate(&lines_indices[0], lines_indices.size() * sizeof(GLuint), lines_indices.size());
 	}
 
+	ShapesLayer::ShapesLayer()
+	{
+		this->name = "Shapes";
+	}
+
 	void ShapesLayer::start()
 	{
 		make_shape_graphic();
@@ -72,7 +77,9 @@ namespace PrEngine {
 		element.vbo.Bind();
 		glBufferSubData(GL_ARRAY_BUFFER, 0, lines_buffer.size() * sizeof(Vertex), &lines_buffer[0]);
 		element.vbo.Unbind();
-
+		lines_buffer.clear();
+		lines.clear();
+		return;
 
 		if (lines_buffer.size() > 0)
 		{
@@ -121,10 +128,11 @@ namespace PrEngine {
 			element.ibo.Unbind();
 			mat->Unbind();
 
-			lines_buffer.clear();
-			lines.clear();
+			//lines.clear();
 
 		}
+		lines_buffer.clear();
+		lines.clear();
 
 		/*clock_t end = clock();
 		Double_64 elapsed = (Double_64)(end - begin) / CLOCKS_PER_SEC;

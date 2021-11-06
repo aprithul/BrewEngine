@@ -4,6 +4,7 @@
 #include "Types.hpp"
 #include "Constants.hpp"
 #include "Transform3D.hpp"
+#include <mutex>
 
 namespace PrEngine {
 	template <typename T>
@@ -99,6 +100,9 @@ namespace PrEngine {
 	template <typename T>
 	Uint_32 ComponentSystem<T>::make(Uint_32 entity)
 	{
+		static std::mutex make_component_mutex;
+
+		make_component_mutex.lock();
 		if (new_pos <= system_size)
 		{
 			Uint_32 _id = new_id;
@@ -113,11 +117,14 @@ namespace PrEngine {
 			new_id++;
 			new_pos++;
 
+			make_component_mutex.unlock();
 			return _id;
 		}
 		else
+		{
+			make_component_mutex.unlock();
 			return 0;
-
+		}
 	}
 
 	template <typename T>
