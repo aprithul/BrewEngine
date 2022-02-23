@@ -6,6 +6,7 @@ Bullet Points:
 - SDL2 for windowing, events
 - Opengl 4.1/ Opengl es2 renderer
 - Dear ImGUI for GUI
+- Custom 2D rigidbody physics
 - premake for windows build. Make file for switch.
 - Executable needs to be placed in a directory with the following:
     - res/ directory
